@@ -314,7 +314,7 @@ void LensPrepass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 #if (GODRAY_DEPTH_CHECK == 1)
 		if(sampledepth>0.99999) lens.xyz += sample2.xyz*sample2.w;
 #else
-		lens.xyz += sample2.rgb;
+		lens.xyz += sample2.xyz*sample2.w;
 #endif
 		illuminationDecay *= fGodrayDecay;
 	}
