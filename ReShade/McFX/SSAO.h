@@ -187,7 +187,7 @@ void PS_AO_SSAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 			fAccessibility += 1.0f;
 			else {
 				//Compute accessibility factor
-				float fDepthDist = fSceneDepthP - fSceneDepthS;
+				float fDepthDist = abs(fSceneDepthP - fSceneDepthS);
 				float fRangeIsInvalid = saturate(fDepthDist*fAtten);
 				fAccessibility += lerp(fSceneDepthS > vSamplePos.z, 0.5f, fRangeIsInvalid);
 			}
@@ -196,7 +196,7 @@ void PS_AO_SSAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 		//Compute average accessibility
 		fAccessibility = fAccessibility / Sample_Scaled;
 	
-		Occlusion1R = float4(fAccessibility.xxx,fSceneDepthP);
+		Occlusion1R = float4(fAccessibility.xxx,blurkey);
 	}
 }
 
@@ -319,7 +319,7 @@ void PS_AO_RayAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 				fAO += pow(1 - fDepthDelta, 2.5);
 		}
 		vOutSum.x = saturate(1 - (fAO / (float)iRayAOSamples) + fRayAOSamplingRange);
-		Occlusion1R = float4(vOutSum.xxx,fCurrDepth);
+		Occlusion1R = float4(vOutSum.xxx,blurkey);
 	}
 }
 
@@ -771,8 +771,10 @@ float4 PS_AO_AOCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
 
 #if( AO_DEBUG == 1)
  #if(AO_METHOD == 1)	
-	ao *= 0.5;
+	ao *= 0.75;
  #endif
+	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	ao = lerp(ao,1.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 	return ao;
 #else
 
@@ -781,6 +783,9 @@ float4 PS_AO_AOCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
 	float aomult = smoothstep(AO_LUMINANCE_LOWER, AO_LUMINANCE_UPPER, origlum);
 	ao = lerp(ao, 1.0, aomult);
  #endif	
+
+	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	ao = lerp(ao,1.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 
 	color.xyz *= ao;
 	return color;
