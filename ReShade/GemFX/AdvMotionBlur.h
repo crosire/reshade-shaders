@@ -8,7 +8,7 @@ NAMESPACE_ENTER(GFX_MB)
 #if USE_ADV_MOTION_BLUR
 
 /**
- * Copyright (C) 2015 Lucifer Hawk (mediehawk@gmail.com)
+ * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
