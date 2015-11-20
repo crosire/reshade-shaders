@@ -1,6 +1,26 @@
 /*
- Deband shader by Paul Groke
- http://forum.kodi.tv/showthread.php?tid=114801&pid=942551#pid942551
+ Deband shader by haasn
+ https://github.com/mpv-player/mpv/blob/master/video/out/opengl/video_shaders.c
+ 
+ This file is part of mpv.
+ 
+ mpv is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ 
+ mpv is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License along
+ with mpv.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ You can alternatively redistribute this file and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
  
  Modified and optimized for ReShade by JPulowski
  http://reshade.me/forum/shader-presentation/768-deband
@@ -8,6 +28,7 @@
  Do not distribute without giving credit to the original author(s).
  
  1.0  - Initial release
+ 1.1  - Replaced the algorithm with the one from MPV
 */
 
 NAMESPACE_ENTER(CFX)
@@ -15,90 +36,69 @@ NAMESPACE_ENTER(CFX)
 
 #if (USE_DEBAND == 1)
 
-float rand(float2 pos)
+uniform float drandom < source = "random"; min = 0.0; max = 5000.0; >;
+float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }
+float permute(float x) { return mod289((34.0*x + 1.0) * x); }
+float rand(float x)    { return frac(x / 41.0); }
+
+bool4 greaterThan(float4 value, float4 comparison)
 {
-	return frac(sin(dot(pos, float2(12.9898, 78.233))) * 43758.5453);
+	return bool4(value.x > comparison.x, value.y > comparison.y, value.z > comparison.z, value.w > comparison.w);
 }
 
-bool is_within_threshold(float3 original, float3 other)
+// Helper: Calculate a stochastic approximation of the avg color around a pixel
+float4 average(sampler2D tex, float2 pos, float range, inout float h)
 {
-	return !any(max(abs(original - other) - DEBAND_THRESHOLD, float3(0.0, 0.0, 0.0))).x;
+    // Compute a random rangle and distance
+    float dist = rand(h) * range;     h = permute(h);
+    float dir  = rand(h) * 6.2831853; h = permute(h);
+
+    float2 pt = dist / RFX_ScreenSize;
+    float2 o = float2(cos(dir), sin(dir));
+
+    // Sample at quarter-turn intervals around the source pixel
+    float4 ref[4];
+    ref[0] = tex2D(tex, pos + pt * float2( o.x,  o.y));
+    ref[1] = tex2D(tex, pos + pt * float2(-o.y,  o.x));
+    ref[2] = tex2D(tex, pos + pt * float2(-o.x, -o.y));
+    ref[3] = tex2D(tex, pos + pt * float2( o.y, -o.x));
+
+    // Return the (normalized) average
+    return (ref[0] + ref[1] + ref[2] + ref[3]) / 4.0;
 }
 
-float4 PS_Deband(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET
 {
-    float2 step = RFX_PixelSize * DEBAND_RADIUS;
-    float2 halfstep = step * 0.5;
+    float h;
+    // Initialize the PRNG by hashing the position + a random uniform
+    float3 m = float3(texcoord, (drandom / 5000.0)) + float3(1.0, 1.0, 1.0);
+    h = permute(permute(permute(m.x)+m.y)+m.z);
 
-    //Compute additional sample positions
-    float2 seed = texcoord + RFX_FrameTime;
-	#if (DEBAND_OFFSET_MODE == 1)
-		float2 offset = float2(rand(seed), 0.0);
-	#elif (DEBAND_OFFSET_MODE == 2)
-		float2 offset = float2(rand(seed).xx);
-	#elif (DEBAND_OFFSET_MODE == 3)
-		float2 offset = float2(rand(seed), rand(seed + float2(0.1, 0.2)));
+    // Sample the source pixel
+    float4 col = tex2D(RFX_backbufferColor, texcoord);
+	float4 avg; float4 diff;
+	
+	#if (Iterations == 1)
+		[unroll]
 	#endif
-
-    float2 on[8] = {
-        float2( offset.x,  offset.y) * step,
-        float2( offset.y, -offset.x) * step,
-        float2(-offset.x, -offset.y) * step,
-        float2(-offset.y,  offset.x) * step,
-        float2( offset.x,  offset.y) * halfstep,
-        float2( offset.y, -offset.x) * halfstep,
-        float2(-offset.x, -offset.y) * halfstep,
-        float2(-offset.y,  offset.x) * halfstep,
-        };
-
-    float3 col0 = tex2D(RFX_backbufferColor, texcoord).rgb;
-    float4 accu = float4(col0, 1.0);
-
-    for (int i = 0; i < DEBAND_SAMPLE_COUNT; i++)
-    {
-        float4 cn = float4(tex2D(RFX_backbufferColor, texcoord + on[i]).rgb, 1.0);
-		#if (DEBAND_SKIP_THRESHOLD_TEST == 0)
-			if (is_within_threshold(col0, cn.rgb))
-		#endif
-		accu += cn;
+    for (int i = 1; i <= Iterations; i++) {
+        // Use the average instead if the difference is below the threshold
+        avg = average(RFX_backbufferColor, texcoord, i*Range, h);
+        diff = abs(col - avg);
+        col = lerp(avg, col, greaterThan(diff, float4(Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0))));
     }
 
-    accu.rgb /= accu.a;
-
-    //Boost to make it easier to inspect the effect's output
-    if (DEBAND_OUTPUT_OFFSET != 0.0 || DEBAND_OUTPUT_BOOST != 1.0)
+    if (Grain > 0.0)
 	{
-		accu.rgb -= DEBAND_OUTPUT_OFFSET;
-		accu.rgb *= DEBAND_OUTPUT_BOOST;
+		// Add some random noise to the output
+		float3 noise;
+		noise.x = rand(h); h = permute(h);
+		noise.y = rand(h); h = permute(h);
+		noise.z = rand(h); h = permute(h);
+		col.rgb += (Grain/8192.0) * (noise - float3(0.5, 0.5, 0.5));
 	}
-	
-	//Additional dithering
-	#if (DEBAND_DITHERING == 1)
-		//Ordered dithering
-		float dither_bit  = 8.0;
-		float grid_position = frac( dot(texcoord,(RFX_ScreenSize * float2(1.0/16.0,10.0/36.0))) + 0.25 );
-		float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0));
-		float3 dither_shift_RGB = float3(dither_shift, -dither_shift, dither_shift);
-		dither_shift_RGB = lerp(2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position);
-		accu.rgb += dither_shift_RGB;
-	#elif (DEBAND_DITHERING == 2)
-		//Random dithering
-		float dither_bit  = 8.0;
-		float sine = sin(dot(texcoord, float2(12.9898,78.233)));
-		float noise = frac(sine * 43758.5453 + texcoord.x);
-		float dither_shift = (1.0 / (pow(2,dither_bit) - 1.0));
-		float dither_shift_half = (dither_shift * 0.5);
-		dither_shift = dither_shift * noise - dither_shift_half;
-		accu.rgb += float3(-dither_shift, dither_shift, -dither_shift);
-	#elif (DEBAND_DITHERING == 3)
-		//Iestyn's RGB dither (7 asm instructions) from Portal 2 X360, slightly modified for VR
-		//float3 vDither = dot(float2(171.0, 231.0), texcoord * RFX_ScreenSize + RFX_Timer).xxx; //Dynamic dither pattern
-		float3 vDither = dot(float2(171.0, 231.0), texcoord * RFX_ScreenSize).xxx;
-		vDither.rgb = frac( vDither.rgb / float3( 103.0, 71.0, 97.0 ) ) - float3(0.5, 0.5, 0.5);
-		accu.rgb += (vDither.rgb / 255.0);
-	#endif
-	
-	return saturate(accu);
+
+    return col;
 }
 
 technique Deband_Tech <bool enabled = RFX_Start_Enabled; int toggle = Deband_ToggleKey; >
