@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Adaptive sharpen - version 2015-11-05 - (requires ps >= 3.0)
+// Adaptive sharpen - version 2015-11-17 - (requires ps >= 3.0)
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 /* Modified for ReShade by JPulowski
@@ -30,9 +30,8 @@
    Changelog:
    1.0 - Initial release
    1.1 - Updated to version 2015-11-05
+   1.2 - Updated to version 2015-11-17, fixed tanh overflow causing black pixels
    
-   Known issues:
-   - Does not work as intended on DX11.
 */   
 
 NAMESPACE_ENTER(CFX)
@@ -55,18 +54,18 @@ sampler edgeSampler { Texture = edgeTex; };
 // Saturation loss reduction
 #define minim_satloss  ( (c[0].rgb*(CtL(c[0].rgb + sharpdiff)/c0_Y) + (c[0].rgb + sharpdiff))/2 )
 
-// Soft if
+// Soft if, fast
 #define soft_if(a,b,c) ( saturate((3*((a.w + b.w + c.w - 3*w_offset)/maxedge))-0.85) )
 
+// Soft limit
+#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
+
 // Get destination pixel values
-#define get2(x,y)       ( tex2D(edgeSampler, texcoord + (RFX_PixelSize * float2(x, y))) )
+#define get2(x,y)      ( tex2D(edgeSampler, texcoord + (RFX_PixelSize * float2(x, y))) )
 #define sat(input)     ( float4(saturate((input).xyz), (input).w) )
 
 // Maximum of four values
 #define max4(a,b,c,d)  ( max(max(a,b), max(c,d)) )
-
-// Edge threshold, mod. smoothstep
-float nonedge(float w) { w = saturate((w - w_offset - 0.01)/0.13); return w*w*(2.99 - 2*w) + 0.01;}
 
 // Colour to luma, fast approx gamma
 #define CtL(RGB)       ( sqrt(dot(float3(0.256, 0.651, 0.093), saturate((RGB).rgb*abs(RGB).rgb))) )
@@ -130,7 +129,7 @@ float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float4 c[25] = { sat( orig), get2(-1,-1), get2( 0,-1), get2( 1,-1), get2(-1, 0),
+	float4 c[25] = {  sat( orig), get2(-1,-1), get2( 0,-1), get2( 1,-1), get2(-1, 0),
 	                 get2( 1, 0), get2(-1, 1), get2( 0, 1), get2( 1, 1), get2( 0,-2),
 	                 get2(-2, 0), get2( 2, 0), get2( 0, 2), get2( 0, 3), get2( 1, 2),
 	                 get2(-1, 2), get2( 3, 0), get2( 2, 1), get2( 2,-1), get2(-3, 0),
@@ -165,13 +164,13 @@ float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	                   CtL(c[13]), CtL(c[14]), CtL(c[15]), CtL(c[16]), CtL(c[17]), CtL(c[18]),
 	                   CtL(c[19]), CtL(c[20]), CtL(c[21]), CtL(c[22]), CtL(c[23]), CtL(c[24]) };
 
-	// Laplacian pixel weighting
+	// Pixel weights for the laplace kernel
 	float mdiff_c0  = 0.02 + 3*( abs(luma[0]-luma[2]) + abs(luma[0]-luma[4])
 	                           + abs(luma[0]-luma[5]) + abs(luma[0]-luma[7])
 	                           + 0.25*(abs(luma[0]-luma[1]) + abs(luma[0]-luma[3])
 	                                  +abs(luma[0]-luma[6]) + abs(luma[0]-luma[8])) );
 
-	float weights[12]  = { ( 0.25 ), ( 0.25 ), ( 0.25 ), ( 0.25 ), // c2, // c4, // c5, // c7                                                  
+	float weights[12]  = { ( 0.25 ), ( 0.25 ), ( 0.25 ), ( 0.25 ), // c2, // c4, // c5, // c7
 	                       ( min((mdiff_c0/mdiff(24, 21, 2,  4,  9,  10, 1)),  1) ),    // c1
 	                       ( min((mdiff_c0/mdiff(23, 18, 5,  2,  9,  11, 3)),  1) ),    // c3
 	                       ( min((mdiff_c0/mdiff(4,  20, 15, 7,  10, 12, 6)),  1) ),    // c6
@@ -186,19 +185,25 @@ float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	weights[6]   = (max(max((weights[9]  + weights[11])/4, weights[6]), 0.25) + weights[6])/2;
 	weights[7]   = (max(max((weights[10] + weights[11])/4, weights[7]), 0.25) + weights[7])/2;
 
+	// Calculate the negative part of the laplace kernel and the low threshold weight
 	float lowthsum    = 0;
 	float weightsum   = 0;
 	float neg_laplace = 0;
 
 	int order[12] = { 2, 4, 5, 7, 1, 3, 6, 8, 9, 10, 11, 12 };
 
+	[unroll]
 	for (int pix = 0; pix < 12; ++pix)
 	{
-		float lowth   = nonedge(c[order[pix]].w);
-		neg_laplace  += pow(luma[order[pix]], 2)*(weights[pix]*lowth);
+		float x       = saturate((c[order[pix]].w - w_offset - 0.01)/0.12);
+		float lowth   = x*x*(2.99 - 2*x) + 0.01;
+
+		neg_laplace  += pow(luma[order[pix]], 2.0)*(weights[pix]*lowth);
 		weightsum    += weights[pix]*lowth;
 		lowthsum     += lowth;
 	}
+
+	neg_laplace = pow((neg_laplace/weightsum), (1.0/2.0));
 
 	// Compute sharpening magnitude function
 	float c_edge = abs(c[0].w - w_offset);
@@ -206,10 +211,10 @@ float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	float sharpen_val = (lowthsum/12)*(curve_height/(curveslope*pow(c_edge, 3.5) + 0.5));
 
 	// Calculate sharpening diff and scale
-	float sharpdiff = (c0_Y - sqrt(neg_laplace/weightsum))*(sharpen_val*0.8 + 0.01);
+	float sharpdiff = (c0_Y - neg_laplace)*(sharpen_val*0.8 + 0.01);
 
 	// Calculate local near min & max, partial cocktail sort (No branching!)
-	[unroll] // ps_4_0+ does not unroll without this
+	[unroll]
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int i1 = 1+i; i1 < 25-i; ++i1)
@@ -235,17 +240,19 @@ float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	float nmin_scale = min(((c0_Y - nmin) + D_overshoot), max_scale_lim);
 
 	// Soft limit sharpening with tanh, lerp to control maximum compression
-	sharpdiff = lerp( (tanh((max(sharpdiff, 0))/nmax_scale)*nmax_scale), (max(sharpdiff, 0)), s[0] )
-	          + lerp( (tanh((min(sharpdiff, 0))/nmin_scale)*nmin_scale), (min(sharpdiff, 0)), s[1] );
+	sharpdiff = lerp(  (soft_lim(max(sharpdiff, 0), nmax_scale)), max(sharpdiff, 0), s[0] )
+	          + lerp( -(soft_lim(min(sharpdiff, 0), nmin_scale)), min(sharpdiff, 0), s[1] );
 
 	/*if (video_level_out == true)
 	{
+		[flatten]
 		if (sharpdiff > 0) { return float4( orig.rgb + (minim_satloss - c[0].rgb), 1.0 ); }
 
 		else { return float4( (orig.rgb + sharpdiff), 1.0 ); }
 	}*/
 
 	// Normal path
+	[flatten]
 	if (sharpdiff > 0) { return float4( minim_satloss, 1.0 ); }
 
 	else { return float4( (c[0].rgb + sharpdiff), 1.0 ); }
@@ -272,6 +279,7 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 #undef b_diff
 #undef minim_satloss
 #undef soft_if
+#undef soft_lim
 #undef get2
 #undef sat
 #undef max4
