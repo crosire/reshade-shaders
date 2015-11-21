@@ -250,7 +250,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		high = high + highLens;
 #endif
 
-	float dither = = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
+	float dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
 	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, RFX_ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
 #if AL_Adaptation
