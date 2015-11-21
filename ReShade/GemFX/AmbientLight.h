@@ -250,14 +250,17 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		high = high + highLens;
 #endif
 
+	float dither = = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
+	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, RFX_ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+
 #if AL_Adaptation
 	base.xyz *= max(0.0f,(1.0f - adapt*0.75f*alAdaptBaseMult*pow((1.0f-(base.x+base.y+base.z)/3),alAdaptBaseBlackLvL)));
 #define GEMFX_alb1 max(0.0f,(alInt-adapt)*0.85f)
-	float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high *1.0)));
+	float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high *1.0)))+dither;
 	float4 baseSample = lerp(base, highSampleMix, max(0.0f,alInt-adapt));
 #else
 #define GEMFX_alb1 max(0.0f,alInt*0.85f)
-	float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high *1.0)));
+	float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high *1.0)))+dither;
 	float4 baseSample = lerp(base, highSampleMix, alInt);
 #endif
 	float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
