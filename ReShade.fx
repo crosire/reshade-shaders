@@ -84,9 +84,18 @@ float4 RFX_PS_StoreColor(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 float  RFX_PS_StoreDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 {
 #if RFX_PseudoDepth
+#if RFX_NegativeDepth
+	return 1.0 - tex2D(RFX_dMaskColor, texcoord).x;
+#else
 	return tex2D(RFX_dMaskColor, texcoord).x;
 #endif
+#endif
+
+#if RFX_NegativeDepth
+	float depth = 1.0 - tex2D(RFX_depthColor, texcoord).x;
+#else
 	float depth = tex2D(RFX_depthColor, texcoord).x;
+#endif
 
 	// Linearize depth	
 #if RFX_LogDepth 
