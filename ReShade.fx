@@ -141,7 +141,7 @@ technique RFX_Setup_Tech < enabled = true; >
 #endif
 
 #define STR(name) #name
-#define EFFECT(l,n) STR(ReShade/l/##n.h)
+#define EFFECT(l,n) STR(ReShade/l/##n.fx)
 
 /**
  * =============================================================================
