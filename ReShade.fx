@@ -91,19 +91,19 @@ float  RFX_PS_StoreDepth(in float4 position : SV_Position, in float2 texcoord : 
 #endif
 #endif
 
-#if RFX_NegativeDepth
-	float depth = 1.0 - tex2D(RFX_depthColor, texcoord).x;
-#else
 	float depth = tex2D(RFX_depthColor, texcoord).x;
-#endif
 
 	// Linearize depth	
 #if RFX_LogDepth 
 	depth = saturate(1.0f - depth);
 	depth = (exp(pow(depth, 150 * pow(depth, 55) + 32.75f / pow(depth, 5) - 1850f * (pow((1 - depth), 2)))) - 1) / (exp(depth) - 1); // Made by LuciferHawk ;-)
-	return depth;;
 #else
 	depth = 1.f/(1000.f-999.f*depth);
+#endif
+
+#if RFX_NegativeDepth
+	return 1.0 - depth;
+#else
 	return depth;
 #endif
 }
