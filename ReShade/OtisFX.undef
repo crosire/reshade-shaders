@@ -1,0 +1,15 @@
+#undef USE_GOLDENRATIO
+#undef GOR_Opacity
+#undef GOR_ResizeMode
+#undef GOR_ToggleKey
+#undef USE_DEPTHHAZE
+#undef DEH_EffectStrength
+#undef DEH_ToggleKey
+#undef USE_EMPHASIZE
+#undef EMZ_ManualFocusDepth
+#undef EMZ_FocusRangeDepth
+#undef EMZ_FocusEdgeDepth
+#undef EMZ_BlendColor
+#undef EMZ_BlendFactor
+#undef EMZ_EffectFactor
+#undef EMZ_ToggleKey
