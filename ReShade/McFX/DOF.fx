@@ -122,9 +122,7 @@ void PS_RingDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
 
 	float2 blurRadius = discRadius * RFX_PixelSize.xy / iRingDOFRings;
 	scenecolor.x = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(0.0,1.0)    *fRingDOFFringe*discRadius*RFX_PixelSize.xy,0,0)).x;
@@ -145,9 +143,7 @@ float4 PS_RingDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	if(discRadius < 1.2) return float4(noblurcolor.xyz,centerDepth);
 
@@ -192,9 +188,7 @@ void PS_MagicDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	if(discRadius < 1.2) hdr2R = float4(blurcolor.xyz,centerDepth);
 	else {
@@ -225,9 +219,7 @@ float4 PS_MagicDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
 
 	if(discRadius < 1.2) return float4(noblurcolor.xyz,centerDepth);
 
@@ -260,9 +252,7 @@ void PS_GPDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = max(0.0,blurAmount-0.1) * DOF_BLURRADIUS; //optimization to clean focus areas a bit
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	float3 distortion=float3(-1.0, 0.0, 1.0);
 	distortion*=fGPDOFChromaAmount; 
@@ -289,9 +279,7 @@ float4 PS_GPDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	if(discRadius < 1.2) return float4(noblurcolor.xyz,centerDepth);
 
@@ -407,9 +395,7 @@ float4 GetMatsoDOFBlur(int axis, float2 coord, sampler SamplerHDRX)
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS; //optimization to clean focus areas a bit
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	blurcolor = 0.0;
 
@@ -471,9 +457,7 @@ float4 PS_MatsoDOF4(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
 
 	//not 1.2 - 2.0 because matso's has a weird bokeh weighting that is almost like a tonemapping and border between blur and no blur appears to harsh
 	blurcolor.xyz = lerp(noblurcolor.xyz,blurcolor.xyz,smoothstep(0.2,2.0,discRadius)); 
@@ -631,9 +615,7 @@ void PS_McFlyDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	if(max(texcoord.x,texcoord.y) > 1.05 || discRadius < 1.2) hdr2R = blurcolor;
 	else {
@@ -654,9 +636,7 @@ float4 PS_McFlyDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
 	float discRadius = blurAmount * DOF_BLURRADIUS;
 
-	//#if(DOF_AUTOFOCUS != 0)
-		discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
-	//#endif
+	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
 	#if ( bADOF_ImageChromaEnable != 0)
 		float2 coord=texcoord.xy*2.0-1.0;
