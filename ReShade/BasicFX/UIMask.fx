@@ -270,8 +270,13 @@ technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIM
 }
 #endif
 
+#if UIMask_Direct
 technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_ToggleKey; >
 {
+#else 
+technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_HelperKey; >
+{
+#endif
 	pass 
 	{
 		VertexShader = RFX_VS_PostProcess;
