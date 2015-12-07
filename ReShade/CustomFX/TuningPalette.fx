@@ -43,16 +43,41 @@ sampler	paletteColor 	{ Texture = paletteTex; };
 texture ColorLUTDstTex	< string source = "ReShade/CustomFX/Textures/" TuningColorLUTDstTexture; > {Width = TuningColorLUTTileAmountX; Height = TuningColorLUTTileAmountY; Format = RGBA8;};
 sampler	ColorLUTDstColor 	{ Texture = ColorLUTDstTex; };
 
-#define TuningColorLUTNorm float2(1.0/float(TuningColorLUTTileAmountX),1.0/float(TuningColorLUTTileAmountY))
+#define TuningColorLUTNorm float3(1.0/float(TuningColorLUTTileAmountX),1.0/float(TuningColorLUTTileAmountY),1.0/float(TuningColorLUTTileAmountZ))
 
 float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float4 original = tex2D(RFX_backbufferColor, texcoord.xy);
 
+#if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
+//DetectLow
+#if AL_HQAdapt
+	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
+#else
+	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4.215;
+#endif
+	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
+	low *= min(1.0f,1.641*detectLow.r/(1.719*detectLow.g+1.932*detectLow.b));
+//.DetectLow
+#else
+	float low = 0;
+#endif
+
+	float lowLUT = low*8f;
+
 #if TuningColorLUT
-	float4 ColorLUTDst = float4((original.rg*float(TuningColorLUTTileAmountY-1)+0.5f)*TuningColorLUTNorm,original.b*float(TuningColorLUTTileAmountY-1),original.w);
+	float4 ColorLUTDst = float4((original.rg*float(TuningColorLUTTileAmountY-1)+0.5f)*TuningColorLUTNorm.xy,original.b*float(TuningColorLUTTileAmountY-1),original.w);
 	ColorLUTDst.x += trunc(ColorLUTDst.z)*TuningColorLUTNorm.y;
+
+	ColorLUTDst.y *= TuningColorLUTNorm.z;
+	ColorLUTDst.y += trunc(lowLUT* (TuningColorLUTTileAmountZ-1) )*TuningColorLUTNorm.z;
+#if TuningColorLUTTileAmountZ > 1
 	ColorLUTDst = lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z));
+#else
+	ColorLUTDst = lerp(	lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z)),
+				lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy+float2(0,TuningColorLUTNorm.z)),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y+TuningColorLUTNorm.z)),frac(ColorLUTDst.z)),
+				frac(lowLUT*(TuningColorLUTTileAmountZ-1))	);
+#endif
 	original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
 #endif
 
@@ -63,16 +88,6 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 	float mapX = (original.r+original.g+original.b)/3.0f;
 #endif
 	float mapY = 0.5f;
-
-//DetectLow
-#if AL_HQAdapt
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
-#else
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4;
-#endif
-	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
-	low *= min(1.0f,1.641*detectLow.r/(1.719*detectLow.g+1.932*detectLow.b));
-//.DetectLow
 
 	mapY = low*8f;
 
