@@ -40,7 +40,7 @@ sampler	mapColor 	{ Texture = mapTex; };
 texture paletteTex	< string source = "ReShade/CustomFX/Textures/" TuningColorPaletteTexture; > {Width = TuningTileAmountX*16; Height = TuningTileAmountY*16; Format = RGBA8;};
 sampler	paletteColor 	{ Texture = paletteTex; };
 
-texture ColorLUTDstTex	< string source = "ReShade/CustomFX/Textures/" TuningColorLUTDstTexture; > {Width = TuningColorLUTTileAmountX; Height = TuningColorLUTTileAmountY; Format = RGBA8;};
+texture ColorLUTDstTex	< string source = "ReShade/CustomFX/Textures/" TuningColorLUTDstTexture; > {Width = TuningColorLUTTileAmountX; Height = TuningColorLUTTileAmountY*TuningColorLUTTileAmountZ; Format = RGBA8;};
 sampler	ColorLUTDstColor 	{ Texture = ColorLUTDstTex; };
 
 #define TuningColorLUTNorm float3(1.0/float(TuningColorLUTTileAmountX),1.0/float(TuningColorLUTTileAmountY),1.0/float(TuningColorLUTTileAmountZ))
@@ -72,11 +72,11 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 	ColorLUTDst.y *= TuningColorLUTNorm.z;
 	ColorLUTDst.y += trunc(lowLUT* (TuningColorLUTTileAmountZ-1) )*TuningColorLUTNorm.z;
 #if TuningColorLUTTileAmountZ > 1
-	ColorLUTDst = lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z));
-#else
 	ColorLUTDst = lerp(	lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z)),
 				lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy+float2(0,TuningColorLUTNorm.z)),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y+TuningColorLUTNorm.z)),frac(ColorLUTDst.z)),
 				frac(lowLUT*(TuningColorLUTTileAmountZ-1))	);
+#else
+	ColorLUTDst = lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z));
 #endif
 	original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
 #endif
