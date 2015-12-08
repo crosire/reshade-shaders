@@ -4,7 +4,7 @@ NAMESPACE_ENTER(GFX)
 #define GFX_SETTINGS_UNDEF "ReShade/GemFX.undef" 
 
 #include CFX_SETTINGS_DEF
-#if USE_TUNINGPALETTE && TuningColorMap
+#if USE_TUNINGPALETTE && ( TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 ))
 	#define USE_AL_DETECTLOW 1
 #else 
 	#define USE_AL_DETECTLOW 0
@@ -121,4 +121,4 @@ technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLi
 
 NAMESPACE_LEAVE()
 
-#pragma message "GemFX 1.502.11.1 by LuciferHawk\n"
+#pragma message "GemFX 1.502.11.1 by Ganossa\n"
