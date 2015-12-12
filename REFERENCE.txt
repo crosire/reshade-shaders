@@ -48,8 +48,8 @@
  * --------
  * 
  * #pragma message "Hello World!"
- *      > Displays  the string  "Hello World!" in  the  center of  the  game  on
- *        startup. Multiple of these can be chained and will be added together.
+ *      > Displays the string "Hello World!" below the info messages.
+ *        Multiple of these can be chained and will be added together.
  * #pragma reshade showfps
  *      > Shows a framerate counter in the top right corner.
  * #pragma reshade showclock
@@ -60,6 +60,10 @@
  *      > Notifies when switching a technique on or off with its toggle key.
  * #pragma reshade skipoptimization
  *      > Forces the internal compilers to skip the optimization step.
+ * #pragma reshade screenshot_key 0x20
+ *      > Changes the screenshot key to the key code 0x20, the space button.
+ * #pragma reshade screenshot_path "\\path\\to\\screenshots"
+ *      > Sets the screenshot output directory to "\path\to\screenshots"
  * #pragma reshade screenshot_format bmp
  *      > Sets the screenshot file format to BMP.
  * #pragma reshade screenshot_format png
