@@ -44,12 +44,11 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
     	float2 heatoffset = normalize(heatnormal.xy) * pow(length(heatnormal.xy), 0.5);
 	float3 heathazecolor = 0;
 
-#include GFX_SETTINGS_DEF
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-#include MFX_SETTINGS_UNDEF
+	#include GFX_SETTINGS_DEF
 	#include "ReShade/GemFX/HeatHazeControle.h"
+	#include GFX_SETTINGS_UNDEF
 #else	
-#include GFX_SETTINGS_UNDEF
 	heathazecolor.y = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
 	heathazecolor.x = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
 	heathazecolor.z = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount)).z;
