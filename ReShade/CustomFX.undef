@@ -73,6 +73,7 @@
 #undef TuningColorLUTDstTexture
 #undef TuningColorLUTTileAmountX
 #undef TuningColorLUTTileAmountY
+#undef TuningColorLUTTileAmountZ
 #undef USE_GR8MMFILM
 #undef Gr8mmFilmTileAmount
 #undef Gr8mmFilmPower
