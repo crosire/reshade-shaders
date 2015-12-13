@@ -1,32 +1,32 @@
 /*
  Deband shader by haasn
  https://github.com/mpv-player/mpv/blob/master/video/out/opengl/video_shaders.c
- 
+
  This file is part of mpv.
- 
+
  mpv is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
  (at your option) any later version.
- 
+
  mpv is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License along
  with mpv.  If not, see <http://www.gnu.org/licenses/>.
- 
+
  You can alternatively redistribute this file and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 2.1 of the License, or (at your option) any later version.
- 
+
  Modified and optimized for ReShade by JPulowski
  http://reshade.me/forum/shader-presentation/768-deband
- 
+
  Do not distribute without giving credit to the original author(s).
- 
+
  1.0  - Initial release
  1.1  - Replaced the algorithm with the one from MPV
 */
@@ -36,7 +36,7 @@ NAMESPACE_ENTER(CFX)
 
 #if (USE_DEBAND == 1)
 
-uniform float drandom < source = "random"; min = 0.0; max = 5000.0; >;
+uniform int drandom < source = "random"; min = 0; max = 5000; >;
 float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }
 float permute(float x) { return mod289((34.0*x + 1.0) * x); }
 float rand(float x)    { return frac(x / 41.0); }
