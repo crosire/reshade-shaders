@@ -133,3 +133,8 @@
 #undef fReflectionFresnelFactor
 #undef fReflectionFresnelCurve
 #undef RBM_ToggleKey
+#undef USE_YACA
+#undef iADOF_ImageChromaHues
+#undef fADOF_ImageChromaCurve
+#undef fADOF_ImageChromaAmount
+#undef YACA_ToggleKey

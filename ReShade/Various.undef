@@ -15,11 +15,6 @@
 #undef bVHSDistortGammaFix
 #undef bUseNTSCFilter
 #undef VHS_ToggleKey
-#undef USE_YACA
-#undef iADOF_ImageChromaHues
-#undef fADOF_ImageChromaCurve
-#undef fADOF_ImageChromaAmount
-#undef YACA_ToggleKey
 #undef USE_GRAIN
 #undef GrainPower
 #undef GrainColored
