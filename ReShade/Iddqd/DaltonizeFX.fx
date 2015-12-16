@@ -1,6 +1,6 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(Iddqd)
 
-#include Various_SETTINGS_DEF
+#include Iddqd_SETTINGS_DEF
 
 #if USE_DALTONIZEFX
 
@@ -70,6 +70,6 @@ technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dalto
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include Iddqd_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

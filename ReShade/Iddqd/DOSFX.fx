@@ -1,6 +1,6 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(Iddqd)
 
-#include Various_SETTINGS_DEF
+#include Iddqd_SETTINGS_DEF
 
 #if USE_DOSFX
 
@@ -57,6 +57,6 @@ technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleK
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include Iddqd_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

@@ -1,0 +1,8 @@
+#undef USE_HQ4X
+#undef HQ4XStrength
+#undef HQ4XSmoothing
+#undef HQ4XDecreaseFactor
+#undef HQ4XMaxFilterWeigth
+#undef HQ4XMinFilterWeigth
+#undef HQ4XEffectsSmoothing
+#undef HQ4X_ToggleKey

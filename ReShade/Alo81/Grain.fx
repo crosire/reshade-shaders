@@ -20,9 +20,9 @@ Ported to Reshade by Angelo Gonzalez
 ----------------------------------------------------------
 */
 
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(Alo81)
 
-#include Various_SETTINGS_DEF
+#include Alo81_SETTINGS_DEF
 
 #if (USE_GRAIN == 1)
 static const float width = BUFFER_WIDTH;
@@ -157,6 +157,6 @@ technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_Tog
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include Alo81_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

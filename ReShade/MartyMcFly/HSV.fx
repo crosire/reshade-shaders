@@ -1,6 +1,6 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(MartyMcFly)
 
-#include Various_SETTINGS_DEF
+#include MartyMcFly_SETTINGS_DEF
 
 #if (USE_HSV == 1)
 
@@ -113,6 +113,6 @@ technique HSV_Tech <bool enabled = RFX_Start_Enabled; int toggle = HSV_ToggleKey
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include MartyMcFly_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

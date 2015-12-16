@@ -1,6 +1,6 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(MartyMcFly)
 
-#include Various_SETTINGS_DEF
+#include MartyMcFly_SETTINGS_DEF
 
 #if USE_EMBOSS
 
@@ -48,6 +48,6 @@ technique Emboss_Tech <bool enabled = RFX_Start_Enabled; int toggle = Emboss_Tog
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include MartyMcFly_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

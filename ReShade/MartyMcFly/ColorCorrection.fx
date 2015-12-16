@@ -1,7 +1,7 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(MartyMcFly)
 NAMESPACE_ENTER(ColorCorrection)
 
-#include Various_SETTINGS_DEF
+#include MartyMcFly_SETTINGS_DEF
 
 #if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
 
@@ -32,7 +32,7 @@ NAMESPACE_ENTER(ColorCorrection)
 #define LumCoeff 	float3(0.212656, 0.715158, 0.072186)
 
 #if USE_LUT
-texture   texLUT    < string source = "ReShade/Various/Textures/Various_lut.png"; > {Width = 256; Height = 1; Format = RGBA8;};
+texture   texLUT    < string source = "ReShade/MartyMcFly/Textures/mclut.png"; > {Width = 256; Height = 1; Format = RGBA8;};
 
 sampler2D SamplerLUT
 {
@@ -441,7 +441,7 @@ float4 ColorCorrectionPass(float4 position : SV_Position, float2 texcoord : TEXC
 
 technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = ColorCorrection_ToggleKey; >
 {
-	pass Various_ColorCorrection_Pass
+	pass MartyMcFly_ColorCorrection_Pass
 	{
 		VertexShader = RFX_VS_PostProcess;
 		PixelShader = ColorCorrectionPass;
@@ -452,7 +452,7 @@ technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = C
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include MartyMcFly_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()
 NAMESPACE_LEAVE()

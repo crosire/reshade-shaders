@@ -1,6 +1,6 @@
-NAMESPACE_ENTER(Various)
+NAMESPACE_ENTER(Iddqd)
 
-#include Various_SETTINGS_DEF
+#include Iddqd_SETTINGS_DEF
 
 #if USE_VHS
 
@@ -21,11 +21,11 @@ NAMESPACE_ENTER(Various)
 */
 
 #if (sNoiseMode == 1)
-texture texnoise2  < string source = "ReShade/Various/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Iddqd/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #elif (sNoiseMode == 2)
-texture texnoise2  < string source = "ReShade/Various/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Iddqd/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #else
-texture texnoise2  < string source = "ReShade/Various/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Iddqd/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #endif
 
 sampler2D SamNoise
@@ -510,6 +510,6 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 
 #endif
 
-#include Various_SETTINGS_UNDEF
+#include Iddqd_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()

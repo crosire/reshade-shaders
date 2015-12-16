@@ -1,0 +1,4 @@
+#undef USE_YourShaderName
+#undef val1
+#undef val2
+#undef YourShaderName_ToggleKey
