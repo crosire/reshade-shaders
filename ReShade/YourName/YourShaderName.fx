@@ -1,4 +1,4 @@
-#include YourName_SETTINGS_DEF
+#include "ReShade/YourName.cfg"
 
 #if (USE_CUSTOM == 1)
 
@@ -18,4 +18,4 @@ technique Custom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Custom_Tog
 
 #endif
 
-#include YourName_SETTINGS_UNDEF
+#include "ReShade/YourName.undef"

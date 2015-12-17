@@ -1,3 +1,4 @@
+#include "Common.fx"
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_AMBIENTOCCLUSION

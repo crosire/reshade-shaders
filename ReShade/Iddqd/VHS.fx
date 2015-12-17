@@ -1,4 +1,4 @@
-#include Iddqd_SETTINGS_DEF
+#include "ReShade/Iddqd.cfg"
 
 #if USE_VHS
 
@@ -513,4 +513,4 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 
 #endif
 
-#include Iddqd_SETTINGS_UNDEF
+#include "ReShade/Iddqd.undef"

@@ -1,3 +1,4 @@
+#include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_FXAA == 1 || USE_FXAA_ANTIALIASING == 1)

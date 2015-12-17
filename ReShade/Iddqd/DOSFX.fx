@@ -1,4 +1,4 @@
-#include Iddqd_SETTINGS_DEF
+#include "ReShade/Iddqd.cfg"
 
 #if USE_DOSFX
 
@@ -60,4 +60,4 @@ technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleK
 
 #endif
 
-#include Iddqd_SETTINGS_UNDEF
+#include "ReShade/Iddqd.undef"

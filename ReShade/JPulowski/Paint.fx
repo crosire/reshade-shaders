@@ -16,7 +16,7 @@
         Added Framework compatibility 
 */
 
-#include JPulowski_SETTINGS_DEF
+#include "ReShade/JPulowski.cfg"
 
 #if (USE_PAINT == 1)
 
@@ -174,4 +174,4 @@ technique Paint_Tech <bool enabled = RFX_Start_Enabled; int toggle = Paint_Toggl
 
 #endif
 
-#include JPulowski_SETTINGS_UNDEF
+#include "ReShade/JPulowski.undef"

@@ -1,3 +1,6 @@
+#ifndef INCLUDE_GUARD_CEEJAY_COMMON
+#define INCLUDE_GUARD_CEEJAY_COMMON
+
 //Stuff all/most of CeeJay shared shaders need
 #define CeeJay_SETTINGS_DEF "ReShade/CeeJay.cfg"
 #define CeeJay_SETTINGS_UNDEF "ReShade/CeeJay.undef" 
@@ -276,3 +279,5 @@ sampler searchSampler
 #include CeeJay_SETTINGS_UNDEF
 
 #pragma message "CeeJay 2.0\n"
+
+#endif

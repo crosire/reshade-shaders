@@ -1,3 +1,4 @@
+#include "Common.fx"
 #include Ganossa_SETTINGS_DEF
 
 #if USE_SplitScreen

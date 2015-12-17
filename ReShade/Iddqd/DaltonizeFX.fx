@@ -1,4 +1,4 @@
-#include Iddqd_SETTINGS_DEF
+#include "ReShade/Iddqd.cfg"
 
 #if USE_DALTONIZEFX
 
@@ -73,4 +73,4 @@ technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dalto
 
 #endif
 
-#include Iddqd_SETTINGS_UNDEF
+#include "ReShade/Iddqd.undef"

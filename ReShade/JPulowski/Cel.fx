@@ -14,7 +14,7 @@
  1.1a - Framework port 
 */
 
-#include JPulowski_SETTINGS_DEF
+#include "ReShade/JPulowski.cfg"
 
 #if (USE_CEL == 1)
 
@@ -87,4 +87,4 @@ technique Cel_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cel_ToggleKey
 
 #endif
 
-#include JPulowski_SETTINGS_UNDEF
+#include "ReShade/JPulowski.undef"

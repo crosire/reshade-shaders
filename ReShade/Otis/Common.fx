@@ -1,3 +1,6 @@
+#ifndef INCLUDE_GUARD_OTIS_COMMON
+#define INCLUDE_GUARD_OTIS_COMMON
+
 // Stuff all/most of Otis shared shaders need
 // Based on MartyMcFly
 
@@ -77,3 +80,5 @@ technique Otis_Init_Tech  < enabled = false; >
 #include Otis_SETTINGS_UNDEF
 
 #pragma message "Otis 0.2 / Infuse Project\n\n"
+
+#endif

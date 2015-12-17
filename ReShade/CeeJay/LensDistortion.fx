@@ -1,3 +1,4 @@
+#include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_LENS_DISTORTION == 1)

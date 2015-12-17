@@ -1,7 +1,7 @@
 // hq4x filter
 // Ripped from https://github.com/libretro/common-shaders/blob/master/hqx/hq4x.cg
 
-#include crosire_SETTINGS_DEF
+#include "ReShade/crosire.cfg"
 
 #if USE_HQ4X
 
@@ -93,4 +93,4 @@ namespace crosire
 
 #endif
 
-#include crosire_SETTINGS_UNDEF
+#include "ReShade/crosire.undef"

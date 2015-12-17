@@ -34,7 +34,7 @@
    
 */   
 
-#include JPulowski_SETTINGS_DEF
+#include "ReShade/JPulowski.cfg"
 
 #if (USE_ADAPTIVESHARPEN == 1)
 
@@ -292,4 +292,4 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 
 #endif
 
-#include JPulowski_SETTINGS_UNDEF
+#include "ReShade/JPulowski.undef"

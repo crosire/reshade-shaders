@@ -2,6 +2,7 @@
   | :: Shared passes :: |
   '--------------------*/
 
+#include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
 namespace CeeJay

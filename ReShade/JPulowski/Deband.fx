@@ -31,7 +31,7 @@
  1.1  - Replaced the algorithm with the one from MPV
 */
 
-#include JPulowski_SETTINGS_DEF
+#include "ReShade/JPulowski.cfg"
 
 #if (USE_DEBAND == 1)
 
@@ -116,4 +116,4 @@ technique Deband_Tech <bool enabled = RFX_Start_Enabled; int toggle = Deband_Tog
 
 #endif
 
-#include JPulowski_SETTINGS_UNDEF
+#include "ReShade/JPulowski.undef"

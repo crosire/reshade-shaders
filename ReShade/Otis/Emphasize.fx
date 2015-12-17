@@ -1,3 +1,4 @@
+#include "Common.fx"
 #include Otis_SETTINGS_DEF
 
 #if USE_EMPHASIZE

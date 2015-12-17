@@ -1,3 +1,6 @@
+#ifndef INCLUDE_GUARD_GANOSSA_COMMON
+#define INCLUDE_GUARD_GANOSSA_COMMON
+
 //Stuff all/most of Ganossa shared shaders need
 
 #define Ganossa_SETTINGS_DEF "ReShade/Ganossa.cfg"
@@ -123,3 +126,5 @@ technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLi
 #include Ganossa_SETTINGS_UNDEF
 
 #pragma message "Ganossa 1.502.11.1\n"
+
+#endif

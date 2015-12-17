@@ -1,4 +1,4 @@
-#include Ioxa_SETTINGS_DEF
+#include "ReShade/Ioxa.cfg"
 
 #if USE_GAUSS
 
@@ -1028,4 +1028,4 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 
 #endif
 
-#include Ioxa_SETTINGS_UNDEF
+#include "ReShade/Ioxa.undef"

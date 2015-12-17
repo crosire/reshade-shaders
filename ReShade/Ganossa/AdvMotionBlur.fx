@@ -1,3 +1,5 @@
+#include "Common.fx"
+
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif

@@ -1,3 +1,6 @@
+#ifndef INCLUDE_GUARD_MARTYMCFLY_COMMON
+#define INCLUDE_GUARD_MARTYMCFLY_COMMON
+
 //Stuff all/most of MartyMcFly's shared shaders need
 
 #define MartyMcFly_SETTINGS_DEF "ReShade/MartyMcFly.cfg"
@@ -48,3 +51,5 @@ sampler2D SamplerNoise
 #include MartyMcFly_SETTINGS_UNDEF
 
 #pragma message "MartyMcFly 1.1.450\n"
+
+#endif

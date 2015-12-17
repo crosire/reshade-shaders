@@ -20,7 +20,7 @@ Ported to Reshade by Angelo Gonzalez
 ----------------------------------------------------------
 */
 
-#include Alo81_SETTINGS_DEF
+#include "ReShade/Alo81.cfg"
 
 #if (USE_GRAIN == 1)
 
@@ -161,4 +161,4 @@ technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_Tog
 
 #endif
 
-#include Alo81_SETTINGS_UNDEF
+#include "ReShade/Alo81.undef"
