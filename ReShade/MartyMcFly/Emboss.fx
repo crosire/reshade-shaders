@@ -1,8 +1,9 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_EMBOSS
+
+namespace MartyMcFly
+{
 
 float4 PS_Emboss(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
@@ -46,8 +47,8 @@ technique Emboss_Tech <bool enabled = RFX_Start_Enabled; int toggle = Emboss_Tog
 	}
 }
 
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

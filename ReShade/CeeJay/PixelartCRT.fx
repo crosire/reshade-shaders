@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_PIXELART_CRT == 1)
@@ -20,6 +18,9 @@ NAMESPACE_ENTER(CeeJay)
 //
 
 //Ported to HLSL by CeeJay.dk
+
+namespace CeeJay
+{
 
 #if PixelArtCRT_resolution_mode != 1
   #define res PixelArtCRT_fixed_resolution // Fix resolution to set amount.
@@ -223,9 +224,9 @@ technique Pixelart_Tech <bool enabled = RFX_Start_Enabled; int toggle = PixelArt
 
 #undef res //variable name used also in other shaders and not covered with namespaces
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

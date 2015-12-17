@@ -1,6 +1,6 @@
 // Stuff all/most of Otis shared shaders need
 // Based on MartyMcFly
-NAMESPACE_ENTER(Otis)
+
 #define Otis_SETTINGS_DEF "ReShade/Otis.cfg"
 #define Otis_SETTINGS_UNDEF "ReShade/Otis.undef" 
 
@@ -13,6 +13,9 @@ NAMESPACE_ENTER(Otis)
 #else
  #define Otis_RENDERMODE RGBA32F
 #endif
+
+namespace Otis
+{
 
 // textures
 texture   Otis_FragmentBuffer1 	{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; MipLevels = 8; Format = Otis_RENDERMODE;};	
@@ -69,8 +72,8 @@ technique Otis_Init_Tech  < enabled = false; >
 }
 */
 
-#include Otis_SETTINGS_UNDEF
+}
 
-NAMESPACE_LEAVE()
+#include Otis_SETTINGS_UNDEF
 
 #pragma message "Otis 0.2 / Infuse Project\n\n"

@@ -1,6 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-NAMESPACE_ENTER(Ganossa_MB)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
@@ -36,6 +33,11 @@ NAMESPACE_ENTER(Ganossa_MB)
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+namespace Ganossa
+{
+namespace Ganossa_MB
+{
 
 texture2D ambCurrBlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 texture2D ambPrevBlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
@@ -128,11 +130,11 @@ RFX_Start_Enabled; int toggle = AdvancedMB_ToggleKey; >
 	}
 }
 
+}
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()
-NAMESPACE_LEAVE()

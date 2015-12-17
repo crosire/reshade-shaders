@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_DEPTHOFFIELD
@@ -28,6 +26,9 @@ NAMESPACE_ENTER(MartyMcFly)
 
 /////////////////////////TEXTURES / INTERNAL PARAMETERS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////TEXTURES / INTERNAL PARAMETERS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace MartyMcFly
+{
 
 texture2D texMask    	< string source = "ReShade/MartyMcFly/Textures/mcmask.png";  > {Width = iADOF_ShapeTextureSize;Height = iADOF_ShapeTextureSize;Format = R8; };
 texture2D texHDR1 	{ Width = BUFFER_WIDTH*DOF_RENDERRESMULT; Height = BUFFER_HEIGHT*DOF_RENDERRESMULT; Format = RGBA8;};
@@ -741,14 +742,8 @@ technique DepthOfField_Tech < bool enabled = RFX_Start_Enabled; int toggle = DOF
 #endif
 }
 
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
-
-
-
-
-
-

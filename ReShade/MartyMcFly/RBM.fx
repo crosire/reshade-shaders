@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_RBM == 1
@@ -22,6 +20,9 @@ NAMESPACE_ENTER(MartyMcFly)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+namespace MartyMcFly
+{
 
 texture   texHDR { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT;  Format = RGBA16; };
 
@@ -165,8 +166,8 @@ technique RBM_Tech <bool enabled = RFX_Start_Enabled; int toggle = RBM_ToggleKey
 	}
 }
 
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if USE_UIMask
@@ -35,6 +33,9 @@ NAMESPACE_ENTER(Ganossa)
  */
 
 //UI Mask Shader
+
+namespace Ganossa
+{
 
 const static int uiTolHigh = pow(2,UIMask_Tolerance);
 const static int uiTolLow = pow(2,int(max(0f,UIMask_Tolerance-(2*UIMask_Tolerance)/5)));
@@ -284,8 +285,8 @@ technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_Hel
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

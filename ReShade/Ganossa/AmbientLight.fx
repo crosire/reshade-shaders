@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
@@ -35,6 +33,9 @@ NAMESPACE_ENTER(Ganossa)
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+namespace Ganossa
+{
 
 uniform float2 AL_t < source = "pingpong"; min = 0.0f; max = 6.28f; step = float2(0.1f, 0.2f); >;
 
@@ -458,10 +459,10 @@ RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
 	}
 }
 
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

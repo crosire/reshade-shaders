@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_HDR == 1)
@@ -7,6 +5,9 @@ NAMESPACE_ENTER(CeeJay)
 /*------------------------------------------------------------------------------
 						HDR
 ------------------------------------------------------------------------------*/
+
+namespace CeeJay
+{
 
 float4 HDRPass( float4 colorInput, float2 Tex )
 {
@@ -75,9 +76,9 @@ technique HDR_Tech <bool enabled = RFX_Start_Enabled; int toggle = HDR_ToggleKey
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

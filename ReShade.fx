@@ -131,23 +131,14 @@ technique RFX_Setup_Tech < enabled = true; >
 }
 #endif
 
-// Global Defines
-#if defined(__RESHADE__) && __RESHADE__ >= 1700
-	#define NAMESPACE_ENTER(name) namespace name {
-	#define NAMESPACE_LEAVE() }
-#else
-	#define NAMESPACE_ENTER(name)
-	#define NAMESPACE_LEAVE()
-#endif
-
-#define STR(name) #name
-#define EFFECT(l,n) STR(ReShade/l/##n.fx)
-
 /**
  * =============================================================================
  *                                    Effects
  * =============================================================================
  */
+
+#define STR(name) #name
+#define EFFECT(l,n) STR(ReShade/l/##n.fx)
 
 #include "ReShade\Pipeline.cfg"
 

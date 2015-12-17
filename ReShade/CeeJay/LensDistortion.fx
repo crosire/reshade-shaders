@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_LENS_DISTORTION == 1)
@@ -22,6 +20,9 @@ v' = f*v
 author : François Tarlier
 website : http://www.francois-tarlier.com/blog/tag/lens-distortion/
 */
+
+namespace CeeJay
+{
 
 float3 LensDistortionPass(float2 tex)
 {
@@ -73,9 +74,9 @@ technique Distortion_Tech <bool enabled = RFX_Start_Enabled; int toggle = RFX_To
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

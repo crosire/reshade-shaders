@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Iddqd)
-
 #include Iddqd_SETTINGS_DEF
 
 #if USE_VHS
@@ -19,6 +17,9 @@ NAMESPACE_ENTER(Iddqd)
  
  Do not distribute without giving credit to the original author(s).
 */
+
+namespace Iddqd
+{
 
 #if (sNoiseMode == 1)
 texture texnoise2  < string source = "ReShade/Iddqd/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
@@ -508,8 +509,8 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	
 }
 
+}
+
 #endif
 
 #include Iddqd_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

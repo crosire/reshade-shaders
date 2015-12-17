@@ -1,8 +1,9 @@
-NAMESPACE_ENTER(Iddqd)
-
 #include Iddqd_SETTINGS_DEF
 
 #if USE_DALTONIZEFX
+
+namespace Iddqd
+{
 
 float4 DaltonizeFX( float4 input, float2 tex )
 {
@@ -68,8 +69,8 @@ technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dalto
 	}
 }
 
+}
+
 #endif
 
 #include Iddqd_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

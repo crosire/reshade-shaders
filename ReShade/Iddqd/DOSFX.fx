@@ -1,8 +1,9 @@
-NAMESPACE_ENTER(Iddqd)
-
 #include Iddqd_SETTINGS_DEF
 
 #if USE_DOSFX
+
+namespace Iddqd
+{
 
 float4 PS_DosFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
@@ -55,8 +56,8 @@ technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleK
 	}
 }
 
+}
+
 #endif
 
 #include Iddqd_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

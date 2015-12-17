@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #ifndef RFX_duplicate
 #include CeeJay_SETTINGS_DEF
 #endif
@@ -32,6 +30,9 @@ Version 1.0 by CeeJay.dk
 #ifndef Chromatic_mode
   #define Chromatic_mode 1
 #endif
+
+namespace CeeJay
+{
 
 float4 ChromaticAberrationPass( float4 colorInput, float2 tex )
 {
@@ -104,11 +105,11 @@ RFX_Start_Enabled; int toggle = CA_ToggleKey; >
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #ifndef RFX_duplicate
 #include CeeJay_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

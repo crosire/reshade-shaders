@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if USE_TUNINGPALETTE
@@ -33,6 +31,9 @@ NAMESPACE_ENTER(Ganossa)
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+namespace Ganossa
+{
 
 texture mapTex	< string source = "ReShade/Ganossa/Textures/" TuningColorMapTexture; > {Width = 256; Height = 256; Format = RGBA8;};
 sampler	mapColor 	{ Texture = mapTex; };
@@ -140,8 +141,8 @@ technique TuningPalette_Tech <bool enabled = RFX_Start_Enabled; int toggle = Tun
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

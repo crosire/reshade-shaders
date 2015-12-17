@@ -1,5 +1,5 @@
 //Stuff all/most of MartyMcFly's shared shaders need
-NAMESPACE_ENTER(MartyMcFly)
+
 #define MartyMcFly_SETTINGS_DEF "ReShade/MartyMcFly.cfg"
 #define MartyMcFly_SETTINGS_UNDEF "ReShade/MartyMcFly.undef" 
 
@@ -28,6 +28,8 @@ NAMESPACE_ENTER(MartyMcFly)
 #define aspect          (BUFFER_RCP_HEIGHT/BUFFER_RCP_WIDTH)
 #define InvFocalLen 	float2(tan(0.5f*radians(FOV)) / (float)BUFFER_RCP_HEIGHT * (float)BUFFER_RCP_WIDTH, tan(0.5f*radians(FOV)))
 
+namespace MartyMcFly
+{
 //textures
 texture2D texNoise      < string source = "ReShade/MartyMcFly/Textures/mcnoise.png"; > {Width = BUFFER_WIDTH;Height = BUFFER_HEIGHT;Format = RGBA8;};
 
@@ -41,9 +43,8 @@ sampler2D SamplerNoise
 	AddressU = Wrap;
 	AddressV = Wrap;
 };
+}
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
 
 #pragma message "MartyMcFly 1.1.450\n"

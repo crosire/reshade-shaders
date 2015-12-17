@@ -2,7 +2,8 @@
 
 #if (USE_Transition == 1)
 
-NAMESPACE_ENTER(CeeJay)
+namespace CeeJay
+{
 
 texture transitionTex < string source = "ReShade/CeeJay/Textures/" Transition_texture ; >
 {
@@ -72,7 +73,7 @@ technique Transition_Tech < bool enabled = true; int timeout = Transition_time; 
 	}
 }
 
-NAMESPACE_LEAVE()
+}
 
 #endif
 

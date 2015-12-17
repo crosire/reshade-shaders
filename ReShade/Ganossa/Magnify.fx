@@ -1,8 +1,9 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if (USE_Magnify == 1)
+
+namespace Ganossa
+{
 
 float4 PS_Magnify(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
@@ -24,8 +25,8 @@ technique Magnify_Tech <bool enabled = RFX_Start_Enabled; int toggle = Magnify_T
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

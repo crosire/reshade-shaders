@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ioxa)
-
 #include Ioxa_SETTINGS_DEF
 
 #if USE_GAUSS
@@ -48,6 +46,9 @@ NAMESPACE_ENTER(Ioxa)
    Some settings from the original are missing and I have added some other settings to achieve certain looks.
    More info can be found at 
    http://reshade.me/forum/shader-presentation/27-gaussian-blur-bloom-unsharpmask */ 
+
+namespace Ioxa
+{
 
 #define CoefLuma_G            float3(0.2126, 0.7152, 0.0722)      // BT.709 & sRBG luma coefficient (Monitors and HD Television)
 #define sharp_strength_luma_G (CoefLuma_G * SharpStrength + 0.2)
@@ -1023,8 +1024,8 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #endif
 }
 
+}
+
 #endif
 
 #include Ioxa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

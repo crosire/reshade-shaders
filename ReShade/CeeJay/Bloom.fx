@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_BLOOM == 1)
@@ -7,6 +5,9 @@ NAMESPACE_ENTER(CeeJay)
 /*------------------------------------------------------------------------------
 						BLOOM
 ------------------------------------------------------------------------------*/
+
+namespace CeeJay
+{
 
 float4 BloomPass( float4 ColorInput2,float2 Tex  )
 {
@@ -82,9 +83,9 @@ technique Bloom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Bloom_Toggl
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

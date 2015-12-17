@@ -1,8 +1,9 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if (USE_HSV == 1)
+
+namespace MartyMcFly
+{
 
 float ColorEqualizerMod(in float H)	
 {
@@ -111,8 +112,8 @@ technique HSV_Tech <bool enabled = RFX_Start_Enabled; int toggle = HSV_ToggleKey
 	}
 }
 
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

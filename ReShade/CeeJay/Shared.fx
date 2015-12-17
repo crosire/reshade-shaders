@@ -2,9 +2,10 @@
   | :: Shared passes :: |
   '--------------------*/
 
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
+
+namespace CeeJay
+{
 
 float4 SharedPass(float2 tex, float4 FinalColor)
 {
@@ -129,6 +130,6 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 	#endif
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+}
 
-NAMESPACE_LEAVE()
+#include CeeJay_SETTINGS_UNDEF

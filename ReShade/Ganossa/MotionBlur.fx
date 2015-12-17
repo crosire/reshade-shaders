@@ -37,6 +37,11 @@ NAMESPACE_ENTER(Ganossa_MB)
  * SOFTWARE.
  */
 
+namespace Ganossa
+{
+namespace Ganossa_MB
+{
+
 texture2D currTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 texture2D prevSingleTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 texture2D prevTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
@@ -112,11 +117,11 @@ RFX_Start_Enabled; int toggle = MotionBlur_ToggleKey; >
 	}
 }
 
+}
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()
-NAMESPACE_LEAVE()

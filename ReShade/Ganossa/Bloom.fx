@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
@@ -29,7 +27,6 @@ NAMESPACE_ENTER(Ganossa)
 //Credits :: PetkaGtA (Lightscattering implementation)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 #if( Ganossa_HDR_MODE == 0)
  #define Ganossa_RENDERMODE RGBA8
 #elif( Ganossa_HDR_MODE == 1)
@@ -37,6 +34,9 @@ NAMESPACE_ENTER(Ganossa)
 #else
  #define Ganossa_RENDERMODE RGBA32F
 #endif
+
+namespace Ganossa
+{
 
 //textures
 texture   texBloom1 { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = Ganossa_RENDERMODE;};
@@ -626,10 +626,10 @@ RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
 	}
 }
 
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

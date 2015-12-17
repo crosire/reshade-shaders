@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_AMBIENTOCCLUSION
@@ -25,6 +23,9 @@ NAMESPACE_ENTER(MartyMcFly)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Credits :: PetkaGtA (Raymarch AO idea), Ethatron (SSAO ported from Crysis), Ethatron and tomerk (HBAO and SSGI)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+namespace MartyMcFly
+{
 
 #if( HDR_MODE == 0)
  #define RENDERMODE RGBA8
@@ -1096,8 +1097,8 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #endif
 }
 
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

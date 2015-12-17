@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
@@ -35,6 +33,9 @@ NAMESPACE_ENTER(Ganossa)
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+namespace Ganossa
+{
 
 #define Ganossa_MF_BUFFERX BUFFER_WIDTH/2
 #define Ganossa_MF_BUFFERY BUFFER_HEIGHT/2
@@ -198,10 +199,11 @@ RFX_Start_Enabled; int toggle = MotionFocus_ToggleKey; >
 }
 #undef xSprint
 #undef ySprint
+
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

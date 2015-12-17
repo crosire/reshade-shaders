@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #ifndef RFX_duplicate
 #include CeeJay_SETTINGS_DEF
 #endif
@@ -9,6 +7,9 @@ NAMESPACE_ENTER(CeeJay)
    /*-----------------------------------------------------------.   
   /                         Explosion                           /
   '-----------------------------------------------------------*/
+
+namespace CeeJay
+{
 
 float4 ExplosionPass( float4 colorInput, float2 tex )
 {
@@ -54,11 +55,11 @@ RFX_Start_Enabled; int toggle = Explosion_ToggleKey; >
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #ifndef RFX_duplicate
 #include CeeJay_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

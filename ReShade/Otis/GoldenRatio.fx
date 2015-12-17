@@ -1,7 +1,9 @@
-NAMESPACE_ENTER(Otis)
 #include Otis_SETTINGS_DEF
 
 #if USE_GOLDENRATIO
+
+namespace Otis
+{
 
 texture2D	GOR_texSpirals < string source= "Reshade\\Otis\\Textures\\GoldenSpirals.png"; > { Width = 1748; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler2D	GOR_samplerSpirals
@@ -48,8 +50,9 @@ technique Otis_GOR_Tech <bool enabled = false; int toggle = GOR_ToggleKey; >
 		PixelShader = PS_Otis_GOR_RenderSpirals;
 	}
 }
+
+}
+
 #endif
 
 #include Otis_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

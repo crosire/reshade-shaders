@@ -1,6 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-NAMESPACE_ENTER(ColorCorrection)
-
 #include MartyMcFly_SETTINGS_DEF
 
 #if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
@@ -28,6 +25,11 @@ NAMESPACE_ENTER(ColorCorrection)
 //Credits :: Ubisoft (Reinhard tonemapping, Haarm Peter Duiker Tonemap, Filmiccurve, Spherical Tonemap)
 //Credits :: Ryosuke (Colormod Contrast/Gamma/Saturation controls)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+namespace MartyMcFly
+{
+namespace ColorCorrection
+{
 
 #define LumCoeff 	float3(0.212656, 0.715158, 0.072186)
 
@@ -450,9 +452,9 @@ technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = C
 
 #undef LumCoeff
 
+}
+}
+
 #endif
 
 #include MartyMcFly_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
-NAMESPACE_LEAVE()

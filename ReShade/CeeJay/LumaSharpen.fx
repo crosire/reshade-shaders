@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_LUMASHARPEN == 1)
@@ -30,6 +28,9 @@ NAMESPACE_ENTER(CeeJay)
    /*-----------------------------------------------------------.
   /                          Main code                          /
   '-----------------------------------------------------------*/
+
+namespace CeeJay
+{
 
 float3 LumaSharpenPass(float2 tex)
 {
@@ -183,9 +184,9 @@ technique LumaSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = LumaS
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

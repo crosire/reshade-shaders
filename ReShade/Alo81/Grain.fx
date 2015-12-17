@@ -20,11 +20,13 @@ Ported to Reshade by Angelo Gonzalez
 ----------------------------------------------------------
 */
 
-NAMESPACE_ENTER(Alo81)
-
 #include Alo81_SETTINGS_DEF
 
 #if (USE_GRAIN == 1)
+
+namespace Alo81
+{
+
 static const float width = BUFFER_WIDTH;
 static const float height = BUFFER_HEIGHT;
 uniform float timer < source = "timer"; >;
@@ -155,8 +157,8 @@ technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_Tog
 	}
 }
 
+}
+
 #endif
 
 #include Alo81_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if USE_GR8MMFILM
@@ -34,6 +32,9 @@ NAMESPACE_ENTER(Ganossa)
  * SOFTWARE.
  */
 
+namespace Ganossa
+{
+
 #define Ganossa_Gr8mmFilm_TY Gr8mmFilmTextureSizeY/Gr8mmFilmTileAmount
 #define Ganossa_Gr8mmFilm_VP Gr8mmFilmVignettePower*0.65f
 #define Ganossa_Gr8mmFilm_AP Gr8mmFilmAlphaPower/3f
@@ -66,8 +67,8 @@ technique Gr8mmFilm_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gr8mmFi
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

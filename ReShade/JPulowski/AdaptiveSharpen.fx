@@ -34,10 +34,12 @@
    
 */   
 
-NAMESPACE_ENTER(JPulowski)
 #include JPulowski_SETTINGS_DEF
 
 #if (USE_ADAPTIVESHARPEN == 1)
+
+namespace JPulowski
+{
 
 texture edgeTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 sampler edgeSampler { Texture = edgeTex; };	
@@ -286,7 +288,8 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 #undef CtL
 #undef mdiff
 
+}
+
 #endif
 
 #include JPulowski_SETTINGS_UNDEF
-NAMESPACE_LEAVE()

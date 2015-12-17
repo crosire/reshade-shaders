@@ -1,5 +1,5 @@
 //Stuff all/most of Ganossa shared shaders need
-NAMESPACE_ENTER(Ganossa)
+
 #define Ganossa_SETTINGS_DEF "ReShade/Ganossa.cfg"
 #define Ganossa_SETTINGS_UNDEF "ReShade/Ganossa.undef" 
 
@@ -45,6 +45,8 @@ NAMESPACE_ENTER(Ganossa)
 #define xSprint BUFFER_WIDTH/192f
 #define ySprint BUFFER_HEIGHT/108f
 
+namespace Ganossa
+{
 #if AL_HQAdapt
 texture2D detectIntTex { Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RGBA8; };
 sampler2D detectIntColor { Texture = detectIntTex; };
@@ -113,10 +115,11 @@ technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLi
 		RenderTarget = detectLowTex;
 	}
 }
+
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
 
 #pragma message "Ganossa 1.502.11.1\n"

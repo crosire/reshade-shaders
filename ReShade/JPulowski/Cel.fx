@@ -14,11 +14,14 @@
  1.1a - Framework port 
 */
 
-NAMESPACE_ENTER(JPulowski)
-NAMESPACE_ENTER(CellShading)
 #include JPulowski_SETTINGS_DEF
 
 #if (USE_CEL == 1)
+
+namespace JPulowski
+{
+namespace CellShading
+{
 
 float linearlizeDepth(float nonlinearDepth)
 {
@@ -79,8 +82,9 @@ technique Cel_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cel_ToggleKey
 	}
 }
 
+}
+}
+
 #endif
 
 #include JPulowski_SETTINGS_UNDEF
-NAMESPACE_LEAVE()
-NAMESPACE_LEAVE()

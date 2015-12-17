@@ -1,5 +1,4 @@
 //Stuff all/most of CeeJay shared shaders need
-NAMESPACE_ENTER(CeeJay)
 #define CeeJay_SETTINGS_DEF "ReShade/CeeJay.cfg"
 #define CeeJay_SETTINGS_UNDEF "ReShade/CeeJay.undef" 
 
@@ -9,7 +8,11 @@ NAMESPACE_ENTER(CeeJay)
   | ::     Textures     :: |
   '-----------------------*/
 
+namespace CeeJay
+{
+
 #if (USE_SMAA == 1)
+
 texture edgesTex
 {
 	Width = BUFFER_WIDTH;
@@ -37,11 +40,17 @@ texture searchTex < string source = "ReShade/CeeJay/Textures/SMAA_SearchTex.dds"
 	Height = 16;
 	Format = R8;
 };
+
 #endif 
+
+}
 
   /*-----------------------.
   | ::     Samplers     :: |
   '-----------------------*/
+
+namespace CeeJay
+{
 
 sampler colorLinearSampler
 {
@@ -91,6 +100,8 @@ sampler searchSampler
 	MipFilter = Point; MinFilter = Point; MagFilter = Point;
 	SRGBTexture = false;
 };
+
+}
 #endif
 
 #define predicationSampler RFX_depthColor //Use the depth sampler as our predication sampler
@@ -262,7 +273,5 @@ sampler searchSampler
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
 
 #pragma message "CeeJay 2.0\n"

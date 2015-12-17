@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_ASCII == 1)
@@ -122,6 +120,9 @@ I might use
  '.'.'.'
 
 */
+
+namespace CeeJay
+{
 
 float3 AsciiPass( float2 tex )
 {
@@ -464,9 +465,9 @@ technique Ascii_Tech <bool enabled = RFX_Start_Enabled; int toggle = Ascii_Toggl
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

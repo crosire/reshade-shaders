@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_DEF
 #endif
@@ -27,6 +25,9 @@ NAMESPACE_ENTER(MartyMcFly)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Credits :: icelaglace, a.o => (ported from some blog, author unknown)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+namespace MartyMcFly
+{
 
 float4 PS_FISHEYE_CA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target0
 {
@@ -78,10 +79,10 @@ RFX_Start_Enabled; int toggle = FishEye_ToggleKey; >
 	}
 }
 
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

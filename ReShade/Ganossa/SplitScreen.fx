@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if USE_SplitScreen
@@ -35,6 +33,9 @@ NAMESPACE_ENTER(Ganossa)
  */
 
 //Split Screen Shader
+
+namespace Ganossa
+{
 
 texture sMaskTex < source = "ReShade/Ganossa/Textures/sMask.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler sMaskColor { Texture = sMaskTex; };
@@ -102,8 +103,8 @@ technique SplitScreen_Tech <bool enabled = RFX_Start_Enabled; int toggle = SS_To
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,10 +1,11 @@
-NAMESPACE_ENTER(Ganossa)
-
 #include Ganossa_SETTINGS_DEF
 
 #if USE_Border
 
 //Border Shader
+
+namespace Ganossa
+{
 
 texture bMaskTex < source = "ReShade/Ganossa/Textures/bMask.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler bMaskColor { Texture = bMaskTex; };
@@ -23,8 +24,8 @@ technique Border_Tech <bool enabled = RFX_Start_Enabled; int toggle = Border_Tog
 	}
 }
 
+}
+
 #endif
 
 #include Ganossa_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,9 +1,10 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_FXAA == 1 || USE_FXAA_ANTIALIASING == 1)
 //TODO make a luma pass
+
+namespace CeeJay
+{
 
 float3 FXAA(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 {
@@ -27,9 +28,9 @@ technique FXAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = FXAA_ToggleK
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

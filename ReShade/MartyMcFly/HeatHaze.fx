@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(MartyMcFly)
-
 #ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_DEF
 #endif
@@ -24,6 +22,9 @@ NAMESPACE_ENTER(MartyMcFly)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+namespace MartyMcFly
+{
 
 texture   texHeat   < string source = "ReShade/MartyMcFly/Textures/mcheat.png";   > {Width = 512;Height = 512;Format = RGBA8;};
 
@@ -75,10 +76,10 @@ RFX_Start_Enabled; int toggle = HeatHaze_ToggleKey; >
 	}
 }
 
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

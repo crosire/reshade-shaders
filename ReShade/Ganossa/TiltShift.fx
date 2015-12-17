@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
@@ -40,6 +38,9 @@ NAMESPACE_ENTER(Ganossa)
  */
 
 #define ScreenRatio float(-BUFFER_WIDTH / BUFFER_HEIGHT)
+
+namespace Ganossa
+{
 
 float4 PS_TiltShiftH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
@@ -146,10 +147,10 @@ RFX_Start_Enabled; int toggle = TiltShift_ToggleKey; >
 	}
 }
 
+}
+
 #endif
 
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_UNDEF
 #endif
-
-NAMESPACE_LEAVE()

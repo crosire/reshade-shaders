@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_CARTOON == 1)
@@ -11,6 +9,9 @@ NAMESPACE_ENTER(CeeJay)
 #ifndef CartoonEdgeSlope //for backwards compatiblity with settings preset from earlier versions of CeeJay
   #define CartoonEdgeSlope 1.5 
 #endif
+
+namespace CeeJay
+{
 
 float4 CartoonPass( float4 colorInput, float2 Tex )
 {
@@ -52,9 +53,9 @@ technique Cartoon_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cartoon_T
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,8 +1,7 @@
-NAMESPACE_ENTER(Otis)
-
 #include Otis_SETTINGS_DEF
 
 #if USE_DEPTHHAZE
+
 ///////////////////////////////////////////////////////////////////
 // This effect works like a one-side DoF for distance haze, which slightly
 // blurs far away elements. A normal DoF has a focus point and blurs using
@@ -13,6 +12,9 @@ NAMESPACE_ENTER(Otis)
 // it uses depth-difference for extra weight in the blur method so edges
 // of high-contrasting lines with high depth diffence don't bleed.
 ///////////////////////////////////////////////////////////////////
+
+namespace Otis
+{
 
 float CalculateWeight(float distanceFromSource, float sourceDepth, float neighborDepth)
 {
@@ -93,8 +95,9 @@ technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
 		PixelShader = PS_Otis_DEH_BlendBlurWithNormalBuffer;
 	}
 }
+
+}
+
 #endif
 
 #include Otis_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

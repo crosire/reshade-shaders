@@ -31,10 +31,12 @@
  1.1  - Replaced the algorithm with the one from MPV
 */
 
-NAMESPACE_ENTER(JPulowski)
 #include JPulowski_SETTINGS_DEF
 
 #if (USE_DEBAND == 1)
+
+namespace JPulowski
+{
 
 uniform int drandom < source = "random"; min = 0; max = 5000; >;
 float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }
@@ -110,7 +112,8 @@ technique Deband_Tech <bool enabled = RFX_Start_Enabled; int toggle = Deband_Tog
 	}
 }
 
+}
+
 #endif
 
 #include JPulowski_SETTINGS_UNDEF
-NAMESPACE_LEAVE()

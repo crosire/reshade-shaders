@@ -16,10 +16,12 @@
         Added Framework compatibility 
 */
 
-NAMESPACE_ENTER(JPulowski)
 #include JPulowski_SETTINGS_DEF
 
 #if (USE_PAINT == 1)
+
+namespace JPulowski
+{
 
 float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 {
@@ -168,7 +170,8 @@ technique Paint_Tech <bool enabled = RFX_Start_Enabled; int toggle = Paint_Toggl
 	}
 }
 
+}
+
 #endif
 
 #include JPulowski_SETTINGS_UNDEF
-NAMESPACE_LEAVE()
