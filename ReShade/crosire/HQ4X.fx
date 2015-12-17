@@ -1,8 +1,8 @@
 // hq4x filter
 // Ripped from https://github.com/libretro/common-shaders/blob/master/hqx/hq4x.cg
-NAMESPACE_ENTER(Crosire)
+NAMESPACE_ENTER(crosire)
 
-#include Crosire_SETTINGS_DEF
+#include crosire_SETTINGS_DEF
 
 #if USE_HQ4X
 
@@ -91,6 +91,6 @@ technique HQ4X_Tech <bool enabled = RFX_Start_Enabled; int toggle = HQ4X_ToggleK
 
 #endif
 
-#include Crosire_SETTINGS_UNDEF
+#include crosire_SETTINGS_UNDEF
 
 NAMESPACE_LEAVE()
