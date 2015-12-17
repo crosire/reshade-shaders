@@ -7,13 +7,6 @@
 #undef Ascii_background_color
 #undef Ascii_font_color_mode
 #undef Ascii_ToggleKey
-#undef USE_Transition
-#undef Transition_time
-#undef Transition_texture
-#undef Transition_texture_width
-#undef Transition_texture_height
-#undef Transition_type
-#undef Transition_ToggleKey
 #undef USE_SMAA
 #undef SMAA_THRESHOLD
 #undef SMAA_MAX_SEARCH_STEPS

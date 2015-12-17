@@ -142,9 +142,9 @@
 #undef iEmbossAngle
 #undef Emboss_ToggleKey
 #undef USE_YACA
-#undef iADOF_ImageChromaHues
-#undef fADOF_ImageChromaCurve
-#undef fADOF_ImageChromaAmount
+#undef YACA_ImageChromaHues
+#undef YACA_ImageChromaCurve
+#undef YACA_ImageChromaAmount
 #undef YACA_ToggleKey
 #undef USE_HSV
 #undef fColorSaturationMod
