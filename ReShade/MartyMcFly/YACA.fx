@@ -23,16 +23,16 @@ float4 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
  
         float2 coord=texcoord.xy*2.0-1.0;
         float offsetfact=length(texcoord.xy*2.0-1.0);
-        offsetfact=pow(offsetfact,fADOF_ImageChromaCurve)*fADOF_ImageChromaAmount*BUFFER_RCP_WIDTH;
+        offsetfact=pow(offsetfact,YACA_ImageChromaCurve)*YACA_ImageChromaAmount*BUFFER_RCP_WIDTH;
  
         float3 chromaweight = 0.0;
  
         [unroll]
-        for (float c=0; c<iADOF_ImageChromaHues && c < 90; c++)
+        for (float c=0; c<YACA_ImageChromaHues && c < 90; c++)
         {
-                float temphue = c/iADOF_ImageChromaHues;
+                float temphue = c/YACA_ImageChromaHues;
                 float3 tempchroma = saturate(float3(abs(temphue * 6.0 - 3.0) - 1.0,2.0 - abs(temphue * 6.0 - 2.0),2.0 - abs(temphue * 6.0 - 4.0)));
-                float  tempoffset = (c + 0.5)/iADOF_ImageChromaHues - 0.5;
+                float  tempoffset = (c + 0.5)/YACA_ImageChromaHues - 0.5;
                 float3 tempsample = tex2Dlod(RFX_backbufferColor, float4(coord.xy*(1.0+offsetfact*tempoffset)*0.5+0.5,0,0)).xyz;
                 scenecolor.xyz += tempsample.xyz*tempchroma.xyz;
                 chromaweight += tempchroma;
