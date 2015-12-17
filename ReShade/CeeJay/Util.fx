@@ -101,8 +101,9 @@ sampler searchSampler
 	SRGBTexture = false;
 };
 
-}
 #endif
+
+}
 
 #define predicationSampler RFX_depthColor //Use the depth sampler as our predication sampler
 

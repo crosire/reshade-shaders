@@ -1,6 +1,4 @@
-NAMESPACE_ENTER(Various)
-
-#include Various_SETTINGS_DEF
+#include YourName_SETTINGS_DEF
 
 #if (USE_CUSTOM == 1)
 
@@ -20,6 +18,4 @@ technique Custom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Custom_Tog
 
 #endif
 
-#include Various_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()
+#include YourName_SETTINGS_UNDEF

@@ -1,5 +1,3 @@
-NAMESPACE_ENTER(CeeJay)
-
 #include CeeJay_SETTINGS_DEF
 
 #if (USE_ADVANCED_CRT == 1)
@@ -42,6 +40,9 @@ NAMESPACE_ENTER(CeeJay)
 #else
 	#define TEX2D(c) myTex2D(s0, (c))
 #endif
+
+namespace CeeJay
+{
 
 float intersect(float2 xy)
 {
@@ -269,9 +270,9 @@ technique AdvancedCRT_Tech <bool enabled = RFX_Start_Enabled; int toggle = Advan
 	}
 }
 
+}
+
 #include "ReShade\CeeJay\PiggyCount.h"
 #endif
 
 #include CeeJay_SETTINGS_UNDEF
-
-NAMESPACE_LEAVE()

@@ -1,6 +1,3 @@
-NAMESPACE_ENTER(Ganossa)
-NAMESPACE_ENTER(Ganossa_MB)
-
 #ifndef RFX_duplicate
 #include Ganossa_SETTINGS_DEF
 #endif
