@@ -22,3 +22,4 @@
 #undef L_compr_low
 #undef L_compr_high
 #undef max_scale_lim
+#undef fast_ops
