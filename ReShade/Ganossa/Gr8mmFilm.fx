@@ -47,7 +47,7 @@ sampler	Gr8mmFilmColor 	{ Texture = Gr8mmFilmTex; };
 
 float4 PS_Gr8mmFilm(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 original = tex2D(RFX_backbufferColor, texcoord);
+	float4 original = tex2D(RFX::backbufferColor, texcoord);
 	float4 singleGr8mmFilm = tex2D(Gr8mmFilmColor, float2(texcoord.x, texcoord.y/Gr8mmFilmTileAmount + (Ganossa_Gr8mmFilm_TY/Gr8mmFilmTextureSizeY)* 
 #if Gr8mmFilmScroll
 filmroll.x
@@ -63,7 +63,7 @@ technique Gr8mmFilm_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gr8mmFi
 {
 	pass Gr8mmFilmPass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_Gr8mmFilm;
 	}
 }

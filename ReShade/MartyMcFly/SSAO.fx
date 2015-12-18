@@ -93,8 +93,8 @@ float3 GetNormalFromDepth(float fDepth, float2 vTexcoord) {
   	const float2 offset1 = float2(0.0,0.001);
   	const float2 offset2 = float2(0.001,0.0);
   
-  	float depth1 = tex2Dlod(RFX_depthTexColor, float4(vTexcoord + offset1,0,0)).x;
-  	float depth2 = tex2Dlod(RFX_depthTexColor, float4(vTexcoord + offset2,0,0)).x;
+  	float depth1 = tex2Dlod(RFX::depthTexColor, float4(vTexcoord + offset1,0,0)).x;
+  	float depth2 = tex2Dlod(RFX::depthTexColor, float4(vTexcoord + offset2,0,0)).x;
   
   	float3 p1 = float3(offset1, depth1 - fDepth);
   	float3 p2 = float3(offset2, depth2 - fDepth);
@@ -124,7 +124,7 @@ void PS_AO_SSAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	if(texcoord.x > 1.0 || texcoord.y > 1.0) discard;
 
 	//global variables
-	float fSceneDepthP 	= tex2D(RFX_depthTexColor, texcoord.xy).x;
+	float fSceneDepthP 	= tex2D(RFX::depthTexColor, texcoord.xy).x;
 
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = fSceneDepthP;
@@ -182,7 +182,7 @@ void PS_AO_SSAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 			vSamplePos += float3(vRotatedOffset.xy, vRotatedOffset.z * fSceneDepthP);
 
 			//Read sample point depth
-			float fSceneDepthS = tex2Dlod(RFX_depthTexColor, float4(vSamplePos.xy,0,0)).x;
+			float fSceneDepthS = tex2Dlod(RFX::depthTexColor, float4(vSamplePos.xy,0,0)).x;
 
 			//Discard if depth equals max
 			if (fSceneDepthS >= fSSAODepthClip)
@@ -292,7 +292,7 @@ void PS_AO_RayAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	float2 vOutSum;
 	float3 vRandom, vReflRay, vViewNormal;
 	float fCurrDepth, fSampleDepth, fDepthDelta, fAO;
-	fCurrDepth  = tex2D(RFX_depthTexColor, texcoord.xy).x;
+	fCurrDepth  = tex2D(RFX::depthTexColor, texcoord.xy).x;
 
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = fCurrDepth;
@@ -312,7 +312,7 @@ void PS_AO_RayAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
         		vReflRay   *= fFlip;
 		
 			float sD = fCurrDepth - (vReflRay.z * fRayAOSamplingRange);
-			fSampleDepth = tex2Dlod(RFX_depthTexColor, float4(saturate(texcoord.xy + (fRayAOSamplingRange * vReflRay.xy / fCurrDepth)),0,0)).x;
+			fSampleDepth = tex2Dlod(RFX::depthTexColor, float4(saturate(texcoord.xy + (fRayAOSamplingRange * vReflRay.xy / fCurrDepth)),0,0)).x;
 			fDepthDelta = saturate(sD - fSampleDepth);
 
 			fDepthDelta *= 1-smoothstep(0,fRayAOMaxDepth,fDepthDelta);
@@ -343,7 +343,7 @@ void PS_AO_HBAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	texcoord.xy /= AO_TEXSCALE;
 	if(texcoord.x > 1.0 || texcoord.y > 1.0) discard;
 
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x;
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x;
 
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = depth;
@@ -391,7 +391,7 @@ void PS_AO_HBAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
  
 			for (int k = 1; k <= iHBAOSamples; k++)
 			{
-				sample_depth = tex2Dlod(RFX_depthTexColor, float4(sample_center + sample_coords*(k-0.5*(i%2)),0,0)).x;
+				sample_depth = tex2Dlod(RFX::depthTexColor, float4(sample_center + sample_coords*(k-0.5*(i%2)),0,0)).x;
 				sample_pos = GetEyePosition(sample_center + sample_coords*(k-0.5*(i%2)), sample_depth);
 				occlusion_vector = sample_pos - pos;
 				temp_theta = dot( norm, normalize(occlusion_vector) );			
@@ -429,7 +429,7 @@ float3 uv_to_eye(float2 uv, float eye_z)
 
 float3 fetch_eye_pos(float2 uv)
 {
-	float z = tex2Dlod(RFX_depthTexColor, float4(uv, 0, 0)).x; // Single channel zbuffer texture
+	float z = tex2Dlod(RFX::depthTexColor, float4(uv, 0, 0)).x; // Single channel zbuffer texture
     	return uv_to_eye(uv, z);
 }
 
@@ -538,7 +538,7 @@ void PS_AO_RayHBAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	texcoord.xy /= AO_TEXSCALE;
 	if(texcoord.x > 1.0 || texcoord.y > 1.0) discard;
 	
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x; 
 
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = depth;
@@ -644,7 +644,7 @@ float GetSAO_CurveDepth(float depth)
 float3 GetSAO_Position(float2 ssPosition)
 {
     	float3 Position;
-	Position.z = GetSAO_CurveDepth(tex2Dlod(RFX_depthTexColor, float4(ssPosition.xy,0,0)).x);
+	Position.z = GetSAO_CurveDepth(tex2Dlod(RFX::depthTexColor, float4(ssPosition.xy,0,0)).x);
 	Position = GetSAO_CSPosition(ssPosition, Position.z);
     	return Position;
 }
@@ -653,7 +653,7 @@ float3 GetSAO_OffsetPosition(float2 ssC, float2 unitOffset, float ssR)
 {
     	float2 ssP = ssR*unitOffset + ssC;
 	float3 P;
-	P.z = GetSAO_CurveDepth(tex2Dlod(RFX_depthTexColor, float4(ssP.xy,0,0)).x);
+	P.z = GetSAO_CurveDepth(tex2Dlod(RFX::depthTexColor, float4(ssP.xy,0,0)).x);
 	P = GetSAO_CSPosition(ssP, P.z);
    	return P;
 }
@@ -678,7 +678,7 @@ void PS_AO_SAO(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 	texcoord.xy /= AO_TEXSCALE;
 	if(texcoord.x > 1.0 || texcoord.y > 1.0) discard;
 	
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x; 
 
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = depth;
@@ -775,7 +775,7 @@ float4 PS_AO_AOCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
  #if(AO_METHOD == 1)	
 	ao *= 0.75;
  #endif
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x; 
 	ao = lerp(ao,1.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 	return ao;
 #else
@@ -786,7 +786,7 @@ float4 PS_AO_AOCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
 	ao = lerp(ao, 1.0, aomult);
  #endif	
 
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x; 
 	ao = lerp(ao,1.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 
 	color.xyz *= ao;
@@ -799,7 +799,7 @@ void PS_AO_SSGI(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	texcoord.xy /= AO_TEXSCALE;
 	if(texcoord.x > 1.0 || texcoord.y > 1.0) discard;
 
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x;
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x;
 
 	if(depth > 0.9999) Occlusion1R = float4(0.0,0.0,0.0,1.0);
 	else {
@@ -861,7 +861,7 @@ void PS_AO_SSGI(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 		for (int i = 0; i < iSSGISamples; i++) {
 			float2 sample_vec = reflect(sample_offset[i], rand_vec) / sample_vec_divisor;
 			float2 sample_coords = sample_center + sample_vec *  float2(1, aspect);
-			float  sample_depth = rangeZ * tex2Dlod(RFX_depthTexColor,float4(sample_coords.xy,0,0)).x;
+			float  sample_depth = rangeZ * tex2Dlod(RFX::depthTexColor,float4(sample_coords.xy,0,0)).x;
  
 			float ii_curr_sample_radius = sample_radius[i] * fSSGISamplingRange * 20;
 			float ao_curr_sample_radius = sample_radius[i] * fSSGISamplingRange * 5;
@@ -873,7 +873,7 @@ void PS_AO_SSGI(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 		    	(sample_depth > ii_sample_center_depth - ii_curr_sample_radius)) {
 				float3 sample_pos = GetEyePosition(sample_coords, sample_depth);
 				float3 unit_vector = normalize(pos - sample_pos);
- 				gi.rgb += tex2Dlod(RFX_originalColor, float4(sample_coords,0,0)).rgb;
+ 				gi.rgb += tex2Dlod(RFX::originalColor, float4(sample_coords,0,0)).rgb;
 			}
  
 			is += 1.0f;
@@ -898,7 +898,7 @@ void PS_AO_GIBlurV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	float4 sum=0;
 	float totalweight=0;
 	float4 base = tex2D(SamplerOcclusion1, texcoord.xy), temp = 0;
-	float depth = tex2Dlod(RFX_depthTexColor, float4(texcoord.xy,0,0)).x;
+	float depth = tex2Dlod(RFX::depthTexColor, float4(texcoord.xy,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = depth;
 #else
@@ -910,7 +910,7 @@ void PS_AO_GIBlurV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	{
 		float2 axis = float2(0, 1);
 		temp = tex2D(SamplerOcclusion1, texcoord.xy + axis * PixelSize * r);
-		float tempdepth = tex2Dlod(RFX_depthTexColor, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
+		float tempdepth = tex2Dlod(RFX::depthTexColor, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 		float tempkey = tempdepth;
 #else
@@ -931,7 +931,7 @@ void PS_AO_GIBlurH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	float totalweight=0;
 	float4 base = tex2D(SamplerOcclusion2, texcoord.xy), temp = 0;
 
-	float depth = tex2Dlod(RFX_depthTexColor, float4(texcoord.xy,0,0)).x;
+	float depth = tex2Dlod(RFX::depthTexColor, float4(texcoord.xy,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 	float blurkey = depth;
 #else
@@ -943,7 +943,7 @@ void PS_AO_GIBlurH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	{
 		float2 axis = float2(1, 0);
 		temp = tex2D(SamplerOcclusion2, texcoord.xy + axis * PixelSize * r);
-		float tempdepth = tex2Dlod(RFX_depthTexColor, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
+		float tempdepth = tex2Dlod(RFX::depthTexColor, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 		float tempkey = tempdepth;
 #else
@@ -977,7 +977,7 @@ float4 PS_AO_GICombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
 	gi.xyz = lerp(gi.xyz,0.0, aomult);
 #endif	
 
-	float depth = tex2D(RFX_depthTexColor, texcoord.xy).x; 
+	float depth = tex2D(RFX::depthTexColor, texcoord.xy).x; 
 	gi.xyz = lerp(gi.xyz,0.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 	gi.w = lerp(gi.w,1.0,smoothstep(AO_FADE_START,AO_FADE_END,depth));
 
@@ -988,21 +988,21 @@ float4 PS_AO_GICombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : 
 
 void PS_Init(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 hdrT : SV_Target0) 
 {
-	hdrT = tex2D(RFX_originalColor, texcoord.xy);
+	hdrT = tex2D(RFX::originalColor, texcoord.xy);
 }
 
 technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; >
 {
 	pass Init_HDR1						//later, numerous DOF shaders have different passnumber but later passes depend
 	{							//on fixed HDR1 HDR2 HDR1 HDR2... sequence so a 2 pass DOF outputs HDR1 in pass 1 and 	
-		VertexShader = RFX_VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
+		VertexShader = RFX::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
 		PixelShader = PS_Init;
 		RenderTarget = texHDR3;
 	}
 
 	pass Init_HDR2						//later, numerous DOF shaders have different passnumber but later passes depend
 	{							//on fixed HDR1 HDR2 HDR1 HDR2... sequence so a 2 pass DOF outputs HDR1 in pass 1 and 	
-		VertexShader = RFX_VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
+		VertexShader = RFX::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
 		PixelShader = PS_Init;
 		RenderTarget = texHDR4;
 	}
@@ -1010,7 +1010,7 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD==1)
 	pass AO_SSAO
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_SSAO;
 		RenderTarget = texOcclusion1;
 	}
@@ -1018,7 +1018,7 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD==2)
 	pass AO_RayAO
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_RayAO;
 		RenderTarget = texOcclusion1;
 	}
@@ -1026,7 +1026,7 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD==3)
 	pass AO_HBAO
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_HBAO;
 		RenderTarget = texOcclusion1;
 	}
@@ -1034,7 +1034,7 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD==5)
 	pass AO_HBAO
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_RayHBAO;
 		RenderTarget = texOcclusion1;
 	}
@@ -1042,7 +1042,7 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD==6)
 	pass AO_HBAO
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_SAO;
 		RenderTarget = texOcclusion1;
 	}
@@ -1050,49 +1050,49 @@ technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; 
   #if(AO_METHOD != 4)
 	pass AO_AOBlurV
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_AOBlurV;
 		RenderTarget = texOcclusion2;
 	}
 	
 	pass AO_AOBlurH
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_AOBlurH;
 		RenderTarget = texOcclusion1;
 	}
 
 	pass AO_AOCombine
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_AOCombine;
 	}	
   #endif
   #if(AO_METHOD == 4)
 	pass AO_SSGI
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_SSGI;
 		RenderTarget = texOcclusion1;
 	}
 
 	pass AO_GIBlurV
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_GIBlurV;
 		RenderTarget = texOcclusion2;
 	}
 
 	pass AO_GIBlurH
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_GIBlurH;
 		RenderTarget = texOcclusion1;
 	}
 
 	pass AO_GICombine
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AO_GICombine;
 	}
   #endif

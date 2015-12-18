@@ -51,14 +51,14 @@ sampler2D ambPrevColor { Texture = ambPrevTex; };
 float4 PS_AMBCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float4 prev = tex2D(ambPrevBlurColor, texcoord);
-	float4 curr = tex2D(RFX_backbufferColor, texcoord);
+	float4 curr = tex2D(RFX::backbufferColor, texcoord);
 	float4 currBlur = tex2D(ambCurrBlurColor, texcoord);
 	
 	float diff = (abs(currBlur.r - prev.r) + abs(currBlur.g - prev.g) + abs(currBlur.b - prev.b)) / 3;
 	diff = min(max(diff - ambPrecision, 0.0f)*ambSmartMult, ambRecall);
 
 #if ambDepth_Check
-	float depth = tex2D(RFX_depthTexColor, texcoord).r;
+	float depth = tex2D(RFX::depthTexColor, texcoord).r;
 
 	return lerp(curr, prev, min(ambIntensity+diff*ambSmartInt, 1.0f)/(depth.r+ambDepthRatio));
 #endif
@@ -67,14 +67,14 @@ float4 PS_AMBCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 
 void PS_AMBCopyPreviousFrame(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 prev : SV_Target0)
 {
-	prev = tex2D(RFX_backbufferColor, texcoord);
+	prev = tex2D(RFX::backbufferColor, texcoord);
 }
 
 void PS_AMBBlur(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 curr : SV_Target0, out float4 prev : SV_Target1)
 {
 	
 
-	float4 currVal = tex2D(RFX_backbufferColor, texcoord);
+	float4 currVal = tex2D(RFX::backbufferColor, texcoord);
 	float4 prevVal = tex2D(ambPrevColor, texcoord);
 
 	float weight[11] = { 0.082607, 0.040484, 0.038138, 0.034521, 0.030025, 0.025094, 0.020253, 0.015553, 0.011533, 0.008218, 0.005627 };
@@ -88,10 +88,10 @@ void PS_AMBBlur(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	[unroll]
 	for (int z = 1; z < 11; z++) //set quality level by user
 	{
-		currVal += tex2D(RFX_backbufferColor, texcoord + float2(z*pixelBlur, 0)) * weight[z];
-		currVal += tex2D(RFX_backbufferColor, texcoord - float2(z*pixelBlur, 0)) * weight[z];
-		currVal += tex2D(RFX_backbufferColor, texcoord + float2(0, z*pixelBlur)) * weight[z];
-		currVal += tex2D(RFX_backbufferColor, texcoord - float2(0, z*pixelBlur)) * weight[z];
+		currVal += tex2D(RFX::backbufferColor, texcoord + float2(z*pixelBlur, 0)) * weight[z];
+		currVal += tex2D(RFX::backbufferColor, texcoord - float2(z*pixelBlur, 0)) * weight[z];
+		currVal += tex2D(RFX::backbufferColor, texcoord + float2(0, z*pixelBlur)) * weight[z];
+		currVal += tex2D(RFX::backbufferColor, texcoord - float2(0, z*pixelBlur)) * weight[z];
 		
 		prevVal += tex2D(ambPrevColor, texcoord + float2(z*pixelBlur, 0)) * weight[z];
 		prevVal += tex2D(ambPrevColor, texcoord - float2(z*pixelBlur, 0)) * weight[z];
@@ -112,7 +112,7 @@ RFX_Start_Enabled; int toggle = AdvancedMB_ToggleKey; >
 {
 	pass AMBBlur
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AMBBlur;
 		RenderTarget0 = ambCurrBlurTex;
 		RenderTarget1 = ambPrevBlurTex;
@@ -120,13 +120,13 @@ RFX_Start_Enabled; int toggle = AdvancedMB_ToggleKey; >
 
 	pass AMBCombine
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AMBCombine;
 	}
 
 	pass AMBPrev
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AMBCopyPreviousFrame;
 		RenderTarget0 = ambPrevTex;
 	}

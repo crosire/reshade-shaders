@@ -34,7 +34,7 @@ float4 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
                 float temphue = c/YACA_ImageChromaHues;
                 float3 tempchroma = saturate(float3(abs(temphue * 6.0 - 3.0) - 1.0,2.0 - abs(temphue * 6.0 - 2.0),2.0 - abs(temphue * 6.0 - 4.0)));
                 float  tempoffset = (c + 0.5)/YACA_ImageChromaHues - 0.5;
-                float3 tempsample = tex2Dlod(RFX_backbufferColor, float4(coord.xy*(1.0+offsetfact*tempoffset)*0.5+0.5,0,0)).xyz;
+                float3 tempsample = tex2Dlod(RFX::backbufferColor, float4(coord.xy*(1.0+offsetfact*tempoffset)*0.5+0.5,0,0)).xyz;
                 scenecolor.xyz += tempsample.xyz*tempchroma.xyz;
                 chromaweight += tempchroma;
         }
@@ -49,7 +49,7 @@ technique YACA_Tech <bool enabled = RFX_Start_Enabled; int toggle = YACA_ToggleK
 {
 	pass YACAPass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_YACA;
 	}
 }

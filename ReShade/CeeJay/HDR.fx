@@ -72,7 +72,7 @@ technique HDR_Tech <bool enabled = RFX_Start_Enabled; int toggle = HDR_ToggleKey
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = HDRWrap;
 	}
 }

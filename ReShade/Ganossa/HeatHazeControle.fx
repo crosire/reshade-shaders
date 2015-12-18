@@ -29,20 +29,20 @@
  */
 
 #if Depth_HeatHazeControle
-	float depth = tex2D(RFX_depthColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f))).r;
+	float depth = tex2D(RFX::depthColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f))).r;
 	depth = 2.0 / (-99.0 * depth + 101.0);
 #else
 	float depth = 0.0f;
 #endif
 
-float4 high = tex2D(alInColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f)))*(25.0f-(max(0.0f,texcoord.y+0.15f-1.0f)*10.0f));
+float4 high = tex2D(Ganossa::alInColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f)))*(25.0f-(max(0.0f,texcoord.y+0.15f-1.0f)*10.0f));
 
 #if AL_Adaptation && USE_AMBIENT_LIGHT
 //DetectLow
 #if AL_HQAdapt
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
+	float4 detectLow = tex2D(Ganossa::detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
 #else
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4;
+	float4 detectLow = tex2D(Ganossa::detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4;
 #endif
 	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
 	low *= min(1.0f,1.641*detectLow.r/(1.719*detectLow.g+1.932*detectLow.b));
@@ -55,6 +55,8 @@ float4 high = tex2D(alInColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f)))*(2
 float highMul = sqrt(0.641*high.r*high.r+0.291*high.g*high.g+0.068*high.b*high.b);
 highMul *= min(1.0f,1.641*high.r/(1.719*high.g+1.932*high.b))*min(1.0f,1.75f-depth)*(1.5f-texcoord.y);
 
-heathazecolor.y = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
-heathazecolor.x = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
-heathazecolor.z = tex2D(RFX_backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;
+#include Ganossa_SETTINGS_UNDEF
+#include MartyMcFly_SETTINGS_DEF
+heathazecolor.y = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
+heathazecolor.x = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
+heathazecolor.z = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;

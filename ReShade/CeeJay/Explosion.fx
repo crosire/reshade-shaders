@@ -52,7 +52,7 @@ RFX_Start_Enabled; int toggle = Explosion_ToggleKey; >
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = ExplosionWrap;
 	}
 }

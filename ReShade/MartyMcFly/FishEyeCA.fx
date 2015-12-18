@@ -60,9 +60,9 @@ float4 PS_FISHEYE_CA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 	float2 gCoords = (f*eta.g)*LensZoom*(center.xy*0.5)+0.5;
 	float2 bCoords = (f*eta.b)*LensZoom*(center.xy*0.5)+0.5;
 	
-	color.x = tex2D(RFX_backbufferColor,rCoords).r;
-	color.y = tex2D(RFX_backbufferColor,gCoords).g;
-	color.z = tex2D(RFX_backbufferColor,bCoords).b;
+	color.x = tex2D(RFX::backbufferColor,rCoords).r;
+	color.y = tex2D(RFX::backbufferColor,gCoords).g;
+	color.z = tex2D(RFX::backbufferColor,bCoords).b;
 
 	return color;
 }
@@ -76,7 +76,7 @@ RFX_Start_Enabled; int toggle = FishEye_ToggleKey; >
 {
 	pass FISHEYE_CA
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_FISHEYE_CA;
 	}
 }

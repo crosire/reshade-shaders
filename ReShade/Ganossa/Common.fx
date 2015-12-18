@@ -62,7 +62,7 @@ sampler2D detectLowColor { Texture = detectLowTex; };
 
 void PS_AL_DetectInt(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectInt : SV_Target0)
 {
-	detectInt = tex2D(RFX_backbufferColor,texcoord);
+	detectInt = tex2D(RFX::backbufferColor,texcoord);
 }
 
 void PS_AL_DetectLow(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectLow : SV_Target0)
@@ -106,14 +106,14 @@ technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLi
 {
 	pass AL_DetectInt
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_DetectInt;
 		RenderTarget = detectIntTex;
 	}
 
 	pass AL_DetectLow
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_DetectLow;
 		RenderTarget = detectLowTex;
 	}

@@ -39,7 +39,7 @@ sampler2D SamplerHDR
 
 float GetProDepth(float2 coords) //not really linear but better for normal map generation
 {
-	return 202.0 / (-99.0 * tex2Dlod(RFX_depthColor, float4(coords.xy,0,0)).x + 101.0);
+	return 202.0 / (-99.0 * tex2Dlod(RFX::depthColor, float4(coords.xy,0,0)).x + 101.0);
 }
 
 float3 getEyePos(float2 coords)
@@ -109,8 +109,8 @@ float3 NormalBlend_RNM(float3 n1, float3 n2)
 
 void PS_RBM_Setup(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 hdrR : SV_Target0)
 {
-	float4 res = tex2D(RFX_backbufferColor, texcoord.xy);
-	float lineardepth = tex2D(RFX_depthTexColor, texcoord.xy).r;
+	float4 res = tex2D(RFX::backbufferColor, texcoord.xy);
+	float lineardepth = tex2D(RFX::depthTexColor, texcoord.xy).r;
 	res.a = lineardepth;
 	hdrR = res;
 }
@@ -122,7 +122,7 @@ float4 PS_RBM_Execute(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : S
 	if (res.w == 1.0) return res;
 
 	float3 screenNormals = GetScreenNormalsAMD(texcoord.xy);
-	float3 bumpNormals   = clamp(lerp(float3(0.0,0.0,1.0),GetBumpNormals(RFX_backbufferColor, texcoord.xy),fReflectionReliefHeight),-1.0,1.0);
+	float3 bumpNormals   = clamp(lerp(float3(0.0,0.0,1.0),GetBumpNormals(RFX::backbufferColor, texcoord.xy),fReflectionReliefHeight),-1.0,1.0);
 	float3 finalNormals = NormalBlend_RNM(screenNormals*0.5+0.5,bumpNormals*0.5+0.5);
 	finalNormals.y = -finalNormals.y;
 
@@ -155,14 +155,14 @@ technique RBM_Tech <bool enabled = RFX_Start_Enabled; int toggle = RBM_ToggleKey
 {
 	pass RBMSetupPass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_RBM_Setup;
 		RenderTarget = texHDR;
 	}
 
 	pass RBMExecutePass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_RBM_Execute;
 	}
 }

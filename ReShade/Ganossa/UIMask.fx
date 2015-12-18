@@ -65,9 +65,9 @@ sampler2D uiMaskFinalStartColor { Texture = uiMaskFinalStartTex; };
 float4 PS_UIMask(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	#if UIMask_Direct 
-		return lerp(tex2D(RFX_originalColor, texcoord), tex2D(RFX_backbufferColor, texcoord), tex2D(uiMaskFinalColorHighPong, texcoord).r); 
+		return lerp(tex2D(RFX::originalColor, texcoord), tex2D(RFX::backbufferColor, texcoord), tex2D(uiMaskFinalColorHighPong, texcoord).r); 
 	#else
-		return lerp(tex2D(RFX_originalColor, texcoord), tex2D(RFX_backbufferColor, texcoord), tex2D(uiMaskColor, texcoord).r); 
+		return lerp(tex2D(RFX::originalColor, texcoord), tex2D(RFX::backbufferColor, texcoord), tex2D(uiMaskColor, texcoord).r); 
 	#endif
 }
 
@@ -81,7 +81,7 @@ void PS_UIMaskHelperComparePong(float4 vpos : SV_Position, float2 texcoord : TEX
 {
 	float diff = 0;
 	if(tex2D(uiMaskFinalStartColor,float2(0,0)).r != 0) {
-		float3 ori = tex2D(RFX_originalColor, texcoord).rgb;
+		float3 ori = tex2D(RFX::originalColor, texcoord).rgb;
 		float3 prev = tex2D(uiMaskPrevColor, texcoord).rgb;
 		diff = (abs(ori.r-prev.r)+abs(ori.g-prev.g)+abs(ori.b-prev.b))/3f;
 	}
@@ -90,7 +90,7 @@ void PS_UIMaskHelperComparePong(float4 vpos : SV_Position, float2 texcoord : TEX
 
 void PS_UIMaskHelperStore(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 prevR : SV_Target0)
 { 
-	prevR = tex2D(RFX_originalColor, texcoord);
+	prevR = tex2D(RFX::originalColor, texcoord);
 }
 
 float4 PS_UIMaskHelperFinal(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
@@ -191,7 +191,7 @@ technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle 
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperFinalReset;
 		RenderTarget0 = uiMaskFinalTexLowPing;
 		RenderTarget1 = uiMaskFinalTexLowPong;
@@ -199,7 +199,7 @@ technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle 
 
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperStop;
 		RenderTarget = uiMaskFinalStartTex;
 	}
@@ -210,62 +210,62 @@ technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIM
 {
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperComparePing;
 		RenderTarget0 = uiMaskFinalTexLowPing;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperComparePong;
 		RenderTarget0 = uiMaskFinalTexLowPong;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperBlurLowH;
 		RenderTarget0 = uiMaskFinalTexLowPing;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperBlurLowV;
 		RenderTarget0 = uiMaskFinalTexHighPong;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperBlurHighH;
 		RenderTarget0 = uiMaskFinalTexHighPing;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperBlurHighV;
 		RenderTarget0 = uiMaskFinalTexHighPong;
 	}
 
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperStart;
 		RenderTarget0 = uiMaskFinalStartTex;
 	}
 
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperFinal;
 	}
 
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMaskHelperStore;
 		RenderTarget0 = uiMaskPrevTex;
 	}
@@ -281,7 +281,7 @@ technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_Hel
 #endif
 	pass 
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_UIMask;
 	}
 }

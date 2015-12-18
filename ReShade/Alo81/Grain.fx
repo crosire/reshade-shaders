@@ -132,7 +132,7 @@ float4 GrainPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV
         noise.b = lerp(noise.r,pnoise3D(float3(rotCoordsB*float2(width/grainsize,height/grainsize),2.0)),coloramount);
     }
     
-    float3 col = tex2D(RFX_backbufferColor, texcoord).rgb;
+    float3 col = tex2D(RFX::backbufferColor, texcoord).rgb;
 
     //noisiness response curve based on scene luminance
     float3 lumcoeff = float3(0.299,0.587,0.114);
@@ -152,7 +152,7 @@ technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_Tog
 {
 	pass Grain_Pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = GrainPass;
 	}
 }

@@ -70,7 +70,7 @@ technique Distortion_Tech <bool enabled = RFX_Start_Enabled; int toggle = RFX_To
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = LensDistortionWrap;
 	}
 }

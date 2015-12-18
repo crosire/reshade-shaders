@@ -48,7 +48,7 @@ sampler edgeSampler { Texture = edgeTex; };
 #define w_offset  2.0
 
 // Get destination pixel values
-#define get1(x, y) ( saturate(tex2D(RFX_backbufferColor, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
+#define get1(x, y) ( saturate(tex2D(RFX::backbufferColor, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
 
 // Compute diff
 #define b_diff(z) ( abs(blur-c[z]) )
@@ -113,7 +113,7 @@ void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 
 	edge = min(((edge*c_comp)/3 + w_offset), 32 + w_offset);
 
-	edgeR = float4( (tex2D(RFX_backbufferColor, texcoord).rgb), edge );
+	edgeR = float4( (tex2D(RFX::backbufferColor, texcoord).rgb), edge );
 }
 
 float4 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target {
@@ -264,14 +264,14 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 {
 	pass AdaptiveSharpenPass1
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = AdaptiveSharpenP0;
 		RenderTarget = edgeTex;
 	}
 	
 	pass AdaptiveSharpenPass2
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = AdaptiveSharpenP1;
 	}
 }

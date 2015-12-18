@@ -102,7 +102,7 @@ RFX_Start_Enabled; int toggle = CA_ToggleKey; >
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = ChromaticAberrationWrap;
 	}
 }

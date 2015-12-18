@@ -79,7 +79,7 @@ technique Bloom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Bloom_Toggl
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = BloomWrap;
 	}
 }

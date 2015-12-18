@@ -16,7 +16,7 @@ void SMAAEdgeDetectionVSWrap(
 	out float2 texcoord : TEXCOORD0,
 	out float4 offset[3] : TEXCOORD1)
 {
-	RFX_VS_PostProcess(id, position, texcoord);
+	RFX::VS_PostProcess(id, position, texcoord);
 	SMAAEdgeDetectionVS(texcoord, offset);
 }
 
@@ -27,7 +27,7 @@ void SMAABlendingWeightCalculationVSWrap(
 	out float2 pixcoord : TEXCOORD1,
 	out float4 offset[3] : TEXCOORD2)
 {
-	RFX_VS_PostProcess(id, position, texcoord);
+	RFX::VS_PostProcess(id, position, texcoord);
 	SMAABlendingWeightCalculationVS(texcoord, pixcoord, offset);
 }
 
@@ -37,7 +37,7 @@ void SMAANeighborhoodBlendingVSWrap(
 	out float2 texcoord : TEXCOORD0,
 	out float4 offset : TEXCOORD1)
 {
-	RFX_VS_PostProcess(id, position, texcoord);
+	RFX::VS_PostProcess(id, position, texcoord);
 	SMAANeighborhoodBlendingVS(texcoord, offset);
 }
 
@@ -67,7 +67,7 @@ void SMAANeighborhoodBlendingVSWrap(
 		float2 texcoord : TEXCOORD0,
 		float4 offset[3] : TEXCOORD1) : SV_Target
 	{
-		return SMAALumaEdgeDetectionPS(texcoord, offset, RFX_backbufferColor
+		return SMAALumaEdgeDetectionPS(texcoord, offset, RFX::backbufferColor
 		#if SMAA_PREDICATION == 1
 		, predicationSampler
 		#endif
@@ -79,7 +79,7 @@ void SMAANeighborhoodBlendingVSWrap(
 		float2 texcoord : TEXCOORD0,
 		float4 offset[3] : TEXCOORD1) : SV_Target
 	{
-		return SMAADepthEdgeDetectionPS(texcoord, offset, RFX_depthColor).OUTPUT_COMPONENT2;
+		return SMAADepthEdgeDetectionPS(texcoord, offset, RFX::depthColor).OUTPUT_COMPONENT2;
 	}
 #else //SMAA_EDGE_DETECTION == 2	
 	OUTPUT_FLOAT2 SMAAColorEdgeDetectionPSWrap(
@@ -87,7 +87,7 @@ void SMAANeighborhoodBlendingVSWrap(
 		float2 texcoord : TEXCOORD0,
 		float4 offset[3] : TEXCOORD1) : SV_Target
 	{
-		return SMAAColorEdgeDetectionPS(texcoord, offset, RFX_backbufferColor
+		return SMAAColorEdgeDetectionPS(texcoord, offset, RFX::backbufferColor
 		#if SMAA_PREDICATION == 1
 		, predicationSampler
 		#endif

@@ -112,7 +112,7 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 	#if (CeeJay_PIGGY == 0)
 		float4 SharedWrap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 		{
-			float3 color = tex2D(RFX_backbufferColor, texcoord).rgb;
+			float3 color = tex2D(RFX::backbufferColor, texcoord).rgb;
 
 			return SharedPass(texcoord, color.rgbb);
 		}
@@ -121,7 +121,7 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 		{
 			pass // the effects that don't require a seperate pass are all done in this one.
 			{
-				VertexShader = RFX_VS_PostProcess;
+				VertexShader = RFX::VS_PostProcess;
 				PixelShader = SharedWrap;
 			}
 		}

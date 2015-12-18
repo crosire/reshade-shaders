@@ -13,15 +13,15 @@ float4 PS_Magnify(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 
 	float2 res = float2(float(magnifyEndPixelWidth - magnifyStartPixelWidth)/BUFFER_WIDTH, float(magnifyEndPixelHeight - magnifyStartPixelHeight)/BUFFER_HEIGHT);
 	
-	if(ok) return tex2D(RFX_backbufferColor, float2(texcoord.x*res.x+BUFFER_RCP_WIDTH*magnifyStartPixelWidth, texcoord.y*res.y+BUFFER_RCP_HEIGHT*magnifyStartPixelHeight));
-	else return tex2D(RFX_backbufferColor, texcoord);
+	if(ok) return tex2D(RFX::backbufferColor, float2(texcoord.x*res.x+BUFFER_RCP_WIDTH*magnifyStartPixelWidth, texcoord.y*res.y+BUFFER_RCP_HEIGHT*magnifyStartPixelHeight));
+	else return tex2D(RFX::backbufferColor, texcoord);
 }
 
 technique Magnify_Tech <bool enabled = RFX_Start_Enabled; int toggle = Magnify_ToggleKey; >
 {
 	pass MagnifyPass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_Magnify;
 	}
 }

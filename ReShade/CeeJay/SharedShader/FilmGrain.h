@@ -41,7 +41,7 @@ float4 FilmGrainPass( float4 colorInput, float2 tex )
   #endif
     
   //time counter using requested counter from Reshade
-  float t = (RFX_Timer * 0.0022337) ;
+  float t = (RFX::Timer * 0.0022337) ;
 	
   //PRNG 2D - create two uniform noise values and save one DP2ADD
   float seed = dot(tex, float2(12.9898, 78.233));// + t;

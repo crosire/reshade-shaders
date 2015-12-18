@@ -57,7 +57,7 @@ namespace CeeJay
 
 sampler colorLinearSampler
 {
-	Texture = RFX_backbufferTex;
+	Texture = RFX::backbufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
 	SRGBTexture = true;
@@ -65,7 +65,7 @@ sampler colorLinearSampler
 
 sampler BorderSampler
 {
-	Texture = RFX_backbufferTex;
+	Texture = RFX::backbufferTex;
 	AddressU = Border; AddressV = Border;
 	MipFilter = Linear; MinFilter = Linear; MagFilter = Linear; //Why Mipfilter linear - shouldn't point be fine?
 	SRGBTexture = false;
@@ -108,7 +108,7 @@ sampler searchSampler
 
 }
 
-#define predicationSampler RFX_depthColor //Use the depth sampler as our predication sampler
+#define predicationSampler RFX::depthColor //Use the depth sampler as our predication sampler
 
   /*-----------------------.
   | ::     Effects      :: |
@@ -117,7 +117,7 @@ sampler searchSampler
 #define px BUFFER_RCP_WIDTH
 #define py BUFFER_RCP_HEIGHT
 
-#define s0 RFX_backbufferColor
+#define s0 RFX::backbufferColor
 #define s1 colorLinearSampler
 #define myTex2D tex2D 
 

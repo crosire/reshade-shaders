@@ -165,7 +165,7 @@ technique Paint_Tech <bool enabled = RFX_Start_Enabled; int toggle = Paint_Toggl
 {
 	pass PaintPass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_Paint;
 	}
 }

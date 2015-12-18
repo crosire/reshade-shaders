@@ -266,7 +266,7 @@ technique AdvancedCRT_Tech <bool enabled = RFX_Start_Enabled; int toggle = Advan
 {
 	pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = AdvancedCRTWrap;
 	}
 }

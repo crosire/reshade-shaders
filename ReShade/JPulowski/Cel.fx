@@ -30,15 +30,15 @@ return (CelAccuracy == 0.0) ? 0.0001 / (-999.0 * nonlinearDepth + 1001.0) : CelA
 
 float3 normals(float2 texcoord)//get normal vector from depthmap
 {
-	float	deltax = linearlizeDepth(tex2D(RFX_depthColor, float2((texcoord.x + px), texcoord.y)).x) - linearlizeDepth(tex2D(RFX_depthColor, float2((texcoord.x - px), texcoord.y)).x),
-			deltay = linearlizeDepth(tex2D(RFX_depthColor, float2(texcoord.x, (texcoord.y + py))).x) - linearlizeDepth(tex2D(RFX_depthColor, float2(texcoord.x, (texcoord.y - py))).x);	
+	float	deltax = linearlizeDepth(tex2D(RFX::depthColor, float2((texcoord.x + px), texcoord.y)).x) - linearlizeDepth(tex2D(RFX::depthColor, float2((texcoord.x - px), texcoord.y)).x),
+			deltay = linearlizeDepth(tex2D(RFX::depthColor, float2(texcoord.x, (texcoord.y + py))).x) - linearlizeDepth(tex2D(RFX::depthColor, float2(texcoord.x, (texcoord.y - py))).x);	
 		
 	return normalize(float3( (deltax / 2 / px), (deltay / 2 / py) , 1));
 }
 
 float3 CelPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 {
-	float3 color = tex2D(RFX_backbufferColor, texcoord).rgb,
+	float3 color = tex2D(RFX::backbufferColor, texcoord).rgb,
 	
 	Gx[3] =
 	{
@@ -77,7 +77,7 @@ technique Cel_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cel_ToggleKey
 {
 	pass Cel_Pass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = CelPass;
 	}
 }

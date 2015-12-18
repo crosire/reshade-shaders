@@ -54,6 +54,7 @@ texture lensDB2Tex < source = "ReShade/Ganossa/Textures/lensDB2.png"; > { Width 
 texture lensDOVTex < source = "ReShade/Ganossa/Textures/lensDOV.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 texture lensDUVTex < source = "ReShade/Ganossa/Textures/lensDUV.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 
+
 sampler2D alInColor { Texture = alInTex; };
 sampler2D alOutColor { Texture = alOutTex; };
 sampler dirtSampler { Texture = dirtTex; };
@@ -66,7 +67,7 @@ sampler lensDUVSampler { Texture = lensDUVTex; };
 
 void PS_AL_DetectHigh(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 highR : SV_Target0)
 {
-	float4 x = tex2D(RFX_originalColor, texcoord);
+	float4 x = tex2D(RFX::originalColor, texcoord);
 
 	x = float4 (x.rgb * pow (abs (max (x.r, max (x.g, x.b))), 2.0), 1.0f);
 
@@ -139,7 +140,7 @@ void PS_AL_VGB(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 
 float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 base = tex2D(RFX_backbufferColor, texcoord);
+	float4 base = tex2D(RFX::backbufferColor, texcoord);
 	float4 high = tex2D(alInColor, texcoord);
 
 #if AL_Adaptation
@@ -281,182 +282,182 @@ RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
 {
 	pass AL_DetectHigh
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_DetectHigh;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H1
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V1
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H2
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V2
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H3
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V3
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H4
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V4
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H5
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V5
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H6
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V6
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H7
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V7
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H8
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V8
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H9
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V9
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H10
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V10
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H11
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V11
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_H12
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_HGB;
 		RenderTarget = alOutTex;
 	}
 
 	pass AL_V12
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_VGB;
 		RenderTarget = alInTex;
 	}
 
 	pass AL_Magic
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_AL_Magic;
 	}
 }

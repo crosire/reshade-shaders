@@ -1,18 +1,18 @@
 #include "ReShade/YourName.cfg"
 
-#if (USE_CUSTOM == 1)
+#if (USE_YourShaderName == 1)
 
-float4 PS_Custom(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float4 PS_YourShaderName(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	return tex2D(RFX_backbufferColor, texcoord);
+	return tex2D(RFX::backbufferColor, texcoord);
 }
 
-technique Custom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Custom_ToggleKey; >
+technique YourShaderName_Tech <bool enabled = RFX_Start_Enabled; int toggle = YourShaderName_ToggleKey; >
 {
-	pass CustomPass
+	pass YourShaderNamePass
 	{
-		VertexShader = RFX_VS_PostProcess;
-		PixelShader = PS_Custom;
+		VertexShader = RFX::VS_PostProcess;
+		PixelShader = PS_YourShaderName;
 	}
 }
 

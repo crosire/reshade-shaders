@@ -70,10 +70,10 @@ float4 CompositeSample(float2 texcoord)
 	float4 Cx = float4(C0.x, C1.x, C2.x, C3.x);
 	float4 Cy = float4(C0.y, C1.y, C2.y, C3.y);
 
-	float3 Texel0 = tex2D(RFX_backbufferColor, C0).rgb;
-	float3 Texel1 = tex2D(RFX_backbufferColor, C1).rgb;
-	float3 Texel2 = tex2D(RFX_backbufferColor, C2).rgb;
-	float3 Texel3 = tex2D(RFX_backbufferColor, C3).rgb;
+	float3 Texel0 = tex2D(RFX::backbufferColor, C0).rgb;
+	float3 Texel1 = tex2D(RFX::backbufferColor, C1).rgb;
+	float3 Texel2 = tex2D(RFX::backbufferColor, C2).rgb;
+	float3 Texel3 = tex2D(RFX::backbufferColor, C3).rgb;
 	
 	// Calculated the expected time of the sample.
 	float4 T = Cy * RFX_ScreenSize.x + 0.5 + Cx;
@@ -195,7 +195,7 @@ void PS_VHS(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 Ge
 {	
 	float4 origcolor;
 	
-	origcolor=tex2D(RFX_backbufferColor, texcoord);
+	origcolor=tex2D(RFX::backbufferColor, texcoord);
 	
 	origcolor = NTSCCodec(texcoord);
 
@@ -204,8 +204,8 @@ void PS_VHS(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 Ge
 	GetOut = origcolor;
 }
 
-#define t RFX_Timer.x*0.001
-#define t2 RFX_Timer*0.001
+#define t RFX::Timer.x*0.001
+#define t2 RFX::Timer*0.001
 
 //random hash
 float4 hash42(float2 p){
@@ -257,7 +257,7 @@ void PS_VHS3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
     float4 uv = 0.0;
 	uv.xy = texcoord.xy;
 	uv.w = 0.0;
-	float4 origcolor2= tex2Dlod(RFX_backbufferColor, uv);
+	float4 origcolor2= tex2Dlod(RFX::backbufferColor, uv);
 	
 	float linesN = 240; //fields per seconds
     float one_y = RFX_ScreenSize.y / linesN; //field line
@@ -303,7 +303,7 @@ float3 getVideo(float2 uv)
 	look.x = look.x + sin(look.y*10. + t2)/500.*onOff(4.,4.,.3)*(1.+cos(t2*80.))*window;
 	float vShift = 5.4*onOff(2.,3.,.9)*(sin(t2)*sin(t2*20.) + (0.5 + 0.1*sin(t2*200.)*cos(t2)));
 	look.y = (look.y + vShift % 2.0); //this too
-	float3 video = tex2D(RFX_backbufferColor,look).rgb;
+	float3 video = tex2D(RFX::backbufferColor,look).rgb;
 	return video;
 }
 
@@ -317,7 +317,7 @@ float2 screenDistort(float2 uv)
 
 void PS_VHS4(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 OutGet2 : SV_Target0)
 {
-    float4 origcolor3=tex2Dlod(RFX_backbufferColor, float4(texcoord, 0, 0));
+    float4 origcolor3=tex2Dlod(RFX::backbufferColor, float4(texcoord, 0, 0));
 	texcoord = screenDistort(texcoord);
 	float3 video = getVideo(texcoord);
 	float vigAmt = 3.+.3*sin(t2 + 5.*cos(t2*5.));
@@ -344,7 +344,7 @@ float rand(float2 co)
 
 void PS_VHS5(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 OutGet3 : SV_Target0)
 {
-	float4 origcolor4=tex2D(RFX_backbufferColor, texcoord);
+	float4 origcolor4=tex2D(RFX::backbufferColor, texcoord);
  	float magnitude = 0.0009;
 	
 	// Set up offset
@@ -361,9 +361,9 @@ void PS_VHS5(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	offsetBlueUV.x += rand(float2(cos(t2.x*0.01),sin(texcoord.y)));
 	
 	// Load Texture
-	float r = tex2D(RFX_backbufferColor, offsetRedUV).r;
-	float g = tex2D(RFX_backbufferColor, offsetGreenUV).g;
-	float b = tex2D(RFX_backbufferColor, texcoord).b;
+	float r = tex2D(RFX::backbufferColor, offsetRedUV).r;
+	float g = tex2D(RFX::backbufferColor, offsetGreenUV).g;
+	float b = tex2D(RFX::backbufferColor, texcoord).b;
 	
 	#if bVHSDistortGammaFix
 	origcolor4 += float4(r,g,b,0);
@@ -450,9 +450,9 @@ void PS_VHS6(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	//float rand_g = clamp(sin(t2 * 1.52 * uv.y + sin(t2)) * sin(t2* 1.2), 0.0, 1.0);
 	float4 randss = tex2D(SamNoise, float2(t2 * 0.01, t2 * 0.02));
 	
-	color.r = tex2D(RFX_backbufferColor, crt(colorshift(sdUv, 0.025, randss.r), 2.0)).r;
-	color.g = tex2D(RFX_backbufferColor, crt(colorshift(sdUv, 0.01, randss.g), 2.0)).g;
-	color.b = tex2D(RFX_backbufferColor, crt(colorshift(sdUv, 0.024, randss.b), 2.0)).b;	
+	color.r = tex2D(RFX::backbufferColor, crt(colorshift(sdUv, 0.025, randss.r), 2.0)).r;
+	color.g = tex2D(RFX::backbufferColor, crt(colorshift(sdUv, 0.01, randss.g), 2.0)).g;
+	color.b = tex2D(RFX::backbufferColor, crt(colorshift(sdUv, 0.024, randss.b), 2.0)).b;	
 		
 	float4 scanlineColor = scanline(crtUv);
 	float4 slowscanColor = slowscan(crtUv);
@@ -470,7 +470,7 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	#if (bUseNTSCFilter == 1)
 	pass NTSCFilter
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_VHS;
 	}
 	#endif
@@ -478,7 +478,7 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	#if (bUseVCRDistort == 1)
 	pass VCRDistort
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_VHS4;
 	}
 	#endif
@@ -486,7 +486,7 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	#if (bUseVHSDistort == 1)
 	pass VHSDistort
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_VHS5;
 	}
 	#endif
@@ -494,7 +494,7 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	#if (bUseDirtyCRT == 1)
 	pass DirtyCRT
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_VHS6;
 	}
 	#endif
@@ -502,7 +502,7 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 	#if (bUseTapeNoise == 1)
 	pass TapeNoise
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_VHS3;
 	}
 	#endif

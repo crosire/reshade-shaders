@@ -53,7 +53,7 @@ float4 DaltonizeFX( float4 input, float2 tex )
 
 float4 PS_DaltonizeFXmain(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-float4 color = tex2D(RFX_backbufferColor, texcoord);
+float4 color = tex2D(RFX::backbufferColor, texcoord);
 
 color = DaltonizeFX(color, texcoord);
 
@@ -64,7 +64,7 @@ technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dalto
 {
 	pass DaltonizePass
 	{
-		VertexShader = RFX_VS_PostProcess;
+		VertexShader = RFX::VS_PostProcess;
 		PixelShader = PS_DaltonizeFXmain;
 	}
 }
