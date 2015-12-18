@@ -22,6 +22,7 @@
 #undef L_compr_low
 #undef L_compr_high
 #undef max_scale_lim
+#undef fast_ops
 #undef USE_HQ4X
 #undef HQ4XStrength
 #undef HQ4XSmoothing
