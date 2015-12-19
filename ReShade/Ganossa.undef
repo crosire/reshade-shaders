@@ -25,7 +25,6 @@
 #undef alInt
 #undef alThreshold
 #undef AL_Adaptation
-#undef AL_HQAdapt
 #undef alAdapt
 #undef alAdaptBaseMult
 #undef alAdaptBaseBlackLvL

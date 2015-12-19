@@ -441,12 +441,9 @@ void PS_BloomPass3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	bloom.xyz *= fBloomAmount;
 
 #if AL_Adaptation && USE_AMBIENT_LIGHT
+	#include "BrightDetect.fx"
 //DetectLow	
-#if AL_HQAdapt
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
-#else
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4;
-#endif
+	float4 detectLow = tex2D(detectLowColor, 0.5)/4.215;
 	float low = sqrt(0.241*detectLow.r*detectLow.r+0.691*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
 //.DetectLow
 

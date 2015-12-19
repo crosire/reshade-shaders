@@ -50,6 +50,7 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 
 #include Ganossa_SETTINGS_DEF
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
+	#include "ReShade/Ganossa/BrightDetect.fx"
 	#include "ReShade/Ganossa/HeatHazeControle.fx"
 #else	
 	heathazecolor.y = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;

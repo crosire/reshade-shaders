@@ -1,3 +1,7 @@
+#ifndef INCLUDE_GUARD_GANOSSA_BRIGHTDETECT
+#define INCLUDE_GUARD_GANOSSA_BRIGHTDETECT
+
+#include "Common.fx"
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
@@ -28,31 +32,57 @@
  * SOFTWARE.
  */
 
-#if Depth_HeatHazeControle
-	float depth = tex2D(RFX::depthColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f))).r;
-	depth = 2.0 / (-99.0 * depth + 101.0);
-#else
-	float depth = 0.0f;
+#define xSprint BUFFER_WIDTH/192f
+#define ySprint BUFFER_HEIGHT/108f
+
+namespace Ganossa
+{
+texture2D detectIntTex { Width = 32; Height = 32; Format = RGBA8; };
+sampler2D detectIntColor { Texture = detectIntTex; };
+
+texture2D detectLowTex { Width = 1; Height = 1; Format = RGBA8; };
+sampler2D detectLowColor { Texture = detectLowTex; };
+
+void PS_AL_DetectInt(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectInt : SV_Target0)
+{
+	detectInt = tex2D(RFX::backbufferColor,texcoord);
+}
+
+void PS_AL_DetectLow(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectLow : SV_Target0)
+{
+	detectLow = float4(0,0,0,0);	
+	if(texcoord.x != 0.5 && texcoord.y != 0.5)
+	discard;
+	[loop]
+	for (float i = 0.0; i <= 1; i+=0.03125)
+	{	[unroll]
+		for ( float j = 0.0; j <= 1; j+=0.03125 )
+		{
+			detectLow.xyz += tex2D(detectIntColor,float2(i,j)).xyz;
+		}
+	}
+	detectLow.xyz /= 32*32;
+}
+#undef xSprint
+#undef ySprint
+
+technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
+{
+	pass AL_DetectInt
+	{
+		VertexShader = RFX::VS_PostProcess;
+		PixelShader = PS_AL_DetectInt;
+		RenderTarget = detectIntTex;
+	}
+
+	pass AL_DetectLow
+	{
+		VertexShader = RFX::VS_PostProcess;
+		PixelShader = PS_AL_DetectLow;
+		RenderTarget = detectLowTex;
+	}
+}
+
+}
+
 #endif
-
-float4 high = tex2D(Ganossa::alInColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f)))*(25.0f-(max(0.0f,texcoord.y+0.15f-1.0f)*10.0f));
-
-#if AL_Adaptation
-//DetectLow
-	float4 detectLow = tex2D(Ganossa::detectLowColor, 0.5)/4.215;
-	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
-	low *= min(1.0f,1.641*detectLow.r/(1.719*detectLow.g+1.932*detectLow.b));
-//.DetectLow
-
-	float adapt = low*(low+1.0f)*alAdapt*alInt*5.0f;
-	high.xyz *= max(0.0f,(1.0f - adapt*0.1f*alAdaptHeatMult));
-#endif
-
-float highMul = sqrt(0.641*high.r*high.r+0.291*high.g*high.g+0.068*high.b*high.b);
-highMul *= min(1.0f,1.641*high.r/(1.719*high.g+1.932*high.b))*min(1.0f,1.75f-depth)*(1.5f-texcoord.y);
-
-#include Ganossa_SETTINGS_UNDEF
-#include MartyMcFly_SETTINGS_DEF
-heathazecolor.y = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
-heathazecolor.x = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
-heathazecolor.z = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;

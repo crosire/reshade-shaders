@@ -4,6 +4,10 @@
 #include Ganossa_SETTINGS_DEF
 #endif
 
+#if AL_Adaptation
+#include "BrightDetect.fx"
+#endif
+
 #if USE_AMBIENT_LIGHT
 
 /**
@@ -53,7 +57,6 @@ texture lensDBTex < source = "ReShade/Ganossa/Textures/lensDB.png"; > { Width = 
 texture lensDB2Tex < source = "ReShade/Ganossa/Textures/lensDB2.png"; > { Width = 1024; Height = 576; MipLevels = 1; Format = RGBA8; };
 texture lensDOVTex < source = "ReShade/Ganossa/Textures/lensDOV.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 texture lensDUVTex < source = "ReShade/Ganossa/Textures/lensDUV.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
-
 
 sampler2D alInColor { Texture = alInTex; };
 sampler2D alOutColor { Texture = alOutTex; };
@@ -145,11 +148,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 
 #if AL_Adaptation
 //DetectLow	
-#if AL_HQAdapt
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT));
-#else
-	float4 detectLow = tex2D(detectLowColor, float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT))/4.215;
-#endif
+	float4 detectLow = tex2D(detectLowColor, 0.5)/4.215;
 	float low = sqrt(0.241*detectLow.r*detectLow.r+0.691*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
 //.DetectLow
 
