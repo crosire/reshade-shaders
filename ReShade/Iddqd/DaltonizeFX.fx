@@ -1,3 +1,8 @@
+/*
+ Daltonization algorithm by daltonize.org
+ http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
+*/
+
 #include "ReShade/Iddqd.cfg"
 
 #if USE_DALTONIZEFX
