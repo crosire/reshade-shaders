@@ -1,3 +1,8 @@
+/*
+ Dos Game shader by Boris Vorontsov
+ http://enbdev.com/effect_dosgame.zip
+*/
+
 #include "ReShade/Iddqd.cfg"
 
 #if USE_DOSFX
