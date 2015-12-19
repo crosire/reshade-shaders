@@ -2,6 +2,19 @@
  Basic kuwahara filtering by Jan Eric Kyprianidis <www.kyprianidis.com>
  https://code.google.com/p/gpuakf/source/browse/glsl/kuwahara.glsl
  
+ Copyright (C) 2009-2011 Computer Graphics Systems Group at the
+ Hasso-Plattner-Institut, Potsdam, Germany <www.hpi3d.de>
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
  Paint effect shader for ENB by kingeric1992
  http://enbseries.enbdev.com/forum/viewtopic.php?f=7&t=3244#p53168
  
@@ -32,12 +45,12 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
 #if (PaintMethod == 0)
 	float	Intensitycount0, Intensitycount1, Intensitycount2, Intensitycount3, Intensitycount4,
-			Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
+		Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
 
 	float3	color0, color1, color2, color3, color4,
-			color5, color6, color7, color8, color9;
+		color5, color6, color7, color8, color9;
 
-	int		lum, Maxcount = 0;
+	int	lum, Maxcount = 0;
 
 	for(i = -PaintRadius; i < (PaintRadius + 1); i++){
 		for(j = -PaintRadius; j < (PaintRadius + 1); j++){
@@ -85,7 +98,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
      float n = float((PaintRadius + 1) * (PaintRadius + 1));
 	 
 	 float3 m0, m1, m2, m3,
-			k0, k1, k2, k3;
+		k0, k1, k2, k3;
 
      for (j = -PaintRadius; j <= 0; ++j)  {
          for (i = -PaintRadius; i <= 0; ++i)  {
