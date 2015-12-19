@@ -64,7 +64,7 @@ namespace RFX
 	sampler originalColor { Texture = originalTex; };
 
 #if RFX_PseudoDepth
-	texture dMaskTex < source = "ReShade/BasicFX/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
+	texture dMaskTex < source = "ReShade/Ganossa/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
 	sampler dMaskColor { Texture = dMaskTex; };
 #endif
 
