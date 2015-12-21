@@ -278,6 +278,6 @@ sampler searchSampler
 
 #include CeeJay_SETTINGS_UNDEF
 
-#pragma message "CeeJay 2.0\n"
+#pragma message "SweetFX 2.0 by CeeJay\n"
 
 #endif

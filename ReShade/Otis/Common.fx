@@ -79,6 +79,6 @@ technique Otis_Init_Tech  < enabled = false; >
 
 #include Otis_SETTINGS_UNDEF
 
-#pragma message "Otis 0.2 / Infuse Project\n\n"
+#pragma message "OtisFX 0.2 / Infuse Project\n"
 
 #endif

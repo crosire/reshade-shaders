@@ -50,6 +50,6 @@ sampler2D SamplerNoise
 
 #include MartyMcFly_SETTINGS_UNDEF
 
-#pragma message "MartyMcFly 1.1.450\n"
+#pragma message "MasterEffect 1.1.450 by Marty McFly\n"
 
 #endif
