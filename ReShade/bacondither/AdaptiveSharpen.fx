@@ -35,11 +35,11 @@
    
 */   
 
-#include "ReShade/JPulowski.cfg"
+#include "ReShade/bacondither.cfg"
 
 #if (USE_ADAPTIVESHARPEN == 1)
 
-namespace JPulowski
+namespace bacondither
 {
 
 texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
@@ -298,4 +298,4 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 
 #endif
 
-#include "ReShade/JPulowski.undef"
+#include "ReShade/bacondither.undef"
