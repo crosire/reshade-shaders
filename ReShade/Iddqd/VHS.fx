@@ -12,7 +12,7 @@
  Dirty old CRT: Klowner (https://www.shadertoy.com/view/MsXGD4)
  NTSC Codec: UltraMoogleMan (https://www.shadertoy.com/view/ldXGRf)
  
- Posted by Matsilagi and further optimized for ReShade by Crosire, MartyMcFly and LuciferHawk
+ Posted by Matsilagi and further optimized for ReShade by crosire, MartyMcFly and Ganossa
  http://reshade.me/forum/shader-presentation/1258-vhs-shader
  
  Do not distribute without giving credit to the original author(s).

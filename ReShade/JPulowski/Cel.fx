@@ -8,7 +8,7 @@
  Do not distribute without giving credit to the original author(s).
  
  1.0  - Initial release/port
- 1.1  - Replaced depth linearization algorithm with another one by Crosire
+ 1.1  - Replaced depth linearization algorithm with another one by crosire
         Added an option to tweak accuracy
 	    Modified the code to make it compatible with SweetFX 2.0 Preview 7 and new Operation Piggyback which should give some performance increase
  1.1a - Framework port 
