@@ -24,21 +24,21 @@ float CalculateWeight(float distanceFromSource, float sourceDepth, float neighbo
 
 void PS_Otis_DEH_BlockBlurHorizontal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD, out float4 outFragment : SV_Target0)
 {
-	float4 color = tex2D(RFX::backbufferColor, texcoord);
-	float colorDepth = tex2D(RFX::depthTexColor,texcoord).r;
+	float4 color = tex2D(ReShade::BackBuffer, texcoord);
+	float colorDepth = tex2D(ReShade::LinearizedDepth,texcoord).r;
 	float n = 1.0f;
 
 	[loop]
 	for(float i = 1; i < 5; ++i) 
 	{
 		float2 sourceCoords = texcoord + float2(i * RFX_PixelSize.x, 0.0);
-		float weight = CalculateWeight(i, colorDepth, tex2D(RFX::depthTexColor, sourceCoords).r);
-		color += (tex2D(RFX::backbufferColor, sourceCoords) * weight);
+		float weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth, sourceCoords).r);
+		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
 		
 		sourceCoords = texcoord - float2(i * RFX_PixelSize.x, 0.0);
-		weight = CalculateWeight(i, colorDepth, tex2D(RFX::depthTexColor,sourceCoords).r);
-		color += (tex2D(RFX::backbufferColor, sourceCoords) * weight);
+		weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
+		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
 	}
 	outFragment = color/n;
@@ -47,19 +47,19 @@ void PS_Otis_DEH_BlockBlurHorizontal(in float4 pos : SV_Position, in float2 texc
 void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD, out float4 outFragment : SV_Target0)
 {
 	float4 color = tex2D(Otis_SamplerFragmentBuffer1, texcoord);
-	float colorDepth = tex2D(RFX::depthTexColor,texcoord).r;
+	float colorDepth = tex2D(ReShade::LinearizedDepth,texcoord).r;
 	float n=1.0f;
 	
 	[loop]
 	for(float j = 1; j < 5; ++j) 
 	{
 		float2 sourceCoords = texcoord + float2(0.0, j * RFX_PixelSize.y);
-		float weight = CalculateWeight(j, colorDepth, tex2D(RFX::depthTexColor,sourceCoords).r);
+		float weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
 
 		sourceCoords = texcoord - float2(0.0, j * RFX_PixelSize.y);
-		weight = CalculateWeight(j, colorDepth, tex2D(RFX::depthTexColor,sourceCoords).r);
+		weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
 	}
@@ -68,8 +68,8 @@ void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoo
 
 void PS_Otis_DEH_BlendBlurWithNormalBuffer(float4 vpos: SV_Position, float2 texcoord: TEXCOORD, out float4 fragment: SV_Target0)
 {
-	fragment = lerp(tex2D(RFX::backbufferColor, texcoord), tex2D(Otis_SamplerFragmentBuffer2, texcoord), 
-					clamp( tex2D(RFX::depthTexColor,texcoord).r * DEH_EffectStrength, 0, 1)); 
+	fragment = lerp(tex2D(ReShade::BackBuffer, texcoord), tex2D(Otis_SamplerFragmentBuffer2, texcoord), 
+					clamp( tex2D(ReShade::LinearizedDepth,texcoord).r * DEH_EffectStrength, 0, 1)); 
 }
 
 technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
@@ -78,21 +78,21 @@ technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
 	// 3rd pass blends blurred fragments based on depth with screenbuffer.
 	pass Otis_DEH_Pass0
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Otis_DEH_BlockBlurHorizontal;
 		RenderTarget = Otis_FragmentBuffer1;
 	}
 
 	pass Otis_DEH_Pass1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Otis_DEH_BlockBlurVertical;
 		RenderTarget = Otis_FragmentBuffer2;
 	}
 	
 	pass Otis_DEH_Pass2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Otis_DEH_BlendBlurWithNormalBuffer;
 	}
 }

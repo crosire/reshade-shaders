@@ -13,14 +13,14 @@ sampler bMaskColor { Texture = bMaskTex; };
 
 float4 PS_Border(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	return lerp(0.0.xxxx, tex2D(RFX::backbufferColor, texcoord), tex2D(bMaskColor, texcoord).r); 
+	return lerp(0.0.xxxx, tex2D(ReShade::BackBuffer, texcoord), tex2D(bMaskColor, texcoord).r); 
 }
 
 technique Border_Tech <bool enabled = RFX_Start_Enabled; int toggle = Border_ToggleKey; >
 {
 	pass 
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Border;
 	}
 }

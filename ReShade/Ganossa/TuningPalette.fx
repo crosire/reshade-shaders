@@ -49,7 +49,7 @@ sampler	ColorLUTDstColor 	{ Texture = ColorLUTDstTex; };
 
 float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 original = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 original = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 #if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
 	#include "BrightDetect.fx"
@@ -134,7 +134,7 @@ technique TuningPalette_Tech <bool enabled = RFX_Start_Enabled; int toggle = Tun
 {
 	pass TuningPalettePass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_TuningPalette;
 	}
 }

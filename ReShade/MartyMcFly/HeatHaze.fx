@@ -44,7 +44,7 @@ sampler2D SamplerHeat
 float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target0
 {
 	float4 color = 0.0.xxxx;
-	float3 heatnormal = tex2Dlod(SamplerHeat, float4(texcoord.xy*fHeatHazeTextureScale+float2(0.0,RFX::Timer.x*0.0001*fHeatHazeSpeed),0,0)).rgb - 0.5;
+	float3 heatnormal = tex2Dlod(SamplerHeat, float4(texcoord.xy*fHeatHazeTextureScale+float2(0.0,ReShade::Timer.x*0.0001*fHeatHazeSpeed),0,0)).rgb - 0.5;
     	float2 heatoffset = normalize(heatnormal.xy) * pow(length(heatnormal.xy), 0.5);
 	float3 heathazecolor = 0;
 
@@ -53,9 +53,9 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	#include "ReShade/Ganossa/BrightDetect.fx"
 	#include "ReShade/Ganossa/HeatHazeControle.fx"
 #else	
-	heathazecolor.y = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
-	heathazecolor.x = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
-	heathazecolor.z = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount)).z;
+	heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
+	heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
+	heathazecolor.z = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount)).z;
 #endif
 #include Ganossa_SETTINGS_UNDEF
 
@@ -75,7 +75,7 @@ RFX_Start_Enabled; int toggle = HeatHaze_ToggleKey; >
 {
 	pass HeatHaze
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_HeatHaze;
 	}
 }

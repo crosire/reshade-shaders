@@ -117,7 +117,7 @@ sampler2D BBlurSamplerPong { Texture = BBlurTex2Dpong; MinFilter = Linear; MagFi
 
 float4 GOriginalPixel(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
-	float4 color = tex2D(RFX::backbufferColor, texcoord);
+	float4 color = tex2D(ReShade::BackBuffer, texcoord);
 	return saturate(color);
 }
 
@@ -134,11 +134,11 @@ float4 HGaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOOR
 		color += tex2D(GBlurSamplerPing, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -157,11 +157,11 @@ float4 VGaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOOR
 		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
 	#endif
 	return color;
@@ -180,11 +180,11 @@ float4 V2GaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
 	}
 	#endif
 	return color;
@@ -203,11 +203,11 @@ float4 H2GaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 		color += tex2D(GBlurSamplerPing, texcoord - float2(sampleOffsets[i] * Gpx_size.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else 
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(sampleOffsets[i] * Gpx_size.x, 0.0)) * sampleWeights[i];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(sampleOffsets[i] * Gpx_size.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * Gpx_size.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * Gpx_size.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -226,7 +226,7 @@ float4 GaussianBlurFinalPS(in float4 pos : SV_Position, in float2 texcoord : TEX
 		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
 		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
 	}
-	float4 orig = tex2D(RFX::backbufferColor, texcoord); //Original Image
+	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#else
 	float4 color = tex2D(GBlurSamplerPong, texcoord) * sampleWeights[0];
 	[loop]
@@ -234,23 +234,23 @@ float4 GaussianBlurFinalPS(in float4 pos : SV_Position, in float2 texcoord : TEX
 		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
-	float4 orig = tex2D(RFX::backbufferColor, texcoord); //Original Image
+	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#endif
 	#else
 	#if GaussQuality >= 1
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * Gpx_size.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#else 
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#endif 
@@ -317,7 +317,7 @@ float4 GlareDetectionPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 	#if BloomTexScale != 0
 	float4 color = tex2D( BBlurSamplerPong, texcoord );
 	#else
-	float4 color = tex2D( RFX::backbufferColor, texcoord );
+	float4 color = tex2D( ReShade::BackBuffer, texcoord );
 	#endif
 	
 	#if GaussBloomWarmth == 1
@@ -354,11 +354,11 @@ float4 HBloomBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		color += tex2D(BBlurSamplerPing, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -377,11 +377,11 @@ float4 VBloomBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
 	#endif
 	return color;
@@ -400,11 +400,11 @@ float4 V2BloomBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD)
 		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
 	#endif
 	return color;
@@ -423,11 +423,11 @@ float4 H2BloomBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD)
 		color += tex2D(BBlurSamplerPing, texcoord - float2(sampleOffsets[i] * Bpx_size.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else 
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(sampleOffsets[i] * Bpx_size.x, 0.0)) * sampleWeights[i];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(sampleOffsets[i] * Bpx_size.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * Bpx_size.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * Bpx_size.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -446,7 +446,7 @@ float4 FinalBloomPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		color += tex2D(BBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
-	float4 orig = tex2D(RFX::backbufferColor, texcoord); //Original Image
+	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#else 
 	float4 color = tex2D(BBlurSamplerPong, texcoord) * sampleWeights[0];
 	[loop]
@@ -454,23 +454,23 @@ float4 FinalBloomPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		color += tex2D(BBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
-	float4 orig = tex2D(RFX::backbufferColor, texcoord); //Original Image
+	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#endif
 	#else
 	#if BloomQuality >= 1
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * Bpx_size.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#else
-	float4 color = tex2D(RFX::backbufferColor, texcoord) * sampleWeights[0];
+	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(RFX::backbufferColor, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(RFX::backbufferColor, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#endif
@@ -508,14 +508,14 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if Use_Unsharpmask == 1 || Use_GaussianBlur == 1
 	pass H1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = GOriginalPixel;
 		RenderTarget = GBlurTex2Dping;
 	}
 
 	pass H1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = HGaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -525,7 +525,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 1
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = VGaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -534,7 +534,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -544,7 +544,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 2
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -553,7 +553,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -563,7 +563,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 3	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -572,7 +572,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -582,7 +582,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 4
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -591,7 +591,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -601,7 +601,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 5	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -610,7 +610,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -620,7 +620,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 6	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -629,7 +629,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -639,7 +639,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 7	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -648,7 +648,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -658,7 +658,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 8	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -667,7 +667,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -677,7 +677,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 9
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -686,7 +686,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -696,7 +696,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 10	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -705,7 +705,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -715,7 +715,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 11	
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -724,7 +724,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -734,7 +734,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussQuality >= 12
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dping;
@@ -743,7 +743,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2GaussianBlurPS;
 		#if GaussTexScale != 0
 		RenderTarget = GBlurTex2Dpong;
@@ -752,7 +752,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #endif
 	pass VFinal
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = GaussianBlurFinalPS;
 	}
 #endif
@@ -760,7 +760,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 
 	pass H1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = GOriginalPixel;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -771,7 +771,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 
 	pass GD
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = GlareDetectionPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -780,7 +780,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H1Bloom
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = HBloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -790,7 +790,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 1
 	pass V1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = VBloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -799,7 +799,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -809,7 +809,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 2
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -818,7 +818,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -828,7 +828,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 3
 	pass V3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -837,7 +837,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 		
 	pass H4
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -847,7 +847,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 4
 	pass V4
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -856,7 +856,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H5
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -866,7 +866,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 5	
 	pass V5
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -875,7 +875,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H6
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -885,7 +885,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 6
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -894,7 +894,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -904,7 +904,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 7	
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -913,7 +913,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -923,7 +923,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 8
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -932,7 +932,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -942,7 +942,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 9
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -951,7 +951,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -961,7 +961,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 10	
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -970,7 +970,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -980,7 +980,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 11	
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -989,7 +989,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -999,7 +999,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 #if GaussBloomQuality >= 12
 	pass V2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = V2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dping;
@@ -1008,7 +1008,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass H3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = H2BloomBlurPS;
 		#if BloomTexScale != 0
 		RenderTarget = BBlurTex2Dpong;
@@ -1018,7 +1018,7 @@ technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian
 	
 	pass VFinal
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = FinalBloomPS;
 	}
 #endif

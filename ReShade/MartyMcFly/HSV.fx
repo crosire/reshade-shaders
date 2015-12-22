@@ -89,7 +89,7 @@ float3 RGBtoHSV(in float3 RGB)
 
 float4 PS_HSV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 color = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 color = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 	float3 hsvcolor = RGBtoHSV( color.xyz );
 	//global adjustments
@@ -108,7 +108,7 @@ technique HSV_Tech <bool enabled = RFX_Start_Enabled; int toggle = HSV_ToggleKey
 {
 	pass HSVPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_HSV;
 	}
 }

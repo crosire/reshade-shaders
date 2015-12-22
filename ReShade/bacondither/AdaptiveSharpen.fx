@@ -46,7 +46,7 @@ texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F;
 sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x, y)     ( saturate(tex2D(RFX::backbufferColor, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
+#define get1(x, y)     ( saturate(tex2D(ReShade::BackBuffer, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
 #define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (RFX_PixelSize * float2(x, y))).xy )
 
 // Compute diff
@@ -116,7 +116,7 @@ void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 
 float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target {
 
-	float3 orig    = tex2D(RFX::backbufferColor, texcoord).rgb;
+	float3 orig    = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 satorig = saturate(orig);
 
 	// Get points
@@ -272,14 +272,14 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 {
 	pass AdaptiveSharpenPass1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader  = AdaptiveSharpenP0;
 		RenderTarget = Pass0Tex;
 	}
 	
 	pass AdaptiveSharpenPass2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader  = AdaptiveSharpenP1;
 	}
 }

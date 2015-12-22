@@ -241,7 +241,7 @@ float3 AsciiPass( float2 tex )
 
   #if Ascii_dithering_temporal == 1
 		//float even_frame = (frac(framecount * 0.5) < 0.25) ? -1.0 : 1.0;
-	//float even_frame = (frac(RFX::Timer / (1000. / 59.9 * 2.)) <= 0.50) ? -1.0 : 1.0;
+	//float even_frame = (frac(ReShade::Timer / (1000. / 59.9 * 2.)) <= 0.50) ? -1.0 : 1.0;
 	#endif
 
 
@@ -461,7 +461,7 @@ technique Ascii_Tech <bool enabled = RFX_Start_Enabled; int toggle = Ascii_Toggl
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = AsciiWrap;
 	}
 }

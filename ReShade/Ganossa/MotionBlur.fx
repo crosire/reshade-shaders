@@ -78,13 +78,13 @@ float4 PS_Combine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 
 float4 PS_CopyFrame(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	return tex2D(RFX::backbufferColor, texcoord);
+	return tex2D(ReShade::BackBuffer, texcoord);
 }
 
 void PS_CopyPreviousFrame(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 prevSingle : SV_Target0, out float4 prev : SV_Target1)
 {
 	prevSingle = tex2D(currColor, texcoord);
-	prev = tex2D(RFX::backbufferColor, texcoord);
+	prev = tex2D(ReShade::BackBuffer, texcoord);
 }
 
 technique MotionBlur_Tech <bool enabled = 
@@ -96,20 +96,20 @@ RFX_Start_Enabled; int toggle = MotionBlur_ToggleKey; >
 {
 	pass CopyFrame
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_CopyFrame;
 		RenderTarget = currTex;
 	}
 
 	pass Combine
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Combine;
 	}
 
 	pass PrevColor
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_CopyPreviousFrame;
 		RenderTarget0 = prevSingleTex;
 		RenderTarget1 = prevTex;

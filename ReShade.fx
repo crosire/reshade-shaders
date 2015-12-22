@@ -38,34 +38,31 @@
 #define RFX_ScreenSize float2(BUFFER_WIDTH, BUFFER_HEIGHT)
 #define RFX_ScreenSizeFull float4(BUFFER_WIDTH, BUFFER_RCP_WIDTH, float(BUFFER_WIDTH) / float(BUFFER_HEIGHT), float(BUFFER_HEIGHT) / float(BUFFER_WIDTH))
 
-namespace RFX
+namespace ReShade
 {
 	// Global Variables
 	uniform float Timer < source = "timer"; >;
 	uniform float FrameTime < source = "frametime"; >;
-	uniform float TechniqueTimeLeft < source = "timeleft"; >;
 
 	// Global Textures and Samplers
-	texture depthBufferTex : DEPTH;
-	texture depthTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R32F; };
-
-	texture backbufferTex : COLOR;
+	texture BackBufferTex : COLOR;
+	texture DepthBufferTex : DEPTH;
 
 #if RFX_InitialStorage
-	texture originalTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+	texture OriginalColorTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 #else
-	texture originalTex : COLOR;
+	texture OriginalColorTex : COLOR;
 #endif
+	texture LinearizedDepthTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R32F; };
 
-	sampler depthColor { Texture = depthBufferTex; };
-	sampler depthTexColor { Texture = depthTex; };
-
-	sampler backbufferColor { Texture = backbufferTex; };
-	sampler originalColor { Texture = originalTex; };
+	sampler BackBuffer { Texture = BackBufferTex; };
+	sampler OriginalColor { Texture = OriginalColorTex; };
+	sampler OriginalDepth { Texture = DepthBufferTex; };
+	sampler LinearizedDepth { Texture = LinearizedDepthTex; };
 
 #if RFX_PseudoDepth
-	texture dMaskTex < source = "ReShade/Ganossa/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
-	sampler dMaskColor { Texture = dMaskTex; };
+	texture DepthMaskTex < source = "ReShade/Ganossa/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
+	sampler DepthMask { Texture = DepthMaskTex; };
 #endif
 
 	// Full-screen triangle vertex shader
@@ -76,23 +73,20 @@ namespace RFX
 		pos = float4(texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 	}
 
-#if RFX_InitialStorage
+	// Color and depth buffer copy and linearization shaders
+#if RFX_InitialStorage || RFX_ShowToggleMessage
 	float4 PS_StoreColor(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 	{
-		return tex2D(backbufferColor, texcoord);
+		return tex2D(BackBuffer, texcoord);
 	}
 #endif
 #if RFX_DepthBufferCalc
-	float  PS_StoreDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
+	float  PS_StoreDepth(float4 vpos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 	{
 #if RFX_PseudoDepth
-	#if RFX_NegativeDepth
-		return 1.0 - tex2D(dMaskColor, texcoord).x;
-	#else
-		return tex2D(dMaskColor, texcoord).x;
-	#endif
+		float depth = tex2D(DepthMask, texcoord).x;
 #else
-		float depth = tex2D(depthColor, texcoord).x;
+		float depth = tex2D(OriginalDepth, texcoord).x;
 
 		// Linearize depth	
 	#if RFX_LogDepth 
@@ -101,12 +95,11 @@ namespace RFX
 	#else
 		depth = 1.f/(1000.f-999.f*depth);
 	#endif
-
-	#if RFX_NegativeDepth
+#endif
+#if RFX_NegativeDepth
 		return 1.0 - depth;
-	#else
+#else
 		return depth;
-	#endif
 #endif
 	}
 #endif
@@ -118,17 +111,17 @@ technique Setup_Tech < enabled = true; >
 #if RFX_InitialStorage
 	pass StoreColor
 	{
-		VertexShader = RFX::VS_PostProcess;
-		PixelShader = RFX::PS_StoreColor;
-		RenderTarget = RFX::originalTex;
+		VertexShader = ReShade::VS_PostProcess;
+		PixelShader = ReShade::PS_StoreColor;
+		RenderTarget = ReShade::OriginalColorTex;
 	}
 #endif
 #if RFX_DepthBufferCalc
 	pass StoreDepth
 	{
-		VertexShader = RFX::VS_PostProcess;
-		PixelShader = RFX::PS_StoreDepth;
-		RenderTarget = RFX::depthTex;
+		VertexShader = ReShade::VS_PostProcess;
+		PixelShader = ReShade::PS_StoreDepth;
+		RenderTarget = ReShade::LinearizedDepthTex;
 	}
 #endif
 }
@@ -152,17 +145,12 @@ technique Setup_Tech < enabled = true; >
  */
 
 #if RFX_ShowToggleMessage
-float4 PS_ToggleMessage(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
-{
-	return tex2D(RFX::backbufferColor, texcoord);
-}
-
 technique Framework < enabled = RFX_Start_Enabled; toggle = RFX_ToggleKey; >
 {
 	pass 
 	{
-		VertexShader = RFX::VS_PostProcess;
-		PixelShader = PS_ToggleMessage;
+		VertexShader = ReShade::VS_PostProcess;
+		PixelShader = ReShade::PS_StoreColor;
 	}
 }
 #endif

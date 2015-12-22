@@ -12,7 +12,7 @@ float4 PS_HQ4X(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 	const float min_w = HQ4XMinFilterWeigth; // min filter weigth
 	const float lum_add = HQ4XEffectsSmoothing; // effects smoothing
 
-	float4 color = tex2D(RFX::backbufferColor, uv);
+	float4 color = tex2D(ReShade::BackBuffer, uv);
 	float3 c = color.xyz;
 
 	float x = HQ4XStrength * BUFFER_RCP_WIDTH;
@@ -36,20 +36,20 @@ float4 PS_HQ4X(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 	float4 t5 = float4(uv-dg1,uv-dg2);
 	float4 t6 = float4(uv+dg1,uv+dg2);
 
-	float3 i1 = tex2D(RFX::backbufferColor, t1.xy).xyz;
-	float3 i2 = tex2D(RFX::backbufferColor, t2.xy).xyz;
-	float3 i3 = tex2D(RFX::backbufferColor, t3.xy).xyz;
-	float3 i4 = tex2D(RFX::backbufferColor, t4.xy).xyz;
+	float3 i1 = tex2D(ReShade::BackBuffer, t1.xy).xyz;
+	float3 i2 = tex2D(ReShade::BackBuffer, t2.xy).xyz;
+	float3 i3 = tex2D(ReShade::BackBuffer, t3.xy).xyz;
+	float3 i4 = tex2D(ReShade::BackBuffer, t4.xy).xyz;
 
-	float3 o1 = tex2D(RFX::backbufferColor, t5.xy).xyz;
-	float3 o3 = tex2D(RFX::backbufferColor, t6.xy).xyz;
-	float3 o2 = tex2D(RFX::backbufferColor, t5.zw).xyz;
-	float3 o4 = tex2D(RFX::backbufferColor, t6.zw).xyz;
+	float3 o1 = tex2D(ReShade::BackBuffer, t5.xy).xyz;
+	float3 o3 = tex2D(ReShade::BackBuffer, t6.xy).xyz;
+	float3 o2 = tex2D(ReShade::BackBuffer, t5.zw).xyz;
+	float3 o4 = tex2D(ReShade::BackBuffer, t6.zw).xyz;
 
-	float3 s1 = tex2D(RFX::backbufferColor, t1.zw).xyz;
-	float3 s2 = tex2D(RFX::backbufferColor, t2.zw).xyz;
-	float3 s3 = tex2D(RFX::backbufferColor, t3.zw).xyz;
-	float3 s4 = tex2D(RFX::backbufferColor, t4.zw).xyz;
+	float3 s1 = tex2D(ReShade::BackBuffer, t1.zw).xyz;
+	float3 s2 = tex2D(ReShade::BackBuffer, t2.zw).xyz;
+	float3 s3 = tex2D(ReShade::BackBuffer, t3.zw).xyz;
+	float3 s4 = tex2D(ReShade::BackBuffer, t4.zw).xyz;
 
 	float ko1 = dot(abs(o1-c),dt);
 	float ko2 = dot(abs(o2-c),dt);
@@ -82,7 +82,7 @@ technique HQ4X_Tech <bool enabled = RFX_Start_Enabled; int toggle = HQ4X_ToggleK
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_HQ4X;
 	}
 }

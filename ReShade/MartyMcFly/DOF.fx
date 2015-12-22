@@ -72,7 +72,7 @@ sampler2D SamplerHDR2
 
 float GetCoC(float2 coords)
 {
-	float  scenedepth = tex2D(RFX::depthTexColor,coords.xy).x;
+	float  scenedepth = tex2D(ReShade::LinearizedDepth,coords.xy).x;
 	float  scenefocus = DOF_MANUALFOCUSDEPTH;
 	float  scenecoc = 0.0;
 
@@ -84,7 +84,7 @@ float GetCoC(float2 coords)
 	{ 
  		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
  		coords.y *= RFX_ScreenSizeFull.z; 
- 		scenefocus += tex2D(RFX::depthTexColor,coords*DOF_FOCUSRADIUS + DOF_FOCUSPOINT.xy).x; 
+ 		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + DOF_FOCUSPOINT.xy).x; 
   	}
 	scenefocus /= DOF_FOCUSSAMPLES; 
 #endif
@@ -111,7 +111,7 @@ float GetCoC(float2 coords)
 
 void PS_Focus(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 hdr1R : SV_Target0)
 {
-	float4 scenecolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 scenecolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 	scenecolor.w = GetCoC(texcoord.xy);
 	hdr1R = scenecolor;
 }
@@ -138,7 +138,7 @@ void PS_RingDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 float4 PS_RingDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float4 blurcolor = tex2D(SamplerHDR2, texcoord.xy);
-	float4 noblurcolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 noblurcolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 	float centerDepth = GetCoC(texcoord.xy);
 
@@ -215,7 +215,7 @@ void PS_MagicDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 float4 PS_MagicDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target	
 {
 	float4 blurcolor = 0.0;
-	float4 noblurcolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 noblurcolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 	float centerDepth = GetCoC(texcoord.xy); //use fullres CoC data
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
@@ -274,7 +274,7 @@ void PS_GPDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 float4 PS_GPDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float4 blurcolor = tex2D(SamplerHDR2, texcoord.xy);
-	float4 noblurcolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 noblurcolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 	float centerDepth = GetCoC(texcoord.xy);
 
@@ -452,7 +452,7 @@ void PS_MatsoDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 //you need to handle this one separately somehow (I saw how you did it previously), sorry :p XXX
 float4 PS_MatsoDOF4(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 noblurcolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 noblurcolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 	float4 blurcolor = GetMatsoDOFBlur(1, texcoord.xy, SamplerHDR2);
 	float centerDepth = GetCoC(texcoord.xy); //fullres coc data
 
@@ -532,7 +532,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 	#endif
 
 	#if(bADOF_RotAnimationEnable != 0)
-		rotAngle += fADOF_RotAnimationSpeed*RFX::Timer*0.005;
+		rotAngle += fADOF_RotAnimationSpeed*ReShade::Timer*0.005;
 	#endif
 
 	#if(bADOF_ShapeDiffusionEnable != 0)
@@ -632,7 +632,7 @@ float4 PS_McFlyDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 {   
 	float4 scenecolor = 0.0;
 	float4 blurcolor = tex2D(SamplerHDR2, texcoord.xy*DOF_RENDERRESMULT);
-	float4 noblurcolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 noblurcolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 	
 	float centerDepth = GetCoC(texcoord.xy); 
 	float blurAmount = abs(centerDepth * 2.0 - 1.0);
@@ -672,7 +672,7 @@ float4 PS_McFlyDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 
 float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 scenecolor = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 scenecolor = tex2D(ReShade::BackBuffer, texcoord.xy);
 	float4 blurcolor = 0.0001;
 	float outOfFocus = abs(scenecolor.w * 2.0 - 1.0);
 
@@ -686,14 +686,14 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	{
 		float2 offset = float2(x,y);
 		float offsetweight = weights[abs(x)]*weights[abs(y)];
-		blurcolor.xyz += tex2Dlod(RFX::backbufferColor,float4(texcoord.xy + offset.xy * blurmult,0,0)).xyz * offsetweight;
+		blurcolor.xyz += tex2Dlod(ReShade::BackBuffer,float4(texcoord.xy + offset.xy * blurmult,0,0)).xyz * offsetweight;
 		blurcolor.w += offsetweight;
 	}
 
 	scenecolor.xyz = blurcolor.xyz / blurcolor.w;
 
 	#if(bADOF_ImageGrainEnable != 0)
-		float ImageGrain = frac(sin(texcoord.x + texcoord.y * 543.31) *  893013.0 + RFX::Timer * 0.001);
+		float ImageGrain = frac(sin(texcoord.x + texcoord.y * 543.31) *  893013.0 + ReShade::Timer * 0.001);
 
 		float3 AnimGrain = 0.5;
 		float2 GrainRFX_PixelSize = RFX_PixelSize/fADOF_ImageGrainScale;
@@ -717,29 +717,29 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 
 technique DepthOfField_Tech < bool enabled = RFX_Start_Enabled; int toggle = DOF_ToggleKey; >
 {
-	pass Focus	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_Focus;		RenderTarget = texHDR1;		}
+	pass Focus	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_Focus;		RenderTarget = texHDR1;		}
 #if(DOF_METHOD == 1)
-	pass RingDOF1	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_RingDOF1;		RenderTarget = texHDR2;		}
-	pass RingDOF2	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_RingDOF2;		/* renders to backbuffer*/	}
+	pass RingDOF1	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_RingDOF1;		RenderTarget = texHDR2;		}
+	pass RingDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_RingDOF2;		/* renders to backbuffer*/	}
 #endif
 #if(DOF_METHOD == 2)
-	pass MagicDOF1	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MagicDOF1;		RenderTarget = texHDR2;		}
-	pass MagicDOF2	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MagicDOF2;		/* renders to backbuffer*/	}
+	pass MagicDOF1	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MagicDOF1;		RenderTarget = texHDR2;		}
+	pass MagicDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MagicDOF2;		/* renders to backbuffer*/	}
 #endif
 #if(DOF_METHOD == 3)
-	pass GPDOF1	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_GPDOF1;		RenderTarget = texHDR2;		}
-	pass GPDOF2	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_GPDOF2;		/* renders to backbuffer*/	}
+	pass GPDOF1	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_GPDOF1;		RenderTarget = texHDR2;		}
+	pass GPDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_GPDOF2;		/* renders to backbuffer*/	}
 #endif
 #if(DOF_METHOD == 4)
-	pass MatsoDOF1	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MatsoDOF1;		RenderTarget = texHDR2;		}
-	pass MatsoDOF2	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MatsoDOF2;		RenderTarget = texHDR1;		}
-	pass MatsoDOF3	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MatsoDOF3;		RenderTarget = texHDR2;		}
-	pass MatsoDOF4	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_MatsoDOF4;		/* renders to backbuffer*/	}
+	pass MatsoDOF1	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MatsoDOF1;		RenderTarget = texHDR2;		}
+	pass MatsoDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MatsoDOF2;		RenderTarget = texHDR1;		}
+	pass MatsoDOF3	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MatsoDOF3;		RenderTarget = texHDR2;		}
+	pass MatsoDOF4	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_MatsoDOF4;		/* renders to backbuffer*/	}
 #endif
 #if(DOF_METHOD == 5)
-	pass McFlyDOF1	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_McFlyDOF1;		RenderTarget = texHDR2;		}
-	pass McFlyDOF2	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_McFlyDOF2;		/* renders to backbuffer*/	}
-	pass McFlyDOF3	{	VertexShader = RFX::VS_PostProcess;	PixelShader  = PS_McFlyDOF3;		/* renders to backbuffer*/	}
+	pass McFlyDOF1	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_McFlyDOF1;		RenderTarget = texHDR2;		}
+	pass McFlyDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_McFlyDOF2;		/* renders to backbuffer*/	}
+	pass McFlyDOF3	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_McFlyDOF3;		/* renders to backbuffer*/	}
 #endif
 }
 

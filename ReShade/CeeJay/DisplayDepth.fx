@@ -8,14 +8,14 @@ namespace CeeJay
 
 void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
 {
-	color.rgb = tex2D(RFX::depthTexColor,texcoord).rrr;
+	color.rgb = tex2D(ReShade::LinearizedDepth,texcoord).rrr;
 }
 
 technique Depth_Tech < enabled = false; toggle = Depth_ToggleKey;>
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_DisplayDepth;
 	}
 }

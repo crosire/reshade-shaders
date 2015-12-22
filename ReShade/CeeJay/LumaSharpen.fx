@@ -180,7 +180,7 @@ technique LumaSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = LumaS
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = LumaSharpenWrap;
 	}
 }

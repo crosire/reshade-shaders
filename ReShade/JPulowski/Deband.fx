@@ -77,7 +77,7 @@ float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
     h = permute(permute(permute(m.x)+m.y)+m.z);
 
     // Sample the source pixel
-    float4 col = tex2D(RFX::backbufferColor, texcoord);
+    float4 col = tex2D(ReShade::BackBuffer, texcoord);
 	float4 avg; float4 diff;
 	
 	#if (Iterations == 1)
@@ -85,7 +85,7 @@ float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
 	#endif
     for (int i = 1; i <= Iterations; i++) {
         // Use the average instead if the difference is below the threshold
-        avg = average(RFX::backbufferColor, texcoord, i*Range, h);
+        avg = average(ReShade::BackBuffer, texcoord, i*Range, h);
         diff = abs(col - avg);
         col = lerp(avg, col, greaterThan(diff, float4(Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0))));
     }
@@ -107,7 +107,7 @@ technique Deband_Tech <bool enabled = RFX_Start_Enabled; int toggle = Deband_Tog
 {
 	pass DebandPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Deband;
 	}
 }

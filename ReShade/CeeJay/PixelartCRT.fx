@@ -212,7 +212,7 @@ technique Pixelart_Tech <bool enabled = RFX_Start_Enabled; int toggle = PixelArt
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PixelArtCRTWrap;
 		
 	#if (CeeJay_PIGGY == 1)

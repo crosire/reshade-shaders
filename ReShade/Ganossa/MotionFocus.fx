@@ -62,7 +62,7 @@ sampler2D Ganossa_MF_QuadColor { Texture = Ganossa_MF_QuadTex; };
 
 void PS_MotionFocusNorm(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 normR : SV_Target0)
 {
-	normR = tex2D(RFX::originalColor, texcoord);
+	normR = tex2D(ReShade::OriginalColor, texcoord);
 }
 
 void PS_MotionFocusQuadFull(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 quadFullR : SV_Target0)
@@ -154,7 +154,7 @@ float4 PS_MotionFocusDisplay(float4 vpos : SV_Position, float2 texcoord : TEXCOO
 
 	float2 focusCorrection = min(0,float2(1,1)-(float2(1,1)*(1.0f-finalZoom)+finalFocus*min(0.55,0.6*mfZoomStrength)));
 
-	return tex2D(RFX::backbufferColor, texcoord*(1.0f-finalZoom)+finalFocus*min(0.55,0.6*mfZoomStrength)+focusCorrection);
+	return tex2D(ReShade::BackBuffer, texcoord*(1.0f-finalZoom)+finalFocus*min(0.55,0.6*mfZoomStrength)+focusCorrection);
 }
 
 technique MotionFocus_Tech <bool enabled = 
@@ -166,34 +166,34 @@ RFX_Start_Enabled; int toggle = MotionFocus_ToggleKey; >
 {
 	pass MotionFocusNormPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_MotionFocusNorm;
 		RenderTarget0 = Ganossa_MF_NormTex;
 	}
 
 	pass MotionFocusQuadFullPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_MotionFocusQuadFull;
 		RenderTarget0 = Ganossa_MF_QuadFullTex;
 	}
 	
 	pass MotionFocusPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_MotionFocus;
 		RenderTarget0 = Ganossa_MF_QuadTex;
 	}
 	
 	pass MotionFocusDisplayPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_MotionFocusDisplay;
 	}
 
 	pass MotionFocusStoragePass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_MotionFocusStorage;
 		RenderTarget0 = Ganossa_MF_PrevTex;
 		RenderTarget1 = Ganossa_MF_QuadFullPrevTex;

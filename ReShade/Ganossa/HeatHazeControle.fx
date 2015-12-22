@@ -29,7 +29,7 @@
  */
 
 #if Depth_HeatHazeControle
-	float depth = tex2D(RFX::depthColor, float2(texcoord.x,min(1.0f,texcoord.y+0.15f))).r;
+	float depth = tex2D(ReShade::OriginalDepth, float2(texcoord.x,min(1.0f,texcoord.y+0.15f))).r;
 	depth = 2.0 / (-99.0 * depth + 101.0);
 #else
 	float depth = 0.0f;
@@ -53,6 +53,6 @@ highMul *= min(1.0f,1.641*high.r/(1.719*high.g+1.932*high.b))*min(1.0f,1.75f-dep
 
 #include Ganossa_SETTINGS_UNDEF
 #include MartyMcFly_SETTINGS_DEF
-heathazecolor.y = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
-heathazecolor.x = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
-heathazecolor.z = tex2D(RFX::backbufferColor, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;
+heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
+heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
+heathazecolor.z = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;

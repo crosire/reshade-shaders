@@ -19,7 +19,7 @@ sampler2D	GOR_samplerSpirals
 
 void PS_Otis_GOR_RenderSpirals(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 outFragment : SV_Target0)
 {
-	float4 colFragment = tex2D(RFX::backbufferColor, texcoord);
+	float4 colFragment = tex2D(ReShade::BackBuffer, texcoord);
 	float phiValue = ((1.0 + sqrt(5.0))/2.0);
 	float aspectRatio = (float(BUFFER_WIDTH)/float(BUFFER_HEIGHT));
 	float idealWidth = float(BUFFER_HEIGHT) * phiValue;
@@ -47,7 +47,7 @@ technique Otis_GOR_Tech <bool enabled = false; int toggle = GOR_ToggleKey; >
 {
 	pass Otis_GOR_Desaturate
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Otis_GOR_RenderSpirals;
 	}
 }

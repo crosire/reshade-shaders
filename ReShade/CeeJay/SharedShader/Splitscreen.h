@@ -6,7 +6,7 @@ float4 SplitscreenPass( float4 colorInput, float2 tex )
 {
   // -- Vertical 50/50 split --
   #if splitscreen_mode == 1
-	  return (tex.x < 0.5) ? myTex2D(RFX::originalColor, tex) : colorInput;
+	  return (tex.x < 0.5) ? myTex2D(ReShade::OriginalColor, tex) : colorInput;
   #endif
 
   // -- Vertical 25/50/25 split --
@@ -17,7 +17,7 @@ float4 SplitscreenPass( float4 colorInput, float2 tex )
     //Further than 1/4 away from center?
     distance = saturate(distance - 0.25);
     
-    return distance ? myTex2D(RFX::originalColor, tex) : colorInput;
+    return distance ? myTex2D(ReShade::OriginalColor, tex) : colorInput;
 	#endif
 
   // -- Vertical 50/50 angled split --
@@ -28,12 +28,12 @@ float4 SplitscreenPass( float4 colorInput, float2 tex )
     //Further than 1/4 away from center?
     distance = saturate(distance - 0.25);
     
-    return distance ? colorInput : myTex2D(RFX::originalColor, tex);
+    return distance ? colorInput : myTex2D(ReShade::OriginalColor, tex);
 	#endif
   
   // -- Horizontal 50/50 split --
   #if splitscreen_mode == 4
-	  return (tex.y < 0.5) ? myTex2D(RFX::originalColor, tex) : colorInput;
+	  return (tex.y < 0.5) ? myTex2D(ReShade::OriginalColor, tex) : colorInput;
   #endif
 	
   // -- Horizontal 25/50/25 split --
@@ -44,7 +44,7 @@ float4 SplitscreenPass( float4 colorInput, float2 tex )
     //Further than 1/4 away from center?
     distance = saturate(distance - 0.25);
     
-    return distance ? myTex2D(RFX::originalColor, tex) : colorInput;
+    return distance ? myTex2D(ReShade::OriginalColor, tex) : colorInput;
   #endif
 
   // -- Vertical 50/50 curvy split --
@@ -55,7 +55,7 @@ float4 SplitscreenPass( float4 colorInput, float2 tex )
     //Further than 1/4 away from center?
     distance = saturate(distance - 0.25);
     
-    return distance ? colorInput : myTex2D(RFX::originalColor, tex);
+    return distance ? colorInput : myTex2D(ReShade::OriginalColor, tex);
     #endif
 
 }

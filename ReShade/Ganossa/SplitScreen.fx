@@ -50,56 +50,56 @@ float4 PS_Split(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 
 	#if SSaxis
 		#if SScomparable && SSslider
-			if(texcoord.x < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(0.5f+texcoord.x-sSlider.x/2.0f,texcoord.y));
-			else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x-sSlider.x/2.0f,texcoord.y));		
+			if(texcoord.x < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(0.5f+texcoord.x-sSlider.x/2.0f,texcoord.y));
+			else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x-sSlider.x/2.0f,texcoord.y));		
 			else return float4(0.95,0.95,0.9,1);
 		#elif SScomparable
 			#if SScomparableStretch
 				if(texcoord.y < 0.25f || texcoord.y > 0.75f) return float4(0,0,0,0);
-				if(texcoord.x < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(texcoord.x*2.0f,texcoord.y*2.0f-0.5f));
-				else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x*2.0f-1.0f,texcoord.y*2.0f-0.5f));
+				if(texcoord.x < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(texcoord.x*2.0f,texcoord.y*2.0f-0.5f));
+				else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x*2.0f-1.0f,texcoord.y*2.0f-0.5f));
 				else return float4(0.95,0.95,0.9,1);	
 			#else
-				if(texcoord.x < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(texcoord.x+0.25f,texcoord.y));
-				else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x-0.25f,texcoord.y));
+				if(texcoord.x < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(texcoord.x+0.25f,texcoord.y));
+				else if(texcoord.x > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x-0.25f,texcoord.y));
 				else return float4(0.95,0.95,0.9,1);
 			#endif
 		#elif SSslider
-			if(texcoord.x < sSlider.x-0.005f) return tex2D(RFX::originalColor, texcoord);
-			else if(texcoord.x > sSlider.x+0.005f) return tex2D(RFX::backbufferColor, texcoord);
+			if(texcoord.x < sSlider.x-0.005f) return tex2D(ReShade::OriginalColor, texcoord);
+			else if(texcoord.x > sSlider.x+0.005f) return tex2D(ReShade::BackBuffer, texcoord);
 			else return float4(0.95,0.95,0.9,1);
 		#endif		
 	#else
 		#if SScomparable && SSslider
-			if(texcoord.y < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(texcoord.x,0.5f+texcoord.y-sSlider.x/2.0f));
-			else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x,texcoord.y-sSlider.x/2.0f));
+			if(texcoord.y < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(texcoord.x,0.5f+texcoord.y-sSlider.x/2.0f));
+			else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x,texcoord.y-sSlider.x/2.0f));
 			else return float4(0.95,0.95,0.9,1);		
 		#elif SScomparable
 			#if SScomparableStretch
 				if(texcoord.x < 0.25f || texcoord.x > 0.75f) return float4(0,0,0,0);
-				if(texcoord.y < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(texcoord.x*2.0f-0.5f,texcoord.y*2.0f));
-				else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x*2.0f-0.5f,texcoord.y*2.0f-1-0f));
+				if(texcoord.y < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(texcoord.x*2.0f-0.5f,texcoord.y*2.0f));
+				else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x*2.0f-0.5f,texcoord.y*2.0f-1-0f));
 				else return float4(0.95,0.95,0.9,1);
 			#else
-				if(texcoord.y < 0.5f-SSborderWidth) return tex2D(RFX::originalColor, float2(texcoord.x,texcoord.y+0.25f));
-				else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(RFX::backbufferColor, float2(texcoord.x,texcoord.y-0.25f));
+				if(texcoord.y < 0.5f-SSborderWidth) return tex2D(ReShade::OriginalColor, float2(texcoord.x,texcoord.y+0.25f));
+				else if(texcoord.y > 0.5f+SSborderWidth) return tex2D(ReShade::BackBuffer, float2(texcoord.x,texcoord.y-0.25f));
 				else return float4(0.95,0.95,0.9,1);
 			#endif
 		#elif SSslider
-			if(texcoord.y < sSlider.x-SSborderWidth) return tex2D(RFX::originalColor, texcoord);
-			else if(texcoord.y > sSlider.x+SSborderWidth) return tex2D(RFX::backbufferColor, texcoord);
+			if(texcoord.y < sSlider.x-SSborderWidth) return tex2D(ReShade::OriginalColor, texcoord);
+			else if(texcoord.y > sSlider.x+SSborderWidth) return tex2D(ReShade::BackBuffer, texcoord);
 			else return float4(0.95,0.95,0.9,1);
 		#endif		
 	#endif
 
-	return lerp(tex2D(RFX::originalColor, texcoord), tex2D(RFX::backbufferColor, texcoord), tex2D(sMaskColor, texcoord).r); 
+	return lerp(tex2D(ReShade::OriginalColor, texcoord), tex2D(ReShade::BackBuffer, texcoord), tex2D(sMaskColor, texcoord).r); 
 }
 
 technique SplitScreen_Tech <bool enabled = RFX_Start_Enabled; int toggle = SS_ToggleKey; >
 {
 	pass 
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Split;
 	}
 }

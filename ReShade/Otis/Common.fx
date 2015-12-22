@@ -48,7 +48,7 @@ sampler2D Otis_SamplerFragmentBuffer1
 // general pixel shaders
 void PS_Otis_Init(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 colFragment : SV_Target0) 
 {
-	colFragment = tex2D(RFX::backbufferColor, texcoord.xy);
+	colFragment = tex2D(ReShade::BackBuffer, texcoord.xy);
 }
 
 float4 PS_Otis_Overlay(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
@@ -62,13 +62,13 @@ technique Otis_Init_Tech  < enabled = false; >
 {
 	pass Init_Otis_FragmentBuffer2
 	{
-		VertexShader = RFX::VS_PostProcess;			
+		VertexShader = ReShade::VS_PostProcess;			
 		PixelShader = PS_Otis_Init;
 		RenderTarget = Otis_FragmentBuffer2;
 	}
 	pass Init_Otis_FragmentBuffer1
 	{
-		VertexShader = RFX::VS_PostProcess;			
+		VertexShader = ReShade::VS_PostProcess;			
 		PixelShader = PS_Otis_Init;
 		RenderTarget = Otis_FragmentBuffer1;
 	}

@@ -46,7 +46,7 @@ namespace Ganossa
 
 float4 PS_TiltShiftH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 res = tex2D(RFX::backbufferColor, texcoord);
+	float4 res = tex2D(ReShade::BackBuffer, texcoord);
 
 	float2 othogonal = float2(0.0f, ScreenRatio);
 	float2 pos = othogonal * TiltShiftOffset;
@@ -68,17 +68,17 @@ float4 PS_TiltShiftH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 		float2 tg = ((2.0 * texcoord - 1.0) * chroma.g) * 0.5 + 0.5;
 		float2 tb = ((2.0 * texcoord - 1.0) * chroma.b) * 0.5 + 0.5;
 
-		res.rgb = lerp(res.rgb, float3(tex2D(RFX::backbufferColor, tr).r, tex2D(RFX::backbufferColor, tg).g, tex2D(RFX::backbufferColor, tb).b) * (1.0 - pixelBlur), 0.8);
+		res.rgb = lerp(res.rgb, float3(tex2D(ReShade::BackBuffer, tr).r, tex2D(ReShade::BackBuffer, tg).g, tex2D(ReShade::BackBuffer, tb).b) * (1.0 - pixelBlur), 0.8);
 
 
 	float weight[11] = { 0.082607, 0.080977, 0.076276, 0.069041, 0.060049, 0.050187, 0.040306, 0.031105, 0.023066, 0.016436, 0.011254 };
 	res *= weight[0];
 	for (int i = 1; i < 11; i++)
 	{
-		float4 tempPlus = tex2D(RFX::backbufferColor, texcoord.xy + float2(i*pixelBlur,0));
+		float4 tempPlus = tex2D(ReShade::BackBuffer, texcoord.xy + float2(i*pixelBlur,0));
 		float tempPlusWeight = max(max(res.r, max(res.g, res.b)) - 0.93f, 0.0f) * (pixelBlur * 80);
 		res += tempPlus * min(0.8f, (weight[i] + tempPlusWeight));
-		float4 tempMinus = tex2D(RFX::backbufferColor, texcoord.xy - float2(i*pixelBlur,0));
+		float4 tempMinus = tex2D(ReShade::BackBuffer, texcoord.xy - float2(i*pixelBlur,0));
 		float tempMinusWeight = max(max(res.r, max(res.g, res.b)) - 0.93f, 0.0f) * (pixelBlur * 80);
 		res += tempMinus * min(0.8f, (weight[i] + tempMinusWeight));
 	}
@@ -88,7 +88,7 @@ float4 PS_TiltShiftH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 
 float4 PS_TiltShiftV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float4 res = tex2D(RFX::backbufferColor, texcoord);
+	float4 res = tex2D(ReShade::BackBuffer, texcoord);
 
 	float2 othogonal = float2(0.0f, ScreenRatio);
 	float2 pos = othogonal * TiltShiftOffset;
@@ -110,17 +110,17 @@ float4 PS_TiltShiftV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 		float2 tg = ((2.0 * texcoord - 1.0) * chroma.g) * 0.5 + 0.5;
 		float2 tb = ((2.0 * texcoord - 1.0) * chroma.b) * 0.5 + 0.5;
 
-		res.rgb = lerp(res.rgb, float3(tex2D(RFX::backbufferColor, tr).r, tex2D(RFX::backbufferColor, tg).g, tex2D(RFX::backbufferColor, tb).b) * (1.0 - pixelBlur), 0.8);
+		res.rgb = lerp(res.rgb, float3(tex2D(ReShade::BackBuffer, tr).r, tex2D(ReShade::BackBuffer, tg).g, tex2D(ReShade::BackBuffer, tb).b) * (1.0 - pixelBlur), 0.8);
 
 
 	float weight[11] = { 0.082607, 0.080977, 0.076276, 0.069041, 0.060049, 0.050187, 0.040306, 0.031105, 0.023066, 0.016436, 0.011254 };
 	res *= weight[0];
 	for (int i = 1; i < 11; i++)
 	{
-		float4 tempPlus = tex2D(RFX::backbufferColor, texcoord.xy + float2(0,i*pixelBlur));
+		float4 tempPlus = tex2D(ReShade::BackBuffer, texcoord.xy + float2(0,i*pixelBlur));
 		float tempPlusWeight = max(max(res.r, max(res.g, res.b)) - 0.93f, 0.0f) * (pixelBlur * 80);
 		res += tempPlus * min(0.8f, (weight[i] + tempPlusWeight));
-		float4 tempMinus = tex2D(RFX::backbufferColor, texcoord.xy - float2(0,i*pixelBlur));
+		float4 tempMinus = tex2D(ReShade::BackBuffer, texcoord.xy - float2(0,i*pixelBlur));
 		float tempMinusWeight = max(max(res.r, max(res.g, res.b)) - 0.93f, 0.0f) * (pixelBlur * 80);
 		res += tempMinus * min(0.8f, (weight[i] + tempMinusWeight));
 	}
@@ -138,13 +138,13 @@ RFX_Start_Enabled; int toggle = TiltShift_ToggleKey; >
 {
 	pass TiltShiftHPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_TiltShiftH;
 	}
 
 	pass TiltShiftVPass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_TiltShiftV;
 	}
 }

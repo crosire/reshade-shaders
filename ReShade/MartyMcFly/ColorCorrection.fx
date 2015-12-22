@@ -383,7 +383,7 @@ float3 colorhuefx_prod80( float3 color )
 
 float4 ColorCorrectionPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 {
-	float4 color = tex2D(RFX::backbufferColor, texcoord);
+	float4 color = tex2D(ReShade::BackBuffer, texcoord);
 
 #if(USE_LUT == 1)	
 	color.x = tex2D(SamplerLUT, float2(saturate(color.x),0)).x;
@@ -446,7 +446,7 @@ technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = C
 {
 	pass MartyMcFly_ColorCorrection_Pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = ColorCorrectionPass;
 	}
 }

@@ -49,7 +49,7 @@ technique Cartoon_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cartoon_T
 {
 	pass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = CartoonWrap;
 	}
 }

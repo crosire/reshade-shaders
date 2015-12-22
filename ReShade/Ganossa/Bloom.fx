@@ -120,7 +120,7 @@ sampler2D SamplerDirt
 
 void PS_Init(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 hdrT : SV_Target0) 
 {
-	hdrT = tex2D(RFX::originalColor, texcoord.xy);
+	hdrT = tex2D(ReShade::OriginalColor, texcoord.xy);
 }
 
 float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool isBlurVert) //texcoord, texture, blurmult in pixels, tex2dlod level, axis (0=horiz, 1=vert)
@@ -143,7 +143,7 @@ float3 GetDnB (sampler2D tex, float2 coords)
 {
 	float3 Color = max(0,dot(tex2Dlod(tex,float4(coords.xy,0,4)).rgb,0.333) - ChapFlareTreshold)*ChapFlareIntensity;
 	#if(CHAPMAN_DEPTH_CHECK == 1)
-	if(tex2Dlod(RFX::depthColor,float4(coords.xy,0,3)).x<0.99999) Color = 0;
+	if(tex2Dlod(ReShade::OriginalDepth,float4(coords.xy,0,3)).x<0.99999) Color = 0;
 	#endif
 	return Color;
 }
@@ -183,7 +183,7 @@ float3 GetBrightPass(float2 tex)
     	bright = smoothstep(0.0f, 0.5, bright);
 	float3 result = lerp(0.0, c, bright);
 #if (FLARE_DEPTH_CHECK == 1)
-	float checkdepth = tex2D(RFX::depthColor, tex).x;
+	float checkdepth = tex2D(ReShade::OriginalDepth, tex).x;
 	if(checkdepth < 0.99999) result = 0;
 #endif
 	return result;
@@ -265,7 +265,7 @@ void LensPrepass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 		float3 lenstemp1 = dot(tex2Dlod(Ganossa_SamplerHDR1, float4(lfcoord.xy,0,1)).xyz,0.333);
 
 #if (LENZ_DEPTH_CHECK == 1)
-		float templensdepth = tex2D(RFX::depthColor, lfcoord.xy).x;
+		float templensdepth = tex2D(ReShade::OriginalDepth, lfcoord.xy).x;
 		if(templensdepth < 0.99999) lenstemp1 = 0;
 #endif	
 	
@@ -307,7 +307,7 @@ void LensPrepass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	
 		texCoord -= deltaTexCoord;;
 		float4 sample2 = tex2D(Ganossa_SamplerHDR1, texCoord.xy);
-		float sampledepth = tex2D(RFX::depthColor, texCoord.xy).x;
+		float sampledepth = tex2D(ReShade::OriginalDepth, texCoord.xy).x;
 		sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
 		sample2.r *= 1.0;
 		sample2.g *= 0.95;
@@ -363,7 +363,7 @@ void PS_BloomPrePass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	{
 		bloomuv.xy=offset[i]*RFX_PixelSize.xy*2;
 		bloomuv.xy=texcoord.xy + bloomuv.xy;
-		float4 tempbloom=tex2Dlod(RFX::originalColor, float4(bloomuv.xy, 0, 0));
+		float4 tempbloom=tex2Dlod(ReShade::OriginalColor, float4(bloomuv.xy, 0, 0));
 		tempbloom.w = max(0,dot(tempbloom.xyz,0.333)-fAnamFlareThreshold);
 		tempbloom.xyz = max(0, tempbloom.xyz-fBloomThreshold); 
 		bloom+=tempbloom;
@@ -467,7 +467,7 @@ void PS_LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, o
 {
  
 	//float4 color = tex2D(Ganossa_SamplerHDR2, texcoord.xy);
-	float4 color = tex2D(RFX::backbufferColor, texcoord.xy);
+	float4 color = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 	float3 colorbloom=0;
 
@@ -541,49 +541,49 @@ RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
 {
 	pass ME_Init						//later, numerous DOF shaders have different passnumber but later passes depend
 	{							//on fixed HDR1 HDR2 HDR1 HDR2... sequence so a 2 pass DOF outputs HDR1 in pass 1 and 	
-		VertexShader = RFX::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
+		VertexShader = ReShade::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
 		PixelShader = PS_Init;
 		RenderTarget = Ganossa_texHDR1;
 	}
 
 	pass ME_Init						//later, numerous DOF shaders have different passnumber but later passes depend
 	{							//on fixed HDR1 HDR2 HDR1 HDR2... sequence so a 2 pass DOF outputs HDR1 in pass 1 and 	
-		VertexShader = RFX::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
+		VertexShader = ReShade::VS_PostProcess;			//HDR2 in second pass, a 3 pass DOF outputs HDR2, HDR1, HDR2 so last pass outputs always HDR2
 		PixelShader = PS_Init;
 		RenderTarget = Ganossa_texHDR2;
 	}
 
 	pass BloomPrePass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_BloomPrePass;
 		RenderTarget = texBloom1;
 	}
 	
 	pass BloomPass1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_BloomPass1;
 		RenderTarget = texBloom2;
 	}
 
 	pass BloomPass2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_BloomPass2;
 		RenderTarget = texBloom3;
 	}
 
 	pass BloomPass3
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_BloomPass3;
 		RenderTarget = texBloom4;
 	}
 
 	pass BloomPass4
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_BloomPass4;
 		RenderTarget = texBloom5;
 	}
@@ -591,21 +591,21 @@ RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
 #if (USE_LENZFLARE == 1 || USE_CHAPMAN_LENS == 1 || USE_GODRAYS == 1 || USE_ANAMFLARE == 1)
 	pass LensPrepass
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = LensPrepass;
 		RenderTarget = texLens1;
 	}
 	
 	pass LensPass1
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = LensPass1;
 		RenderTarget = texLens2;
 	}
 
 	pass LensPass2
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = LensPass2;
 		RenderTarget = texLens1;
 	}
@@ -613,14 +613,14 @@ RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
 
 	pass LightingCombine
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_LightingCombine;
 		RenderTarget = Ganossa_texHDR1;
 	}
 
 	pass Overlay
 	{
-		VertexShader = RFX::VS_PostProcess;
+		VertexShader = ReShade::VS_PostProcess;
 		PixelShader = PS_Overlay;
 	}
 }
