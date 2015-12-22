@@ -9,4 +9,4 @@ Adding a new effect is as simple as creating a new folder with your name in the 
 
 Say you created a shader at "ReShade\YourName\YourShader.fx". The line in Pipeline.cfg would look like this: ```#include EFFECT(YourName, YourShader)```
 
-Check out [REFERENCE.txt](REFERENCE.txt) and the shader files in this repository to get started!
+Check out [REFERENCE.md](REFERENCE.md) and the shader files in this repository to get started!
