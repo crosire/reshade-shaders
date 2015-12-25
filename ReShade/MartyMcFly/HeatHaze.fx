@@ -7,6 +7,12 @@
 
 #if USE_HEATHAZE
 
+#include Ganossa_SETTINGS_DEF
+#if AL_HeatHazeControle && USE_AMBIENT_LIGHT
+#include "BrightDetect.fx"
+#endif
+#include Ganossa_SETTINGS_UNDEF
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -50,7 +56,6 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 
 #include Ganossa_SETTINGS_DEF
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-	#include "ReShade/Ganossa/BrightDetect.fx"
 	#include "ReShade/Ganossa/HeatHazeControle.fx"
 #else	
 	heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
