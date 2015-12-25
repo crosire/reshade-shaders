@@ -4,11 +4,11 @@
 #include Ganossa_SETTINGS_DEF
 #endif
 
+#if USE_AMBIENT_LIGHT
+
 #if AL_Adaptation
 #include "BrightDetect.fx"
 #endif
-
-#if USE_AMBIENT_LIGHT
 
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
