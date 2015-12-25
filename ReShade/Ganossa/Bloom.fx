@@ -6,6 +6,10 @@
 
 #if (USE_BLOOM || USE_LENSDIRT || USE_GAUSSIAN_ANAMFLARE || USE_LENZFLARE || USE_CHAPMAN_LENS || USE_GODRAYS || USE_ANAMFLARE)
 
+#if AL_Adaptation && USE_AMBIENT_LIGHT
+#include "BrightDetect.fx"
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -441,7 +445,6 @@ void PS_BloomPass3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	bloom.xyz *= fBloomAmount;
 
 #if AL_Adaptation && USE_AMBIENT_LIGHT
-	#include "BrightDetect.fx"
 //DetectLow	
 	float4 detectLow = tex2D(detectLowColor, 0.5)/4.215;
 	float low = sqrt(0.241*detectLow.r*detectLow.r+0.691*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
