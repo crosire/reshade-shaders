@@ -2,7 +2,6 @@
 #define INCLUDE_GUARD_OTIS_COMMON
 
 // Stuff all/most of Otis shared shaders need
-// Based on MartyMcFly
 
 #define Otis_SETTINGS_DEF "ReShade/Otis.cfg"
 #define Otis_SETTINGS_UNDEF "ReShade/Otis.undef" 
@@ -79,6 +78,6 @@ technique Otis_Init_Tech  < enabled = false; >
 
 #include Otis_SETTINGS_UNDEF
 
-#pragma message "OtisFX 0.2 / Infuse Project\n"
+#pragma message "OtisFX 0.2  by Otis / Infuse Project\n"
 
 #endif
