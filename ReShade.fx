@@ -90,8 +90,9 @@ namespace ReShade
 
 		// Linearize depth	
 	#if RFX_LogDepth 
-		depth = saturate(1.0f - depth);
-		depth = (exp(pow(depth, 150 * pow(depth, 55) + 32.75f / pow(depth, 5) - 1850f * (pow((1 - depth), 2)))) - 1) / (exp(depth) - 1); // Made by Ganossa ;-)
+		float F = 1.0f;
+		float N = 0.008;
+		depth = (F*N) / (N - depth * (N - F));	
 	#else
 		depth = 1.f/(1000.f-999.f*depth);
 	#endif
