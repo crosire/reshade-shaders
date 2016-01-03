@@ -61,7 +61,7 @@ namespace ReShade
 	sampler LinearizedDepth { Texture = LinearizedDepthTex; };
 
 #if RFX_PseudoDepth
-	texture DepthMaskTex < source = "ReShade/Shader/Ganossa/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
+	texture DepthMaskTex < source = "ReShade/Shaders/Ganossa/Textures/dMask.png"; > { Width = 1024; Height = 1024; MipLevels = 1; Format = RGBA8; };
 	sampler DepthMask { Texture = DepthMaskTex; };
 #endif
 
@@ -135,7 +135,7 @@ technique Setup_Tech < enabled = true; >
  */
 
 #define STR(name) #name
-#define EFFECT(l,n) STR(ReShade/Shader/l/##n.fx)
+#define EFFECT(l,n) STR(ReShade/Shaders/l/##n.fx)
 
 #include "ReShade\Pipeline.cfg"
 
