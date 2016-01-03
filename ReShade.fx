@@ -11,8 +11,8 @@
  */
 
 // Global Settings
-#include "ReShade\Common\KeyCodes.h"
-#include "ReShade\Common.cfg"
+#include "ReShade\KeyCodes.h"
+#include "ReShade\Global.cfg"
 
 #if RFX_Screenshot_Format != 2
 	#pragma reshade screenshot_format bmp
