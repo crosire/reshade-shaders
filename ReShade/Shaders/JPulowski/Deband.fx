@@ -31,7 +31,7 @@
  1.1  - Replaced the algorithm with the one from MPV
 */
 
-#include "ReShade/Shaders/JPulowski.cfg"
+#include EFFECT_CONFIG(JPulowski)
 
 #if (USE_DEBAND == 1)
 

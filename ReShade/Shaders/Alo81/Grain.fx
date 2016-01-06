@@ -20,7 +20,7 @@ Ported to Reshade by Angelo Gonzalez
 ----------------------------------------------------------
 */
 
-#include "ReShade/Shaders/Alo81.cfg"
+#include EFFECT_CONFIG(Alo81)
 
 #if (USE_GRAIN == 1)
 

@@ -3,7 +3,7 @@
 
 //Stuff all/most of MartyMcFly's shared shaders need
 
-#define MartyMcFly_SETTINGS_DEF "ReShade/Shaders/MartyMcFly.cfg"
+#define MartyMcFly_SETTINGS_DEF EFFECT_CONFIG(MartyMcFly)
 #define MartyMcFly_SETTINGS_UNDEF "ReShade/Shaders/MartyMcFly.undef" 
 
 #include MartyMcFly_SETTINGS_DEF

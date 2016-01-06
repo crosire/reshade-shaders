@@ -3,7 +3,7 @@
  http://enbdev.com/effect_dosgame.zip
 */
 
-#include "ReShade/Shaders/Iddqd.cfg"
+#include EFFECT_CONFIG(Iddqd)
 
 #if USE_DOSFX
 

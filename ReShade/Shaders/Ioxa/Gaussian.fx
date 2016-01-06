@@ -1,4 +1,4 @@
-#include "ReShade/Shaders/Ioxa.cfg"
+#include EFFECT_CONFIG(Ioxa)
 
 #if USE_GAUSS
 

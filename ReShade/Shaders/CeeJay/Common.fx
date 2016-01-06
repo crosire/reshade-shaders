@@ -2,7 +2,7 @@
 #define INCLUDE_GUARD_CEEJAY_COMMON
 
 //Stuff all/most of CeeJay shared shaders need
-#define CeeJay_SETTINGS_DEF "ReShade/Shaders/CeeJay.cfg"
+#define CeeJay_SETTINGS_DEF EFFECT_CONFIG(CeeJay)
 #define CeeJay_SETTINGS_UNDEF "ReShade/Shaders/CeeJay.undef" 
 
 #include CeeJay_SETTINGS_DEF 

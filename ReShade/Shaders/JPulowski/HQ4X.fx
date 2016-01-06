@@ -1,6 +1,6 @@
 // hq4x filter from https://www.shadertoy.com/view/MslGRS
 
-#include "ReShade/Shaders/JPulowski.cfg"
+#include EFFECT_CONFIG(JPulowski)
 
 #if USE_HQ4X
 

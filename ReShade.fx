@@ -134,8 +134,10 @@ technique Setup_Tech < enabled = true; >
  * =============================================================================
  */
 
-#define STR(name) #name
-#define EFFECT(l,n) STR(ReShade/Shaders/l/##n.fx)
+#define STR(value) #value
+#define STE(value) STR(value)
+#define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
+#define EFFECT_CONFIG(author) STE(ReShade/Presets/PRESET/author.cfg)
 
 #include "ReShade\Pipeline.cfg"
 

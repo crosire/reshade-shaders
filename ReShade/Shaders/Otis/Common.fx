@@ -3,7 +3,7 @@
 
 // Stuff all/most of Otis shared shaders need
 
-#define Otis_SETTINGS_DEF "ReShade/Shaders/Otis.cfg"
+#define Otis_SETTINGS_DEF EFFECT_CONFIG(Otis)
 #define Otis_SETTINGS_UNDEF "ReShade/Shaders/Otis.undef" 
 
 #include Otis_SETTINGS_DEF

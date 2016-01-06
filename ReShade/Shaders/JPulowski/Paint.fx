@@ -29,7 +29,7 @@
         Added Framework compatibility 
 */
 
-#include "ReShade/Shaders/JPulowski.cfg"
+#include EFFECT_CONFIG(JPulowski)
 
 #if (USE_PAINT == 1)
 

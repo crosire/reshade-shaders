@@ -14,7 +14,7 @@
  1.1a - Framework port 
 */
 
-#include "ReShade/Shaders/JPulowski.cfg"
+#include EFFECT_CONFIG(JPulowski)
 
 #if (USE_CEL == 1)
 

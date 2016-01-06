@@ -1,4 +1,4 @@
-#include "ReShade/Shaders/Iddqd.cfg"
+#include EFFECT_CONFIG(Iddqd)
 
 #if USE_VHS
 

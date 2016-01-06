@@ -3,7 +3,7 @@
  http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
 */
 
-#include "ReShade/Shaders/Iddqd.cfg"
+#include EFFECT_CONFIG(Iddqd)
 
 #if USE_DALTONIZEFX
 

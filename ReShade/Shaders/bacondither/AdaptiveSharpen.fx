@@ -35,7 +35,7 @@
    
 */   
 
-#include "ReShade/Shaders/bacondither.cfg"
+#include EFFECT_CONFIG(bacondither)
 
 #if (USE_ADAPTIVESHARPEN == 1)
 
