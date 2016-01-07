@@ -17,7 +17,7 @@
 		Added a threshold and opacity modifier
 */
 
-#include "ReShade/Shaders/JPulowski.cfg"
+#include EFFECT_CONFIG(JPulowski)
 #if (USE_OUTLINE == 1)
 
 namespace JPulowski {
