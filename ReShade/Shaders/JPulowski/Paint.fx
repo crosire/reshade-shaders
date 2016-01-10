@@ -33,11 +33,9 @@
 
 #if (USE_PAINT == 1)
 
-namespace JPulowski
-{
+namespace JPulowski {
 
-float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
-{
+float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target {
 	//Shared content, might add more stuff later
 	//TO-DO: Look for ways to simplify the code by combining two shaders
 	float3 color, c;
@@ -45,10 +43,10 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
 #if (PaintMethod == 0)
 	float	Intensitycount0, Intensitycount1, Intensitycount2, Intensitycount3, Intensitycount4,
-		Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
+			Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
 
 	float3	color0, color1, color2, color3, color4,
-		color5, color6, color7, color8, color9;
+			color5, color6, color7, color8, color9;
 
 	int	lum, Maxcount = 0;
 
