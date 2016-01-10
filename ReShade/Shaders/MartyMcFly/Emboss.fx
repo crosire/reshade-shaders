@@ -13,14 +13,14 @@ float4 PS_Emboss(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 
         float2 offset;
 	sincos(radians( iEmbossAngle), offset.y, offset.x);
-	float3 col1 = tex2D(ReShade::BackBuffer, texcoord - RFX_PixelSize*fEmbossOffset*offset).rgb;
+	float3 col1 = tex2D(ReShade::BackBuffer, texcoord - ReShade::PixelSize*fEmbossOffset*offset).rgb;
 	float3 col2 = origcolor.rgb;
-	float3 col3 = tex2D(ReShade::BackBuffer, texcoord + RFX_PixelSize*fEmbossOffset*offset).rgb;
+	float3 col3 = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize*fEmbossOffset*offset).rgb;
 
 #if(bEmbossDoDepthCheck != 0)
-	float depth1 = tex2D(ReShade::OriginalDepth,texcoord - RFX_PixelSize*fEmbossOffset).r;
+	float depth1 = tex2D(ReShade::OriginalDepth,texcoord - ReShade::PixelSize*fEmbossOffset).r;
 	float depth2 = tex2D(ReShade::OriginalDepth,texcoord).r;
-	float depth3 = tex2D(ReShade::OriginalDepth,texcoord + RFX_PixelSize*fEmbossOffset).r;
+	float depth3 = tex2D(ReShade::OriginalDepth,texcoord + ReShade::PixelSize*fEmbossOffset).r;
 #endif
 	
 	float3 colEmboss = col1 * 2.0 - col2 - col3;

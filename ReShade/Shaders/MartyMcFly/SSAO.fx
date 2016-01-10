@@ -725,7 +725,7 @@ void PS_AO_AOBlurV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	for (int r = -AO_BLUR_STEPS; r <= AO_BLUR_STEPS; ++r) 
 	{
 		float2 axis = float2(0.0, 1.0);
-		temp = tex2D(SamplerOcclusion1, texcoord.xy + axis * PixelSize * r);
+		temp = tex2D(SamplerOcclusion1, texcoord.xy + axis * ReShade::PixelSize * r);
 		float weight = AO_BLUR_STEPS-abs(r); 
 		weight *= max(0.0, 1.0 - (1000.0 * AO_SHARPNESS) * abs(temp.w - base.w));
 		sum += temp.x * weight;
@@ -744,7 +744,7 @@ void PS_AO_AOBlurH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	for (int r = -AO_BLUR_STEPS; r <= AO_BLUR_STEPS; ++r) 
 	{
 		float2 axis = float2(1.0, 0.0);
-		temp = tex2D(SamplerOcclusion2, texcoord.xy + axis * PixelSize * r);
+		temp = tex2D(SamplerOcclusion2, texcoord.xy + axis * ReShade::PixelSize * r);
 		float weight = AO_BLUR_STEPS-abs(r); 
 		weight *= max(0.0, 1.0 - (1000.0 * AO_SHARPNESS) * abs(temp.w - base.w));
 		sum += temp.x * weight;
@@ -852,7 +852,7 @@ void PS_AO_SSGI(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 		float2 rand_vec = GetRandom2_10(texcoord.xy);
 		float2 rand_vec2 = GetRandom2_10(-texcoord.xy);
-		float2 sample_vec_divisor = InvFocalLen * depth / (fSSGISamplingRange * PixelSize.xy);
+		float2 sample_vec_divisor = InvFocalLen * depth / (fSSGISamplingRange * ReShade::PixelSize.xy);
 		float2 sample_center = texcoord.xy + norm.xy / sample_vec_divisor * float2(1, aspect);
 		float ii_sample_center_depth = depth * rangeZ + norm.z * fSSGISamplingRange * 20;
 		float ao_sample_center_depth = depth * rangeZ + norm.z * fSSGISamplingRange * 5;
@@ -909,12 +909,12 @@ void PS_AO_GIBlurV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	for (int r = -AO_BLUR_STEPS; r <= AO_BLUR_STEPS; ++r) 
 	{
 		float2 axis = float2(0, 1);
-		temp = tex2D(SamplerOcclusion1, texcoord.xy + axis * PixelSize * r);
-		float tempdepth = tex2Dlod(ReShade::LinearizedDepth, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
+		temp = tex2D(SamplerOcclusion1, texcoord.xy + axis * ReShade::PixelSize * r);
+		float tempdepth = tex2Dlod(ReShade::LinearizedDepth, float4(texcoord.xy + axis * ReShade::PixelSize * r,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 		float tempkey = tempdepth;
 #else
-		float tempkey = dot(GetNormalFromDepth(tempdepth, texcoord.xy + axis * PixelSize * r).xyz,0.333)*0.1;
+		float tempkey = dot(GetNormalFromDepth(tempdepth, texcoord.xy + axis * ReShade::PixelSize * r).xyz,0.333)*0.1;
 #endif
 		float weight = AO_BLUR_STEPS-abs(r); 
 		weight *= max(0.0, 1.0 - (1000.0 * AO_SHARPNESS) * abs(tempkey - blurkey));
@@ -942,12 +942,12 @@ void PS_AO_GIBlurH(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 	for (int r = -AO_BLUR_STEPS; r <= AO_BLUR_STEPS; ++r) 
 	{
 		float2 axis = float2(1, 0);
-		temp = tex2D(SamplerOcclusion2, texcoord.xy + axis * PixelSize * r);
-		float tempdepth = tex2Dlod(ReShade::LinearizedDepth, float4(texcoord.xy + axis * PixelSize * r,0,0)).x;
+		temp = tex2D(SamplerOcclusion2, texcoord.xy + axis * ReShade::PixelSize * r);
+		float tempdepth = tex2Dlod(ReShade::LinearizedDepth, float4(texcoord.xy + axis * ReShade::PixelSize * r,0,0)).x;
 #if( AO_SHARPNESS_DETECT == 1)
 		float tempkey = tempdepth;
 #else
-		float tempkey = dot(GetNormalFromDepth(tempdepth, texcoord.xy + axis * PixelSize * r).xyz,0.333)*0.1;
+		float tempkey = dot(GetNormalFromDepth(tempdepth, texcoord.xy + axis * ReShade::PixelSize * r).xyz,0.333)*0.1;
 #endif
 		float weight = AO_BLUR_STEPS-abs(r); 
 		weight *= max(0.0, 1.0 - (1000.0 * AO_SHARPNESS) * abs(tempkey - blurkey));

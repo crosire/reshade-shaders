@@ -54,7 +54,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
 	for(i = -PaintRadius; i < (PaintRadius + 1); i++){
 		for(j = -PaintRadius; j < (PaintRadius + 1); j++){
-			c = tex2D(s0, texcoord + float2(RFX_PixelSize * float2(i,j))).rgb;
+			c = tex2D(s0, texcoord + float2(ReShade::PixelSize * float2(i,j))).rgb;
 
 			lum = dot(c, float3(0.2126, 0.7152, 0.0722)) * 9;
 
@@ -102,7 +102,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = -PaintRadius; j <= 0; ++j)  {
          for (i = -PaintRadius; i <= 0; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m0 += c;
              k0 += c * c;
          }
@@ -110,7 +110,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = -PaintRadius; j <= 0; ++j)  {
          for (i = 0; i <= PaintRadius; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m1 += c;
              k1 += c * c;
          }
@@ -118,7 +118,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = 0; j <= PaintRadius; ++j)  {
          for (i = 0; i <= PaintRadius; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m2 += c;
              k2 += c * c;
          }
@@ -126,7 +126,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = 0; j <= PaintRadius; ++j)  {
          for (i = -PaintRadius; i <= 0; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m3 += c;
              k3 += c * c;
          }

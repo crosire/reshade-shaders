@@ -163,7 +163,7 @@ float4 AdvancedCRTPass( float4 colorInput, float2 tex )
 	float2 Resolution = float2(Input_ratio, Input_ratio);
 	float2 rubyTextureSize = Resolution;
 	float2 rubyInputSize = Resolution;
-	float2 rubyOutputSize = RFX_ScreenSize;
+	float2 rubyOutputSize = ReShade::ScreenSize;
 
 #if CRTCurvature == 1
 	float2 xy = transform(tex, rubyTextureSize, rubyInputSize);

@@ -271,7 +271,7 @@ sampler searchSampler
 
 #if (USE_SMAA == 1)
 
-  #define SMAA_RT_METRICS float4(RFX_PixelSize, RFX_ScreenSize) //let SMAA know the size of a pixel and the screen
+  #define SMAA_RT_METRICS float4(ReShade::PixelSize, ReShade::ScreenSize) //let SMAA know the size of a pixel and the screen
   
   //#define SMAA_HLSL_3 1
   #define SMAA_CUSTOM_SL 1 //our own reshade branch

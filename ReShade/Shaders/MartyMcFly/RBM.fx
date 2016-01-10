@@ -52,7 +52,7 @@ float3 GetBumpNormals ( in sampler2D colorsampler,float2 texCoord) {
 
    	float4 lightness = float4(0.333,0.333,0.333,0);
    	// Take all neighbor samples
-	float2 offset = PixelSize.xy * 1.5;
+	float2 offset = ReShade::PixelSize.xy * 1.5;
 
 
    	float4 s00 = tex2D(colorsampler, texCoord + float2(-offset.x, -offset.y));
@@ -80,15 +80,15 @@ float3 GetScreenNormalsAMD(float2 tex)
    	// calculate eye-space position from depth
 	float3 posEye = getEyePos(tex.xy);
 	// calculate normal
-	float3 ddx = getEyePos(tex.xy + float2(PixelSize.x, 0)) - posEye;
-	float3 ddx2 = posEye - getEyePos(tex.xy + float2(-PixelSize.x, 0));
+	float3 ddx = getEyePos(tex.xy + float2(ReShade::PixelSize.x, 0)) - posEye;
+	float3 ddx2 = posEye - getEyePos(tex.xy + float2(-ReShade::PixelSize.x, 0));
 
 	if (abs(ddx.z) > abs(ddx2.z)) {
  		ddx = ddx2;
 	}
 
-	float3 ddy = getEyePos(tex.xy + float2(0, PixelSize.y)) - posEye;
-	float3 ddy2 = posEye - getEyePos(tex.xy + float2(0, -PixelSize.y));
+	float3 ddy = getEyePos(tex.xy + float2(0, ReShade::PixelSize.y)) - posEye;
+	float3 ddy2 = posEye - getEyePos(tex.xy + float2(0, -ReShade::PixelSize.y));
 
 	if (abs(ddy2.z) < abs(ddy.z)) {
  		ddy = ddy2;
@@ -131,7 +131,7 @@ float4 PS_RBM_Execute(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : S
 
 	for (int i=1; i<=fReflectionSamples; i++)
 	{
-		float4 tap = tex2Dlod(SamplerHDR, float4(texcoord.xy - finalNormals.xy * PixelSize.xy * (float)i/fReflectionSamples * fReflectionWideness,0,0));
+		float4 tap = tex2Dlod(SamplerHDR, float4(texcoord.xy - finalNormals.xy * ReShade::PixelSize.xy * (float)i/fReflectionSamples * fReflectionWideness,0,0));
 		float diff = smoothstep(0.005,0.0,res.w-tap.w);
 		bump += tap.xyz*diff;	
 		weight += diff;	
