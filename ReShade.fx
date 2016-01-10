@@ -11,13 +11,8 @@
  */
 
 // Global Settings
-#define STR(value) #value
-#define STE(value) STR(value)
-#define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
-#define EFFECT_CONFIG(author) STE(ReShade/Presets/PRESET/author.cfg)
-
 #include "ReShade\KeyCodes.h"
-#include EFFECT_CONFIG(Global)
+#include "ReShade\Global.cfg"
 
 #if RFX_Screenshot_Format != 2
 	#pragma reshade screenshot_format bmp
@@ -138,6 +133,11 @@ technique Setup_Tech < enabled = true; >
  *                                    Effects
  * =============================================================================
  */
+
+#define STR(value) #value
+#define STE(value) STR(value)
+#define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
+#define EFFECT_CONFIG(author) STE(ReShade/Presets/PRESET/author.cfg)
 
 #include EFFECT_CONFIG(Pipeline)
 
