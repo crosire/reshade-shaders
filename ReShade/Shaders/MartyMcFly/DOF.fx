@@ -83,7 +83,7 @@ float GetCoC(float2 coords)
 	for(int r=0;r<DOF_FOCUSSAMPLES;r++)
 	{ 
  		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
- 		coords.y *= RFX_ScreenSizeFull.z; 
+ 		coords.y *= ReShade::AspectRatio; 
  		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + DOF_FOCUSPOINT.xy).x; 
   	}
 	scenefocus /= DOF_FOCUSSAMPLES; 
@@ -126,10 +126,10 @@ void PS_RingDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 
 	discRadius*=(centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0; 
 
-	float2 blurRadius = discRadius * RFX_PixelSize.xy / iRingDOFRings;
-	scenecolor.x = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(0.0,1.0)    *fRingDOFFringe*discRadius*RFX_PixelSize.xy,0,0)).x;
-	scenecolor.y = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(-0.866,-0.5)*fRingDOFFringe*discRadius*RFX_PixelSize.xy,0,0)).y;
-	scenecolor.z = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(0.866,-0.5) *fRingDOFFringe*discRadius*RFX_PixelSize.xy,0,0)).z;
+	float2 blurRadius = discRadius * ReShade::PixelSize.xy / iRingDOFRings;
+	scenecolor.x = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(0.0,1.0)    *fRingDOFFringe*discRadius*ReShade::PixelSize.xy,0,0)).x;
+	scenecolor.y = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(-0.866,-0.5)*fRingDOFFringe*discRadius*ReShade::PixelSize.xy,0,0)).y;
+	scenecolor.z = tex2Dlod(SamplerHDR1,float4(texcoord.xy + float2(0.866,-0.5) *fRingDOFFringe*discRadius*ReShade::PixelSize.xy,0,0)).z;
 
 	scenecolor.w = centerDepth;
 	hdr2R = scenecolor;
@@ -164,7 +164,7 @@ float4 PS_RingDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 			float step = 6.283 / ringsamples;
 			float2 sampleoffset = 0.0;
 			sincos(j*step,sampleoffset.y,sampleoffset.x);
-			float4 tap = tex2Dlod(SamplerHDR2, float4(texcoord.xy + sampleoffset * RFX_PixelSize.xy * discRadius * g / iRingDOFRings,0,0)); 
+			float4 tap = tex2Dlod(SamplerHDR2, float4(texcoord.xy + sampleoffset * ReShade::PixelSize.xy * discRadius * g / iRingDOFRings,0,0)); 
 
 			float tapluma = dot(tap.xyz,0.333);
 			float tapthresh = max((tapluma-fRingDOFThreshold)*fRingDOFGain, 0.0);
@@ -200,7 +200,7 @@ void PS_MagicDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 		for (int i = -iMagicDOFBlurQuality; i <= iMagicDOFBlurQuality; ++i) 
 		{
 			float2 tapoffset = float2(1.0,0)*i;
-			float4 tap = tex2Dlod(SamplerHDR1, float4(texcoord.xy+tapoffset*discRadius*RFX_PixelSize.x/iMagicDOFBlurQuality,0,0));
+			float4 tap = tex2Dlod(SamplerHDR1, float4(texcoord.xy+tapoffset*discRadius*ReShade::PixelSize.x/iMagicDOFBlurQuality,0,0));
 			tap.w = (tap.w >= centerDepth*0.99) ? 1.0 : pow(abs(tap.w * 2.0 - 1.0),4.0); 
 			blurcolor.xyz += tap.xyz*tap.w;
 			blurcolor.w += tap.w;
@@ -231,8 +231,8 @@ float4 PS_MagicDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 		float2 tapoffset1 = float2(0.5,0.866)*i;
 		float2 tapoffset2 = float2(-tapoffset1.x,tapoffset1.y);
 
-		float4 tap1 = tex2Dlod(SamplerHDR2, float4(texcoord.xy+tapoffset1*discRadius*RFX_PixelSize.xy/iMagicDOFBlurQuality,0,0));
-		float4 tap2 = tex2Dlod(SamplerHDR2, float4(texcoord.xy+tapoffset2*discRadius*RFX_PixelSize.xy/iMagicDOFBlurQuality,0,0));
+		float4 tap1 = tex2Dlod(SamplerHDR2, float4(texcoord.xy+tapoffset1*discRadius*ReShade::PixelSize.xy/iMagicDOFBlurQuality,0,0));
+		float4 tap2 = tex2Dlod(SamplerHDR2, float4(texcoord.xy+tapoffset2*discRadius*ReShade::PixelSize.xy/iMagicDOFBlurQuality,0,0));
 
 		blurcolor.xyz += pow(min(tap1.xyz,tap2.xyz),fMagicDOFColorCurve); 
 		blurcolor.w += 1.0; 
@@ -259,11 +259,11 @@ void PS_GPDOF1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 	float3 distortion=float3(-1.0, 0.0, 1.0);
 	distortion*=fGPDOFChromaAmount; 
 
-	float4 chroma1=tex2D(SamplerHDR1, texcoord.xy + discRadius*RFX_PixelSize.xy*distortion.x);
+	float4 chroma1=tex2D(SamplerHDR1, texcoord.xy + discRadius*ReShade::PixelSize.xy*distortion.x);
 	chroma1.w=smoothstep(0.0, centerDepth, chroma1.w);
 	blurcolor.x=lerp(blurcolor.x, chroma1.x, chroma1.w);
 	
-	float4 chroma2=tex2D(SamplerHDR1, texcoord.xy + discRadius*RFX_PixelSize.xy*distortion.z);
+	float4 chroma2=tex2D(SamplerHDR1, texcoord.xy + discRadius*ReShade::PixelSize.xy*distortion.z);
 	chroma2.w=smoothstep(0.0, centerDepth, chroma2.w);
 	blurcolor.z=lerp(blurcolor.z, chroma2.z, chroma2.w);
 
@@ -356,7 +356,7 @@ float4 PS_GPDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 		
 		sampleOffset*=sampleCycleCounter;
 
-		float4 tap=tex2Dlod(SamplerHDR2, float4(texcoord.xy+sampleOffset.xy*discRadius*RFX_PixelSize.xy/iGPDOFQuality,0,0));
+		float4 tap=tex2Dlod(SamplerHDR2, float4(texcoord.xy+sampleOffset.xy*discRadius*ReShade::PixelSize.xy/iGPDOFQuality,0,0));
 
 		float brightMultipiler=max((dot(tap.xyz, 0.333)- fGPDOFBrightnessThreshold) * fGPDOFBrightnessMultiplier, 0.0);
 		tap.xyz*=1.0 + brightMultipiler*abs(tap.w*2.0 - 1.0);
@@ -410,10 +410,10 @@ float4 GetMatsoDOFBlur(int axis, float2 coord, sampler SamplerHDRX)
 		taxis.x = cos(fMatsoDOFBokehAngle*0.0175)*taxis.x-sin(fMatsoDOFBokehAngle*0.0175)*taxis.y;
 		taxis.y = sin(fMatsoDOFBokehAngle*0.0175)*taxis.x+cos(fMatsoDOFBokehAngle*0.0175)*taxis.y;
 		
-		float2 tcoord = coord.xy + (float)i * taxis * discRadius * RFX_PixelSize.xy * 0.5 / iMatsoDOFBokehQuality;
+		float2 tcoord = coord.xy + (float)i * taxis * discRadius * ReShade::PixelSize.xy * 0.5 / iMatsoDOFBokehQuality;
 
 #if(bMatsoDOFChromaEnable == 1)
-		float4 ct = GetMatsoDOFCA(SamplerHDRX, tcoord.xy, discRadius * RFX_PixelSize.x * 0.5 / iMatsoDOFBokehQuality);
+		float4 ct = GetMatsoDOFCA(SamplerHDRX, tcoord.xy, discRadius * ReShade::PixelSize.x * 0.5 / iMatsoDOFBokehQuality);
 #else
 		float4 ct = tex2Dlod(SamplerHDRX, float4(tcoord.xy,0,0));
 #endif
@@ -518,7 +518,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 	float4 res 		= float4(tex2Dlod(tex, float4(coord.xy, 0.0, 0.0)).xyz,1.0);
  	int ringCount          	= round(lerp(1.0,(float)iADOF_ShapeQuality,CoC/DOF_BLURRADIUS));
 	float rotAngle		= fADOF_ShapeRotation;
-	float2 discRadius 	= CoC*RFX_PixelSize.xy;
+	float2 discRadius 	= CoC*ReShade::PixelSize.xy;
 	float2 edgeVertices[iADOF_ShapeVertices+1];
 
 	#if(bADOF_ShapeWeightEnable != 0)
@@ -677,7 +677,7 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	float outOfFocus = abs(scenecolor.w * 2.0 - 1.0);
 
 	//move all math out of loop if possible
-	float2 blurmult = smoothstep(0.3,0.8,outOfFocus) * RFX_PixelSize.xy * fADOF_SmootheningAmount;
+	float2 blurmult = smoothstep(0.3,0.8,outOfFocus) * ReShade::PixelSize.xy * fADOF_SmootheningAmount;
 
 	float weights[3] = {1.0,0.75,0.5};
 	//Why not seperable? For the glory of Satan, of course!
@@ -696,10 +696,10 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 		float ImageGrain = frac(sin(texcoord.x + texcoord.y * 543.31) *  893013.0 + ReShade::Timer * 0.001);
 
 		float3 AnimGrain = 0.5;
-		float2 GrainRFX_PixelSize = RFX_PixelSize/fADOF_ImageGrainScale;
+		float2 GrainPixelSize = ReShade::PixelSize/fADOF_ImageGrainScale;
 		//My emboss noise
-		AnimGrain += lerp(tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + float2(GrainRFX_PixelSize.x,0)).xyz,tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + 0.5 + float2(GrainRFX_PixelSize.x,0)).xyz,ImageGrain.x) * 0.1;
-		AnimGrain -= lerp(tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + float2(0,GrainRFX_PixelSize.y)).xyz,tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + 0.5 + float2(0,GrainRFX_PixelSize.y)).xyz,ImageGrain.x) * 0.1;
+		AnimGrain += lerp(tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + float2(GrainPixelSize.x,0)).xyz,tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + 0.5 + float2(GrainPixelSize.x,0)).xyz,ImageGrain.x) * 0.1;
+		AnimGrain -= lerp(tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + float2(0,GrainPixelSize.y)).xyz,tex2D(SamplerNoise, texcoord.xy*fADOF_ImageGrainScale + 0.5 + float2(0,GrainPixelSize.y)).xyz,ImageGrain.x) * 0.1;
 		AnimGrain = dot(AnimGrain.xyz,0.333);
 
 		//Photoshop overlay mix mode

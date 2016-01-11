@@ -59,14 +59,14 @@ static const float4 CRange = 3.2366;
 
 float4 CompositeSample(float2 texcoord)
  {
-	float2 InverseRes = 1.0 / RFX_ScreenSize.xy;
+	float2 InverseRes = 1.0 / ReShade::ScreenSize.xy;
 	float2 InverseP = float2(P, 0.0) * InverseRes;
 	
 	// UVs for four linearly-interpolated samples spaced 0.25 texels apart
 	float2 C0 = texcoord;
-	float2 C1 = texcoord + RFX_PixelSize.x * 0.25;
-	float2 C2 = texcoord + RFX_PixelSize.x * 0.50;
-	float2 C3 = texcoord + RFX_PixelSize.x * 0.75;
+	float2 C1 = texcoord + ReShade::PixelSize.x * 0.25;
+	float2 C2 = texcoord + ReShade::PixelSize.x * 0.50;
+	float2 C3 = texcoord + ReShade::PixelSize.x * 0.75;
 	float4 Cx = float4(C0.x, C1.x, C2.x, C3.x);
 	float4 Cy = float4(C0.y, C1.y, C2.y, C3.y);
 
@@ -76,7 +76,7 @@ float4 CompositeSample(float2 texcoord)
 	float3 Texel3 = tex2D(ReShade::BackBuffer, C3).rgb;
 	
 	// Calculated the expected time of the sample.
-	float4 T = Cy * RFX_ScreenSize.x + 0.5 + Cx;
+	float4 T = Cy * ReShade::ScreenSize.x + 0.5 + Cx;
 
 	const float3 YTransform = float3(0.299, 0.587, 0.114);
 	const float3 ITransform = float3(0.595716, -0.274453, -0.321263);
@@ -110,7 +110,7 @@ float4 NTSCCodec(float2 texcoord)
 	float4 YAccum = 0.0;
 	float4 IAccum = 0.0;
 	float4 QAccum = 0.0;
-	float QuadXSize = RFX_ScreenSize.x * 4.0;
+	float QuadXSize = ReShade::ScreenSize.x * 4.0;
 	float TimePerSample = ScanTime / QuadXSize;
 	
 	// Frequency cutoffs for the individual portions of the signal that we extract.
@@ -127,11 +127,11 @@ float4 NTSCCodec(float2 texcoord)
 	for(float n = -41.0; n < 42.0; n += 4.0)
 	{
 		float4 n4 = n + NotchOffset  + 0.00001;
-		float4 CoordX = texcoord.x + RFX_PixelSize.x * n4 * 0.25;
+		float4 CoordX = texcoord.x + ReShade::PixelSize.x * n4 * 0.25;
 		float4 CoordY = texcoord.y;
 		float2 TexCoord = float2(CoordX.r, CoordY.r);
 		float4 C = CompositeSample(TexCoord) * CRange + MinC;
-		float4 WT = W * (CoordX  + A * CoordY * 2.0 * RFX_ScreenSize.x + B);
+		float4 WT = W * (CoordX  + A * CoordY * 2.0 * ReShade::ScreenSize.x + B);
 
 		float4 SincYIn1 = Pi2 * Fc_y1 * n4;
 		float4 SincYIn2 = Pi2 * Fc_y2 * n4;
@@ -260,8 +260,8 @@ void PS_VHS3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	float4 origcolor2= tex2Dlod(ReShade::BackBuffer, uv);
 	
 	float linesN = 240; //fields per seconds
-    float one_y = RFX_ScreenSize.y / linesN; //field line
-    uv.xy = floor(uv.xy*RFX_ScreenSize.xy/one_y)*one_y;
+    float one_y = ReShade::ScreenSize.y / linesN; //field line
+    uv.xy = floor(uv.xy*ReShade::ScreenSize.xy/one_y)*one_y;
 
 	float col =  nn(-uv.xy);
 
@@ -377,11 +377,11 @@ void PS_VHS5(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 }
 
 float scanline(float2 uv) {
-	return sin(RFX_ScreenSize.y * uv.y * 0.7 - t2 * 10.0);
+	return sin(ReShade::ScreenSize.y * uv.y * 0.7 - t2 * 10.0);
 }
 
 float slowscan(float2 uv) {
-	return sin(RFX_ScreenSize.y * uv.y * 0.02 + t2 * 6.0);
+	return sin(ReShade::ScreenSize.y * uv.y * 0.02 + t2 * 6.0);
 }
 
 float2 colorShift(float2 uv) {

@@ -52,7 +52,7 @@ float4 average(sampler2D tex, float2 pos, float range, inout float h) {
     float dist = rand(h) * range;     h = permute(h);
     float dir  = rand(h) * 6.2831853; h = permute(h);
 
-    float2 pt = dist / RFX_ScreenSize;
+    float2 pt = dist / ReShade::ScreenSize;
     float2 o = float2(cos(dir), sin(dir));
 
     // Sample at quarter-turn intervals around the source pixel

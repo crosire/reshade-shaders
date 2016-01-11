@@ -31,12 +31,12 @@ void PS_Otis_DEH_BlockBlurHorizontal(in float4 pos : SV_Position, in float2 texc
 	[loop]
 	for(float i = 1; i < 5; ++i) 
 	{
-		float2 sourceCoords = texcoord + float2(i * RFX_PixelSize.x, 0.0);
+		float2 sourceCoords = texcoord + float2(i * ReShade::PixelSize.x, 0.0);
 		float weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth, sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
 		
-		sourceCoords = texcoord - float2(i * RFX_PixelSize.x, 0.0);
+		sourceCoords = texcoord - float2(i * ReShade::PixelSize.x, 0.0);
 		weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
@@ -53,12 +53,12 @@ void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoo
 	[loop]
 	for(float j = 1; j < 5; ++j) 
 	{
-		float2 sourceCoords = texcoord + float2(0.0, j * RFX_PixelSize.y);
+		float2 sourceCoords = texcoord + float2(0.0, j * ReShade::PixelSize.y);
 		float weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
 
-		sourceCoords = texcoord - float2(0.0, j * RFX_PixelSize.y);
+		sourceCoords = texcoord - float2(0.0, j * ReShade::PixelSize.y);
 		weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;

@@ -8,17 +8,7 @@
 
 #include MartyMcFly_SETTINGS_DEF
 
-#if( HDR_MODE == 0)
- #define RENDERMODE RGBA8
-#elif( HDR_MODE == 1)
- #define RENDERMODE RGBA16F
-#else
- #define RENDERMODE RGBA32F
-#endif
-
 //global vars
-#define ScreenSize 	float4(BUFFER_WIDTH, BUFFER_RCP_WIDTH, float(BUFFER_WIDTH) / float(BUFFER_HEIGHT), float(BUFFER_HEIGHT) / float(BUFFER_WIDTH)) //x=Width, y=1/Width, z=ScreenScaleY, w=1/ScreenScaleY
-#define PixelSize  	float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
 #ifndef PI
 	#define PI 		3.1415972
 #endif

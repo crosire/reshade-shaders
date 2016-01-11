@@ -136,7 +136,7 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 	for(int i=-10; i < 11; i++)
 	{
 		float currweight = weight[abs(i)];	
-		sum	+= tex2Dlod(tex, float4(coord.xy + axis.xy * (float)i * RFX_PixelSize * mult,0,lodlevel)) * currweight;
+		sum	+= tex2Dlod(tex, float4(coord.xy + axis.xy * (float)i * ReShade::PixelSize * mult,0,lodlevel)) * currweight;
 	}
 
 	return sum;
@@ -256,7 +256,7 @@ void LensPrepass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 
 	float2 lfcoord = float2(0,0);
 	float2 distfact=(texcoord.xy-0.5);
-	distfact.x *= RFX_ScreenSizeFull.z;
+	distfact.x *= ReShade::AspectRatio;
 
 	for (int i=0; i<19; i++)
 	{
@@ -331,7 +331,7 @@ void LensPrepass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	float gaussweight[5] = {0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162};
 	for(int z=-4; z < 5; z++)
 	{
-		anamFlare+=GetAnamorphicSample(0, texcoord.xy + float2(0, z * RFX_PixelSize.y * 2), fFlareBlur) * fFlareTint* gaussweight[abs(z)];
+		anamFlare+=GetAnamorphicSample(0, texcoord.xy + float2(0, z * ReShade::PixelSize.y * 2), fFlareBlur) * fFlareTint* gaussweight[abs(z)];
 	}
 	lens.xyz += anamFlare * fFlareIntensity;
 #endif
@@ -365,7 +365,7 @@ void PS_BloomPrePass(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 
 	for (int i=0; i<4; i++)
 	{
-		bloomuv.xy=offset[i]*RFX_PixelSize.xy*2;
+		bloomuv.xy=offset[i]*ReShade::PixelSize.xy*2;
 		bloomuv.xy=texcoord.xy + bloomuv.xy;
 		float4 tempbloom=tex2Dlod(ReShade::OriginalColor, float4(bloomuv.xy, 0, 0));
 		tempbloom.w = max(0,dot(tempbloom.xyz,0.333)-fAnamFlareThreshold);
@@ -397,7 +397,7 @@ void PS_BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 
 	for (int i=0; i<8; i++)
 	{
-		bloomuv.xy=offset[i]*RFX_PixelSize.xy*4;
+		bloomuv.xy=offset[i]*ReShade::PixelSize.xy*4;
 		bloomuv.xy=texcoord.xy + bloomuv.xy;
 		float4 tempbloom=tex2Dlod(SamplerBloom1, float4(bloomuv.xy, 0, 0));
 		bloom+=tempbloom;
@@ -427,7 +427,7 @@ void PS_BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out fl
 
 	for (int i=0; i<8; i++)
 	{
-		bloomuv.xy=offset[i]*RFX_PixelSize.xy*8;
+		bloomuv.xy=offset[i]*ReShade::PixelSize.xy*8;
 		bloomuv.xy=texcoord.xy + bloomuv.xy;
 		float4 tempbloom=tex2Dlod(SamplerBloom2, float4(bloomuv.xy, 0, 0));
 		bloom+=tempbloom;
@@ -517,10 +517,10 @@ void PS_LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, o
 
 
 	float3 LensflareSample = tex2D(SamplerLens1, texcoord.xy).xyz;
-	float3 LensflareMask   = tex2D(SamplerSprite, texcoord.xy+float2(0.5,0.5)*RFX_PixelSize.xy).xyz;
-	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(-0.5,0.5)*RFX_PixelSize.xy).xyz;
-	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(0.5,-0.5)*RFX_PixelSize.xy).xyz;
-	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(-0.5,-0.5)*RFX_PixelSize.xy).xyz;
+	float3 LensflareMask   = tex2D(SamplerSprite, texcoord.xy+float2(0.5,0.5)*ReShade::PixelSize.xy).xyz;
+	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(-0.5,0.5)*ReShade::PixelSize.xy).xyz;
+	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(0.5,-0.5)*ReShade::PixelSize.xy).xyz;
+	LensflareMask   += tex2D(SamplerSprite, texcoord.xy+float2(-0.5,-0.5)*ReShade::PixelSize.xy).xyz;
 
 	color.xyz += LensflareMask*0.25*LensflareSample;
 
