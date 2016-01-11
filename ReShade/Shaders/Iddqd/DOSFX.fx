@@ -15,7 +15,6 @@ float4 PS_DosFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 	float2 xs = ReShade::ScreenSize / PIXELSIZE;
 	
 	#if (ENABLE_SCREENSIZE == 1)
-	xs.y=ReShade::ScreenSize.x/ReShade::AspectRatio;
 	xs=DOSScreenSize;
 	#endif
 	
