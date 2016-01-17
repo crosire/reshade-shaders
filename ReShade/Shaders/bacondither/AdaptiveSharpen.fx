@@ -26,15 +26,15 @@
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 /* Modified for ReShade by JPulowski
-   
+
    Changelog:
    1.0  - Initial release
    1.1  - Updated to version 2015-11-05
    1.2  - Updated to version 2015-11-17, fixed tanh overflow causing black pixels
    1.2a - Speed optimizations
    1.3  - Updated to version 2016-01-12
-   
-*/   
+
+*/
 
 #include EFFECT_CONFIG(bacondither)
 
@@ -156,7 +156,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 		               lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, var) ) };
 	#endif
 
-	float luma[25] = { d[0].y,  d[1].y,  d[2].y,  d[3].y,  d[4].y,  
+	float luma[25] = { d[0].y,  d[1].y,  d[2].y,  d[3].y,  d[4].y,
 	                   d[5].y,  d[6].y,  d[7].y,  d[8].y,  d[9].y,
 	                   d[10].y, d[11].y, d[12].y, d[13].y, d[14].y,
 	                   d[15].y, d[16].y, d[17].y, d[18].y, d[19].y,
@@ -232,7 +232,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	#else
 		static const int numloop = 3;
 	#endif
-	
+
 	// Calculate local near min & max, partial sort
 	[unroll]
 	for (int i = 0; i < numloop; ++i)
