@@ -1,4 +1,4 @@
-// Copyright (c) 2015, bacondither
+// Copyright (c) 2015-2016, bacondither
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Adaptive sharpen - version 2015-11-17 - (requires ps >= 3.0)
+// Adaptive sharpen - version 2016-01-12 - (requires ps >= 3.0)
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 /* Modified for ReShade by JPulowski
@@ -32,6 +32,7 @@
    1.1  - Updated to version 2015-11-05
    1.2  - Updated to version 2015-11-17, fixed tanh overflow causing black pixels
    1.2a - Speed optimizations
+   1.3  - Updated to version 2016-01-12
    
 */   
 
@@ -46,19 +47,19 @@ texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F;
 sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x, y)     ( saturate(tex2D(ReShade::BackBuffer, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
+#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
 #define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (RFX_PixelSize * float2(x, y))).xy )
 
 // Compute diff
 #define b_diff(z)      ( abs(blur-c[z]) )
 
 // Saturation loss reduction
-#define minim_satloss  ( (satorig*(CtL(satorig + sharpdiff)/d[0].y) + (satorig + sharpdiff))/2 )
+#define minim_satloss  ( (satorig*min((d[0].y + sharpdiff)/d[0].y, 1e+5) + (satorig + sharpdiff))/2 )
 
 // Soft if, fast
-#define soft_if(a,b,c) ( saturate((a + b + c)/(saturate(maxedge)+ 0.0067) - 0.85) )
+#define soft_if(a,b,c) ( saturate((a + b + c)/(saturate(maxedge) + 0.0067) - 0.85) )
 
-// Soft limit
+// Soft limit, modified tanh
 #define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
 
 // Maximum of four values
@@ -95,23 +96,21 @@ void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 	float3 blur   = (2*(c[2]+c[4]+c[5]+c[7]) + (c[1]+c[3]+c[6]+c[8]) + 4*c[0])/16;
 	float  blur_Y = (blur.r/3 + blur.g/3 + blur.b/3);
 
-	// Contrast compression, center = 0.5
+	// Contrast compression, center = 0.5, scaled to 1/3
 	float c_comp = saturate(0.266666681f + 0.9*pow(2, (-7.4*blur_Y)));
 
 	// Edge detection
 	// Matrix weights
 	// [         1/4,        ]
-	// [      4,  1,  4      ]
-	// [ 1/4, 4,  1,  4, 1/4 ]
-	// [      4,  1,  4      ]
+	// [      1,  1,  1      ]
+	// [ 1/4, 1,  1,  1, 1/4 ]
+	// [      1,  1,  1      ]
 	// [         1/4         ]
 	float edge = length( b_diff(0) + b_diff(1) + b_diff(2) + b_diff(3)
 	                   + b_diff(4) + b_diff(5) + b_diff(6) + b_diff(7) + b_diff(8)
 	                   + 0.25*(b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)) );
 
-	edge = edge*c_comp;
-
-	P0_OUT = float2( edge, luma );
+	P0_OUT = float2( edge*c_comp, luma );
 }
 
 float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target {
@@ -119,7 +118,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	float3 orig    = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 satorig = saturate(orig);
 
-	// Get points
+	// Get points, .x= edge, .y= luma
 	// [                d22               ]
 	// [           d24, d9,  d23          ]
 	// [      d21, d1,  d2,  d3, d18      ]
@@ -134,8 +133,8 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	                 get2(-2, 1), get2(-2,-1), get2( 0,-3), get2( 1,-2), get2(-1,-2) };
 
 	// Allow for higher overshoot if the current edge pixel is surrounded by similar edge pixels
-	float maxedge = (max4( max4(d[1].x,d[2].x,d[3].x,d[4].x), max4(d[5].x,d[6].x,d[7].x,d[8].x),
-	                       max4(d[9].x,d[10].x,d[11].x,d[12].x), d[0].x ));
+	float maxedge = max4( max4(d[1].x,d[2].x,d[3].x,d[4].x), max4(d[5].x,d[6].x,d[7].x,d[8].x),
+	                      max4(d[9].x,d[10].x,d[11].x,d[12].x), d[0].x );
 
 	// [          x          ]
 	// [       z, x, w       ]
@@ -149,7 +148,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	          + soft_if(d[1].x,d[24].x,d[21].x)*soft_if(d[8].x,d[14].x,d[17].x)  // z dir
 	          + soft_if(d[3].x,d[23].x,d[18].x)*soft_if(d[6].x,d[20].x,d[15].x); // w dir
 
-	#if fast_ops == 1
+	#if (fast_ops == 1)
 		float s[2] = { lerp( L_compr_low, L_compr_high, saturate(var-2) ),
 		               lerp( D_compr_low, D_compr_high, saturate(var-2) ) };
 	#else
@@ -163,21 +162,28 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	                   d[15].y, d[16].y, d[17].y, d[18].y, d[19].y,
 	                   d[20].y, d[21].y, d[22].y, d[23].y, d[24].y };
 
-	// Pixel weights for the laplace kernel
+	// Precalculated default squared kernel weights
+	float3 w1 = float3(0.5,           1.0, 1.41421356237); // 0.25, 1.0, 2.0
+	float3 w2 = float3(0.86602540378, 1.0, 0.5477225575);  // 0.75, 1.0, 0.3
+
+	// Transition to a concave kernel if the center edge val is above thr
+	float3 dW = pow(lerp( w1, w2, smoothstep( 0.3, 0.6, d[0].x)), 2);
+
 	float mdiff_c0  = 0.02 + 3*( abs(luma[0]-luma[2]) + abs(luma[0]-luma[4])
 	                           + abs(luma[0]-luma[5]) + abs(luma[0]-luma[7])
 	                           + 0.25*(abs(luma[0]-luma[1]) + abs(luma[0]-luma[3])
 	                                  +abs(luma[0]-luma[6]) + abs(luma[0]-luma[8])) );
 
-	float weights[12]  = { ( 0.25 ), ( 0.25 ), ( 0.25 ), ( 0.25 ), // c2, // c4, // c5, // c7
-	                       ( min((mdiff_c0/mdiff(24, 21, 2,  4,  9,  10, 1)),  1) ),    // c1
-	                       ( min((mdiff_c0/mdiff(23, 18, 5,  2,  9,  11, 3)),  1) ),    // c3
-	                       ( min((mdiff_c0/mdiff(4,  20, 15, 7,  10, 12, 6)),  1) ),    // c6
-	                       ( min((mdiff_c0/mdiff(5,  7,  17, 14, 12, 11, 8)),  1) ),    // c8
-	                       ( min((mdiff_c0/mdiff(2,  24, 23, 22, 1,  3,  9)),  2) ),    // c9
-	                       ( min((mdiff_c0/mdiff(20, 19, 21, 4,  1,  6,  10)), 2) ),    // c10
-	                       ( min((mdiff_c0/mdiff(17, 5,  18, 16, 3,  8,  11)), 2) ),    // c11
-	                       ( min((mdiff_c0/mdiff(13, 15, 7,  14, 6,  8,  12)), 2) ) };  // c12
+	// Use lower weights for pixels in a more active area relative to center pixel area.
+	float weights[12]  = { ( dW.x ), ( dW.x ), ( dW.x ), ( dW.x ), // c2, // c4, // c5, // c7
+	                       ( min(mdiff_c0/mdiff(24, 21, 2,  4,  9,  10, 1),  dW.y) ),   // c1
+	                       ( min(mdiff_c0/mdiff(23, 18, 5,  2,  9,  11, 3),  dW.y) ),   // c3
+	                       ( min(mdiff_c0/mdiff(4,  20, 15, 7,  10, 12, 6),  dW.y) ),   // c6
+	                       ( min(mdiff_c0/mdiff(5,  7,  17, 14, 12, 11, 8),  dW.y) ),   // c8
+	                       ( min(mdiff_c0/mdiff(2,  24, 23, 22, 1,  3,  9),  dW.z) ),   // c9
+	                       ( min(mdiff_c0/mdiff(20, 19, 21, 4,  1,  6,  10), dW.z) ),   // c10
+	                       ( min(mdiff_c0/mdiff(17, 5,  18, 16, 3,  8,  11), dW.z) ),   // c11
+	                       ( min(mdiff_c0/mdiff(13, 15, 7,  14, 6,  8,  12), dW.z) ) }; // c12
 
 	weights[4] = (max(max((weights[8]  + weights[9])/4,  weights[4]), 0.25) + weights[4])/2;
 	weights[5] = (max(max((weights[8]  + weights[10])/4, weights[5]), 0.25) + weights[5])/2;
@@ -194,50 +200,65 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	[unroll]
 	for (int pix = 0; pix < 12; ++pix)
 	{
-		#if fast_ops == 1
+		#if (fast_ops == 1)
 			float lowth = clamp(((10*d[order[pix]].x)-0.15), 0.01, 1);
+
+			neg_laplace += pow(luma[order[pix]], 2)*(weights[pix]*lowth);
 		#else
 			float x = saturate((d[order[pix]].x - 0.01)/0.11);
 			float lowth = x*x*(2.99 - 2*x) + 0.01;
+
+			neg_laplace += pow(abs(luma[order[pix]]) + 0.064, 2.4)*(weights[pix]*lowth);
 		#endif
 
-		neg_laplace += (luma[order[pix]]*luma[order[pix]])*(weights[pix]*lowth);
 		weightsum   += weights[pix]*lowth;
 		lowthsum    += lowth;
 	}
+
+	#if (fast_ops == 1)
+		neg_laplace = sqrt(neg_laplace/weightsum);
+	#else
+		neg_laplace = pow(abs(neg_laplace/weightsum), (1.0/2.4)) - 0.064;
+	#endif
 
 	// Compute sharpening magnitude function
 	float sharpen_val = (lowthsum/12)*(curve_height/(curveslope*pow(abs(d[0].x), 3.5) + 0.5));
 
 	// Calculate sharpening diff and scale
-	float sharpdiff = (d[0].y - sqrt(neg_laplace/weightsum))*(sharpen_val*0.8 + 0.01);
+	float sharpdiff = (d[0].y - neg_laplace)*(sharpen_val*0.8 + 0.01);
 
-	#if fast_ops == 1
+	#if (fast_ops == 1)
 		static const int numloop = 2;
 	#else
 		static const int numloop = 3;
 	#endif
 	
-	// Calculate local near min & max, partial cocktail sort (No branching!)
+	// Calculate local near min & max, partial sort
 	[unroll]
 	for (int i = 0; i < numloop; ++i)
 	{
-		for (int i1 = 1+i; i1 < 25-i; ++i1)
+		float temp;
+
+		for (int i1 = i; i1 < 24-i; i1 += 2)
 		{
-			float temp = luma[i1-1];
-			luma[i1-1] = min(luma[i1-1], luma[i1]);
-			luma[i1]   = max(temp, luma[i1]);
+			temp = luma[i1];
+			luma[i1]   = min(luma[i1], luma[i1+1]);
+			luma[i1+1] = max(temp, luma[i1+1]);
 		}
 
-		for (int i2 = 23-i; i2 > i; --i2)
+		for (int i2 = 24-i; i2 > i; i2 -= 2)
 		{
-			float temp = luma[i2-1];
-			luma[i2-1] = min(luma[i2-1], luma[i2]);
+			temp = luma[i];
+			luma[i]    = min(luma[i], luma[i2]);
 			luma[i2]   = max(temp, luma[i2]);
+
+			temp = luma[24-i];
+			luma[24-i] = max(luma[24-i], luma[i2-1]);
+			luma[i2-1] = min(temp, luma[i2-1]);
 		}
 	}
 
-	#if fast_ops == 1
+	#if (fast_ops == 1)
 		float nmax = max((luma[23] + luma[24])/2, d[0].y);
 		float nmin = min((luma[0]  + luma[1])/2,  d[0].y);
 	#else
