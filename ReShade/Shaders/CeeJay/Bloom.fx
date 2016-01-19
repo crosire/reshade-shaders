@@ -21,7 +21,7 @@ float4 BloomPass( float4 ColorInput2,float2 Tex  )
 	//float Samplecount = 0;
 	float Samplecount = 25.0;
 	
-	float2 blurtempvalue = Tex * RFX_PixelSize * BloomWidth;
+	float2 blurtempvalue = Tex * ReShade::PixelSize * BloomWidth;
 	
 	//float distancetemp = 1.0 - ((MaxDistance - CurDistance) / MaxDistance);
 	

@@ -47,8 +47,8 @@ texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F;
 sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
-#define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (RFX_PixelSize * float2(x, y))).xy )
+#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * float2(x, y))).rgb) )
+#define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (ReShade::PixelSize * float2(x, y))).xy )
 
 // Compute diff
 #define b_diff(z)      ( abs(blur-c[z]) )

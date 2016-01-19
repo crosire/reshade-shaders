@@ -18,6 +18,7 @@
 */
 
 #include EFFECT_CONFIG(JPulowski)
+
 #if (USE_OUTLINE == 1)
 
 namespace JPulowski {
@@ -91,4 +92,5 @@ technique Outline_Tech <bool enabled = RFX_Start_Enabled; int toggle = Outline_T
 }
 
 #endif
+
 #include "ReShade/Shaders/JPulowski.undef"

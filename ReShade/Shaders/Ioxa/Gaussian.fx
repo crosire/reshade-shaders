@@ -73,13 +73,13 @@ uniform int random < source = "random"; min = 0; max = 10; >;
 #endif
 
 #if GaussSigma == 2
-#define Gpx_size (RFX_PixelSize*2)
+#define Gpx_size (ReShade::PixelSize*2)
 #elif GaussSigma == 3
-#define Gpx_size (RFX_PixelSize*3)
+#define Gpx_size (ReShade::PixelSize*3)
 #elif GaussSigma == 4
-#define Gpx_size (RFX_PixelSize*4)
+#define Gpx_size (ReShade::PixelSize*4)
 #else
-#define Gpx_size (RFX_PixelSize)
+#define Gpx_size (ReShade::PixelSize)
 #endif
 
 texture GBlurTex2Dping{ Width = BUFFER_WIDTH/txsize; Height = BUFFER_HEIGHT/txsize; Format = RGBA8; };
@@ -90,13 +90,13 @@ sampler2D GBlurSamplerPong { Texture = GBlurTex2Dpong; MinFilter = Linear; MagFi
 #endif
 
 #if BloomSigma == 2
-#define Bpx_size (RFX_PixelSize*2)
+#define Bpx_size (ReShade::PixelSize*2)
 #elif BloomSigma == 3
-#define Bpx_size (RFX_PixelSize*3)
+#define Bpx_size (ReShade::PixelSize*3)
 #elif BloomSigma == 4
-#define Bpx_size (RFX_PixelSize*4)
+#define Bpx_size (ReShade::PixelSize*4)
 #else
-#define Bpx_size (RFX_PixelSize)
+#define Bpx_size (ReShade::PixelSize)
 #endif
 
 #if BloomTexScale != 0
@@ -130,15 +130,15 @@ float4 HGaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOOR
 	float4 color = tex2D(GBlurSamplerPing, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(GBlurSamplerPing, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(GBlurSamplerPing, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(GBlurSamplerPing, texcoord + float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(GBlurSamplerPing, texcoord - float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else
 	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -153,15 +153,15 @@ float4 VGaussianBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOOR
 	float4 color = tex2D(GBlurSamplerPong, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	#else
 	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	#endif
 	return color;
@@ -231,8 +231,8 @@ float4 GaussianBlurFinalPS(in float4 pos : SV_Position, in float2 texcoord : TEX
 	float4 color = tex2D(GBlurSamplerPong, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(GBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(GBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#endif
@@ -249,8 +249,8 @@ float4 GaussianBlurFinalPS(in float4 pos : SV_Position, in float2 texcoord : TEX
 	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#endif 
@@ -350,15 +350,15 @@ float4 HBloomBlurPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	float4 color = tex2D(BBlurSamplerPing, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(BBlurSamplerPing, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(BBlurSamplerPing, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(BBlurSamplerPing, texcoord + float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(BBlurSamplerPing, texcoord - float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#else
 	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int i = 1; i < 5; ++i) {
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * RFX_PixelSize.x, 0.0)) * sampleWeights[i]; 
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsets[i] * ReShade::PixelSize.x, 0.0)) * sampleWeights[i]; 
 	}
 	#endif
 	return color;
@@ -451,8 +451,8 @@ float4 FinalBloomPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	float4 color = tex2D(BBlurSamplerPong, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(BBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(BBlurSamplerPong, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(BBlurSamplerPong, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(ReShade::BackBuffer, texcoord); //Original Image
 	#endif
@@ -469,8 +469,8 @@ float4 FinalBloomPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	float4 color = tex2D(ReShade::BackBuffer, texcoord) * sampleWeights[0];
 	[loop]
 	for(int j = 1; j < 5; ++j) {
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * RFX_PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(0.0, sampleOffsets[j] * ReShade::PixelSize.y)) * sampleWeights[j];
 	}
 	float4 orig = tex2D(GBlurSamplerPing, texcoord); //Original Image
 	#endif

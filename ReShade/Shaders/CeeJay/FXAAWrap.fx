@@ -9,7 +9,7 @@ namespace CeeJay
 
 float3 FXAA(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 {
-	float3 color = FxaaPixelShader(texcoord, ReShade::BackBuffer, RFX_PixelSize, float4(0.0f, 0.0f, 0.0f, 0.0f), fxaa_Subpix, fxaa_EdgeThreshold, fxaa_EdgeThresholdMin).rgb;
+	float3 color = FxaaPixelShader(texcoord, ReShade::BackBuffer, ReShade::PixelSize, float4(0.0f, 0.0f, 0.0f, 0.0f), fxaa_Subpix, fxaa_EdgeThreshold, fxaa_EdgeThresholdMin).rgb;
 
 #if (CeeJay_PIGGY == 1)
 	#undef CeeJay_PIGGY

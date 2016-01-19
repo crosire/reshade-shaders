@@ -26,7 +26,7 @@ namespace CeeJay
 #if PixelArtCRT_resolution_mode != 1
   #define res PixelArtCRT_fixed_resolution // Fix resolution to set amount.
 #else
-  #define res (RFX_ScreenSize * PixelArtCRT_resolution_ratio) // Optimize for resize.
+  #define res (ReShade::ScreenSize * PixelArtCRT_resolution_ratio) // Optimize for resize.
 #endif
 
 // Nearest emulated sample given floating point position and texel offset.
@@ -186,7 +186,7 @@ float4 PixelArtCRTPass( float4 colorInput, float2 pos )
   //float3 color = myTex2D(s0,float2(pos.x,pos.y)).rgb; //testing
   float3 color = Tri(pos);
   
-  color *= Mask(pos*RFX_ScreenSize); //apply shadow mask
+  color *= Mask(pos*ReShade::ScreenSize); //apply shadow mask
 
   colorInput.rgb = color;
   return saturate(colorInput);

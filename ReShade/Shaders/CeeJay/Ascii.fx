@@ -41,7 +41,7 @@ Here are some various chacters and gradients I created in my quest to get the be
  .:^"~csoCwSO8Q0#
  .:^"~c?o*wSO8Q0#
 
-n value // # of RFX_PixelSizes // character
+n value // # of ReShade::PixelSizes // character
 -----------//----//-------------------
 4194304.   //  1 // . (bottom aligned) *
 131200.    //  2 // : (middle aligned) *
@@ -144,7 +144,7 @@ float3 AsciiPass( float2 tex )
   
   
   float2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
-  float2 cursor_position = trunc((RFX_ScreenSize / Ascii_block) * tex) * (Ascii_block / RFX_ScreenSize);
+  float2 cursor_position = trunc((ReShade::ScreenSize / Ascii_block) * tex) * (Ascii_block / ReShade::ScreenSize);
 
   #if Ascii_input_image == 2
 	#define asciiSampler depthSampler
@@ -154,49 +154,49 @@ float3 AsciiPass( float2 tex )
 
 /*
 	//-- Pattern 1 --
-  float3 color = myTex2D(asciiSampler, cursor_position + float2(3.5,4.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(2.5,2.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(4.5,1.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(5.5,3.5) * RFX_PixelSize).rgb;
+  float3 color = myTex2D(asciiSampler, cursor_position + float2(3.5,4.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(2.5,2.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(4.5,1.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(5.5,3.5) * ReShade::PixelSize).rgb;
   
   color *= 0.25;
 */
 /*
 
 	//-- Pattern 1b --
-  float3 color = myTex2D(asciiSampler, cursor_position + float2(2.5,0.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(0.5,4.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(6.5,2.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2(4.5,6.5) * RFX_PixelSize).rgb;
+  float3 color = myTex2D(asciiSampler, cursor_position + float2(2.5,0.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(0.5,4.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(6.5,2.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2(4.5,6.5) * ReShade::PixelSize).rgb;
   
   color *= 0.25;
 */
 	
 
-  //-- Pattern 2 - Sample ALL the RFX_PixelSizes! --
-  float3 color = myTex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * RFX_PixelSize).rgb;
-  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * RFX_PixelSize).rgb;
-  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * RFX_PixelSize).rgb;
+  //-- Pattern 2 - Sample ALL the ReShade::PixelSizes! --
+  float3 color = myTex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * ReShade::PixelSize).rgb;
+  color += myTex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * ReShade::PixelSize).rgb;
+  //color += myTex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * ReShade::PixelSize).rgb;
 
   color /= 9.0;
 
 
 /*	
 	//-- Pattern 3 - Just one --
-	float3 color = myTex2D(asciiSampler, cursor_position + float2(4.0,4.0) * RFX_PixelSize)	.rgb;
+	float3 color = myTex2D(asciiSampler, cursor_position + float2(4.0,4.0) * ReShade::PixelSize)	.rgb;
 */
 	
   /*------------------------.
@@ -228,7 +228,7 @@ float3 AsciiPass( float2 tex )
   | :: Get position :: |
   '-------------------*/
 	
-	float2 p = frac((RFX_ScreenSize / Ascii_block) * tex);  //p is the position of the current RFX_PixelSize inside the character
+	float2 p = frac((ReShade::ScreenSize / Ascii_block) * tex);  //p is the position of the current ReShade::PixelSize inside the character
 
 	p = trunc(p * Ascii_block);
 	//p = trunc(p * Ascii_block - float2(1.5,1.5)) ;
@@ -247,9 +247,9 @@ float3 AsciiPass( float2 tex )
 
 /*
   //Calculate grid position
-  //float grid_position = frac( dot(cursor_position,((RFX_ScreenSize / Ascii_block) * float2(0.6,0.8) )) + 0.25);
-  float grid_position = frac( dot(cursor_position,((RFX_ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
-  //float grid_position = frac( dot(cursor_position,((RFX_ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
+  //float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.6,0.8) )) + 0.25);
+  float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
+  //float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
 
   //Calculate how big the shift should be
   float dither_shift = (0.25 / num_of_chars);
@@ -275,7 +275,7 @@ float3 AsciiPass( float2 tex )
   dither_shift = dither_shift * noise - dither_shift_half; // MAD
 
   //shift the color by dither_shift
-  gray += dither_shift; //subRFX_PixelSize dithering
+  gray += dither_shift; //subReShade::PixelSize dithering
 
   /*---------------------------.
   | :: Convert to character :: |
@@ -369,7 +369,7 @@ float3 AsciiPass( float2 tex )
 	//test values
 	//n = -(exp2(24.)-1.0); //-(2^24-1) All bits set - a white 5x5 box
 
-	float lit = (gray <= (1./num_of_chars)) //if black then set all RFX_PixelSizes to black (the space character)
+	float lit = (gray <= (1./num_of_chars)) //if black then set all ReShade::PixelSizes to black (the space character)
 		? 0.0
 		: 1.0 ;
 
@@ -377,7 +377,7 @@ float3 AsciiPass( float2 tex )
 		? lit 
 		: 0.0 ;
 
-	signbit = (x > 23.5) //is this the first RFX_PixelSize in the character?
+	signbit = (x > 23.5) //is this the first ReShade::PixelSize in the character?
 		? signbit
 		: 0.0 ;
 

@@ -29,7 +29,7 @@ float4 DitherPass( float4 colorInput, float2 tex )
 /* 
  #if dither_method == 1 // Ordered dithering
      //Calculate grid position
-     float grid_position = frac( dot(tex, (RFX_ScreenSize * float2(1.0/16.0,10.0/36.0)  )+(0.25) ) );
+     float grid_position = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)  )+(0.25) ) );
 
      //Calculate how big the shift should be
      float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0));
@@ -46,7 +46,7 @@ float4 DitherPass( float4 colorInput, float2 tex )
 
    #if dither_method == 1 // Ordered dithering
      //Calculate grid position
-     float grid_position = frac( dot(tex,(RFX_ScreenSize * float2(1.0/16.0,10.0/36.0))) + 0.25 );
+     float grid_position = frac( dot(tex,(ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0))) + 0.25 );
 
      //Calculate how big the shift should be
      float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0));
@@ -86,7 +86,7 @@ float4 DitherPass( float4 colorInput, float2 tex )
    #elif dither_method == 3 // New Ordered dithering
 
      //Calculate grid position
-     float grid_position = frac(dot(tex,(RFX_ScreenSize) * float2(0.75,0.5) /*+ (0.00025)*/)); //(0.6,0.8) is good too - TODO : experiment with values
+     float grid_position = frac(dot(tex,(ReShade::ScreenSize) * float2(0.75,0.5) /*+ (0.00025)*/)); //(0.6,0.8) is good too - TODO : experiment with values
 
      //Calculate how big the shift should be
      float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.
@@ -104,11 +104,11 @@ float4 DitherPass( float4 colorInput, float2 tex )
   #define dither_pattern 11
   #define dither_levels 32
 
-  float x=tex.x * RFX_ScreenSize.x;// * 1.31;
-  float y=tex.y * RFX_ScreenSize.y;// * 1.31;
+  float x=tex.x * ReShade::ScreenSize.x;// * 1.31;
+  float y=tex.y * ReShade::ScreenSize.y;// * 1.31;
 
   //Calculate grid position
-  float c = frac(dot(tex,(RFX_ScreenSize) * float2(1.0/4.0,3.0/4.0) + (0.00025) )); //the + (0.00025) part is to avoid errors with the floating point math
+  float c = frac(dot(tex,(ReShade::ScreenSize) * float2(1.0/4.0,3.0/4.0) + (0.00025) )); //the + (0.00025) part is to avoid errors with the floating point math
 
   float mask;
 
@@ -125,17 +125,17 @@ float4 DitherPass( float4 colorInput, float2 tex )
   #elif dither_pattern == 6
     mask = frac( dot(tex, float2(12.9898,78.233)) * 927.5453 );
   #elif dither_pattern == 7
-    mask = frac( dot(tex, (RFX_ScreenSize * float2(1.0/7.0,9.0/17.0))+(0.00025) ) );
+    mask = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/7.0,9.0/17.0))+(0.00025) ) );
   #elif dither_pattern == 8
-    mask = frac( dot(tex, (RFX_ScreenSize * float2(5.0/7.0,3.0/17.0))+(0.00025) ) );
+    mask = frac( dot(tex, (ReShade::ScreenSize * float2(5.0/7.0,3.0/17.0))+(0.00025) ) );
   #elif dither_pattern == 9
-    mask = frac( dot(tex, (RFX_ScreenSize * float2(1.0/4.0,3.0/5.0))+(0.000025) ) );
+    mask = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/4.0,3.0/5.0))+(0.000025) ) );
   #elif dither_pattern == 10
-    mask = frac( dot(tex, (RFX_ScreenSize * float2(1.0/87.0,1.0/289.0))+(0.000025) ) ); //stylish pattern - but bad for dithering
+    mask = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/87.0,1.0/289.0))+(0.000025) ) ); //stylish pattern - but bad for dithering
   #elif dither_pattern == 11
-    //mask = frac( dot(tex, (RFX_ScreenSize * float2(1.0/(floor(tex.y*10.0)/100.+16.0),87.0/289.0))+(0.000025) ) ); //
-	//mask = frac( dot(float4(tex,tex), float4((RFX_ScreenSize * float2(0.666/16.0,6.66/36.)),(RFX_ScreenSize * float2(0.3344/16.0,3.34/36.)) ) ) ); //
-      mask = frac( dot(tex, (RFX_ScreenSize * float2(1.0/16.0,10.0/36.0)  )+(0.25) ) ); //
+    //mask = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/(floor(tex.y*10.0)/100.+16.0),87.0/289.0))+(0.000025) ) ); //
+	//mask = frac( dot(float4(tex,tex), float4((ReShade::ScreenSize * float2(0.666/16.0,6.66/36.)),(ReShade::ScreenSize * float2(0.3344/16.0,3.34/36.)) ) ) ); //
+      mask = frac( dot(tex, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)  )+(0.25) ) ); //
 //(floor(tex.y*10.0)/100.0 + 3.0)
   #else
     //return input;
@@ -151,10 +151,10 @@ float4 DitherPass( float4 colorInput, float2 tex )
    #elif dither_method == 5 // New Ordered dithering
 
      //Calculate grid position
-     float grid_position = frac(dot(tex,floor(RFX_ScreenSize * float2(-0.5,-0.9) ) /*- (0.00025)*/ )); //(0.6,0.8) is good too - TODO : experiment with values
+     float grid_position = frac(dot(tex,floor(ReShade::ScreenSize * float2(-0.5,-0.9) ) /*- (0.00025)*/ )); //(0.6,0.8) is good too - TODO : experiment with values
 
      //Calculate grid position
-     grid_position = frac(dot(tex,floor(RFX_ScreenSize * float2(0.4,0.70)) /*+ grid_position*/ /*+ (0.00025)*/ )); //
+     grid_position = frac(dot(tex,floor(ReShade::ScreenSize * float2(0.4,0.70)) /*+ grid_position*/ /*+ (0.00025)*/ )); //
 
      //Calculate how big the shift should be
      float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.
@@ -173,7 +173,7 @@ float4 DitherPass( float4 colorInput, float2 tex )
   '-------------------*/
    #elif dither_method == 6 // Checkerboard Ordered dithering
      //Calculate grid position
-     float grid_position = frac(dot(tex, RFX_ScreenSize * 0.5) + 0.25); //returns 0.25 and 0.75
+     float grid_position = frac(dot(tex, ReShade::ScreenSize * 0.5) + 0.25); //returns 0.25 and 0.75
 
      //Calculate how big the shift should be
      float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.

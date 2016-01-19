@@ -12,10 +12,9 @@ namespace Iddqd
 
 float4 PS_DosFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float2 xs = RFX_ScreenSize / PIXELSIZE;
+	float2 xs = ReShade::ScreenSize / PIXELSIZE;
 	
 	#if (ENABLE_SCREENSIZE == 1)
-	xs.y=RFX_ScreenSizeFull.x*RFX_ScreenSizeFull.w;
 	xs=DOSScreenSize;
 	#endif
 	

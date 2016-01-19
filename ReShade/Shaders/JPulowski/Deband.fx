@@ -35,27 +35,24 @@
 
 #if (USE_DEBAND == 1)
 
-namespace JPulowski
-{
+namespace JPulowski {
 
 uniform int drandom < source = "random"; min = 0; max = 5000; >;
 float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }
 float permute(float x) { return mod289((34.0*x + 1.0) * x); }
 float rand(float x)    { return frac(x / 41.0); }
 
-bool4 greaterThan(float4 value, float4 comparison)
-{
+bool4 greaterThan(float4 value, float4 comparison) {
 	return bool4(value.x > comparison.x, value.y > comparison.y, value.z > comparison.z, value.w > comparison.w);
 }
 
-// Helper: Calculate a stochastic approximation of the avg color around a pixel
-float4 average(sampler2D tex, float2 pos, float range, inout float h)
-{
+// Helper: Compute a stochastic approximation of the avg color around a pixel
+float4 average(sampler2D tex, float2 pos, float range, inout float h) {
     // Compute a random rangle and distance
     float dist = rand(h) * range;     h = permute(h);
     float dir  = rand(h) * 6.2831853; h = permute(h);
 
-    float2 pt = dist / RFX_ScreenSize;
+    float2 pt = dist / ReShade::ScreenSize;
     float2 o = float2(cos(dir), sin(dir));
 
     // Sample at quarter-turn intervals around the source pixel
@@ -69,8 +66,7 @@ float4 average(sampler2D tex, float2 pos, float range, inout float h)
     return (ref[0] + ref[1] + ref[2] + ref[3]) / 4.0;
 }
 
-float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET
-{
+float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
     float h;
     // Initialize the PRNG by hashing the position + a random uniform
     float3 m = float3(texcoord, (drandom / 5000.0)) + float3(1.0, 1.0, 1.0);
@@ -84,15 +80,14 @@ float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
 		[unroll]
 	#endif
     for (int i = 1; i <= Iterations; i++) {
-        // Use the average instead if the difference is below the threshold
+        // Sample the average pixel and use it instead of the original if the difference is below the given threshold
         avg = average(ReShade::BackBuffer, texcoord, i*Range, h);
         diff = abs(col - avg);
         col = lerp(avg, col, greaterThan(diff, float4(Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0))));
     }
 
-    if (Grain > 0.0)
-	{
-		// Add some random noise to the output
+    if (Grain > 0.0) {
+		// Add some random noise to smooth out residual differences
 		float3 noise;
 		noise.x = rand(h); h = permute(h);
 		noise.y = rand(h); h = permute(h);

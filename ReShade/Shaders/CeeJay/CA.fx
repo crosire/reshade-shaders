@@ -45,9 +45,9 @@ float4 ChromaticAberrationPass( float4 colorInput, float2 tex )
   '------------------*/
   #if Chromatic_mode == 1 // Color shift
   
-	color.r = myTex2D(s0, tex + (RFX_PixelSize * Chromatic_shift)).r;
+	color.r = myTex2D(s0, tex + (ReShade::PixelSize * Chromatic_shift)).r;
 	color.g = colorInput.g;
-	color.b = myTex2D(s0, tex - (RFX_PixelSize * Chromatic_shift)).b;
+	color.b = myTex2D(s0, tex - (ReShade::PixelSize * Chromatic_shift)).b;
   
   #else
   /*-------------.
@@ -58,7 +58,7 @@ float4 ChromaticAberrationPass( float4 colorInput, float2 tex )
 		float2 distance_xy = tex - Chromatic_Center;
 
 		//Adjust the ratio
-		distance_xy *= float2((RFX_PixelSize.y / RFX_PixelSize.x),Chromatic_Ratio);
+		distance_xy *= float2((ReShade::PixelSize.y / ReShade::PixelSize.x),Chromatic_Ratio);
 
 		//Calculate the distance
 		distance_xy /= Chromatic_Radius;

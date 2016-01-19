@@ -1,15 +1,3 @@
-/**
- *                    ____      ____  _               _
- *                   |  _ \ ___/ ___|| |__   __ _  __| | ___
- *                   | |_) / _ \___ \| '_ \ / _` |/ _` |/ _ \
- *                   |  _ '  __/___) | | | | (_| | (_| |  __/
- *                   |_| \_\___|____/|_| |_|\__,_|\__,_|\___|
- *
- * =============================================================================
- *                           ReShade Framework Globals
- * =============================================================================
- */
-
 // Global Settings
 #include "ReShade\KeyCodes.h"
 #include "ReShade\Global.cfg"
@@ -30,17 +18,12 @@
 	#pragma reshade showstatistics
 #endif
 
-#if RFX_ShowToggleMessage == 1
-	#pragma reshade showtogglemessage
-#endif
-
-#define RFX_PixelSize float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
-#define RFX_ScreenSize float2(BUFFER_WIDTH, BUFFER_HEIGHT)
-#define RFX_ScreenSizeFull float4(BUFFER_WIDTH, BUFFER_RCP_WIDTH, float(BUFFER_WIDTH) / float(BUFFER_HEIGHT), float(BUFFER_HEIGHT) / float(BUFFER_WIDTH))
-
 namespace ReShade
 {
 	// Global Variables
+	static const float AspectRatio = BUFFER_WIDTH * BUFFER_RCP_HEIGHT;
+	static const float2 PixelSize = float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT);
+	static const float2 ScreenSize = float2(BUFFER_WIDTH, BUFFER_HEIGHT);
 	uniform float Timer < source = "timer"; >;
 	uniform float FrameTime < source = "frametime"; >;
 
@@ -128,26 +111,17 @@ technique Setup_Tech < enabled = true; >
 }
 #endif
 
-/**
- * =============================================================================
- *                                    Effects
- * =============================================================================
- */
 
 #define STR(value) #value
 #define STE(value) STR(value)
 #define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
 #define EFFECT_CONFIG(author) STE(ReShade/Presets/PRESET/author.cfg)
 
-#include "ReShade\Pipeline.cfg"
+#include EFFECT_CONFIG(Pipeline)
 
-/**
- * =============================================================================
- *                                 Toggle Message
- * =============================================================================
- */
 
 #if RFX_ShowToggleMessage
+#pragma reshade showtogglemessage
 technique Framework < enabled = RFX_Start_Enabled; toggle = RFX_ToggleKey; >
 {
 	pass 

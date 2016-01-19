@@ -33,11 +33,9 @@
 
 #if (USE_PAINT == 1)
 
-namespace JPulowski
-{
+namespace JPulowski {
 
-float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
-{
+float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target {
 	//Shared content, might add more stuff later
 	//TO-DO: Look for ways to simplify the code by combining two shaders
 	float3 color, c;
@@ -45,16 +43,16 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
 #if (PaintMethod == 0)
 	float	Intensitycount0, Intensitycount1, Intensitycount2, Intensitycount3, Intensitycount4,
-		Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
+			Intensitycount5, Intensitycount6, Intensitycount7, Intensitycount8, Intensitycount9;
 
 	float3	color0, color1, color2, color3, color4,
-		color5, color6, color7, color8, color9;
+			color5, color6, color7, color8, color9;
 
 	int	lum, Maxcount = 0;
 
 	for(i = -PaintRadius; i < (PaintRadius + 1); i++){
 		for(j = -PaintRadius; j < (PaintRadius + 1); j++){
-			c = tex2D(s0, texcoord + float2(RFX_PixelSize * float2(i,j))).rgb;
+			c = tex2D(s0, texcoord + float2(ReShade::PixelSize * float2(i,j))).rgb;
 
 			lum = dot(c, float3(0.2126, 0.7152, 0.0722)) * 9;
 
@@ -102,7 +100,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = -PaintRadius; j <= 0; ++j)  {
          for (i = -PaintRadius; i <= 0; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m0 += c;
              k0 += c * c;
          }
@@ -110,7 +108,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = -PaintRadius; j <= 0; ++j)  {
          for (i = 0; i <= PaintRadius; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m1 += c;
              k1 += c * c;
          }
@@ -118,7 +116,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = 0; j <= PaintRadius; ++j)  {
          for (i = 0; i <= PaintRadius; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m2 += c;
              k2 += c * c;
          }
@@ -126,7 +124,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 
      for (j = 0; j <= PaintRadius; ++j)  {
          for (i = -PaintRadius; i <= 0; ++i)  {
-             c = tex2D(s0, texcoord + float2(i,j) / RFX_ScreenSize).rgb;
+             c = tex2D(s0, texcoord + float2(i,j) / ReShade::ScreenSize).rgb;
              m3 += c;
              k3 += c * c;
          }

@@ -21,9 +21,9 @@ float4 ExplosionPass( float4 colorInput, float2 tex )
 	sine_cosine = sine_cosine * 43758.5453 + tex;
 	float2 noise = frac(sine_cosine);
 
-	tex = (-Explosion_Radius * RFX_PixelSize) + tex; //Slightly faster this way because it can be calculated while we calculate noise.
+	tex = (-Explosion_Radius * ReShade::PixelSize) + tex; //Slightly faster this way because it can be calculated while we calculate noise.
 
-	colorInput.rgb = myTex2D(s0, (2.0 * Explosion_Radius * RFX_PixelSize) * noise + tex).rgb;
+	colorInput.rgb = myTex2D(s0, (2.0 * Explosion_Radius * ReShade::PixelSize) * noise + tex).rgb;
 
 	return colorInput;
 }
