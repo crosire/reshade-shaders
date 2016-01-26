@@ -32,6 +32,7 @@
 #undef FiltCapG
 #undef GammaLevel
 #undef LeiFX_ToggleKey
+#undef USE_FINESHARP
 #undef mode
 #undef sstr
 #undef cstr
