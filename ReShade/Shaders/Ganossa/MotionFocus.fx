@@ -161,7 +161,7 @@ technique MotionFocus_Tech <bool enabled =
 #if (MotionFocus_TimeOut > 0)
 1; int toggle = MotionFocus_ToggleKey; timeout = MotionFocus_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = MotionFocus_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = MotionFocus_ToggleKey; >
 #endif
 {
 	pass MotionFocusNormPass

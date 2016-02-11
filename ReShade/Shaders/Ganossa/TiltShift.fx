@@ -133,7 +133,7 @@ technique TiltShift_Tech <bool enabled =
 #if (TiltShift_TimeOut > 0)
 1; int toggle = TiltShift_ToggleKey; timeout = TiltShift_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = TiltShift_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = TiltShift_ToggleKey; >
 #endif
 {
 	pass TiltShiftHPass

@@ -104,7 +104,7 @@ float4 PS_HSV(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 	return color;
 }
 
-technique HSV_Tech <bool enabled = RFX_Start_Enabled; int toggle = HSV_ToggleKey; >
+technique HSV_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = HSV_ToggleKey; >
 {
 	pass HSVPass
 	{

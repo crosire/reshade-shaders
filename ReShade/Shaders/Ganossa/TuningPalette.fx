@@ -130,7 +130,7 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 
 }
 
-technique TuningPalette_Tech <bool enabled = RFX_Start_Enabled; int toggle = TuningPalette_ToggleKey; >
+technique TuningPalette_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = TuningPalette_ToggleKey; >
 {
 	pass TuningPalettePass
 	{

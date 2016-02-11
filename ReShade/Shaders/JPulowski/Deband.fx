@@ -98,7 +98,7 @@ float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
     return col;
 }
 
-technique Deband_Tech <bool enabled = RFX_Start_Enabled; int toggle = Deband_ToggleKey; >
+technique Deband_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Deband_ToggleKey; >
 {
 	pass DebandPass
 	{

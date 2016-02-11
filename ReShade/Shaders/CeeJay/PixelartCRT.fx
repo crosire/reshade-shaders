@@ -208,7 +208,7 @@ float3 PixelArtCRTWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color.rgb;
 }
 
-technique Pixelart_Tech <bool enabled = RFX_Start_Enabled; int toggle = PixelArt_ToggleKey; >
+technique Pixelart_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = PixelArt_ToggleKey; >
 {
 	pass
 	{

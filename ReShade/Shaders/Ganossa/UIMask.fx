@@ -187,7 +187,7 @@ if(finalPing.r >= 0.59f) {
 }
 
 #if UIMask_Helper
-technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIMaskReset_HelperKey; >
+technique UIMaskHelperReset_Tech <bool enabled = !RESHADE_START_ENABLED; int toggle = UIMaskReset_HelperKey; >
 {
 	pass
 	{
@@ -206,7 +206,7 @@ technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle 
 
 }
 
-technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIMask_HelperKey; >
+technique UIMaskHelper_Tech <bool enabled = !RESHADE_START_ENABLED; int toggle = UIMask_HelperKey; >
 {
 	pass 
 	{
@@ -273,10 +273,10 @@ technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIM
 #endif
 
 #if UIMask_Direct
-technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_ToggleKey; >
+technique UIMask_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = UIMask_ToggleKey; >
 {
 #else 
-technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_HelperKey; >
+technique UIMask_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = UIMask_HelperKey; >
 {
 #endif
 	pass 

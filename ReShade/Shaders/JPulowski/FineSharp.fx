@@ -207,7 +207,7 @@ float4 PS_FineSharp_P6(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) :
 	return rgb;
 }
 
-technique FineSharp_Tech <bool enabled = RFX_Start_Enabled; int toggle = FineSharp_ToggleKey; >
+technique FineSharp_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = FineSharp_ToggleKey; >
 {
 	pass ToYUV
 	{

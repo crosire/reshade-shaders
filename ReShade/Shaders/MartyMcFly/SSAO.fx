@@ -991,7 +991,7 @@ void PS_Init(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 h
 	hdrT = tex2D(ReShade::OriginalColor, texcoord.xy);
 }
 
-technique AO_Tech <bool enabled = RFX_Start_Enabled; int toggle = AO_ToggleKey; >
+technique AO_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AO_ToggleKey; >
 {
 	pass Init_HDR1						//later, numerous DOF shaders have different passnumber but later passes depend
 	{							//on fixed HDR1 HDR2 HDR1 HDR2... sequence so a 2 pass DOF outputs HDR1 in pass 1 and 	

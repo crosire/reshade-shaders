@@ -66,7 +66,7 @@ void PS_AL_DetectLow(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 #undef xSprint
 #undef ySprint
 
-technique Utility_Tech <bool enabled = RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
+technique Utility_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AmbientLight_ToggleKey; >
 {
 	pass AL_DetectInt
 	{

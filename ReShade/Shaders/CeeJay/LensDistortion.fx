@@ -66,7 +66,7 @@ float3 LensDistortionWrap(float4 position : SV_Position, float2 texcoord : TEXCO
 	return color.rgb;
 }
 
-technique Distortion_Tech <bool enabled = RFX_Start_Enabled; int toggle = RFX_ToggleKey; >
+technique Distortion_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = RESHADE_TOGGLE_KEY; >
 {
 	pass
 	{

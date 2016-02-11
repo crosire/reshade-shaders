@@ -45,7 +45,7 @@ float4 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
         return scenecolor;
 }
 
-technique YACA_Tech <bool enabled = RFX_Start_Enabled; int toggle = YACA_ToggleKey; >
+technique YACA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = YACA_ToggleKey; >
 {
 	pass YACAPass
 	{

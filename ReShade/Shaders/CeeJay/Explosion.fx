@@ -47,7 +47,7 @@ technique Explosion_Tech <bool enabled =
 #if (Explosion_TimeOut > 0)
 1; int toggle = Explosion_ToggleKey; timeout = Explosion_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = Explosion_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = Explosion_ToggleKey; >
 #endif
 {
 	pass

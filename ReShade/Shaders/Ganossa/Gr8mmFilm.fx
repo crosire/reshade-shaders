@@ -59,7 +59,7 @@ trunc(filmroll.x/* / speed*/)
 	return lerp(original, singleGr8mmFilm, Gr8mmFilmPower*pow(alpha,2));
 }
 
-technique Gr8mmFilm_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gr8mmFilm_ToggleKey; >
+technique Gr8mmFilm_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Gr8mmFilm_ToggleKey; >
 {
 	pass Gr8mmFilmPass
 	{

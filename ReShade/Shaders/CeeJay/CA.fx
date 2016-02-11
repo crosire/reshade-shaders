@@ -97,7 +97,7 @@ technique CA_Tech <bool enabled =
 #if (CA_TimeOut > 0)
 1; int toggle = CA_ToggleKey; timeout = CA_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = CA_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = CA_ToggleKey; >
 #endif
 {
 	pass

@@ -65,7 +65,7 @@ color = DaltonizeFX(color, texcoord);
 return color;
 }
 
-technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = DaltonizeFX_ToggleKey; >
+technique DaltonizeFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = DaltonizeFX_ToggleKey; >
 {
 	pass DaltonizePass
 	{

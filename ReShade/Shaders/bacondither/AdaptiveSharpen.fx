@@ -289,7 +289,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	else { return ( satorig + sharpdiff ); }
 }
 
-technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = AdaptiveSharpen_ToggleKey; >
+technique AdaptiveSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AdaptiveSharpen_ToggleKey; >
 {
 	pass AdaptiveSharpenPass1
 	{

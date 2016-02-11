@@ -107,7 +107,7 @@ technique AdvancedMotionBlur_Tech <bool enabled =
 #if (AdvancedMB_TimeOut > 0)
 1; int toggle = AdvancedMB_ToggleKey; timeout = AdvancedMB_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = AdvancedMB_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = AdvancedMB_ToggleKey; >
 #endif
 {
 	pass AMBBlur

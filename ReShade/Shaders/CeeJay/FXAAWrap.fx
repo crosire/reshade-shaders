@@ -20,7 +20,7 @@ float3 FXAA(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : 
 }
 
 //TODO make a luma pass
-technique FXAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = FXAA_ToggleKey; >
+technique FXAA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = FXAA_ToggleKey; >
 {
 	pass
 	{

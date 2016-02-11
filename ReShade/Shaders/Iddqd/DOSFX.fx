@@ -44,7 +44,7 @@ color.xyz = lerp(color.xyz,-0.0039*pow(1.0/0.0039, 1.0-color.xyz)+1.0,0.7*(DoSga
 return color;
 }
 
-technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleKey; >
+technique DosFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Dos_ToggleKey; >
 {
 	#if ENABLE_AGD
 	pass DosFXGammaPass

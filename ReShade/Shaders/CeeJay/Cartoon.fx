@@ -45,7 +45,7 @@ float3 CartoonWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) :
 	return color.rgb;
 }
 
-technique Cartoon_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cartoon_ToggleKey; >
+technique Cartoon_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Cartoon_ToggleKey; >
 {
 	pass
 	{

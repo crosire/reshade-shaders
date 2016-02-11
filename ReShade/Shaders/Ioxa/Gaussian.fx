@@ -503,7 +503,7 @@ float4 FinalBloomPS(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 }
 #endif
 
-technique Gaussian_Tech <bool enabled = RFX_Start_Enabled; int toggle = Gaussian_ToggleKey; >
+technique Gaussian_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Gaussian_ToggleKey; >
 {
 #if Use_Unsharpmask == 1 || Use_GaussianBlur == 1
 	pass H1

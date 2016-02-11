@@ -80,7 +80,7 @@ float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : 
 	return color;
 }
 
-technique Outline_Tech <bool enabled = RFX_Start_Enabled; int toggle = Outline_ToggleKey; >
+technique Outline_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Outline_ToggleKey; >
 {
 	pass Outline_Pass
 	{

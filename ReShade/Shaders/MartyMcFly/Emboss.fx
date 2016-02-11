@@ -39,7 +39,7 @@ float4 PS_Emboss(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 
 }
 
-technique Emboss_Tech <bool enabled = RFX_Start_Enabled; int toggle = Emboss_ToggleKey; >
+technique Emboss_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Emboss_ToggleKey; >
 {
 	pass Emboss
 	{

@@ -276,7 +276,7 @@ technique AmbientLight_Tech <bool enabled =
 #if (AmbientLight_TimeOut > 0)
 1; int toggle = AmbientLight_ToggleKey; timeout = AmbientLight_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = AmbientLight_ToggleKey; >
 #endif
 {
 	pass AL_DetectHigh

@@ -68,7 +68,7 @@ float3 HDRWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_
 	return color.rgb;
 }
 
-technique HDR_Tech <bool enabled = RFX_Start_Enabled; int toggle = HDR_ToggleKey; >
+technique HDR_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = HDR_ToggleKey; >
 {
 	pass
 	{

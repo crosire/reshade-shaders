@@ -148,7 +148,7 @@ float4 GrainPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV
     return float4(col,1.0);
 }
 
-technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_ToggleKey; >
+technique Grain_Tech < bool enabled = RESHADE_START_ENABLED;  int toggle = Grain_ToggleKey; >
 {
 	pass Grain_Pass
 	{

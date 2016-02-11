@@ -75,7 +75,7 @@ float3 BloomWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : S
 	return color.rgb;
 }
 
-technique Bloom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
+technique Bloom_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Bloom_ToggleKey; >
 {
 	pass
 	{

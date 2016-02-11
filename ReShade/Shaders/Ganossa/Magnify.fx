@@ -17,7 +17,7 @@ float4 PS_Magnify(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 	else return tex2D(ReShade::BackBuffer, texcoord);
 }
 
-technique Magnify_Tech <bool enabled = RFX_Start_Enabled; int toggle = Magnify_ToggleKey; >
+technique Magnify_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Magnify_ToggleKey; >
 {
 	pass MagnifyPass
 	{

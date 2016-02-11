@@ -539,7 +539,7 @@ technique Bloom_Tech <bool enabled =
 #if (Bloom_TimeOut > 0)
 1; int toggle = Bloom_ToggleKey; timeout = Bloom_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = Bloom_ToggleKey; >
 #endif
 {
 	pass ME_Init						//later, numerous DOF shaders have different passnumber but later passes depend

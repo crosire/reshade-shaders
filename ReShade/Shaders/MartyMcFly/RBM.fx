@@ -151,7 +151,7 @@ float4 PS_RBM_Execute(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : S
 	return res;
 }
 
-technique RBM_Tech <bool enabled = RFX_Start_Enabled; int toggle = RBM_ToggleKey; >
+technique RBM_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = RBM_ToggleKey; >
 {
 	pass RBMSetupPass
 	{

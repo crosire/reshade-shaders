@@ -91,7 +91,7 @@ technique MotionBlur_Tech <bool enabled =
 #if (MotionBlur_TimeOut > 0)
 1; int toggle = MotionBlur_ToggleKey; timeout = MotionBlur_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = MotionBlur_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = MotionBlur_ToggleKey; >
 #endif
 {
 	pass CopyFrame

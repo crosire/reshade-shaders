@@ -176,7 +176,7 @@ float3 LumaSharpenWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color;
 }
 
-technique LumaSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = LumaSharpen_ToggleKey; >
+technique LumaSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = LumaSharpen_ToggleKey; >
 {
 	pass
 	{

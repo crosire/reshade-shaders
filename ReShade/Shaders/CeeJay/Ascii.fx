@@ -457,7 +457,7 @@ float3 AsciiWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : S
 	return color.rgb;
 }
 
-technique Ascii_Tech <bool enabled = RFX_Start_Enabled; int toggle = Ascii_ToggleKey; >
+technique Ascii_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Ascii_ToggleKey; >
 {
 	pass
 	{

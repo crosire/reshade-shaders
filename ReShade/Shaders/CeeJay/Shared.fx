@@ -117,7 +117,7 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 			return SharedPass(texcoord, color.rgbb);
 		}
 
-		technique SharedShader_Tech <bool enabled = RFX_Start_Enabled; int toggle = SharedShader_ToggleKey; >
+		technique SharedShader_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = SharedShader_ToggleKey; >
 		{
 			pass // the effects that don't require a seperate pass are all done in this one.
 			{

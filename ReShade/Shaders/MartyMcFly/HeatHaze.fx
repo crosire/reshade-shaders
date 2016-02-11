@@ -75,7 +75,7 @@ technique HeatHaze_Tech <bool enabled =
 #if (HeatHaze_TimeOut > 0)
 1; int toggle = HeatHaze_ToggleKey; timeout = HeatHaze_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = HeatHaze_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = HeatHaze_ToggleKey; >
 #endif
 {
 	pass HeatHaze

@@ -95,7 +95,7 @@ float4 PS_Split(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 	return lerp(tex2D(ReShade::OriginalColor, texcoord), tex2D(ReShade::BackBuffer, texcoord), tex2D(sMaskColor, texcoord).r); 
 }
 
-technique SplitScreen_Tech <bool enabled = RFX_Start_Enabled; int toggle = SS_ToggleKey; >
+technique SplitScreen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = SS_ToggleKey; >
 {
 	pass 
 	{

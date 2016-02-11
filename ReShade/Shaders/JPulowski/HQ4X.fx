@@ -78,7 +78,7 @@ float4 PS_HQ4X(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 	return float4((w1*(i1+i3)+w2*(i2+i4)+w3*(s1+s3)+w4*(s2+s4)+c)/(2.0*(w1+w2+w3+w4)+1.0), 1.0);
 }
 
-technique HQ4X_Tech <bool enabled = RFX_Start_Enabled; int toggle = HQ4X_ToggleKey; >
+technique HQ4X_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = HQ4X_ToggleKey; >
 {
 	pass
 	{

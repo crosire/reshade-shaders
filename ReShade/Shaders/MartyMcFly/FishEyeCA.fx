@@ -71,7 +71,7 @@ technique FishEye_Tech <bool enabled =
 #if (FishEye_TimeOut > 0)
 1; int toggle = FishEye_ToggleKey; timeout = FishEye_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = FishEye_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = FishEye_ToggleKey; >
 #endif
 {
 	pass FISHEYE_CA

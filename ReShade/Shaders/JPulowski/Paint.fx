@@ -172,7 +172,7 @@ float3 PS_Paint(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV
 return color;
 }
 
-technique Paint_Tech <bool enabled = RFX_Start_Enabled; int toggle = Paint_ToggleKey; >
+technique Paint_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Paint_ToggleKey; >
 {
 	pass PaintPass
 	{

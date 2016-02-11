@@ -262,7 +262,7 @@ float3 AdvancedCRTWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color.rgb;
 }
 
-technique AdvancedCRT_Tech <bool enabled = RFX_Start_Enabled; int toggle = AdvancedCRT_ToggleKey; >
+technique AdvancedCRT_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AdvancedCRT_ToggleKey; >
 {
 	pass
 	{

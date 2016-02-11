@@ -132,7 +132,7 @@ OUTPUT_FLOAT3 SMAANeighborhoodBlendingPSWrap(
 #endif
 }
 
-technique SMAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = SMAA_ToggleKey; >
+technique SMAA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = SMAA_ToggleKey; >
 {
 	pass SMAA_EdgeDetection //First SMAA Pass
 	{

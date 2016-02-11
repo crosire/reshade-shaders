@@ -465,7 +465,7 @@ void PS_VHS6(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	//fragColor = float4(scan_dist.x, scan_dist.y,0.0, 1.0);
 }
 
-technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleKey; >
+technique VHSReShade <bool enabled = RESHADE_START_ENABLED; int toggle = VHS_ToggleKey; >
 {
 	#if (bUseNTSCFilter == 1)
 	pass NTSCFilter
