@@ -1,4 +1,7 @@
 #undef USE_OUTLINE
+#undef OutlineEdgeDetection
+#undef EDTexture
+#undef OutlineBG
 #undef OutlineAccuracy
 #undef OutlineColor
 #undef OutlineThreshold
@@ -42,3 +45,13 @@
 #undef pstr
 #undef ldmp
 #undef FineSharp_ToggleKey
+#undef USE_DENOISE
+#undef DenoiseMethod
+#undef NoiseLevel
+#undef LerpCoefficeint
+#undef WeightThreshold
+#undef CounterThreshold
+#undef GaussianSigma
+#undef WindowRadius
+#undef BlockRadius
+#undef Denoise_ToggleKey

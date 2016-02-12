@@ -29,6 +29,8 @@
 
  1.0  - Initial release
  1.1  - Replaced the algorithm with the one from MPV
+ 1.1a - Minor optimizations
+		Removed unnecessary lines and replaced them with ReShadeFX intrinsic counterparts
 */
 
 #include EFFECT_CONFIG(JPulowski)
@@ -38,52 +40,48 @@
 namespace JPulowski {
 
 uniform int drandom < source = "random"; min = 0; max = 5000; >;
-float mod289(float x)  { return x - floor(x / 289.0) * 289.0; }
-float permute(float x) { return mod289((34.0*x + 1.0) * x); }
-float rand(float x)    { return frac(x / 41.0); }
 
-bool4 greaterThan(float4 value, float4 comparison) {
-	return bool4(value.x > comparison.x, value.y > comparison.y, value.z > comparison.z, value.w > comparison.w);
-}
+float permute(float x) { return ((34.0 * x + 1.0) * x) % 289.0; }
+float rand(float x)    { return frac(x * 0.024390243); }
 
 // Helper: Compute a stochastic approximation of the avg color around a pixel
-float4 average(sampler2D tex, float2 pos, float range, inout float h) {
+float3 average(sampler2D tex, float2 pos, float range, inout float h) {
     // Compute a random rangle and distance
     float dist = rand(h) * range;     h = permute(h);
     float dir  = rand(h) * 6.2831853; h = permute(h);
 
-    float2 pt = dist / ReShade::ScreenSize;
+    float2 pt = dist * ReShade::PixelSize;
     float2 o = float2(cos(dir), sin(dir));
 
     // Sample at quarter-turn intervals around the source pixel
-    float4 ref[4];
-    ref[0] = tex2D(tex, pos + pt * float2( o.x,  o.y));
-    ref[1] = tex2D(tex, pos + pt * float2(-o.y,  o.x));
-    ref[2] = tex2D(tex, pos + pt * float2(-o.x, -o.y));
-    ref[3] = tex2D(tex, pos + pt * float2( o.y, -o.x));
+    float3 ref[4];
+    ref[0] = tex2D(tex, pos + pt * float2( o.x,  o.y)).rgb;
+    ref[1] = tex2D(tex, pos + pt * float2(-o.y,  o.x)).rgb;
+    ref[2] = tex2D(tex, pos + pt * float2(-o.x, -o.y)).rgb;
+    ref[3] = tex2D(tex, pos + pt * float2( o.y, -o.x)).rgb;
 
     // Return the (normalized) average
-    return (ref[0] + ref[1] + ref[2] + ref[3]) / 4.0;
+    return (ref[0] + ref[1] + ref[2] + ref[3]) * 0.25;
 }
 
-float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
+float3 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
     float h;
     // Initialize the PRNG by hashing the position + a random uniform
-    float3 m = float3(texcoord, (drandom / 5000.0)) + float3(1.0, 1.0, 1.0);
-    h = permute(permute(permute(m.x)+m.y)+m.z);
+    float3 m = float3(texcoord, drandom * 0.0002) + 1.0;
+    h = permute(permute(permute(m.x) + m.y) + m.z);
 
     // Sample the source pixel
-    float4 col = tex2D(ReShade::BackBuffer, texcoord);
-	float4 avg; float4 diff;
+    float3 col = tex2D(ReShade::BackBuffer, texcoord).rgb;
+	float3 avg; float3 diff;
 	
 	#if (Iterations == 1)
 		[unroll]
 	#endif
     for (int i = 1; i <= Iterations; i++) {
         // Sample the average pixel and use it instead of the original if the difference is below the given threshold
-        avg = average(ReShade::BackBuffer, texcoord, i*Range, h);
+        avg = average(ReShade::BackBuffer, texcoord, i * Range, h);
         diff = abs(col - avg);
-        col = lerp(avg, col, greaterThan(diff, float4(Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0),Threshold/(i*16384.0))));
+        col = lerp(avg, col, diff > Threshold * 0.00006103515625 * i);
     }
 
     if (Grain > 0.0) {
@@ -92,7 +90,7 @@ float4 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
 		noise.x = rand(h); h = permute(h);
 		noise.y = rand(h); h = permute(h);
 		noise.z = rand(h); h = permute(h);
-		col.rgb += (Grain/8192.0) * (noise - float3(0.5, 0.5, 0.5));
+		col += (Grain * 0.000122070313) * (noise - 0.5);
 	}
 
     return col;
