@@ -68,7 +68,8 @@ namespace ReShade
 #if RESHADE_DEPTH_INPUT_IS_REVERSED
 		depth = 1.0 - depth;
 #endif
-		depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * RESHADE_DEPTH_LINEARIZATION_FAR_PLANE;
+		const float N = 1.0;
+		depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * (RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - N);
 	}
 #endif
 }
