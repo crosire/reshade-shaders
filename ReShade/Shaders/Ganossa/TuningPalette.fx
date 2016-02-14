@@ -77,7 +77,12 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 #else
 	ColorLUTDst = lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z));
 #endif
-	original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
+	//#define TuningColorLUTIntensity 1.00 //[0.00:1.00] //-Intensity of the effect overlay
+	//original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
+	original.xyz = lerp(normalize(original.xyz), normalize(ColorLUTDst.xyz), TuningColorLUTIntensityChroma) *
+		       lerp(length(original.xyz),    length(ColorLUTDst.xyz),    TuningColorLUTIntensityLuma);	
+
+
 #endif
 
 #if TuningColorMap
