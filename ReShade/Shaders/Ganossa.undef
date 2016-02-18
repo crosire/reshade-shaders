@@ -57,7 +57,8 @@
 #undef TuningColorPaletteTexture
 #undef TuningColorPalettePower
 #undef TuningColorMapTexture
-#undef TuningColorLUTIntensity
+#undef TuningColorLUTIntensityChroma
+#undef TuningColorLUTIntensityLuma
 #undef TuningColorLUTDstTexture
 #undef TuningColorLUTTileAmountX
 #undef TuningColorLUTTileAmountY
