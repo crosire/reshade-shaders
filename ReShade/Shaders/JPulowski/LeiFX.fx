@@ -109,7 +109,7 @@ float3 PS_LEIFX_P2(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_
    return pow(abs(tex2D(ReShade::BackBuffer, texcoord).rgb), 1.0 / GammaLevel);
 }
 
-technique LeiFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = LeiFX_ToggleKey; >
+technique LeiFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = LeiFX_ToggleKey; >
 {
 	pass DitherAndReduction
 	{
