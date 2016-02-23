@@ -26,7 +26,7 @@
 
 namespace JPulowski {
 
-#if (Outline_EdgeDetection == 0)
+#if (OutlineEdgeDetection == 0)
 
 texture NormalizedDepthTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA32F; };
 sampler NormalizedDepth { Texture = NormalizedDepthTex; };
@@ -46,18 +46,18 @@ void PS_NormalizeDepth(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0, o
 
 float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target {
 	
-	#if (Outline_CustomBackground == 0)
+	#if (OutlineCustomBackground == 0)
 		float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
-		#define Outline_BG tex2D(ReShade::BackBuffer, texcoord).rgb
+		#define OutlineBG tex2D(ReShade::BackBuffer, texcoord).rgb
 	#else
-		float3 color = Outline_BackgroundColor;
-		#define Outline_BG Outline_BackgroundColor
+		float3 color = OutlineBackgroundColor;
+		#define OutlineBG OutlineBackgroundColor
 	#endif
 	
-	#if (Outline_EdgeDetection == 0)
-		#define Outline_EDTexture NormalizedDepth
+	#if (OutlineEdgeDetection == 0)
+		#define EDTexture NormalizedDepth
 	#else
-		#define Outline_EDTexture ReShade::BackBuffer
+		#define EDTexture ReShade::BackBuffer
 	#endif
 	
 	// Sobel operator matrices
@@ -83,23 +83,23 @@ float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : 
 	// Edge detection
 	for(int i = 0; i < 3; i++) {
 		j = i - 1;
-		dotx += Gx[i].x * tex2D(Outline_EDTexture, texcoord + float2(-ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
-		dotx += Gx[i].y * tex2D(Outline_EDTexture, texcoord + float2(                  0.0, ReShade::PixelSize.y * j)).rgb;
-		dotx += Gx[i].z * tex2D(Outline_EDTexture, texcoord + float2( ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
+		dotx += Gx[i].x * tex2D(EDTexture, texcoord + float2(-ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
+		dotx += Gx[i].y * tex2D(EDTexture, texcoord + float2(                  0.0, ReShade::PixelSize.y * j)).rgb;
+		dotx += Gx[i].z * tex2D(EDTexture, texcoord + float2( ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
 		
-		doty += Gy[i].x * tex2D(Outline_EDTexture, texcoord + float2(-ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
-		doty += Gy[i].y * tex2D(Outline_EDTexture, texcoord + float2(                  0.0, ReShade::PixelSize.y * j)).rgb;
-		doty += Gy[i].z * tex2D(Outline_EDTexture, texcoord + float2( ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
+		doty += Gy[i].x * tex2D(EDTexture, texcoord + float2(-ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
+		doty += Gy[i].y * tex2D(EDTexture, texcoord + float2(                  0.0, ReShade::PixelSize.y * j)).rgb;
+		doty += Gy[i].z * tex2D(EDTexture, texcoord + float2( ReShade::PixelSize.x, ReShade::PixelSize.y * j)).rgb;
 	}
 	
 	// Boost edge detection
-	dotx *= Outline_Accuracy;
-	doty *= Outline_Accuracy;
+	dotx *= OutlineAccuracy;
+	doty *= OutlineAccuracy;
 	
-	color = lerp(color, Outline_Color, sqrt(dot(dotx, dotx) + dot(doty, doty)) >= Outline_Threshold); // Return custom color when weight over threshold
+	color = lerp(color, OutlineColor, sqrt(dot(dotx, dotx) + dot(doty, doty)) >= OutlineThreshold); // Return custom color when weight over threshold
 	
 	// Set opacity
-	color = lerp(Outline_BG, color, Outline_Opacity);
+	color = lerp(OutlineBG, color, OutlineOpacity);
 	
 	return color;
 }
@@ -107,7 +107,7 @@ float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : 
 technique Outline_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Outline_ToggleKey; >
 {
 	
-#if (Outline_EdgeDetection == 0)
+#if (OutlineEdgeDetection == 0)
 	
 	pass DepthNormalization
 	{

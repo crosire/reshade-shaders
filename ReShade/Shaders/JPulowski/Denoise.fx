@@ -106,16 +106,16 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 	float counter = 0.0;
 	float sum = 0.0;
 	
-	float iWindowArea = 2.0 * Denoise_WindowRadius + 1.0;
+	float iWindowArea = 2.0 * WindowRadius + 1.0;
 	iWindowArea *= iWindowArea;
 	
-	for (int i = -Denoise_WindowRadius; i <= Denoise_WindowRadius; i++) {
-		for (int j = -Denoise_WindowRadius; j <= Denoise_WindowRadius; j++) {                       
+	for (int i = -WindowRadius; i <= WindowRadius; i++) {
+		for (int j = -WindowRadius; j <= WindowRadius; j++) {                       
 			texIJ = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
 			weight = dot(orig - texIJ, orig - texIJ);
 
-			weight = exp(-(weight * rcp(Denoise_NoiseLevel) + (i * i + j * j) * rcp(Denoise_GaussianSigma)));
-			counter += weight > Denoise_WeightThreshold;
+			weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));
+			counter += weight > WeightThreshold;
 			
 			sum += weight;
 			
@@ -124,7 +124,7 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 	}
             
 	result /= sum;
-	float lerpQ = (counter > (Denoise_CounterThreshold * iWindowArea)) ? 1.0 - Denoise_LerpCoefficeint : Denoise_LerpCoefficeint;
+	float lerpQ = (counter > (CounterThreshold * iWindowArea)) ? 1.0 - LerpCoefficeint : LerpCoefficeint;
 	result = lerp(result, orig, lerpQ);
 	
 	return result;
@@ -139,16 +139,16 @@ float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 	float weight;  
 	float sum = 0.0;
     
-	float invBlockArea = 2.0 * Denoise_BlockRadius + 1.0;
+	float invBlockArea = 2.0 * BlockRadius + 1.0;
 	invBlockArea = rcp(invBlockArea * invBlockArea);
     
-	for (int i = -Denoise_WindowRadius; i <= Denoise_WindowRadius; i++) {
-        for (int j = -Denoise_WindowRadius; j <= Denoise_WindowRadius; j++) {
+	for (int i = -WindowRadius; i <= WindowRadius; i++) {
+        for (int j = -WindowRadius; j <= WindowRadius; j++) {
 				
 				weight = 0.0;
 				
-				for (int n = -Denoise_BlockRadius; n <= Denoise_BlockRadius; n++) {
-					for (int m = -Denoise_BlockRadius; m <= Denoise_BlockRadius; m++) {              
+				for (int n = -BlockRadius; n <= BlockRadius; n++) {
+					for (int m = -BlockRadius; m <= BlockRadius; m++) {              
 							texIJb = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i + n, j + m)).rgb;
 							texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(    n,     m)).rgb;
 							weight = dot(texIJb - texIJc, texIJb - texIJc) + weight;
@@ -157,22 +157,22 @@ float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 				texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
 
 				weight *= invBlockArea;
-				weight = exp(-(weight * rcp(Denoise_NoiseLevel) + (i * i + j * j) * rcp(Denoise_GaussianSigma)));
+				weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));
 	            
-				counter += weight > Denoise_WeightThreshold;
+				counter += weight > WeightThreshold;
 
 				sum += weight;
 
 				result += texIJc * weight;
         }
 	}
-	float iWindowArea = 2.0 * Denoise_WindowRadius + 1.0;
+	float iWindowArea = 2.0 * WindowRadius + 1.0;
 	iWindowArea *= iWindowArea;
 
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb;
 
     result /= sum;
-	float lerpQ = (counter > (Denoise_CounterThreshold * iWindowArea)) ? 1.0 - Denoise_LerpCoefficeint : Denoise_LerpCoefficeint;
+	float lerpQ = (counter > (CounterThreshold * iWindowArea)) ? 1.0 - LerpCoefficeint : LerpCoefficeint;
 	result = lerp(result, orig, lerpQ);
     
 	return result;
@@ -181,7 +181,7 @@ float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 technique Denoise_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Denoise_ToggleKey; >
 {
 
-#if (Denoise_Method == 0)
+#if (DenoiseMethod == 0)
 
 	pass Bilateral
 	{

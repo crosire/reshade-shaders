@@ -113,7 +113,7 @@ void sort9_partial2(inout float a1, inout float a2, inout float a3, inout float 
 
 float SharpDiff(float4 c) {
 	float t = c.a - c.x;
-	return sign(t) * (FineSharp_sstr / 255.0) * pow(abs(t) / (FineSharp_lstr / 255.0), 1.0 / FineSharp_pstr) * ((t * t) / mad(t, t, FineSharp_ldmp / 65025.0));
+	return sign(t) * (sstr / 255.0) * pow(abs(t) / (lstr / 255.0), 1.0 / pstr) * ((t * t) / mad(t, t, ldmp / 65025.0));
 }
 
 // Main
@@ -162,7 +162,7 @@ float4 PS_FineSharp_P3(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) :
 	sd += sd;
 	sd += SharpDiff(Src(-1.0, -1.0, texcoord)) + SharpDiff(Src( 1.0, -1.0, texcoord)) + SharpDiff(Src(-1.0, 1.0, texcoord)) + SharpDiff(Src( 1.0, 1.0, texcoord));
 	sd *= 0.0625;
-	o.x -= FineSharp_cstr * sd;
+	o.x -= cstr * sd;
 	o.a = o.x;
 
 	return o;
@@ -196,7 +196,7 @@ float4 PS_FineSharp_P5(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) :
 	float4 o = Src(0.0, 0.0, texcoord);
 
 	float edge = abs(Src(0.0, -1.0, texcoord).x + Src(-1.0, 0.0, texcoord).x + Src(1.0, 0.0, texcoord).x + Src(0.0, 1.0, texcoord).x - 4 * o.x);
-	o.x = lerp(o.a, o.x, FineSharp_xstr * (1.0 - saturate(edge * FineSharp_xrep)));
+	o.x = lerp(o.a, o.x, xstr * (1.0 - saturate(edge * xrep)));
 
 	return o;
 }
@@ -215,7 +215,7 @@ technique FineSharp_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Fin
 		PixelShader = PS_FineSharp_P0;
 	}
 	
-#if (FineSharp_mode == 2)
+#if (mode == 2)
 	
 	pass RemoveGrain4
 	{
@@ -229,7 +229,7 @@ technique FineSharp_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Fin
 		PixelShader = PS_FineSharp_P1;
 	}
 	
-#elif (FineSharp_mode == 3)
+#elif (mode == 3)
 	
 	pass RemoveGrain4
 	{

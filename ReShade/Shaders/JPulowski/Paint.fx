@@ -44,8 +44,8 @@ float3 PS_ModePaint(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV
 	float4 col0 = 0.0; float4 col1 = 0.0; float4 col2 = 0.0; float4 col3 = 0.0; float4 col4 = 0.0;
 	float4 col5 = 0.0; float4 col6 = 0.0; float4 col7 = 0.0; float4 col8 = 0.0; float4 col9 = 0.0;
 	
-	for (int i = -Paint_Radius; i <= Paint_Radius; i++) {
-		for (int j = -Paint_Radius; j <= Paint_Radius; j++) {
+	for (int i = -PaintRadius; i <= PaintRadius; i++) {
+		for (int j = -PaintRadius; j <= PaintRadius; j++) {
 			col.rgb = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
 			col.a   = round(dot(col.rgb, lumcoeff)) + 1.0;	// Store intensity in alpha channel and increase it by 1, so we can count
 															// values between 0.0 - 1.0
@@ -92,15 +92,15 @@ float3 PS_ModePaint(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV
 
 float3 PS_Kuwahara(float4 vpos : SV_Position, float2 texcoord : TEXCOORD0) : SV_TARGET {
 
-	float n = pow(Paint_Radius, -2.0);
+	float n = pow(PaintRadius, -2.0);
 	float4 col = 1.0;
 	
 	// Using vectors instead of arrays, otherwise temp register index gets exceeded very quickly
 	float4 m0 = 0.0, m1 = 0.0, m2 = 0.0, m3 = 0.0;
 	float3 s1 = 0.0, s2 = 0.0, s3 = 0.0, s4 = 0.0;
 	
-	for (int i = 0; i < Paint_Radius; i++) {
-		for (int j = 0; j < Paint_Radius; j++) {
+	for (int i = 0; i < PaintRadius; i++) {
+		for (int j = 0; j < PaintRadius; j++) {
 			col.rgb = tex2D(ReShade::BackBuffer, texcoord + float2(-i, -j) * ReShade::PixelSize).rgb;
 			m0.rgb += col.rgb;
 			s1 += col.rgb * col.rgb;
@@ -139,7 +139,7 @@ float3 PS_Kuwahara(float4 vpos : SV_Position, float2 texcoord : TEXCOORD0) : SV_
 technique Paint_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Paint_ToggleKey; >
 {
 
-#if (Paint_Method == 1)
+#if (PaintMethod == 1)
 	
 	pass Kuwahara
 	{

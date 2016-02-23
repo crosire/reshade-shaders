@@ -60,7 +60,7 @@ float3 PS_LEIFX_P0(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_
 
 	// Adjust the dither thing
 	ohyes = 18.0 - ohyes; // invert
-	ohyes = (ohyes * LeiFX_DitherAmount) + LeiFX_DitherBias;
+	ohyes = (ohyes * DitherAmount) + DitherBias;
 	
 	col.rb = (col.rb * 255.0) + ohyes;
 	col.g *= 255.0;
@@ -74,7 +74,7 @@ float3 PS_LEIFX_P0(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_
 
 	// Add the purple line of lineness here, so the filter process catches it and gets gammaed.
 	if (vpos.y % 2.0 == 0.0) {
-		col.rb += LeiFX_Lines * 0.1;
+		col.rb += LeiFXLines * 0.1;
 	}
 
 	return col;
@@ -91,8 +91,8 @@ float3 PS_LEIFX_P1(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_
 	float3 pixeldiff = pixel2 - col;
 	float3 pixeldiffleft = pixel1 - col;
 
-	pixeldiff = clamp(pixeldiff, float3(-LeiFX_FiltCap, -LeiFX_FiltCapG, -LeiFX_FiltCap), float3(LeiFX_FiltCap, LeiFX_FiltCapG, LeiFX_FiltCap));
-	pixeldiffleft = clamp(pixeldiffleft, float3(-LeiFX_FiltCap, -LeiFX_FiltCapG, -LeiFX_FiltCap), float3(LeiFX_FiltCap, LeiFX_FiltCapG, LeiFX_FiltCap));
+	pixeldiff = clamp(pixeldiff, float3(-FiltCap, -FiltCapG, -FiltCap), float3(FiltCap, FiltCapG, FiltCap));
+	pixeldiffleft = clamp(pixeldiffleft, float3(-FiltCap, -FiltCapG, -FiltCap), float3(FiltCap, FiltCapG, FiltCap));
 
 	col += pixeldiff * 0.25;
 	col += pixeldiffleft * 0.0625;
@@ -106,7 +106,7 @@ float3 PS_LEIFX_P2(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_
 	// the Voodoo drivers usually supply a 1.3 gamma setting whether people liked it or not
 	// but it was enough to brainwash the competition for looking 'too dark'
 
-   return pow(abs(tex2D(ReShade::BackBuffer, texcoord).rgb), 1.0 / LeiFX_GammaLevel);
+   return pow(abs(tex2D(ReShade::BackBuffer, texcoord).rgb), 1.0 / GammaLevel);
 }
 
 technique LeiFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = LeiFX_ToggleKey; >

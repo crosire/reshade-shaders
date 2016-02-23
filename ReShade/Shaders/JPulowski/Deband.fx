@@ -74,23 +74,23 @@ float3 PS_Deband(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TA
     float3 col = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 avg; float3 diff;
 	
-	#if (Deband_Iterations == 1)
+	#if (Iterations == 1)
 		[unroll]
 	#endif
-    for (int i = 1; i <= Deband_Iterations; i++) {
+    for (int i = 1; i <= Iterations; i++) {
         // Sample the average pixel and use it instead of the original if the difference is below the given threshold
-        avg = average(ReShade::BackBuffer, texcoord, i * Deband_Range, h);
+        avg = average(ReShade::BackBuffer, texcoord, i * Range, h);
         diff = abs(col - avg);
-        col = lerp(avg, col, diff > Deband_Threshold * 0.00006103515625 * i);
+        col = lerp(avg, col, diff > Threshold * 0.00006103515625 * i);
     }
 
-    if (Deband_Grain > 0.0) {
+    if (Grain > 0.0) {
 		// Add some random noise to smooth out residual differences
 		float3 noise;
 		noise.x = rand(h); h = permute(h);
 		noise.y = rand(h); h = permute(h);
 		noise.z = rand(h); h = permute(h);
-		col += (Deband_Grain * 0.000122070313) * (noise - 0.5);
+		col += (Grain * 0.000122070313) * (noise - 0.5);
 	}
 
     return col;
