@@ -1,28 +1,30 @@
-/*
- Depth-buffer based cel shading for ENB by kingeric1992
- http://enbseries.enbdev.com/forum/viewtopic.php?f=7&t=3244#p53168
-
- Modified and optimized for ReShade by JPulowski
- http://reshade.me/forum/shader-presentation/261
- 
- Do not distribute without giving credit to the original author(s).
- 
- 1.0  - Initial release/port
- 1.1  - Replaced depth linearization algorithm with another one by crosire
-        Added an option to tweak accuracy
-	    Modified the code to make it compatible with SweetFX 2.0 Preview 7 and new Operation Piggyback which should give some performance increase
- 1.1a - Framework port
- 1.2  - Changed the name to "Outline" since technically this is not Cel shading (See https://en.wikipedia.org/wiki/Cel_shading)
-		Added custom outline and background color support
-		Added a threshold and opacity modifier
- 1.2a - Now uses the depth buffer linearized by ReShade therefore it should work with pseudo/logaritmic/negative/flipped depth
-		It is now possible to use the color texture for edge detection
-		Rewritten and simplified some parts of the code
-*/
+/**
+ * Depth-buffer based cel shading for ENB by kingeric1992
+ * http://enbseries.enbdev.com/forum/viewtopic.php?f=7&t=3244#p53168
+ *
+ * Modified and optimized for ReShade by JPulowski
+ * http://reshade.me/forum/shader-presentation/261
+ *
+ * Do not distribute without giving credit to the original author(s).
+ * 
+ * 1.0  - Initial release/port
+ * 1.1  - Replaced depth linearization algorithm with another one by crosire
+ *        Added an option to tweak accuracy
+ *        Modified the code to make it compatible with SweetFX 2.0 Preview 7 and new Operation Piggyback which should give some performance increase
+ * 1.1a - Framework port
+ * 1.2  - Changed the name to "Outline" since technically this is not Cel shading (See https://en.wikipedia.org/wiki/Cel_shading)
+ *        Added custom outline and background color support
+ *        Added a threshold and opacity modifier
+ * 1.2a - Now uses the depth buffer linearized by ReShade therefore it should work with pseudo/logaritmic/negative/flipped depth
+ *        It is now possible to use the color texture for edge detection
+ *        Rewritten and simplified some parts of the code
+ */
 
 #include EFFECT_CONFIG(JPulowski)
 
-#if (USE_OUTLINE == 1)
+#if USE_OUTLINE
+
+#pragma message "Outline by kingeric1992 (ported by JPulowski)\n"
 
 namespace JPulowski {
 

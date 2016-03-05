@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_DEPTHOFFIELD
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -24,6 +19,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Credits :: Matso (Matso DOF), PetkaGtA, gp65cj042
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include "Common.fx"
+#include MartyMcFly_SETTINGS_DEF
+
+#if USE_DEPTHOFFIELD
+
+#pragma message "Depth of Field by Matso, PetkaGtA, gp65cj042 and Marty McFly\n"
 
 /////////////////////////TEXTURES / INTERNAL PARAMETERS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////TEXTURES / INTERNAL PARAMETERS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

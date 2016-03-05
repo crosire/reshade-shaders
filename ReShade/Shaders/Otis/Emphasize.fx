@@ -1,14 +1,16 @@
-#include "Common.fx"
-#include Otis_SETTINGS_DEF
-
-#if USE_EMPHASIZE
-
 ///////////////////////////////////////////////////////////////////
 // This effect works like a simple DoF for desaturating what otherwise would have been blurred.
 //
 // It works by determining whether a pixel is outside the emphasize zone using the depth buffer
 // if so, the pixel is desaturated and blended with the color specified in the cfg file. 
 ///////////////////////////////////////////////////////////////////
+
+#include "Common.fx"
+#include Otis_SETTINGS_DEF
+
+#if USE_EMPHASIZE
+
+#pragma message "Emphasize by Otis\n"
 
 namespace Otis
 {

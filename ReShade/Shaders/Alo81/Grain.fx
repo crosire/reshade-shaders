@@ -1,28 +1,29 @@
-/*
-Film Grain post-process shader v1.1	
-Martins Upitis (martinsh) devlog-martinsh.blogspot.com
-2013
-
---------------------------
-This work is licensed under a Creative Commons Attribution 3.0 Unported License.
-So you are free to share, modify and adapt it for your needs, and even use it for commercial use.
-I would also love to hear about a project you are using it.
-
-Have fun,
-Martins
---------------------------
-
-Perlin noise shader by toneburst:
-http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
-
-----------------------------------------------------------
-Ported to Reshade by Angelo Gonzalez
-----------------------------------------------------------
-*/
+/**
+ * Film Grain post-process shader v1.1	
+ * Martins Upitis (martinsh) devlog-martinsh.blogspot.com 2013
+ *
+ * --------------------------
+ * This work is licensed under a Creative Commons Attribution 3.0 Unported License.
+ * So you are free to share, modify and adapt it for your needs, and even use it for commercial use.
+ * I would also love to hear about a project you are using it.
+ *
+ * Have fun,
+ * Martins
+ * --------------------------
+ *
+ * Perlin noise shader by toneburst:
+ * http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
+ *
+ * ----------------------------------------------------------
+ * Ported to Reshade by Angelo Gonzalez
+ * ----------------------------------------------------------
+ */
 
 #include EFFECT_CONFIG(Alo81)
 
-#if (USE_GRAIN == 1)
+#if USE_GRAIN
+
+#pragma message "Film Grain by martinsh (ported by Alo81)\n"
 
 namespace Alo81
 {

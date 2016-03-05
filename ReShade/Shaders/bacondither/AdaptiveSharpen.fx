@@ -38,7 +38,9 @@
 
 #include EFFECT_CONFIG(bacondither)
 
-#if (USE_ADAPTIVESHARPEN == 1)
+#if USE_ADAPTIVESHARPEN
+
+#pragma message "Adaptive Sharpen by bacondither\n"
 
 namespace bacondither
 {

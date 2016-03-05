@@ -1,7 +1,9 @@
 #include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
-#if (USE_SMAA == 1)
+#if USE_SMAA
+
+#pragma message "SMAA by Jorge Jimenez, Jose I. Echevarria, Belen Masia, Fernando Navarro, Diego Gutierrez and CeeJay\n"
 
 namespace CeeJay
 {

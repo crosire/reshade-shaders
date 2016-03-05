@@ -1,16 +1,3 @@
-#include "Common.fx"
-#include "ReShade/Shaders/Ganossa/Common.fx"
-
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_HEATHAZE
-
-#include Ganossa_SETTINGS_DEF
-#if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-#include "ReShade/Shaders/Ganossa/BrightDetect.fx"
-#endif
-#include Ganossa_SETTINGS_UNDEF
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -21,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -29,6 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include "Common.fx"
+
+#include MartyMcFly_SETTINGS_DEF
+
+#if USE_HEATHAZE
+
+#pragma message "HeatHaze by Marty McFly\n"
+
+#include EFFECT_CONFIG(Ganossa)
+#if AL_HeatHazeControle && USE_AMBIENT_LIGHT
+#include "ReShade/Shaders/Ganossa/BrightDetect.fx"
+#endif
+#include "ReShade/Shaders/Ganossa.undef" 
 
 namespace MartyMcFly
 {

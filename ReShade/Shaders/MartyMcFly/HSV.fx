@@ -3,6 +3,8 @@
 
 #if (USE_HSV == 1)
 
+#pragma message "HSV by Marty McFly\n"
+
 namespace MartyMcFly
 {
 

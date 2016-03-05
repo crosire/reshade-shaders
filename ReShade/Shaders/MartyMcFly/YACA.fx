@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_YACA
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ReShade effect file
 // visit facebook.com/MartyMcModding for news/updates
@@ -11,7 +6,14 @@
 // For private use only!
 // Copyright © 2008-2015 Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   
+
+#include "Common.fx"
+#include MartyMcFly_SETTINGS_DEF
+
+#if USE_YACA
+
+#pragma message "Chromatic Aberration by Marty McFly\n"
+
 /////////////////////////PIXEL SHADERS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////PIXEL SHADERS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

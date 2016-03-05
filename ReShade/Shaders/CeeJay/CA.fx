@@ -1,14 +1,6 @@
-#include "Common.fx"
-
-#ifndef RFX_duplicate
-#include CeeJay_SETTINGS_DEF
-#endif
-
-#if (USE_CA == 1)
-
-  /*---------------------------.
-  | :: Chromatic Aberration :: |
-  '---------------------------*/
+/*---------------------------.
+| :: Chromatic Aberration :: |
+'---------------------------*/
 /*
 Chromatic Aberration
 
@@ -17,6 +9,13 @@ Distorts the image by shifting each color component, which creates color artifac
 Version 1.0 by CeeJay.dk
 - First version.
 */
+
+#include "Common.fx"
+#include CeeJay_SETTINGS_DEF
+
+#if USE_CA
+
+#pragma message "Chromatic Aberration by CeeJay\n"
 
 // The Radial part is not yet finished.
 
@@ -112,6 +111,4 @@ RESHADE_START_ENABLED; int toggle = CA_ToggleKey; >
 #include "ReShade\Shaders\CeeJay\PiggyCount.h"
 #endif
 
-#ifndef RFX_duplicate
 #include CeeJay_SETTINGS_UNDEF
-#endif

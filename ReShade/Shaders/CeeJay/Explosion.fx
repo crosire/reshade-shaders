@@ -1,12 +1,11 @@
 #include "Common.fx"
-
-#ifndef RFX_duplicate
 #include CeeJay_SETTINGS_DEF
-#endif
 
-#if (USE_EXPLOSION == 1)
+#if USE_EXPLOSION
 
-   /*-----------------------------------------------------------.   
+#pragma message "Explosion by CeeJay\n"
+
+  /*-----------------------------------------------------------.
   /                         Explosion                           /
   '-----------------------------------------------------------*/
 
@@ -62,6 +61,4 @@ RESHADE_START_ENABLED; int toggle = Explosion_ToggleKey; >
 #include "ReShade\Shaders\CeeJay\PiggyCount.h"
 #endif
 
-#ifndef RFX_duplicate
 #include CeeJay_SETTINGS_UNDEF
-#endif

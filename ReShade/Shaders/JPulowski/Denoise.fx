@@ -93,7 +93,9 @@
 */
 #include EFFECT_CONFIG(JPulowski)
 
-#if (USE_DENOISE == 1)
+#if USE_DENOISE
+
+#pragma message "Denoise by NVIDIA (ported by JPulowski)\n"
 
 namespace JPulowski {
 

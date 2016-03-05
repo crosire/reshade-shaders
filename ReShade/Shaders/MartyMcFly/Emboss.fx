@@ -3,6 +3,8 @@
 
 #if USE_EMBOSS
 
+#pragma message "Emboss by Marty McFly\n"
+
 namespace MartyMcFly
 {
 

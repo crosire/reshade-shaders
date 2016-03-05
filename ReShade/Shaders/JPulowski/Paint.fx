@@ -32,7 +32,9 @@
 
 #include EFFECT_CONFIG(JPulowski)
 
-#if (USE_PAINT == 1)
+#if USE_PAINT
+
+#pragma message "Kuwahara Filtering by Jan Eric Kyprianidis (ported by kingeric1992 and JPulowski)\n"
 
 namespace JPulowski {
 

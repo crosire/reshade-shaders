@@ -1,22 +1,24 @@
-#include EFFECT_CONFIG(Iddqd)
+/**
+ * Ported by IDDQD.
+ * Original code from Shadertoy
+ *
+ * VHS Tape Noise: Vladmir Storm (https://www.shadertoy.com/view/MlfSWr)
+ * VCR Distortion: ryk (https://www.shadertoy.com/view/ldjGzV)
+ * VHS Distortion: drmelon (https://www.shadertoy.com/view/4dBGzK)
+ * Dirty old CRT: Klowner (https://www.shadertoy.com/view/MsXGD4)
+ * NTSC Codec: UltraMoogleMan (https://www.shadertoy.com/view/ldXGRf)
+ *
+ * Posted by Matsilagi and further optimized for ReShade by crosire, MartyMcFly and Ganossa
+ * http://reshade.me/forum/shader-presentation/1258-vhs-shader
+ *
+ * Do not distribute without giving credit to the original author(s).
+ */
+
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_VHS
 
-/*
- Ported by IDDQD.
- Original code from Shadertoy 
-
- VHS Tape Noise: Vladmir Storm (https://www.shadertoy.com/view/MlfSWr)
- VCR Distortion: ryk (https://www.shadertoy.com/view/ldjGzV)
- VHS Distortion: drmelon (https://www.shadertoy.com/view/4dBGzK)
- Dirty old CRT: Klowner (https://www.shadertoy.com/view/MsXGD4)
- NTSC Codec: UltraMoogleMan (https://www.shadertoy.com/view/ldXGRf)
- 
- Posted by Matsilagi and further optimized for ReShade by crosire, MartyMcFly and Ganossa
- http://reshade.me/forum/shader-presentation/1258-vhs-shader
- 
- Do not distribute without giving credit to the original author(s).
-*/
+#pragma message "VHS by Vladmir Storm, ryk, drmelon, Klowner and UltraMoogleMan (ported by IDDQD, posted by Matsilagi, further optimized by crosire, MartyMcFly and Ganossa)\n"
 
 namespace Iddqd
 {

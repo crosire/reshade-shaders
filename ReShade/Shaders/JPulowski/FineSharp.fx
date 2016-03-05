@@ -1,20 +1,22 @@
-/*
- FineSharp by Didée
- http://avisynth.nl/images/FineSharp.avsi
- 
- Initial HLSL port by -Vit-
- https://forum.doom9.org/showthread.php?t=171346
- 
- Modified and optimized for ReShade by JPulowski
-
- Do not distribute without giving credit to the original author(s).
-
- 1.0  - Initial release
-*/
+/**
+ * FineSharp by Didée
+ * http://avisynth.nl/images/FineSharp.avsi
+ *
+ * Initial HLSL port by -Vit-
+ * https://forum.doom9.org/showthread.php?t=171346
+ *
+ * Modified and optimized for ReShade by JPulowski
+ *
+ * Do not distribute without giving credit to the original author(s).
+ *
+ * 1.0  - Initial release
+ */
 
 #include EFFECT_CONFIG(JPulowski)
 
-#if (USE_FINESHARP == 1)
+#if USE_FINESHARP
+
+#pragma message "FineSharp by Didee (ported by -Vit- and JPulowski)\n"
 
 namespace JPulowski {
 

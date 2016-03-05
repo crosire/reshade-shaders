@@ -4,6 +4,8 @@
 
 #if USE_HQ4X
 
+#pragma message "HQ4X by Maxim Stepin, Cameron Zemek, Jules Blok and tz\n"
+
 float4 PS_HQ4X(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 {
 	float mx = HQ4XSmoothing; // start smoothing wt.

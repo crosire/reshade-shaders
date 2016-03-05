@@ -1,11 +1,13 @@
-/*
- Daltonization algorithm by daltonize.org
- http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
-*/
+/**
+ * Daltonization algorithm by daltonize.org
+ * http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
+ */
 
-#include EFFECT_CONFIG(Iddqd)
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_DALTONIZEFX
+
+#pragma message "DaltonizeFX (ported by IDDQD)\n"
 
 namespace Iddqd
 {

@@ -1,9 +1,10 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 
 #if USE_Border
 
-//Border Shader
+#pragma message "Border by Ganossa\n"
+
+// Border Shader
 
 namespace Ganossa
 {
@@ -29,4 +30,4 @@ technique Border_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Border
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include "ReShade/Shaders/Ganossa.undef" 

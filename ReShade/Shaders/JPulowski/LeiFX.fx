@@ -1,26 +1,28 @@
-/*
- "LeiFX" shader
- https://github.com/libretro/common-shaders/tree/master/3dfx
- 
- Copyright (C) 2013-2014 leilei
- 
- This program is free software; you can redistribute it and/or modify it
- under the terms of the GNU General Public License as published by the Free
- Software Foundation; either version 2 of the License, or (at your option)
- any later version.
- 
- Modified and optimized for ReShade by JPulowski
- 
- Do not distribute without giving credit to the original author(s).
-
- 1.0  - Initial release
- 1.0a - Fixed a bug caused by a typo
-		Minor optimizations
+/**
+ * "LeiFX" shader
+ * https://github.com/libretro/common-shaders/tree/master/3dfx
+ *
+ * Copyright (C) 2013-2014 leilei
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * Modified and optimized for ReShade by JPulowski
+ * 
+ * Do not distribute without giving credit to the original author(s).
+ *
+ * 1.0  - Initial release
+ * 1.0a - Fixed a bug caused by a typo
+ *        Minor optimizations
  */
 
 #include EFFECT_CONFIG(JPulowski)
 
-#if (USE_LEIFX == 1)
+#if USE_LEIFX
+
+#pragma message "LeiFX by leilei (ported by JPulowski)\n"
 
 namespace JPulowski {
 

@@ -1,7 +1,8 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 
-#if (USE_Magnify == 1)
+#if USE_Magnify
+
+#pragma message "Magnify by Ganossa\n"
 
 namespace Ganossa
 {
@@ -30,4 +31,4 @@ technique Magnify_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Magni
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include "ReShade/Shaders/Ganossa.undef" 

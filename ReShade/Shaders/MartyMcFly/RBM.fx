@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_RBM == 1
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -13,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -21,6 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include "Common.fx"
+#include MartyMcFly_SETTINGS_DEF
+
+#if USE_RBM
+
+#pragma message "Reflective Bump Mapping by MartyMcFly\n"
 
 namespace MartyMcFly
 {

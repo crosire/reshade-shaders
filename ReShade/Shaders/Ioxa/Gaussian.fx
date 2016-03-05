@@ -1,18 +1,4 @@
-#include EFFECT_CONFIG(Ioxa)
-
-#if USE_GAUSS
-
-#if USE_Blur == 1
-#define Use_GaussianBlur 1
-#endif
-#if USE_Sharpening == 1 
-#define Use_Unsharpmask 1
-#endif
-#if USE_Bloom == 1
-#define Use_GaussianBloom 1 
-#endif
-
- /**
+/**
  * Copyright (C) 2012 Jorge Jimenez (jorge@iryoku.com). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,15 +23,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * The views and conclusions contained in the software and documentation are 
+ * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of the copyright holders.
+ *
+ * This is my attempt to port the the GAUSSIAN shader by Boulotaur2024 to ReShade.
+ * Some settings from the original are missing and I have added some other settings to achieve certain looks.
+ * More info can be found at http://reshade.me/forum/shader-presentation/27-gaussian-blur-bloom-unsharpmask
  */
 
-/* This is my attempt to port the the GAUSSIAN shader by Boulotaur2024 to ReShade.
-   Some settings from the original are missing and I have added some other settings to achieve certain looks.
-   More info can be found at 
-   http://reshade.me/forum/shader-presentation/27-gaussian-blur-bloom-unsharpmask */ 
+#include EFFECT_CONFIG(Ioxa)
+
+#if USE_GAUSS
+
+#pragma message "Gaussian Blur by Jorge Jimenez, Boulotaur2024 (ported by Ioxa)\n"
+
+#if USE_Blur == 1
+#define Use_GaussianBlur 1
+#endif
+#if USE_Sharpening == 1 
+#define Use_Unsharpmask 1
+#endif
+#if USE_Bloom == 1
+#define Use_GaussianBloom 1 
+#endif
 
 namespace Ioxa
 {

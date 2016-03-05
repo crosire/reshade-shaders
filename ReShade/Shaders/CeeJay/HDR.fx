@@ -1,7 +1,9 @@
 #include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
-#if (USE_HDR == 1)
+#if USE_HDR
+
+#pragma message "HDR by CeeJay\n"
 
 /*------------------------------------------------------------------------------
 						HDR

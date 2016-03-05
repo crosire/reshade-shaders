@@ -1,7 +1,9 @@
 #include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
-#if (USE_CARTOON == 1)
+#if USE_CARTOON
+
+#pragma message "Cartoon by CeeJay\n"
 
 /*------------------------------------------------------------------------------
 						Cartoon

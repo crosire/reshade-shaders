@@ -1,15 +1,3 @@
-#include "Common.fx"
-
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_DEF
-#endif
-
-#if (USE_BLOOM || USE_LENSDIRT || USE_GAUSSIAN_ANAMFLARE || USE_LENZFLARE || USE_CHAPMAN_LENS || USE_GODRAYS || USE_ANAMFLARE)
-
-#if AL_Adaptation && USE_AMBIENT_LIGHT
-#include "BrightDetect.fx"
-#endif
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -20,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -32,6 +20,22 @@
 //Credits :: Boris Vorontsov (Lenz), Matso (Anamorphic lensflare), icelaglace (Lenz offsets), AAA aka opezdl (Lenz code parts)
 //Credits :: PetkaGtA (Lightscattering implementation)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include EFFECT_CONFIG(Ganossa)
+
+#if (USE_BLOOM || USE_LENSDIRT || USE_GAUSSIAN_ANAMFLARE || USE_LENZFLARE || USE_CHAPMAN_LENS || USE_GODRAYS || USE_ANAMFLARE)
+
+#pragma message "Bloom by Ganossa"
+#if USE_LENZFLARE
+	#pragma message "Lenz by Boris Vorontsov, icelaglace, AAA aka opezdl\n"
+#endif
+#if USE_ANAMFLARE
+	#pragma message "Anamorphic Lensflare by Matso\n"
+#endif
+
+#if AL_Adaptation && USE_AMBIENT_LIGHT
+#include "BrightDetect.fx"
+#endif
 
 #if( Ganossa_HDR_MODE == 0)
  #define Ganossa_RENDERMODE RGBA8
@@ -632,6 +636,4 @@ RESHADE_START_ENABLED; int toggle = Bloom_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_UNDEF
-#endif
+#include "ReShade/Shaders/Ganossa.undef" 

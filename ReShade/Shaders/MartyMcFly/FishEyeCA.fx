@@ -3,6 +3,8 @@
 
 #if USE_FISHEYE_CA
 
+#pragma message "FishEye Chromatic Aberration by icelaglace and others (ported by MartyMcFly)\n"
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.

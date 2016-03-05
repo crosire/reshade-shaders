@@ -1,11 +1,6 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_LENS_DISTORTION == 1)
-
-   /*-----------------------------------------------------------.   
-  /                    Cubic Lens Distortion                    /
-  '-----------------------------------------------------------*/
+/*-----------------------------------------------------------.
+/                    Cubic Lens Distortion                    /
+'-----------------------------------------------------------*/
 
 /*
 Cubic Lens Distortion HLSL Shader
@@ -21,6 +16,13 @@ v' = f*v
 author : François Tarlier
 website : http://www.francois-tarlier.com/blog/tag/lens-distortion/
 */
+
+#include "Common.fx"
+#include CeeJay_SETTINGS_DEF
+
+#if USE_LENS_DISTORTION
+
+#pragma message "Cubic Lens Distortion by Francois Tarlier (ported by CeeJay)\n"
 
 namespace CeeJay
 {

@@ -3,6 +3,8 @@
 
 #if USE_GOLDENRATIO
 
+#pragma message "GoldenRatio by Otis\n"
+
 namespace Otis
 {
 

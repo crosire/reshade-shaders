@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_ADVANCED_CRT == 1)
-
 // CRT shader
 // 
 // Copyright (C) 2010-2012 cgwg, Themaister and DOLLS
@@ -11,6 +6,13 @@
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
+
+#include "Common.fx"
+#include CeeJay_SETTINGS_DEF
+
+#if USE_ADVANCED_CRT
+
+#pragma message "Advanced CRT by cgwg, Themaister, DOLLS and CeeJay\n"
 
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING

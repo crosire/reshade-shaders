@@ -1,11 +1,13 @@
-/*
- Dos Game shader by Boris Vorontsov
- http://enbdev.com/effect_dosgame.zip
-*/
+/**
+ * Dos Game shader by Boris Vorontsov
+ * http://enbdev.com/effect_dosgame.zip
+ */
 
-#include EFFECT_CONFIG(Iddqd)
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_DOSFX
+
+#pragma message "DOS effect by Boris Vorontsov (ported by IDDQD)\n"
 
 namespace Iddqd
 {

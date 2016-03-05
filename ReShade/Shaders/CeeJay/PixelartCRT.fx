@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_PIXELART_CRT == 1)
-
 //
 // PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
 //
@@ -19,6 +14,13 @@
 //
 
 //Ported to HLSL by CeeJay.dk
+
+#include "Common.fx"
+#include CeeJay_SETTINGS_DEF
+
+#if USE_PIXELART_CRT
+
+#pragma message "PixelArt CRT by Timothy Lottes (ported by CeeJay)\n"
 
 namespace CeeJay
 {

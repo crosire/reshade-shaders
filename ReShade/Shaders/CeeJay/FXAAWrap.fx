@@ -1,7 +1,10 @@
 #include "Common.fx"
 #include CeeJay_SETTINGS_DEF
 
-#if (USE_FXAA == 1 || USE_FXAA_ANTIALIASING == 1)
+#if (USE_FXAA || USE_FXAA_ANTIALIASING)
+
+#pragma message "FXAA by Timothy Lottes (ported by CeeJay)\n"
+
 //TODO make a luma pass
 
 namespace CeeJay

@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -13,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -26,6 +21,13 @@
 //Credits :: Ubisoft (Reinhard tonemapping, Haarm Peter Duiker Tonemap, Filmiccurve, Spherical Tonemap)
 //Credits :: Ryosuke (Colormod Contrast/Gamma/Saturation controls)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include "Common.fx"
+#include MartyMcFly_SETTINGS_DEF
+
+#if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
+
+#pragma message "Various Color Correction Effects by prod80, Ubisoft, Ryosuke and Marty McFly\n"
 
 namespace MartyMcFly
 {
