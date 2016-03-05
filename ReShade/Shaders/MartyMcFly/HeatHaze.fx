@@ -9,7 +9,7 @@
 
 #include Ganossa_SETTINGS_DEF
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-#include "BrightDetect.fx"
+#include "ReShade/Shaders/Ganossa/BrightDetect.fx"
 #endif
 #include Ganossa_SETTINGS_UNDEF
 
