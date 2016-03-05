@@ -1,9 +1,7 @@
 #include "Common.fx"
 #include "ReShade/Shaders/Ganossa/Common.fx"
 
-#ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_DEF
-#endif
 
 #if USE_HEATHAZE
 
@@ -89,6 +87,4 @@ RESHADE_START_ENABLED; int toggle = HeatHaze_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
 #include MartyMcFly_SETTINGS_UNDEF
-#endif
