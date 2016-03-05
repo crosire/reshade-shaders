@@ -24,11 +24,11 @@ namespace Iddqd
 {
 
 #if (sNoiseMode == 1)
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #elif (sNoiseMode == 2)
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #else
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #endif
 
 sampler2D SamNoise
