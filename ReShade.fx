@@ -1,6 +1,15 @@
-// Global Settings
+#define STR(value) #value
+#define STE(value) STR(value)
+
 #include "ReShade\KeyCodes.h"
-#include "ReShade\Global.cfg"
+
+// Global Settings
+#if exists(STE(ReShade/Profiles/__APPLICATION_NAME__/Global.cfg))
+	#include STE(ReShade/Profiles/__APPLICATION_NAME__/Global.cfg)
+#else
+	#warning "Could not find application profile, falling back to default"
+	#include "ReShade/Profiles/Default/Global.cfg"
+#endif
 
 #pragma reshade screenshot_key RESHADE_SCREENSHOT_KEY
 #pragma reshade screenshot_format RESHADE_SCREENSHOT_FORMAT
@@ -92,12 +101,17 @@ technique Setup < enabled = true; >
 #endif
 }
 
-#define STR(value) #value
-#define STE(value) STR(value)
-#define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
-#define EFFECT_CONFIG(author) STE(ReShade/Presets/RESHADE_PRESET/author.cfg)
+// Preset Settings
+#if !defined(RESHADE_PRESET) || !exists(STE(ReShade/Presets/RESHADE_PRESET))
+	#warning "Could not find preset, falling back to default"
+	#undef RESHADE_PRESET
+	#define RESHADE_PRESET Default
+#endif
 
-#include EFFECT_CONFIG(Pipeline)
+#define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
+#define EFFECT_CONFIG(author) STE(ReShade/Presets/RESHADE_PRESET/Shaders_by_##author.cfg)
+
+#include STE(ReShade/Presets/RESHADE_PRESET/Pipeline.cfg)
 
 #if RESHADE_SHOW_TOGGLE_MESSAGES
 #pragma reshade showtogglemessage
