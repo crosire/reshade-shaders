@@ -1,7 +1,6 @@
 #ifndef INCLUDE_GUARD_GANOSSA_BRIGHTDETECT
 #define INCLUDE_GUARD_GANOSSA_BRIGHTDETECT
 
-#include "Common.fx"
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
