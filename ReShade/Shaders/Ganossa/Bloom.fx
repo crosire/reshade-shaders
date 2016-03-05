@@ -25,7 +25,7 @@
 
 #if (USE_BLOOM || USE_LENSDIRT || USE_GAUSSIAN_ANAMFLARE || USE_LENZFLARE || USE_CHAPMAN_LENS || USE_GODRAYS || USE_ANAMFLARE)
 
-#pragma message "Bloom by Ganossa"
+#pragma message "Bloom by Ganossa\n"
 #if USE_LENZFLARE
 	#pragma message "Lenz by Boris Vorontsov, icelaglace, AAA aka opezdl\n"
 #endif
