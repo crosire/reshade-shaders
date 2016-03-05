@@ -52,7 +52,7 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
     	float2 heatoffset = normalize(heatnormal.xy) * pow(length(heatnormal.xy), 0.5);
 	float3 heathazecolor = 0;
 
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
 	#include "../Ganossa/HeatHazeControle.fx"
 #else	
@@ -60,7 +60,7 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
 	heathazecolor.z = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount)).z;
 #endif
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)
 
 	color.xyz = heathazecolor;
  #if(bHeatHazeDebug == 1)
