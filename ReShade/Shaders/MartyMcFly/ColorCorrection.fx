@@ -442,7 +442,7 @@ float4 ColorCorrectionPass(float4 position : SV_Position, float2 texcoord : TEXC
 	return color;
 }
 
-technique ColorCorrection_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = ColorCorrection_ToggleKey; >
+technique ColorCorrection_Tech < enabled = RESHADE_START_ENABLED; >
 {
 	pass MartyMcFly_ColorCorrection_Pass
 	{
