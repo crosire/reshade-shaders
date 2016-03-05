@@ -1,7 +1,7 @@
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
-#if (USE_HSV == 1)
+#if USE_HSV
 
 #pragma message "HSV by Marty McFly\n"
 
@@ -119,4 +119,4 @@ technique HSV_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = HSV_Toggl
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

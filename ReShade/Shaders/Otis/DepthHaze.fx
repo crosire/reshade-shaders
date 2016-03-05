@@ -9,8 +9,8 @@
 // of high-contrasting lines with high depth diffence don't bleed.
 ///////////////////////////////////////////////////////////////////
 
+#include EFFECT_CONFIG(Otis)
 #include "Common.fx"
-#include Otis_SETTINGS_DEF
 
 #if USE_DEPTHHAZE
 
@@ -103,4 +103,4 @@ technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
 
 #endif
 
-#include Otis_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Otis)

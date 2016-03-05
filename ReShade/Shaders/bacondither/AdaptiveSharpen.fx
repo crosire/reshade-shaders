@@ -321,4 +321,4 @@ technique AdaptiveSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle
 
 #endif
 
-#include "ReShade/Shaders/bacondither.undef"
+#include EFFECT_CONFIG_UNDEF(bacondither)

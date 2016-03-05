@@ -20,8 +20,8 @@
 //Credits :: PetkaGtA (Raymarch AO idea), Ethatron (SSAO ported from Crysis), Ethatron and tomerk (HBAO and SSGI)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_AMBIENTOCCLUSION
 
@@ -1104,4 +1104,4 @@ technique AO_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AO_ToggleK
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

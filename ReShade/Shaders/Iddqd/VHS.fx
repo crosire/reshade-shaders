@@ -515,4 +515,4 @@ technique VHSReShade <bool enabled = RESHADE_START_ENABLED; int toggle = VHS_Tog
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

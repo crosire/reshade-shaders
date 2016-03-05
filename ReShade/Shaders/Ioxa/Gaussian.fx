@@ -1029,4 +1029,4 @@ technique Gaussian_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Gaus
 
 #endif
 
-#include "ReShade/Shaders/Ioxa.undef"
+#include EFFECT_CONFIG_UNDEF(Ioxa)

@@ -17,8 +17,8 @@
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_RBM
 
@@ -173,4 +173,4 @@ technique RBM_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = RBM_Toggl
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

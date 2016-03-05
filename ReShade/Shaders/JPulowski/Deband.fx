@@ -111,4 +111,4 @@ technique Deband_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Deband
 
 #endif
 
-#include "ReShade/Shaders/JPulowski.undef"
+#include EFFECT_CONFIG_UNDEF(JPulowski)

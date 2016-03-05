@@ -80,4 +80,4 @@ technique DaltonizeFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = D
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

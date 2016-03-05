@@ -2,8 +2,8 @@
   | :: Shared passes :: |
   '--------------------*/
 
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 namespace CeeJay
 {
@@ -128,4 +128,4 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 
 }
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

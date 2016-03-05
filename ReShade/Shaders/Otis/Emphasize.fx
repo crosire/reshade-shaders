@@ -5,8 +5,8 @@
 // if so, the pixel is desaturated and blended with the color specified in the cfg file. 
 ///////////////////////////////////////////////////////////////////
 
+#include EFFECT_CONFIG(Otis)
 #include "Common.fx"
-#include Otis_SETTINGS_DEF
 
 #if USE_EMPHASIZE
 
@@ -47,4 +47,4 @@ technique Otis_EMZ_Tech <bool enabled = false; int toggle = EMZ_ToggleKey; >
 
 #endif
 
-#include Otis_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Otis)

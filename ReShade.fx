@@ -110,6 +110,7 @@ technique Setup < enabled = true; >
 
 #define EFFECT(author, name) STE(ReShade/Shaders/author/name.fx)
 #define EFFECT_CONFIG(author) STE(ReShade/Presets/RESHADE_PRESET/Shaders_by_##author.cfg)
+#define EFFECT_CONFIG_UNDEF(author) STE(ReShade/Shaders/author.undef)
 
 #include STE(ReShade/Presets/RESHADE_PRESET/Pipeline.cfg)
 

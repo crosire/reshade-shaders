@@ -3,11 +3,6 @@
 
 // Stuff all/most of Otis shared shaders need
 
-#define Otis_SETTINGS_DEF EFFECT_CONFIG(Otis)
-#define Otis_SETTINGS_UNDEF "ReShade/Shaders/Otis.undef" 
-
-#include Otis_SETTINGS_DEF
-
 #if( HDR_MODE == 0)
  #define Otis_RENDERMODE RGBA8
 #elif( HDR_MODE == 1)
@@ -75,7 +70,5 @@ technique Otis_Init_Tech  < enabled = false; >
 */
 
 }
-
-#include Otis_SETTINGS_UNDEF
 
 #endif

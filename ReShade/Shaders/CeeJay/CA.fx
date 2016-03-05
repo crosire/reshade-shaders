@@ -10,8 +10,8 @@ Version 1.0 by CeeJay.dk
 - First version.
 */
 
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 #if USE_CA
 
@@ -108,7 +108,7 @@ RESHADE_START_ENABLED; int toggle = CA_ToggleKey; >
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

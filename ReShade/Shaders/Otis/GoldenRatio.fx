@@ -1,5 +1,5 @@
+#include EFFECT_CONFIG(Otis)
 #include "Common.fx"
-#include Otis_SETTINGS_DEF
 
 #if USE_GOLDENRATIO
 
@@ -58,4 +58,4 @@ technique Otis_GOR_Tech <bool enabled = false; int toggle = GOR_ToggleKey; >
 
 #endif
 
-#include Otis_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Otis)

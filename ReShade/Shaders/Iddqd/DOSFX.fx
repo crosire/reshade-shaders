@@ -66,4 +66,4 @@ technique DosFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Dos_Tog
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

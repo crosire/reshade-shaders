@@ -109,4 +109,4 @@ technique SplitScreen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = S
 
 #endif
 
-#include "ReShade/Shaders/Ganossa.undef" 
+#include EFFECT_CONFIG_UNDEF(Ganossa)

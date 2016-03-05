@@ -154,4 +154,4 @@ technique LeiFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = LeiFX_T
 
 #endif
 
-#include "ReShade/Shaders/JPulowski.undef"
+#include EFFECT_CONFIG_UNDEF(JPulowski)

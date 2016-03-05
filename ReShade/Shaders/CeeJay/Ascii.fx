@@ -16,8 +16,8 @@ Version 0.7. by CeeJay.dk
 
 */
 
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 #if USE_ASCII
 
@@ -470,7 +470,7 @@ technique Ascii_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Ascii_T
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

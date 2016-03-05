@@ -1,12 +1,6 @@
 #ifndef INCLUDE_GUARD_CEEJAY_COMMON
 #define INCLUDE_GUARD_CEEJAY_COMMON
 
-//Stuff all/most of CeeJay shared shaders need
-#define CeeJay_SETTINGS_DEF EFFECT_CONFIG(CeeJay)
-#define CeeJay_SETTINGS_UNDEF "ReShade/Shaders/CeeJay.undef" 
-
-#include CeeJay_SETTINGS_DEF 
-
   /*-----------------------.
   | ::     Textures     :: |
   '-----------------------*/
@@ -134,109 +128,109 @@ sampler searchSampler
   '----------------------*/
 
 #if (USE_LEVELS == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Levels.h"
+  #include "SharedShader\Levels.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_TECHNICOLOR == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Technicolor.h"
+  #include "SharedShader\Technicolor.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_TECHNICOLOR2 == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Technicolor2.h"
+  #include "SharedShader\Technicolor2.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_DPX == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\DPX.h"
+  #include "SharedShader\DPX.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_MONOCHROME == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Monochrome.h"
+  #include "SharedShader\Monochrome.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_COLORMATRIX == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\ColorMatrix.h"
+  #include "SharedShader\ColorMatrix.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_LIFTGAMMAGAIN == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\LiftGammaGain.h"
+  #include "SharedShader\LiftGammaGain.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_TONEMAP == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Tonemap.h"
+  #include "SharedShader\Tonemap.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_VIBRANCE == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Vibrance.h"
+  #include "SharedShader\Vibrance.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_CURVES == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Curves.h"
+  #include "SharedShader\Curves.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_SEPIA == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Sepia.h"
+  #include "SharedShader\Sepia.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_FILMICPASS == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\FilmicPass.h"
+  #include "SharedShader\FilmicPass.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_REINHARDLINEAR == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\ReinhardLinear.h"
+  #include "SharedShader\ReinhardLinear.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_NOSTALGIA == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Nostalgia.h"
+  #include "SharedShader\Nostalgia.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_VIGNETTE == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Vignette.h"
+  #include "SharedShader\Vignette.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_FILMGRAIN == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\FilmGrain.h"
+  #include "SharedShader\FilmGrain.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_DITHER == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Dither.h"
+  #include "SharedShader\Dither.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
 
 #if (USE_BORDER == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Border.h"
+  #include "SharedShader\Border.h"
   #undef CeeJay_SHARED
   #define CeeJay_SHARED 1
 #endif
@@ -273,7 +267,7 @@ sampler searchSampler
   #define SMAA_PIXEL_SIZE pixel
   #define SMAA_PRESET_CUSTOM 1
 
-  #include "ReShade\Shaders\CeeJay\SMAA.h"
+  #include "SMAA.h"
 #endif
 
   /*--------------------.
@@ -286,9 +280,7 @@ sampler searchSampler
   #define FXAA_HLSL_3 1
   #define FXAA_GREEN_AS_LUMA 1 //It's better to calculate luma in the previous pass and pass it, than to use this option.
 
-  #include "ReShade\Shaders\CeeJay\Fxaa3_11.h"
+  #include "Fxaa3_11.h"
 #endif
-
-#include CeeJay_SETTINGS_UNDEF
 
 #endif

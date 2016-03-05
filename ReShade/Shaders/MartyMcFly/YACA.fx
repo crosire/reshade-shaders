@@ -7,8 +7,8 @@
 // Copyright © 2008-2015 Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_YACA
 
@@ -60,4 +60,4 @@ technique YACA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = YACA_Tog
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

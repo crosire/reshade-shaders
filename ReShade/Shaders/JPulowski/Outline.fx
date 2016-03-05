@@ -131,4 +131,4 @@ technique Outline_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Outli
 
 #endif
 
-#include "ReShade/Shaders/JPulowski.undef"
+#include EFFECT_CONFIG_UNDEF(JPulowski)

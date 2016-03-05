@@ -162,4 +162,4 @@ technique Grain_Tech < bool enabled = RESHADE_START_ENABLED;  int toggle = Grain
 
 #endif
 
-#include "ReShade/Shaders/Alo81.undef"
+#include EFFECT_CONFIG_UNDEF(Alo81)

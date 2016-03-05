@@ -20,8 +20,8 @@
 // Credits :: Matso (Matso DOF), PetkaGtA, gp65cj042
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_DEPTHOFFIELD
 
@@ -749,4 +749,4 @@ technique DepthOfField_Tech < bool enabled = RESHADE_START_ENABLED; int toggle =
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

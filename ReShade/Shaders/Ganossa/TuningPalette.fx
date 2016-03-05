@@ -149,4 +149,4 @@ technique TuningPalette_Tech <bool enabled = RESHADE_START_ENABLED; int toggle =
 
 #endif
 
-#include "ReShade/Shaders/Ganossa.undef" 
+#include EFFECT_CONFIG_UNDEF(Ganossa)

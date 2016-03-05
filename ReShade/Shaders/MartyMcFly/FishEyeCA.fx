@@ -1,5 +1,5 @@
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_FISHEYE_CA
 
@@ -84,4 +84,4 @@ RESHADE_START_ENABLED; int toggle = FishEye_ToggleKey; >
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

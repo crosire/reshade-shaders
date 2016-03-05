@@ -17,8 +17,8 @@ author : François Tarlier
 website : http://www.francois-tarlier.com/blog/tag/lens-distortion/
 */
 
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 #if USE_LENS_DISTORTION
 
@@ -79,7 +79,7 @@ technique Distortion_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = RE
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

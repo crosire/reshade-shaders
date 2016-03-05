@@ -73,4 +73,4 @@ technique Gr8mmFilm_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Gr8
 
 #endif
 
-#include "ReShade/Shaders/Ganossa.undef" 
+#include EFFECT_CONFIG_UNDEF(Ganossa)

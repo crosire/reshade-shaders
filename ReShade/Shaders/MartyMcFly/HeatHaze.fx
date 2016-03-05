@@ -17,9 +17,8 @@
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_HEATHAZE
 
@@ -27,9 +26,9 @@
 
 #include EFFECT_CONFIG(Ganossa)
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-#include "ReShade/Shaders/Ganossa/BrightDetect.fx"
+#include "../Ganossa/BrightDetect.fx"
 #endif
-#include "ReShade/Shaders/Ganossa.undef" 
+#include EFFECT_CONFIG_UNDEF(Ganossa)
 
 namespace MartyMcFly
 {
@@ -55,7 +54,7 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 
 #include Ganossa_SETTINGS_DEF
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-	#include "ReShade/Shaders/Ganossa/HeatHazeControle.fx"
+	#include "../Ganossa/HeatHazeControle.fx"
 #else	
 	heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
 	heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
@@ -88,4 +87,4 @@ RESHADE_START_ENABLED; int toggle = HeatHaze_ToggleKey; >
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

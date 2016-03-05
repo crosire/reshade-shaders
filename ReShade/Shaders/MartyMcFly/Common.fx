@@ -1,13 +1,6 @@
 #ifndef INCLUDE_GUARD_MARTYMCFLY_COMMON
 #define INCLUDE_GUARD_MARTYMCFLY_COMMON
 
-//Stuff all/most of MartyMcFly's shared shaders need
-
-#define MartyMcFly_SETTINGS_DEF EFFECT_CONFIG(MartyMcFly)
-#define MartyMcFly_SETTINGS_UNDEF "ReShade/Shaders/MartyMcFly.undef" 
-
-#include MartyMcFly_SETTINGS_DEF
-
 //global vars
 #ifndef PI
 	#define PI 		3.1415972
@@ -37,7 +30,5 @@ sampler2D SamplerNoise
 	AddressV = Wrap;
 };
 }
-
-#include MartyMcFly_SETTINGS_UNDEF
 
 #endif

@@ -636,4 +636,4 @@ RESHADE_START_ENABLED; int toggle = Bloom_ToggleKey; >
 
 #endif
 
-#include "ReShade/Shaders/Ganossa.undef" 
+#include EFFECT_CONFIG_UNDEF(Ganossa)

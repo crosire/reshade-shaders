@@ -207,4 +207,4 @@ technique Denoise_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Denoi
 
 #endif
 
-#include "ReShade/Shaders/JPulowski.undef"
+#include EFFECT_CONFIG_UNDEF(JPulowski)

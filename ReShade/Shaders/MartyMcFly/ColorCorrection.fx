@@ -22,8 +22,8 @@
 //Credits :: Ryosuke (Colormod Contrast/Gamma/Saturation controls)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
 
 #if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
 
@@ -460,4 +460,4 @@ technique ColorCorrection_Tech < enabled = RESHADE_START_ENABLED; >
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)
