@@ -241,12 +241,6 @@ sampler searchSampler
   #define CeeJay_SHARED 1
 #endif
 
-#if (USE_SPLITSCREEN == 1)
-  #include "ReShade\Shaders\CeeJay\SharedShader\Splitscreen.h"
-  #undef CeeJay_SHARED
-  #define CeeJay_SHARED 1
-#endif
-
   /*----------------------------------.
   | :: Begin operation "Piggyback" :: |
   '----------------------------------*/

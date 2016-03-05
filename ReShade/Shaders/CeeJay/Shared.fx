@@ -100,11 +100,6 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 	FinalColor = BorderPass(FinalColor,tex);
 #endif
 
-	// Splitscreen
-#if (USE_SPLITSCREEN == 1)
-	FinalColor = SplitscreenPass(FinalColor,tex);
-#endif
-
 	return FinalColor;
 }
 
