@@ -6,7 +6,7 @@
 namespace Otis
 {
 
-texture2D	GOR_texSpirals < string source= "Reshade\\Otis\\Textures\\GoldenSpirals.png"; > { Width = 1748; Height = 1080; MipLevels = 1; Format = RGBA8; };
+texture2D	GOR_texSpirals < string source= "Reshade\\Shaders\\Otis\\Textures\\GoldenSpirals.png"; > { Width = 1748; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler2D	GOR_samplerSpirals
 {
 	Texture = GOR_texSpirals;
