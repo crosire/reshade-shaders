@@ -23,6 +23,9 @@
 #if RESHADE_SHOW_STATISTICS
 	#pragma reshade showstatistics
 #endif
+#if RESHADE_SHOW_TOGGLE_MESSAGES
+	#pragma reshade showtogglemessage
+#endif
 
 namespace ReShade
 {
@@ -113,15 +116,3 @@ technique Setup < enabled = true; >
 #define EFFECT_CONFIG_UNDEF(author) STE(ReShade/Shaders/author.undef)
 
 #include STE(ReShade/Presets/RESHADE_PRESET/Pipeline.cfg)
-
-#if RESHADE_SHOW_TOGGLE_MESSAGES
-#pragma reshade showtogglemessage
-technique Framework < enabled = RESHADE_START_ENABLED; toggle = RESHADE_TOGGLE_KEY; >
-{
-	pass 
-	{
-		VertexShader = ReShade::VS_PostProcess;
-		PixelShader = ReShade::PS_StoreColor;
-	}
-}
-#endif
