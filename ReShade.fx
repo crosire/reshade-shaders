@@ -1,3 +1,7 @@
+#if !defined(__RESHADE__) || __RESHADE__ < 20000
+	#error "ReShade 2.0+ is required to use these shaders"
+#endif
+
 #define STR(value) #value
 #define STE(value) STR(value)
 
