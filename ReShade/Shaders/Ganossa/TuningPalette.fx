@@ -34,6 +34,10 @@
 
 #pragma message "TuningPalette by Ganossa\n"
 
+#if TuningColorMap || TuningColorLUT
+	#include "BrightDetect.fx"
+#endif
+
 namespace Ganossa
 {
 
@@ -53,7 +57,6 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 	float4 original = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 #if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
-	#include "BrightDetect.fx"
 //DetectLow
 	float4 detectLow = tex2D(detectLowColor, 0.5)/4.215;
 	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
