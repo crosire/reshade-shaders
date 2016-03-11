@@ -34,7 +34,7 @@
 
 #pragma message "TuningPalette by Ganossa\n"
 
-#if TuningColorMap || TuningColorLUT
+#if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
 	#include "BrightDetect.fx"
 #endif
 
