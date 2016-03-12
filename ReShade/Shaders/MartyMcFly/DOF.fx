@@ -37,9 +37,6 @@ texture2D texMask    	< string source = "ReShade/Shaders/MartyMcFly/Textures/mcm
 texture2D texHDR1 	{ Width = BUFFER_WIDTH*DOF_RENDERRESMULT; Height = BUFFER_HEIGHT*DOF_RENDERRESMULT; Format = RGBA8;};
 texture2D texHDR2 	{ Width = BUFFER_WIDTH*DOF_RENDERRESMULT; Height = BUFFER_HEIGHT*DOF_RENDERRESMULT; Format = RGBA8;}; 
 
-uniform float2 MouseCoords < source = "mousepoint"; >;
-uniform bool PauseKeyDown < source = "key"; keycode = VK_PAUSE; toggle=true; >;
-
 #if(bADOF_ShapeTextureEnable != 0)
 sampler2D SamplerMask  
 {
@@ -89,7 +86,11 @@ float GetCoC(float2 coords)
 	{ 
  		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
  		coords.y *= ReShade::AspectRatio; 
-		float2 focusPoint = PauseKeyDown ? MouseCoords * ReShade::PixelSize : DOF_FOCUSPOINT;
+	#if(DOF_MOUSEDRIVEN_AF==0)
+		float2 focusPoint = DOF_FOCUSPOINT;
+	#else
+		float2 focusPoint = ReShade::MouseCoords * ReShade::PixelSize;
+	#endif
  		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + focusPoint.xy).x; 
   	}
 	scenefocus /= DOF_FOCUSSAMPLES; 
@@ -718,15 +719,6 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 	return scenecolor;
 }
 
-float4 PS_MouseCoordOverlay(float4 vpos:SV_Position, float2 texcoord: TEXCOORD) :SV_Target
-{
-	float2 focusPoint = PauseKeyDown ? MouseCoords * ReShade::PixelSize : DOF_FOCUSPOINT;
-	if(PauseKeyDown && (abs(focusPoint.x - texcoord.x) < 0.003 && abs(focusPoint.y - texcoord.y) < 0.003))
-	{
-		return float4(1.0, 0.0, 0.0, 1.0);
-	}
-	return tex2D(ReShade::BackBuffer, texcoord.xy);
-}
 
 /////////////////////////TECHNIQUES/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////TECHNIQUES/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -757,7 +749,6 @@ technique DepthOfField_Tech < bool enabled = RESHADE_START_ENABLED; int toggle =
 	pass McFlyDOF2	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_McFlyDOF2;		/* renders to backbuffer*/	}
 	pass McFlyDOF3	{	VertexShader = ReShade::VS_PostProcess;	PixelShader  = PS_McFlyDOF3;		/* renders to backbuffer*/	}
 #endif
-	pass MouseOverlay { VertexShader = ReShade::VS_PostProcess; PixelShader = PS_MouseCoordOverlay;	/* renders to backbuffer*/ }
 }
 
 }
