@@ -39,7 +39,8 @@ namespace ReShade
 	static const float2 ScreenSize = float2(BUFFER_WIDTH, BUFFER_HEIGHT);
 	uniform float Timer < source = "timer"; >;
 	uniform float FrameTime < source = "frametime"; >;
-
+	uniform float2 MouseCoords < source = "mousepoint"; >;
+	
 	// Global Textures and Samplers
 	texture BackBufferTex : COLOR;
 	texture DepthBufferTex : DEPTH;

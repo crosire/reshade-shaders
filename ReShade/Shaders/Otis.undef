@@ -16,3 +16,7 @@
 #undef EMZ_BlendFactor
 #undef EMZ_EffectFactor
 #undef EMZ_ToggleKey
+#undef USE_MOUSEOVERLAY
+#undef MOL_ToggleKey
+#undef MOL_CursorSize
+#undef MOL_CursorColor

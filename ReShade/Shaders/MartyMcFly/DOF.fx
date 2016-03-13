@@ -86,7 +86,12 @@ float GetCoC(float2 coords)
 	{ 
  		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
  		coords.y *= ReShade::AspectRatio; 
- 		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + DOF_FOCUSPOINT.xy).x; 
+	#if(DOF_MOUSEDRIVEN_AF==0)
+		float2 focusPoint = DOF_FOCUSPOINT;
+	#else
+		float2 focusPoint = ReShade::MouseCoords * ReShade::PixelSize;
+	#endif
+ 		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + focusPoint.xy).x; 
   	}
 	scenefocus /= DOF_FOCUSSAMPLES; 
 #endif
@@ -713,6 +718,7 @@ float4 PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 
 	return scenecolor;
 }
+
 
 /////////////////////////TECHNIQUES/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////TECHNIQUES/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
