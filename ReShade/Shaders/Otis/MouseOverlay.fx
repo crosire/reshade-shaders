@@ -15,12 +15,7 @@ namespace Otis
 {
 	float4 PS_MouseCoordOverlay(float4 vpos:SV_Position, float2 texcoord: TEXCOORD) :SV_Target
 	{
-		float2 focusPoint = ReShade::MouseCoords * ReShade::PixelSize;
-		if(abs(focusPoint.x - texcoord.x) < MOL_CursorSize && abs(focusPoint.y - texcoord.y) < MOL_CursorSize)
-		{
-			return float4(MOL_CursorColor, 1.0);
-		}
-		return tex2D(ReShade::BackBuffer, texcoord.xy);
+		return all(abs(ReShade::MouseCoords-vpos.xy) < MOL_CursorSize) ? float4(MOL_CursorColor, 1.0) : tex2D(ReShade::BackBuffer, texcoord);
 	}
 
 	technique MouseOverlay_Tech < bool enabled = false; int toggle = MOL_ToggleKey; >
