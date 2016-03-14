@@ -150,3 +150,6 @@
 #undef fFlareBlur
 #undef fFlareIntensity
 #undef fFlareTint
+#undef USE_TEXDITHER
+#undef fTexDitherSize
+#undef TexDither_ToggleKey
