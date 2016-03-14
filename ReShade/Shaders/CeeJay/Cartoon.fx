@@ -1,7 +1,9 @@
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
-#if (USE_CARTOON == 1)
+#if USE_CARTOON
+
+#pragma message "Cartoon by CeeJay\n"
 
 /*------------------------------------------------------------------------------
 						Cartoon
@@ -18,11 +20,11 @@ float4 CartoonPass( float4 colorInput, float2 Tex )
 {
   float3 CoefLuma2 = float3(0.2126, 0.7152, 0.0722);  //Values to calculate luma with
   
-  float diff1 = dot(CoefLuma2,myTex2D(s0, Tex + RFX_PixelSize).rgb);
-  diff1 = dot(float4(CoefLuma2,-1.0),float4(myTex2D(s0, Tex - RFX_PixelSize).rgb , diff1));
+  float diff1 = dot(CoefLuma2,myTex2D(s0, Tex + ReShade::PixelSize).rgb);
+  diff1 = dot(float4(CoefLuma2,-1.0),float4(myTex2D(s0, Tex - ReShade::PixelSize).rgb , diff1));
   
-  float diff2 = dot(CoefLuma2,myTex2D(s0, Tex +float2(RFX_PixelSize.x,-RFX_PixelSize.y)).rgb);
-  diff2 = dot(float4(CoefLuma2,-1.0),float4(myTex2D(s0, Tex +float2(-RFX_PixelSize.x,RFX_PixelSize.y)).rgb , diff2));
+  float diff2 = dot(CoefLuma2,myTex2D(s0, Tex +float2(ReShade::PixelSize.x,-ReShade::PixelSize.y)).rgb);
+  diff2 = dot(float4(CoefLuma2,-1.0),float4(myTex2D(s0, Tex +float2(-ReShade::PixelSize.x,ReShade::PixelSize.y)).rgb , diff2));
 	
   float edge = dot(float2(diff1,diff2),float2(diff1,diff2));
   
@@ -45,7 +47,7 @@ float3 CartoonWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) :
 	return color.rgb;
 }
 
-technique Cartoon_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cartoon_ToggleKey; >
+technique Cartoon_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Cartoon_ToggleKey; >
 {
 	pass
 	{
@@ -56,7 +58,7 @@ technique Cartoon_Tech <bool enabled = RFX_Start_Enabled; int toggle = Cartoon_T
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

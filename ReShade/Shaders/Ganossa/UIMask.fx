@@ -1,27 +1,22 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
-
-#if USE_UIMask
-
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software with restriction, including without limitation the rights to
- * use and/or sell copies of the Software, and to permit persons to whom the Software 
+ * use and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and below) shall 
+ * The above copyright notice and the permission notices (this and below) shall
  * be included in all copies or substantial portions of the Software.
  *
  * Permission needs to be specifically granted by the author of the software to any
- * person obtaining a copy of this software and associated documentation files 
- * (the "Software"), to deal in the Software without restriction, including without 
- * limitation the rights to copy, modify, merge, publish, distribute, and/or 
+ * person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to copy, modify, merge, publish, distribute, and/or
  * sublicense the Software, and subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and above) shall 
+ * The above copyright notice and the permission notices (this and above) shall
  * be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -32,6 +27,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+#include EFFECT_CONFIG(Ganossa)
+
+#if USE_UIMask
+
+#pragma message "UI Mask by Ganossa\n"
 
 //UI Mask Shader
 
@@ -187,7 +188,7 @@ if(finalPing.r >= 0.59f) {
 }
 
 #if UIMask_Helper
-technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIMaskReset_HelperKey; >
+technique UIMaskHelperReset_Tech <bool enabled = !RESHADE_START_ENABLED; int toggle = UIMaskReset_HelperKey; >
 {
 	pass
 	{
@@ -206,7 +207,7 @@ technique UIMaskHelperReset_Tech <bool enabled = !RFX_Start_Enabled; int toggle 
 
 }
 
-technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIMask_HelperKey; >
+technique UIMaskHelper_Tech <bool enabled = !RESHADE_START_ENABLED; int toggle = UIMask_HelperKey; >
 {
 	pass 
 	{
@@ -273,10 +274,10 @@ technique UIMaskHelper_Tech <bool enabled = !RFX_Start_Enabled; int toggle = UIM
 #endif
 
 #if UIMask_Direct
-technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_ToggleKey; >
+technique UIMask_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = UIMask_ToggleKey; >
 {
 #else 
-technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_HelperKey; >
+technique UIMask_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = UIMask_HelperKey; >
 {
 #endif
 	pass 
@@ -290,4 +291,4 @@ technique UIMask_Tech <bool enabled = RFX_Start_Enabled; int toggle = UIMask_Hel
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)

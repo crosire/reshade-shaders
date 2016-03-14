@@ -38,7 +38,9 @@
 
 #include EFFECT_CONFIG(bacondither)
 
-#if (USE_ADAPTIVESHARPEN == 1)
+#if USE_ADAPTIVESHARPEN
+
+#pragma message "Adaptive Sharpen by bacondither\n"
 
 namespace bacondither
 {
@@ -47,8 +49,8 @@ texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F;
 sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (RFX_PixelSize * float2(x, y))).rgb) )
-#define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (RFX_PixelSize * float2(x, y))).xy )
+#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * float2(x, y))).rgb) )
+#define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (ReShade::PixelSize * float2(x, y))).xy )
 
 // Compute diff
 #define b_diff(z)      ( abs(blur-c[z]) )
@@ -289,7 +291,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	else { return ( satorig + sharpdiff ); }
 }
 
-technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = AdaptiveSharpen_ToggleKey; >
+technique AdaptiveSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AdaptiveSharpen_ToggleKey; >
 {
 	pass AdaptiveSharpenPass1
 	{
@@ -319,4 +321,4 @@ technique AdaptiveSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = A
 
 #endif
 
-#include "ReShade/Shaders/bacondither.undef"
+#include EFFECT_CONFIG_UNDEF(bacondither)

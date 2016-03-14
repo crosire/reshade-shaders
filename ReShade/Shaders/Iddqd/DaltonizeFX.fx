@@ -1,11 +1,13 @@
-/*
- Daltonization algorithm by daltonize.org
- http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
-*/
+/**
+ * Daltonization algorithm by daltonize.org
+ * http://www.daltonize.org/2010/05/lms-daltonization-algorithm.html
+ */
 
-#include EFFECT_CONFIG(Iddqd)
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_DALTONIZEFX
+
+#pragma message "DaltonizeFX (ported by IDDQD)\n"
 
 namespace Iddqd
 {
@@ -65,7 +67,7 @@ color = DaltonizeFX(color, texcoord);
 return color;
 }
 
-technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = DaltonizeFX_ToggleKey; >
+technique DaltonizeFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = DaltonizeFX_ToggleKey; >
 {
 	pass DaltonizePass
 	{
@@ -78,4 +80,4 @@ technique DaltonizeFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dalto
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

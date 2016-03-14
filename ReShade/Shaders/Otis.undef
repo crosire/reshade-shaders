@@ -4,6 +4,9 @@
 #undef GOR_ToggleKey
 #undef USE_DEPTHHAZE
 #undef DEH_EffectStrength
+#undef DEH_FogColor
+#undef DEH_FogStart
+#undef DEH_FogFactor
 #undef DEH_ToggleKey
 #undef USE_EMPHASIZE
 #undef EMZ_ManualFocusDepth
@@ -13,3 +16,7 @@
 #undef EMZ_BlendFactor
 #undef EMZ_EffectFactor
 #undef EMZ_ToggleKey
+#undef USE_MOUSEOVERLAY
+#undef MOL_ToggleKey
+#undef MOL_CursorSize
+#undef MOL_CursorColor

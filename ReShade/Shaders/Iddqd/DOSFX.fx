@@ -1,21 +1,22 @@
-/*
- Dos Game shader by Boris Vorontsov
- http://enbdev.com/effect_dosgame.zip
-*/
+/**
+ * Dos Game shader by Boris Vorontsov
+ * http://enbdev.com/effect_dosgame.zip
+ */
 
-#include EFFECT_CONFIG(Iddqd)
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_DOSFX
+
+#pragma message "DOS effect by Boris Vorontsov (ported by IDDQD)\n"
 
 namespace Iddqd
 {
 
 float4 PS_DosFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float2 xs = RFX_ScreenSize / PIXELSIZE;
+	float2 xs = ReShade::ScreenSize / PIXELSIZE;
 	
 	#if (ENABLE_SCREENSIZE == 1)
-	xs.y=RFX_ScreenSizeFull.x*RFX_ScreenSizeFull.w;
 	xs=DOSScreenSize;
 	#endif
 	
@@ -45,7 +46,7 @@ color.xyz = lerp(color.xyz,-0.0039*pow(1.0/0.0039, 1.0-color.xyz)+1.0,0.7*(DoSga
 return color;
 }
 
-technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleKey; >
+technique DosFX_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Dos_ToggleKey; >
 {
 	#if ENABLE_AGD
 	pass DosFXGammaPass
@@ -65,4 +66,4 @@ technique DosFX_Tech <bool enabled = RFX_Start_Enabled; int toggle = Dos_ToggleK
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

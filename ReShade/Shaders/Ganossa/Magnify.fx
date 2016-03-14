@@ -1,7 +1,8 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 
-#if (USE_Magnify == 1)
+#if USE_Magnify
+
+#pragma message "Magnify by Ganossa\n"
 
 namespace Ganossa
 {
@@ -17,7 +18,7 @@ float4 PS_Magnify(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 	else return tex2D(ReShade::BackBuffer, texcoord);
 }
 
-technique Magnify_Tech <bool enabled = RFX_Start_Enabled; int toggle = Magnify_ToggleKey; >
+technique Magnify_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Magnify_ToggleKey; >
 {
 	pass MagnifyPass
 	{
@@ -30,4 +31,4 @@ technique Magnify_Tech <bool enabled = RFX_Start_Enabled; int toggle = Magnify_T
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)

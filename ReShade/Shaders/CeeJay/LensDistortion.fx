@@ -1,11 +1,6 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_LENS_DISTORTION == 1)
-
-   /*-----------------------------------------------------------.   
-  /                    Cubic Lens Distortion                    /
-  '-----------------------------------------------------------*/
+/*-----------------------------------------------------------.
+/                    Cubic Lens Distortion                    /
+'-----------------------------------------------------------*/
 
 /*
 Cubic Lens Distortion HLSL Shader
@@ -21,6 +16,13 @@ v' = f*v
 author : François Tarlier
 website : http://www.francois-tarlier.com/blog/tag/lens-distortion/
 */
+
+#include EFFECT_CONFIG(CeeJay)
+#include "Common.fx"
+
+#if USE_LENS_DISTORTION
+
+#pragma message "Cubic Lens Distortion by Francois Tarlier (ported by CeeJay)\n"
 
 namespace CeeJay
 {
@@ -66,7 +68,7 @@ float3 LensDistortionWrap(float4 position : SV_Position, float2 texcoord : TEXCO
 	return color.rgb;
 }
 
-technique Distortion_Tech <bool enabled = RFX_Start_Enabled; int toggle = RFX_ToggleKey; >
+technique Distortion_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = RESHADE_TOGGLE_KEY; >
 {
 	pass
 	{
@@ -77,7 +79,7 @@ technique Distortion_Tech <bool enabled = RFX_Start_Enabled; int toggle = RFX_To
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

@@ -1,10 +1,9 @@
+#include EFFECT_CONFIG(MartyMcFly)
 #include "Common.fx"
 
-#ifndef RFX_duplicate
-#include MartyMcFly_SETTINGS_DEF
-#endif
-
 #if USE_FISHEYE_CA
+
+#pragma message "FishEye Chromatic Aberration by icelaglace and others (ported by MartyMcFly)\n"
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
@@ -71,7 +70,7 @@ technique FishEye_Tech <bool enabled =
 #if (FishEye_TimeOut > 0)
 1; int toggle = FishEye_ToggleKey; timeout = FishEye_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = FishEye_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = FishEye_ToggleKey; >
 #endif
 {
 	pass FISHEYE_CA
@@ -85,6 +84,4 @@ RFX_Start_Enabled; int toggle = FishEye_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
-#include MartyMcFly_SETTINGS_UNDEF
-#endif
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

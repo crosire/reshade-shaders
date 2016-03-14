@@ -1,23 +1,25 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_LUMASHARPEN == 1)
-
 /*
-   _____________________
+_____________________
 
-     LumaSharpen 1.5.0
-   _____________________
+LumaSharpen 1.5.0
+_____________________
 
-  by Christian Cann Schuldt Jensen ~ CeeJay.dk
+by Christian Cann Schuldt Jensen ~ CeeJay.dk
 
-  It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
-  It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
+It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
+It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
 
-  This is similar to using Unsharp Mask in Photoshop.
+This is similar to using Unsharp Mask in Photoshop.
 
-  Compiles with 3.0
+Compiles with 3.0
 */
+
+#include EFFECT_CONFIG(CeeJay)
+#include "Common.fx"
+
+#if USE_LUMASHARPEN
+
+#pragma message "LumaSharpen by CeeJay\n"
 
    /*-----------------------------------------------------------.
   /                      Developer settings                     /
@@ -176,7 +178,7 @@ float3 LumaSharpenWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color;
 }
 
-technique LumaSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = LumaSharpen_ToggleKey; >
+technique LumaSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = LumaSharpen_ToggleKey; >
 {
 	pass
 	{
@@ -187,7 +189,7 @@ technique LumaSharpen_Tech <bool enabled = RFX_Start_Enabled; int toggle = LumaS
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

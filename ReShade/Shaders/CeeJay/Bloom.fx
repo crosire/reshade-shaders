@@ -1,7 +1,9 @@
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
-#if (USE_BLOOM == 1)
+#if USE_BLOOM
+
+#pragma message "Bloom by CeeJay\n"
 
 /*------------------------------------------------------------------------------
 						BLOOM
@@ -21,7 +23,7 @@ float4 BloomPass( float4 ColorInput2,float2 Tex  )
 	//float Samplecount = 0;
 	float Samplecount = 25.0;
 	
-	float2 blurtempvalue = Tex * RFX_PixelSize * BloomWidth;
+	float2 blurtempvalue = Tex * ReShade::PixelSize * BloomWidth;
 	
 	//float distancetemp = 1.0 - ((MaxDistance - CurDistance) / MaxDistance);
 	
@@ -75,7 +77,7 @@ float3 BloomWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : S
 	return color.rgb;
 }
 
-technique Bloom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Bloom_ToggleKey; >
+technique Bloom_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Bloom_ToggleKey; >
 {
 	pass
 	{
@@ -86,7 +88,7 @@ technique Bloom_Tech <bool enabled = RFX_Start_Enabled; int toggle = Bloom_Toggl
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

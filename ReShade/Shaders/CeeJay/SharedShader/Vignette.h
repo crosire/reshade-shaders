@@ -33,7 +33,7 @@ float4 VignettePass( float4 colorInput, float2 tex )
 		float2 distance_xy = tex - VignetteCenter;
 
 		//Adjust the ratio
-		distance_xy *= float2((RFX_PixelSize.y / RFX_PixelSize.x),VignetteRatio);
+		distance_xy *= float2((ReShade::PixelSize.y / ReShade::PixelSize.x),VignetteRatio);
 
 		//Calculate the distance
 		distance_xy /= VignetteRadius;
@@ -46,7 +46,7 @@ float4 VignettePass( float4 colorInput, float2 tex )
 	#if VignetteType == 2 // New round (-x*x+x) + (-y*y+y) method.
     
         tex = -tex * tex + tex;
-		colorInput.rgb = saturate(( (RFX_PixelSize.y / RFX_PixelSize.x)*(RFX_PixelSize.y / RFX_PixelSize.x) * VignetteRatio * tex.x + tex.y) * 4.0) * colorInput.rgb;
+		colorInput.rgb = saturate(( (ReShade::PixelSize.y / ReShade::PixelSize.x)*(ReShade::PixelSize.y / ReShade::PixelSize.x) * VignetteRatio * tex.x + tex.y) * 4.0) * colorInput.rgb;
   #endif
 
 	#if VignetteType == 3 // New (-x*x+x) * (-y*y+y) TV style method.
@@ -85,7 +85,7 @@ float4 VignettePass( float4 colorInput, float2 tex )
 
   #if VignetteType == 7 // New round (-x*x+x) * (-y*y+y) method.
     
-	    //tex.y /= float2((RFX_PixelSize.y / RFX_PixelSize.x),VignetteRatio);
+	    //tex.y /= float2((ReShade::PixelSize.y / ReShade::PixelSize.x),VignetteRatio);
         float tex_xy = dot( float4(tex,tex) , float4(-tex,1.0,1.0) ); //dot is actually slower
 		colorInput.rgb = saturate(tex_xy * 4.0) * colorInput.rgb;
 	#endif

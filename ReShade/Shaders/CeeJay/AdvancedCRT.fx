@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_ADVANCED_CRT == 1)
-
 // CRT shader
 // 
 // Copyright (C) 2010-2012 cgwg, Themaister and DOLLS
@@ -11,6 +6,13 @@
 // under the terms of the GNU General Public License as published by the Free
 // Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
+
+#include EFFECT_CONFIG(CeeJay)
+#include "Common.fx"
+
+#if USE_ADVANCED_CRT
+
+#pragma message "Advanced CRT by cgwg, Themaister, DOLLS and CeeJay\n"
 
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
@@ -163,7 +165,7 @@ float4 AdvancedCRTPass( float4 colorInput, float2 tex )
 	float2 Resolution = float2(Input_ratio, Input_ratio);
 	float2 rubyTextureSize = Resolution;
 	float2 rubyInputSize = Resolution;
-	float2 rubyOutputSize = RFX_ScreenSize;
+	float2 rubyOutputSize = ReShade::ScreenSize;
 
 #if CRTCurvature == 1
 	float2 xy = transform(tex, rubyTextureSize, rubyInputSize);
@@ -262,7 +264,7 @@ float3 AdvancedCRTWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color.rgb;
 }
 
-technique AdvancedCRT_Tech <bool enabled = RFX_Start_Enabled; int toggle = AdvancedCRT_ToggleKey; >
+technique AdvancedCRT_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = AdvancedCRT_ToggleKey; >
 {
 	pass
 	{
@@ -273,7 +275,7 @@ technique AdvancedCRT_Tech <bool enabled = RFX_Start_Enabled; int toggle = Advan
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

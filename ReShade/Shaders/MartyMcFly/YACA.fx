@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_YACA
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ReShade effect file
 // visit facebook.com/MartyMcModding for news/updates
@@ -11,7 +6,14 @@
 // For private use only!
 // Copyright © 2008-2015 Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   
+
+#include EFFECT_CONFIG(MartyMcFly)
+#include "Common.fx"
+
+#if USE_YACA
+
+#pragma message "Chromatic Aberration by Marty McFly\n"
+
 /////////////////////////PIXEL SHADERS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////PIXEL SHADERS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +47,7 @@ float4 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
         return scenecolor;
 }
 
-technique YACA_Tech <bool enabled = RFX_Start_Enabled; int toggle = YACA_ToggleKey; >
+technique YACA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = YACA_ToggleKey; >
 {
 	pass YACAPass
 	{
@@ -58,4 +60,4 @@ technique YACA_Tech <bool enabled = RFX_Start_Enabled; int toggle = YACA_ToggleK
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

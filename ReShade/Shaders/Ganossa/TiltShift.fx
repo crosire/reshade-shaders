@@ -1,30 +1,22 @@
-#include "Common.fx"
-
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_DEF
-#endif
-
-#if USE_TILTSHIFT
-
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software with restriction, including without limitation the rights to
- * use and/or sell copies of the Software, and to permit persons to whom the Software 
+ * use and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and below) shall 
+ * The above copyright notice and the permission notices (this and below) shall
  * be included in all copies or substantial portions of the Software.
  *
  * Permission needs to be specifically granted by the author of the software to any
- * person obtaining a copy of this software and associated documentation files 
- * (the "Software"), to deal in the Software without restriction, including without 
- * limitation the rights to copy, modify, merge, publish, distribute, and/or 
+ * person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to copy, modify, merge, publish, distribute, and/or
  * sublicense the Software, and subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and above) shall 
+ * The above copyright notice and the permission notices (this and above) shall
  * be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -34,10 +26,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ * Credits: Based on kingeric1992's TiltShift effect
  */
-/**
- * Credits::Based on kingeric1992's TiltShift effect
- */
+
+#include EFFECT_CONFIG(Ganossa)
+
+#if USE_TILTSHIFT
+
+#pragma message "TiltShift by kingeric1992 and Ganossa\n"
 
 #define ScreenRatio float(-BUFFER_WIDTH / BUFFER_HEIGHT)
 
@@ -133,7 +130,7 @@ technique TiltShift_Tech <bool enabled =
 #if (TiltShift_TimeOut > 0)
 1; int toggle = TiltShift_ToggleKey; timeout = TiltShift_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = TiltShift_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = TiltShift_ToggleKey; >
 #endif
 {
 	pass TiltShiftHPass
@@ -153,6 +150,4 @@ RFX_Start_Enabled; int toggle = TiltShift_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_UNDEF
-#endif
+#include EFFECT_CONFIG_UNDEF(Ganossa)

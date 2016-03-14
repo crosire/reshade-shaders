@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include MartyMcFly_SETTINGS_DEF
-
-#if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -13,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -26,6 +21,13 @@
 //Credits :: Ubisoft (Reinhard tonemapping, Haarm Peter Duiker Tonemap, Filmiccurve, Spherical Tonemap)
 //Credits :: Ryosuke (Colormod Contrast/Gamma/Saturation controls)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include EFFECT_CONFIG(MartyMcFly)
+#include "Common.fx"
+
+#if USE_LUT || USE_SKYRIMTONEMAP || USE_TECHNICOLOR || USE_COLORMOOD || USE_CROSSPROCESS || USE_REINHARD || USE_COLORMOD || USE_SPHERICALTONEMAP || USE_HPD || USE_FILMICCURVE || USE_WATCHDOG_TONEMAP || USE_SINCITY || USE_COLORHUEFX
+
+#pragma message "Various Color Correction Effects by prod80, Ubisoft, Ryosuke and Marty McFly\n"
 
 namespace MartyMcFly
 {
@@ -442,7 +444,7 @@ float4 ColorCorrectionPass(float4 position : SV_Position, float2 texcoord : TEXC
 	return color;
 }
 
-technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = ColorCorrection_ToggleKey; >
+technique ColorCorrection_Tech < enabled = RESHADE_START_ENABLED; toggle = RESHADE_TOGGLE_KEY; >
 {
 	pass MartyMcFly_ColorCorrection_Pass
 	{
@@ -458,4 +460,4 @@ technique ColorCorrection_Tech <bool enabled = RFX_Start_Enabled; int toggle = C
 
 #endif
 
-#include MartyMcFly_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

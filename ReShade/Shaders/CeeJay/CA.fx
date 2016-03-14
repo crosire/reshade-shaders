@@ -1,14 +1,6 @@
-#include "Common.fx"
-
-#ifndef RFX_duplicate
-#include CeeJay_SETTINGS_DEF
-#endif
-
-#if (USE_CA == 1)
-
-  /*---------------------------.
-  | :: Chromatic Aberration :: |
-  '---------------------------*/
+/*---------------------------.
+| :: Chromatic Aberration :: |
+'---------------------------*/
 /*
 Chromatic Aberration
 
@@ -17,6 +9,13 @@ Distorts the image by shifting each color component, which creates color artifac
 Version 1.0 by CeeJay.dk
 - First version.
 */
+
+#include EFFECT_CONFIG(CeeJay)
+#include "Common.fx"
+
+#if USE_CA
+
+#pragma message "Chromatic Aberration by CeeJay\n"
 
 // The Radial part is not yet finished.
 
@@ -45,9 +44,9 @@ float4 ChromaticAberrationPass( float4 colorInput, float2 tex )
   '------------------*/
   #if Chromatic_mode == 1 // Color shift
   
-	color.r = myTex2D(s0, tex + (RFX_PixelSize * Chromatic_shift)).r;
+	color.r = myTex2D(s0, tex + (ReShade::PixelSize * Chromatic_shift)).r;
 	color.g = colorInput.g;
-	color.b = myTex2D(s0, tex - (RFX_PixelSize * Chromatic_shift)).b;
+	color.b = myTex2D(s0, tex - (ReShade::PixelSize * Chromatic_shift)).b;
   
   #else
   /*-------------.
@@ -58,7 +57,7 @@ float4 ChromaticAberrationPass( float4 colorInput, float2 tex )
 		float2 distance_xy = tex - Chromatic_Center;
 
 		//Adjust the ratio
-		distance_xy *= float2((RFX_PixelSize.y / RFX_PixelSize.x),Chromatic_Ratio);
+		distance_xy *= float2((ReShade::PixelSize.y / ReShade::PixelSize.x),Chromatic_Ratio);
 
 		//Calculate the distance
 		distance_xy /= Chromatic_Radius;
@@ -97,7 +96,7 @@ technique CA_Tech <bool enabled =
 #if (CA_TimeOut > 0)
 1; int toggle = CA_ToggleKey; timeout = CA_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = CA_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = CA_ToggleKey; >
 #endif
 {
 	pass
@@ -109,9 +108,7 @@ RFX_Start_Enabled; int toggle = CA_ToggleKey; >
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#ifndef RFX_duplicate
-#include CeeJay_SETTINGS_UNDEF
-#endif
+#include EFFECT_CONFIG_UNDEF(CeeJay)

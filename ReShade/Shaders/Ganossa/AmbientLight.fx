@@ -1,34 +1,22 @@
-#include "Common.fx"
-
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_DEF
-#endif
-
-#if USE_AMBIENT_LIGHT
-
-#if AL_Adaptation
-#include "BrightDetect.fx"
-#endif
-
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software with restriction, including without limitation the rights to
- * use and/or sell copies of the Software, and to permit persons to whom the Software 
+ * use and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and below) shall 
+ * The above copyright notice and the permission notices (this and below) shall
  * be included in all copies or substantial portions of the Software.
  *
  * Permission needs to be specifically granted by the author of the software to any
- * person obtaining a copy of this software and associated documentation files 
- * (the "Software"), to deal in the Software without restriction, including without 
- * limitation the rights to copy, modify, merge, publish, distribute, and/or 
+ * person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to copy, modify, merge, publish, distribute, and/or
  * sublicense the Software, and subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and above) shall 
+ * The above copyright notice and the permission notices (this and above) shall
  * be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -39,6 +27,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+#include EFFECT_CONFIG(Ganossa)
+
+#if USE_AMBIENT_LIGHT
+
+#pragma message "Ambient Light by Ganossa\n"
+
+#if AL_Adaptation
+#include "BrightDetect.fx"
+#endif
 
 namespace Ganossa
 {
@@ -254,7 +252,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 #endif
 
 	float dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
-	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, RFX_ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, ReShade::ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
 #if AL_Adaptation
 	base.xyz *= max(0.0f,(1.0f - adapt*0.75f*alAdaptBaseMult*pow((1.0f-(base.x+base.y+base.z)/3),alAdaptBaseBlackLvL)));
@@ -276,7 +274,7 @@ technique AmbientLight_Tech <bool enabled =
 #if (AmbientLight_TimeOut > 0)
 1; int toggle = AmbientLight_ToggleKey; timeout = AmbientLight_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = AmbientLight_ToggleKey; >
 #endif
 {
 	pass AL_DetectHigh
@@ -465,6 +463,4 @@ RFX_Start_Enabled; int toggle = AmbientLight_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
-#include Ganossa_SETTINGS_UNDEF
-#endif
+#include EFFECT_CONFIG_UNDEF(Ganossa)

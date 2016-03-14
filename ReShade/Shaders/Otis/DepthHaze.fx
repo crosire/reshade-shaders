@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include Otis_SETTINGS_DEF
-
-#if USE_DEPTHHAZE
-
 ///////////////////////////////////////////////////////////////////
 // This effect works like a one-side DoF for distance haze, which slightly
 // blurs far away elements. A normal DoF has a focus point and blurs using
@@ -13,6 +8,13 @@
 // it uses depth-difference for extra weight in the blur method so edges
 // of high-contrasting lines with high depth diffence don't bleed.
 ///////////////////////////////////////////////////////////////////
+
+#include EFFECT_CONFIG(Otis)
+#include "Common.fx"
+
+#if USE_DEPTHHAZE
+
+#pragma message "DepthHaze by Otis\n"
 
 namespace Otis
 {
@@ -31,12 +33,12 @@ void PS_Otis_DEH_BlockBlurHorizontal(in float4 pos : SV_Position, in float2 texc
 	[loop]
 	for(float i = 1; i < 5; ++i) 
 	{
-		float2 sourceCoords = texcoord + float2(i * RFX_PixelSize.x, 0.0);
+		float2 sourceCoords = texcoord + float2(i * ReShade::PixelSize.x, 0.0);
 		float weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth, sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
 		
-		sourceCoords = texcoord - float2(i * RFX_PixelSize.x, 0.0);
+		sourceCoords = texcoord - float2(i * ReShade::PixelSize.x, 0.0);
 		weight = CalculateWeight(i, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
@@ -53,12 +55,12 @@ void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoo
 	[loop]
 	for(float j = 1; j < 5; ++j) 
 	{
-		float2 sourceCoords = texcoord + float2(0.0, j * RFX_PixelSize.y);
+		float2 sourceCoords = texcoord + float2(0.0, j * ReShade::PixelSize.y);
 		float weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
 
-		sourceCoords = texcoord - float2(0.0, j * RFX_PixelSize.y);
+		sourceCoords = texcoord - float2(0.0, j * ReShade::PixelSize.y);
 		weight = CalculateWeight(j, colorDepth, tex2D(ReShade::LinearizedDepth,sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
@@ -68,8 +70,12 @@ void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoo
 
 void PS_Otis_DEH_BlendBlurWithNormalBuffer(float4 vpos: SV_Position, float2 texcoord: TEXCOORD, out float4 fragment: SV_Target0)
 {
-	fragment = lerp(tex2D(ReShade::BackBuffer, texcoord), tex2D(Otis_SamplerFragmentBuffer2, texcoord), 
-					clamp( tex2D(ReShade::LinearizedDepth,texcoord).r * DEH_EffectStrength, 0, 1)); 
+	float depth = tex2D(ReShade::LinearizedDepth,texcoord).r;
+	float4 blendedFragment = lerp(tex2D(ReShade::BackBuffer, texcoord), tex2D(Otis_SamplerFragmentBuffer2, texcoord),
+								  clamp(depth  * DEH_EffectStrength, 0.0, 1.0)); 
+	float yFactor = clamp(texcoord.y > 0.5 ? 1-((texcoord.y-0.5)*2.0) : texcoord.y * 2.0, 0, 1);
+	fragment = lerp(blendedFragment, float4(DEH_FogColor, blendedFragment.r), 
+					clamp((depth-DEH_FogStart) * yFactor * DEH_FogFactor, 0.0, 1.0));
 }
 
 technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
@@ -101,4 +107,4 @@ technique Otis_DEH_Tech <bool enabled = false; int toggle = DEH_ToggleKey; >
 
 #endif
 
-#include Otis_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Otis)

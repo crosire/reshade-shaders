@@ -2,8 +2,8 @@
   | :: Shared passes :: |
   '--------------------*/
 
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 namespace CeeJay
 {
@@ -100,11 +100,6 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 	FinalColor = BorderPass(FinalColor,tex);
 #endif
 
-	// Splitscreen
-#if (USE_SPLITSCREEN == 1)
-	FinalColor = SplitscreenPass(FinalColor,tex);
-#endif
-
 	return FinalColor;
 }
 
@@ -117,7 +112,7 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 			return SharedPass(texcoord, color.rgbb);
 		}
 
-		technique SharedShader_Tech <bool enabled = RFX_Start_Enabled; int toggle = SharedShader_ToggleKey; >
+		technique SharedShader_Tech < enabled = RESHADE_START_ENABLED; toggle = RESHADE_TOGGLE_KEY; >
 		{
 			pass // the effects that don't require a seperate pass are all done in this one.
 			{
@@ -133,4 +128,4 @@ float4 SharedPass(float2 tex, float4 FinalColor)
 
 }
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

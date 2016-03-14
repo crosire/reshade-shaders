@@ -1,8 +1,3 @@
-#include "Common.fx"
-#include CeeJay_SETTINGS_DEF
-
-#if (USE_PIXELART_CRT == 1)
-
 //
 // PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
 //
@@ -20,13 +15,20 @@
 
 //Ported to HLSL by CeeJay.dk
 
+#include EFFECT_CONFIG(CeeJay)
+#include "Common.fx"
+
+#if USE_PIXELART_CRT
+
+#pragma message "PixelArt CRT by Timothy Lottes (ported by CeeJay)\n"
+
 namespace CeeJay
 {
 
 #if PixelArtCRT_resolution_mode != 1
   #define res PixelArtCRT_fixed_resolution // Fix resolution to set amount.
 #else
-  #define res (RFX_ScreenSize * PixelArtCRT_resolution_ratio) // Optimize for resize.
+  #define res (ReShade::ScreenSize * PixelArtCRT_resolution_ratio) // Optimize for resize.
 #endif
 
 // Nearest emulated sample given floating point position and texel offset.
@@ -186,7 +188,7 @@ float4 PixelArtCRTPass( float4 colorInput, float2 pos )
   //float3 color = myTex2D(s0,float2(pos.x,pos.y)).rgb; //testing
   float3 color = Tri(pos);
   
-  color *= Mask(pos*RFX_ScreenSize); //apply shadow mask
+  color *= Mask(pos*ReShade::ScreenSize); //apply shadow mask
 
   colorInput.rgb = color;
   return saturate(colorInput);
@@ -208,7 +210,7 @@ float3 PixelArtCRTWrap(float4 position : SV_Position, float2 texcoord : TEXCOORD
 	return color.rgb;
 }
 
-technique Pixelart_Tech <bool enabled = RFX_Start_Enabled; int toggle = PixelArt_ToggleKey; >
+technique Pixelart_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = PixelArt_ToggleKey; >
 {
 	pass
 	{
@@ -227,7 +229,7 @@ technique Pixelart_Tech <bool enabled = RFX_Start_Enabled; int toggle = PixelArt
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

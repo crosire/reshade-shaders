@@ -1,7 +1,9 @@
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
-#if (USE_SMAA == 1)
+#if USE_SMAA
+
+#pragma message "SMAA by Jorge Jimenez, Jose I. Echevarria, Belen Masia, Fernando Navarro, Diego Gutierrez and CeeJay\n"
 
 namespace CeeJay
 {
@@ -132,7 +134,7 @@ OUTPUT_FLOAT3 SMAANeighborhoodBlendingPSWrap(
 #endif
 }
 
-technique SMAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = SMAA_ToggleKey; >
+technique SMAA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = SMAA_ToggleKey; >
 {
 	pass SMAA_EdgeDetection //First SMAA Pass
 	{
@@ -195,7 +197,7 @@ technique SMAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = SMAA_ToggleK
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

@@ -1,28 +1,29 @@
-/*
-Film Grain post-process shader v1.1	
-Martins Upitis (martinsh) devlog-martinsh.blogspot.com
-2013
-
---------------------------
-This work is licensed under a Creative Commons Attribution 3.0 Unported License.
-So you are free to share, modify and adapt it for your needs, and even use it for commercial use.
-I would also love to hear about a project you are using it.
-
-Have fun,
-Martins
---------------------------
-
-Perlin noise shader by toneburst:
-http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
-
-----------------------------------------------------------
-Ported to Reshade by Angelo Gonzalez
-----------------------------------------------------------
-*/
+/**
+ * Film Grain post-process shader v1.1	
+ * Martins Upitis (martinsh) devlog-martinsh.blogspot.com 2013
+ *
+ * --------------------------
+ * This work is licensed under a Creative Commons Attribution 3.0 Unported License.
+ * So you are free to share, modify and adapt it for your needs, and even use it for commercial use.
+ * I would also love to hear about a project you are using it.
+ *
+ * Have fun,
+ * Martins
+ * --------------------------
+ *
+ * Perlin noise shader by toneburst:
+ * http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
+ *
+ * ----------------------------------------------------------
+ * Ported to Reshade by Angelo Gonzalez
+ * ----------------------------------------------------------
+ */
 
 #include EFFECT_CONFIG(Alo81)
 
-#if (USE_GRAIN == 1)
+#if USE_GRAIN
+
+#pragma message "Film Grain by martinsh (ported by Alo81)\n"
 
 namespace Alo81
 {
@@ -148,7 +149,7 @@ float4 GrainPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV
     return float4(col,1.0);
 }
 
-technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_ToggleKey; >
+technique Grain_Tech < bool enabled = RESHADE_START_ENABLED;  int toggle = Grain_ToggleKey; >
 {
 	pass Grain_Pass
 	{
@@ -161,4 +162,4 @@ technique Grain_Tech < bool enabled = RFX_Start_Enabled;  int toggle = Grain_Tog
 
 #endif
 
-#include "ReShade/Shaders/Alo81.undef"
+#include EFFECT_CONFIG_UNDEF(Alo81)

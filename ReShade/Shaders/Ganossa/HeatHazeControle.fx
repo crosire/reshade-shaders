@@ -51,8 +51,6 @@ float4 high = tex2D(Ganossa::alInColor, float2(texcoord.x,min(1.0f,texcoord.y+0.
 float highMul = sqrt(0.641*high.r*high.r+0.291*high.g*high.g+0.068*high.b*high.b);
 highMul *= min(1.0f,1.641*high.r/(1.719*high.g+1.932*high.b))*min(1.0f,1.75f-depth)*(1.5f-texcoord.y);
 
-#include Ganossa_SETTINGS_UNDEF
-#include MartyMcFly_SETTINGS_DEF
 heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).y;
 heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).x;
 heathazecolor.z = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount) *min(1.0f,max(0.0f,(highMul-0.2f))*10f)).z;

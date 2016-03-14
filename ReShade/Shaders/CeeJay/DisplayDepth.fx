@@ -1,5 +1,5 @@
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
 #if USE_DisplayDepth
 
@@ -24,4 +24,4 @@ technique Depth_Tech < enabled = false; toggle = Depth_ToggleKey;>
 
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)

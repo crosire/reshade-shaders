@@ -1,9 +1,10 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 
 #if USE_Border
 
-//Border Shader
+#pragma message "Border by Ganossa\n"
+
+// Border Shader
 
 namespace Ganossa
 {
@@ -16,7 +17,7 @@ float4 PS_Border(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 	return lerp(0.0.xxxx, tex2D(ReShade::BackBuffer, texcoord), tex2D(bMaskColor, texcoord).r); 
 }
 
-technique Border_Tech <bool enabled = RFX_Start_Enabled; int toggle = Border_ToggleKey; >
+technique Border_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Border_ToggleKey; >
 {
 	pass 
 	{
@@ -29,4 +30,4 @@ technique Border_Tech <bool enabled = RFX_Start_Enabled; int toggle = Border_Tog
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)

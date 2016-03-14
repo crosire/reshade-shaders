@@ -30,42 +30,37 @@
 
 #include EFFECT_CONFIG(Ganossa)
 
-#if USE_GR8MMFILM
+#if USE_TEXDITHER
 
-#pragma message "Gr8mmFilm by Ganossa\n"
+#pragma message "TexDither by Ganossa\n"
 
 namespace Ganossa
 {
 
-#define Ganossa_Gr8mmFilm_TY Gr8mmFilmTextureSizeY/Gr8mmFilmTileAmount
-#define Ganossa_Gr8mmFilm_VP Gr8mmFilmVignettePower*0.65f
-#define Ganossa_Gr8mmFilm_AP Gr8mmFilmAlphaPower/3f
+texture TexDitherTex	< string source = "ReShade/Shaders/Ganossa/Textures/TexDither.png"; > {Width = 8; Height = 8; Format = RGBA8;};
+sampler	TexDitherColor 
+	{ 
+	Texture = TexDitherTex; 	
+	MinFilter = POINT;
+	MagFilter = POINT;
+	MipFilter = POINT;
+	AddressU = REPEAT;
+	AddressV = REPEAT;
+	};
 
-uniform float2 filmroll < source = "pingpong"; min = 0.0f; max = (Gr8mmFilmTileAmount-Gr8mmFilmBlackFrameMix)/**speed*/; step = float2(1.0f, 2.0f); >;
-
-texture Gr8mmFilmTex	< string source = "ReShade/Shaders/Ganossa/Textures/" Gr8mmFilmTexture; > {Width = Gr8mmFilmTextureSizeX; Height = Gr8mmFilmTextureSizeY; Format = RGBA8;};
-sampler	Gr8mmFilmColor 	{ Texture = Gr8mmFilmTex; };
-
-float4 PS_Gr8mmFilm(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
-{
-	float4 original = tex2D(ReShade::BackBuffer, texcoord);
-	float4 singleGr8mmFilm = tex2D(Gr8mmFilmColor, float2(texcoord.x, texcoord.y/Gr8mmFilmTileAmount + (Ganossa_Gr8mmFilm_TY/Gr8mmFilmTextureSizeY)* 
-#if Gr8mmFilmScroll
-filmroll.x
-#else
-trunc(filmroll.x/* / speed*/) 
-#endif
-));
-	float alpha = max(0.0f,min(1.0f,max(abs(texcoord.x-0.5f),abs(texcoord.y-0.5f))*Gr8mmFilmVignettePower + 0.75f - (singleGr8mmFilm.x+singleGr8mmFilm.y+singleGr8mmFilm.z)*Ganossa_Gr8mmFilm_AP));
-	return lerp(original, singleGr8mmFilm, Gr8mmFilmPower*pow(alpha,2));
+float4 PS_TexDither(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+{    
+   	float3 texDitherRes = tex2D(ReShade::BackBuffer, floor(texcoord*100.0*fTexDitherSize)/(100.0*fTexDitherSize)).rgb;
+	texDitherRes += (tex2D(TexDitherColor, texcoord*fTexDitherSize*8.0).r-0.5)*float3(1.0/16.0,1.0/16.0,1.0/16.0);
+    	return float4(texDitherRes, 1);
 }
 
-technique Gr8mmFilm_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = Gr8mmFilm_ToggleKey; >
+technique TexDither_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = TexDither_ToggleKey; >
 {
-	pass Gr8mmFilmPass
+	pass TexDitherPass
 	{
 		VertexShader = ReShade::VS_PostProcess;
-		PixelShader = PS_Gr8mmFilm;
+		PixelShader = PS_TexDither;
 	}
 }
 

@@ -1,18 +1,3 @@
-#include "Common.fx"
-#include "ReShade/Shaders/Ganossa/Common.fx"
-
-#ifndef RFX_duplicate
-#include MartyMcFly_SETTINGS_DEF
-#endif
-
-#if USE_HEATHAZE
-
-#include Ganossa_SETTINGS_DEF
-#if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-#include "BrightDetect.fx"
-#endif
-#include Ganossa_SETTINGS_UNDEF
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //LICENSE AGREEMENT AND DISTRIBUTION RULES:
 //1 Copyrights of the Master Effect exclusively belongs to author - Gilcher Pascal aka Marty McFly.
@@ -23,7 +8,7 @@
 //6 Author can change license agreement for new versions of the software.
 //7 All the rights, not described in this license agreement belongs to author.
 //8 Using the Master Effect means that user accept the terms of use, described by this license agreement.
- //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //For more information about license agreement contact me:
 //https://www.facebook.com/MartyMcModding
@@ -31,6 +16,19 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#include EFFECT_CONFIG(MartyMcFly)
+#include "Common.fx"
+
+#if USE_HEATHAZE
+
+#pragma message "HeatHaze by Marty McFly\n"
+
+#include EFFECT_CONFIG(Ganossa)
+#if AL_HeatHazeControle && USE_AMBIENT_LIGHT
+#include "../Ganossa/BrightDetect.fx"
+#endif
+#include EFFECT_CONFIG_UNDEF(Ganossa)
 
 namespace MartyMcFly
 {
@@ -54,15 +52,15 @@ float4 PS_HeatHaze(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
     	float2 heatoffset = normalize(heatnormal.xy) * pow(length(heatnormal.xy), 0.5);
 	float3 heathazecolor = 0;
 
-#include Ganossa_SETTINGS_DEF
+#include EFFECT_CONFIG(Ganossa)
 #if AL_HeatHazeControle && USE_AMBIENT_LIGHT
-	#include "ReShade/Shaders/Ganossa/HeatHazeControle.fx"
+	#include "../Ganossa/HeatHazeControle.fx"
 #else	
 	heathazecolor.y = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset).y;
 	heathazecolor.x = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0+fHeatHazeChromaAmount)).x;
 	heathazecolor.z = tex2D(ReShade::BackBuffer, texcoord.xy + heatoffset.xy * 0.001 * fHeatHazeOffset * (1.0-fHeatHazeChromaAmount)).z;
 #endif
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)
 
 	color.xyz = heathazecolor;
  #if(bHeatHazeDebug == 1)
@@ -75,7 +73,7 @@ technique HeatHaze_Tech <bool enabled =
 #if (HeatHaze_TimeOut > 0)
 1; int toggle = HeatHaze_ToggleKey; timeout = HeatHaze_TimeOut; >
 #else
-RFX_Start_Enabled; int toggle = HeatHaze_ToggleKey; >
+RESHADE_START_ENABLED; int toggle = HeatHaze_ToggleKey; >
 #endif
 {
 	pass HeatHaze
@@ -89,6 +87,4 @@ RFX_Start_Enabled; int toggle = HeatHaze_ToggleKey; >
 
 #endif
 
-#ifndef RFX_duplicate
-#include MartyMcFly_SETTINGS_UNDEF
-#endif
+#include EFFECT_CONFIG_UNDEF(MartyMcFly)

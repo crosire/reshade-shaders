@@ -1,32 +1,34 @@
-#include EFFECT_CONFIG(Iddqd)
+/**
+ * Ported by IDDQD.
+ * Original code from Shadertoy
+ *
+ * VHS Tape Noise: Vladmir Storm (https://www.shadertoy.com/view/MlfSWr)
+ * VCR Distortion: ryk (https://www.shadertoy.com/view/ldjGzV)
+ * VHS Distortion: drmelon (https://www.shadertoy.com/view/4dBGzK)
+ * Dirty old CRT: Klowner (https://www.shadertoy.com/view/MsXGD4)
+ * NTSC Codec: UltraMoogleMan (https://www.shadertoy.com/view/ldXGRf)
+ *
+ * Posted by Matsilagi and further optimized for ReShade by crosire, MartyMcFly and Ganossa
+ * http://reshade.me/forum/shader-presentation/1258-vhs-shader
+ *
+ * Do not distribute without giving credit to the original author(s).
+ */
+
+#include EFFECT_CONFIG(IDDQD)
 
 #if USE_VHS
 
-/*
- Ported by IDDQD.
- Original code from Shadertoy 
-
- VHS Tape Noise: Vladmir Storm (https://www.shadertoy.com/view/MlfSWr)
- VCR Distortion: ryk (https://www.shadertoy.com/view/ldjGzV)
- VHS Distortion: drmelon (https://www.shadertoy.com/view/4dBGzK)
- Dirty old CRT: Klowner (https://www.shadertoy.com/view/MsXGD4)
- NTSC Codec: UltraMoogleMan (https://www.shadertoy.com/view/ldXGRf)
- 
- Posted by Matsilagi and further optimized for ReShade by crosire, MartyMcFly and Ganossa
- http://reshade.me/forum/shader-presentation/1258-vhs-shader
- 
- Do not distribute without giving credit to the original author(s).
-*/
+#pragma message "VHS by Vladmir Storm, ryk, drmelon, Klowner and UltraMoogleMan (ported by IDDQD, posted by Matsilagi, further optimized by crosire, MartyMcFly and Ganossa)\n"
 
 namespace Iddqd
 {
 
 #if (sNoiseMode == 1)
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N1.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #elif (sNoiseMode == 2)
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N2.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #else
-texture texnoise2  < string source = "ReShade/Shaders/Iddqd/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture texnoise2  < string source = "ReShade/Shaders/IDDQD/Textures/VHS_N3.jpg";  > {Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
 #endif
 
 sampler2D SamNoise
@@ -59,14 +61,14 @@ static const float4 CRange = 3.2366;
 
 float4 CompositeSample(float2 texcoord)
  {
-	float2 InverseRes = 1.0 / RFX_ScreenSize.xy;
+	float2 InverseRes = 1.0 / ReShade::ScreenSize.xy;
 	float2 InverseP = float2(P, 0.0) * InverseRes;
 	
 	// UVs for four linearly-interpolated samples spaced 0.25 texels apart
 	float2 C0 = texcoord;
-	float2 C1 = texcoord + RFX_PixelSize.x * 0.25;
-	float2 C2 = texcoord + RFX_PixelSize.x * 0.50;
-	float2 C3 = texcoord + RFX_PixelSize.x * 0.75;
+	float2 C1 = texcoord + ReShade::PixelSize.x * 0.25;
+	float2 C2 = texcoord + ReShade::PixelSize.x * 0.50;
+	float2 C3 = texcoord + ReShade::PixelSize.x * 0.75;
 	float4 Cx = float4(C0.x, C1.x, C2.x, C3.x);
 	float4 Cy = float4(C0.y, C1.y, C2.y, C3.y);
 
@@ -76,7 +78,7 @@ float4 CompositeSample(float2 texcoord)
 	float3 Texel3 = tex2D(ReShade::BackBuffer, C3).rgb;
 	
 	// Calculated the expected time of the sample.
-	float4 T = Cy * RFX_ScreenSize.x + 0.5 + Cx;
+	float4 T = Cy * ReShade::ScreenSize.x + 0.5 + Cx;
 
 	const float3 YTransform = float3(0.299, 0.587, 0.114);
 	const float3 ITransform = float3(0.595716, -0.274453, -0.321263);
@@ -110,7 +112,7 @@ float4 NTSCCodec(float2 texcoord)
 	float4 YAccum = 0.0;
 	float4 IAccum = 0.0;
 	float4 QAccum = 0.0;
-	float QuadXSize = RFX_ScreenSize.x * 4.0;
+	float QuadXSize = ReShade::ScreenSize.x * 4.0;
 	float TimePerSample = ScanTime / QuadXSize;
 	
 	// Frequency cutoffs for the individual portions of the signal that we extract.
@@ -127,11 +129,11 @@ float4 NTSCCodec(float2 texcoord)
 	for(float n = -41.0; n < 42.0; n += 4.0)
 	{
 		float4 n4 = n + NotchOffset  + 0.00001;
-		float4 CoordX = texcoord.x + RFX_PixelSize.x * n4 * 0.25;
+		float4 CoordX = texcoord.x + ReShade::PixelSize.x * n4 * 0.25;
 		float4 CoordY = texcoord.y;
 		float2 TexCoord = float2(CoordX.r, CoordY.r);
 		float4 C = CompositeSample(TexCoord) * CRange + MinC;
-		float4 WT = W * (CoordX  + A * CoordY * 2.0 * RFX_ScreenSize.x + B);
+		float4 WT = W * (CoordX  + A * CoordY * 2.0 * ReShade::ScreenSize.x + B);
 
 		float4 SincYIn1 = Pi2 * Fc_y1 * n4;
 		float4 SincYIn2 = Pi2 * Fc_y2 * n4;
@@ -260,8 +262,8 @@ void PS_VHS3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	float4 origcolor2= tex2Dlod(ReShade::BackBuffer, uv);
 	
 	float linesN = 240; //fields per seconds
-    float one_y = RFX_ScreenSize.y / linesN; //field line
-    uv.xy = floor(uv.xy*RFX_ScreenSize.xy/one_y)*one_y;
+    float one_y = ReShade::ScreenSize.y / linesN; //field line
+    uv.xy = floor(uv.xy*ReShade::ScreenSize.xy/one_y)*one_y;
 
 	float col =  nn(-uv.xy);
 
@@ -377,11 +379,11 @@ void PS_VHS5(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 }
 
 float scanline(float2 uv) {
-	return sin(RFX_ScreenSize.y * uv.y * 0.7 - t2 * 10.0);
+	return sin(ReShade::ScreenSize.y * uv.y * 0.7 - t2 * 10.0);
 }
 
 float slowscan(float2 uv) {
-	return sin(RFX_ScreenSize.y * uv.y * 0.02 + t2 * 6.0);
+	return sin(ReShade::ScreenSize.y * uv.y * 0.02 + t2 * 6.0);
 }
 
 float2 colorShift(float2 uv) {
@@ -465,7 +467,7 @@ void PS_VHS6(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 O
 	//fragColor = float4(scan_dist.x, scan_dist.y,0.0, 1.0);
 }
 
-technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleKey; >
+technique VHSReShade <bool enabled = RESHADE_START_ENABLED; int toggle = VHS_ToggleKey; >
 {
 	#if (bUseNTSCFilter == 1)
 	pass NTSCFilter
@@ -513,4 +515,4 @@ technique VHSReShade <bool enabled = RFX_Start_Enabled; int toggle = VHS_ToggleK
 
 #endif
 
-#include "ReShade/Shaders/Iddqd.undef"
+#include EFFECT_CONFIG_UNDEF(IDDQD)

@@ -1,27 +1,22 @@
-#include "Common.fx"
-#include Ganossa_SETTINGS_DEF
-
-#if USE_TUNINGPALETTE
-
 /**
  * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software with restriction, including without limitation the rights to
- * use and/or sell copies of the Software, and to permit persons to whom the Software 
+ * use and/or sell copies of the Software, and to permit persons to whom the Software
  * is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and below) shall 
+ * The above copyright notice and the permission notices (this and below) shall
  * be included in all copies or substantial portions of the Software.
  *
  * Permission needs to be specifically granted by the author of the software to any
- * person obtaining a copy of this software and associated documentation files 
- * (the "Software"), to deal in the Software without restriction, including without 
- * limitation the rights to copy, modify, merge, publish, distribute, and/or 
+ * person obtaining a copy of this software and associated documentation files
+ * (the "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to copy, modify, merge, publish, distribute, and/or
  * sublicense the Software, and subject to the following conditions:
  *
- * The above copyright notice and the permission notices (this and above) shall 
+ * The above copyright notice and the permission notices (this and above) shall
  * be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -32,6 +27,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+#include EFFECT_CONFIG(Ganossa)
+
+#if USE_TUNINGPALETTE
+
+#pragma message "TuningPalette by Ganossa\n"
+
+#if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
+	#include "BrightDetect.fx"
+#endif
 
 namespace Ganossa
 {
@@ -52,7 +57,6 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 	float4 original = tex2D(ReShade::BackBuffer, texcoord.xy);
 
 #if TuningColorMap || ( TuningColorLUT && TuningColorLUTTileAmountZ > 1 )
-	#include "BrightDetect.fx"
 //DetectLow
 	float4 detectLow = tex2D(detectLowColor, 0.5)/4.215;
 	float low = sqrt(0.641*detectLow.r*detectLow.r+0.291*detectLow.g*detectLow.g+0.068*detectLow.b*detectLow.b);
@@ -77,7 +81,12 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 #else
 	ColorLUTDst = lerp(tex2D(ColorLUTDstColor, ColorLUTDst.xy),tex2D(ColorLUTDstColor, float2(ColorLUTDst.x+TuningColorLUTNorm.y,ColorLUTDst.y)),frac(ColorLUTDst.z));
 #endif
-	original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
+	//#define TuningColorLUTIntensity 1.00 //[0.00:1.00] //-Intensity of the effect overlay
+	//original = lerp(original,ColorLUTDst,TuningColorLUTIntensity);
+	original.xyz = lerp(normalize(original.xyz), normalize(ColorLUTDst.xyz), TuningColorLUTIntensityChroma) *
+		       lerp(length(original.xyz),    length(ColorLUTDst.xyz),    TuningColorLUTIntensityLuma);	
+
+
 #endif
 
 #if TuningColorMap
@@ -130,7 +139,7 @@ float4 PS_TuningPalette(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) :
 
 }
 
-technique TuningPalette_Tech <bool enabled = RFX_Start_Enabled; int toggle = TuningPalette_ToggleKey; >
+technique TuningPalette_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = TuningPalette_ToggleKey; >
 {
 	pass TuningPalettePass
 	{
@@ -143,4 +152,4 @@ technique TuningPalette_Tech <bool enabled = RFX_Start_Enabled; int toggle = Tun
 
 #endif
 
-#include Ganossa_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(Ganossa)

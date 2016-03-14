@@ -1,7 +1,10 @@
+#include EFFECT_CONFIG(CeeJay)
 #include "Common.fx"
-#include CeeJay_SETTINGS_DEF
 
-#if (USE_FXAA == 1 || USE_FXAA_ANTIALIASING == 1)
+#if (USE_FXAA || USE_FXAA_ANTIALIASING)
+
+#pragma message "FXAA by Timothy Lottes (ported by CeeJay)\n"
+
 //TODO make a luma pass
 
 namespace CeeJay
@@ -9,7 +12,7 @@ namespace CeeJay
 
 float3 FXAA(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 {
-	float3 color = FxaaPixelShader(texcoord, ReShade::BackBuffer, RFX_PixelSize, float4(0.0f, 0.0f, 0.0f, 0.0f), fxaa_Subpix, fxaa_EdgeThreshold, fxaa_EdgeThresholdMin).rgb;
+	float3 color = FxaaPixelShader(texcoord, ReShade::BackBuffer, ReShade::PixelSize, float4(0.0f, 0.0f, 0.0f, 0.0f), fxaa_Subpix, fxaa_EdgeThreshold, fxaa_EdgeThresholdMin).rgb;
 
 #if (CeeJay_PIGGY == 1)
 	#undef CeeJay_PIGGY
@@ -20,7 +23,7 @@ float3 FXAA(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : 
 }
 
 //TODO make a luma pass
-technique FXAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = FXAA_ToggleKey; >
+technique FXAA_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = FXAA_ToggleKey; >
 {
 	pass
 	{
@@ -31,7 +34,7 @@ technique FXAA_Tech <bool enabled = RFX_Start_Enabled; int toggle = FXAA_ToggleK
 
 }
 
-#include "ReShade\Shaders\CeeJay\PiggyCount.h"
+#include "PiggyCount.h"
 #endif
 
-#include CeeJay_SETTINGS_UNDEF
+#include EFFECT_CONFIG_UNDEF(CeeJay)
