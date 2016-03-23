@@ -68,18 +68,19 @@ void PS_Histogram_DetectLow(float4 vpos : SV_Position, float2 texcoord : TEXCOOR
 float4 PS_Histogram_Display(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target0
 {
 	float3 data = tex2D(detectLowColor,texcoord.x*iHorizontalScale).xyz;
+	float3 orig = tex2D(ReShade::BackBuffer,texcoord).xyz;
 	float4 hg = float4(0,0,0,1);
 	if(texcoord.x < (1./iHorizontalScale-BUFFER_RCP_WIDTH)) {
-#if HistoMix
-	if(texcoord.y > 1-data.x) hg += float4(1,0,0,0);
-	if(texcoord.y > 1-data.y) hg += float4(0,1,0,0);
-	if(texcoord.y > 1-data.z) hg += float4(0,0,1,0);
+#if bHistoMix
+	if(texcoord.y > 1-data.x) hg += float4(1,0,0,0); else hg = float4(orig,0)*0.5;
+	if(texcoord.y > 1-data.y) hg += float4(0,1,0,0); else hg = float4(orig,0)*0.5;
+	if(texcoord.y > 1-data.z) hg += float4(0,0,1,0); else hg = float4(orig,0)*0.5;
 #else
-	if(texcoord.y+0.66 > 1-data.x && texcoord.y < 0.33) hg += float4(1,0,0,0);
-	if(texcoord.y+0.33 > 1-data.y && texcoord.y < 0.66  && texcoord.y > 0.33) hg += float4(0,1,0,0);
-	if(texcoord.y > 1-data.z && texcoord.y > 0.66) hg += float4(0,0,1,0);
+	if(texcoord.y < 0.33) { if(texcoord.y+0.66 > 1-data.x ) hg += float4(1,0,0,0); else hg = float4(orig,0)*0.5; }
+	if(texcoord.y < 0.66 && texcoord.y > 0.33) { if(texcoord.y+0.33 > 1-data.y) hg += float4(0,1,0,0); else hg = float4(orig,0)*0.5; }
+	if(texcoord.y > 0.66) { if(texcoord.y > 1-data.z) hg += float4(0,0,1,0); else hg = float4(orig,0)*0.5; }
 #endif
-	}
+	} else hg = float4(orig,0);
 	return hg;
 }
 
