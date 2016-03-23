@@ -153,3 +153,9 @@
 #undef USE_TEXDITHER
 #undef fTexDitherSize
 #undef TexDither_ToggleKey
+#undef USE_HISTOGRAM
+#undef bHistoMix
+#undef iResolution
+#undef iVerticalScale
+#undef iHorizontalScale
+#undef Histogram_ToggleKey
