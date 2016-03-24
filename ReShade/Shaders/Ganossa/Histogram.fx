@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Ganossa (mediehawk@gmail.com)
+ * Copyright (C) 2015-2016 Ganossa (mediehawk@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -40,7 +40,7 @@ namespace Ganossa
 texture2D detectIntTex { Width = iResolution; Height = iResolution; Format = RGBA32F; };
 sampler2D detectIntColor { Texture = detectIntTex; };
 
-texture2D detectLowTex { Width = 256; Height = 1; Format = RGBA32F; };
+texture2D detectLowTex { Width = 256; Height = 1; Format = RGBA16F; };
 sampler2D detectLowColor { Texture = detectLowTex; };
 
 void PS_Histogram_DetectInt(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectInt : SV_Target0)
@@ -51,15 +51,14 @@ void PS_Histogram_DetectInt(float4 vpos : SV_Position, float2 texcoord : TEXCOOR
 void PS_Histogram_DetectLow(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 detectLow : SV_Target0)
 {
 	detectLow = float4(0,0,0,0);
-	[loop]
+	float bucket = trunc(texcoord.x * 256f);
+	[fastopt][loop]
 	for (float i = 0.0; i <= 1; i+=1f/iResolution)
-	{	[loop]
+	{	[fastopt][loop]
 		for ( float j = 0.0; j <= 1; j+=1f/iResolution )
 		{
-			float3 level = tex2D(detectIntColor,float2(i,j)).xyz;
-			if(trunc(level.x*256f) == trunc(texcoord.x * 256f)) detectLow.x += 1;
-			if(trunc(level.y*256f) == trunc(texcoord.x * 256f)) detectLow.y += 1;
-			if(trunc(level.z*256f) == trunc(texcoord.x * 256f)) detectLow.z += 1;
+			float3 level = trunc(tex2D(detectIntColor,float2(j,i)).xyz*256f);
+			detectLow.xyz += (level == bucket);
 		}
 	}
 	detectLow.xyz /= float(iResolution*iResolution)/iVerticalScale;
@@ -72,9 +71,10 @@ float4 PS_Histogram_Display(float4 vpos : SV_Position, float2 texcoord : TEXCOOR
 	float4 hg = float4(0,0,0,1);
 	if(texcoord.x < (1./iHorizontalScale-BUFFER_RCP_WIDTH)) {
 #if bHistoMix
-	if(texcoord.y > 1-data.x) hg += float4(1,0,0,0); else hg = float4(orig,0)*0.5;
-	if(texcoord.y > 1-data.y) hg += float4(0,1,0,0); else hg = float4(orig,0)*0.5;
-	if(texcoord.y > 1-data.z) hg += float4(0,0,1,0); else hg = float4(orig,0)*0.5;
+	if(texcoord.y > 1-data.x) hg += float4(1,0,0,0); 
+	if(texcoord.y > 1-data.y) hg += float4(0,1,0,0); 
+	if(texcoord.y > 1-data.z) hg += float4(0,0,1,0); 
+	if(max(hg.x,max(hg.y,hg.z)) == 0) hg = float4(orig,0)*0.5;
 #else
 	if(texcoord.y < 0.33) { if(texcoord.y+0.66 > 1-data.x ) hg += float4(1,0,0,0); else hg = float4(orig,0)*0.5; }
 	if(texcoord.y < 0.66 && texcoord.y > 0.33) { if(texcoord.y+0.33 > 1-data.y) hg += float4(0,1,0,0); else hg = float4(orig,0)*0.5; }
