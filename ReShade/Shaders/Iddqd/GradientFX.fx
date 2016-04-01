@@ -186,7 +186,7 @@ float4 PS_GradientFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 	float4 Color = tex2D(ReShade::BackBuffer, texcoord);
 	float4 MainColor = (0,0,0,0);
     
-    float angle = GradientRotation + atan2(texcoord.y, texcoord.x);
+    float angle = radians(GradientRotation) + atan2(texcoord.y, texcoord.x);
 
     texcoord = float2(cos(angle) * length(texcoord), sin(angle) * length(texcoord)) + float2(0.5, 0.5);
 	    
