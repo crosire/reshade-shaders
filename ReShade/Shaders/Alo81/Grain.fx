@@ -28,8 +28,6 @@
 namespace Alo81
 {
 
-static const float width = BUFFER_WIDTH;
-static const float height = BUFFER_HEIGHT;
 uniform float timer < source = "timer"; >;
     
 // a random texture generator, but you can also use a pre-computed perturbation texture
@@ -101,7 +99,7 @@ float pnoise3D(in float3 p)
 //2d coordinate orientation thing
 float2 coordRot(in float2 tc, in float angle)
 {
-    float aspectr = width/height;
+    float aspectr = BUFFER_WIDTH/BUFFER_HEIGHT;
     float rotX = ((tc.x*2.0-1.0)*aspectr*cos(angle)) - ((tc.y*2.0-1.0)*sin(angle));
     float rotY = ((tc.y*2.0-1.0)*cos(angle)) + ((tc.x*2.0-1.0)*aspectr*sin(angle));
     rotX = ((rotX/aspectr)*0.5+0.5);
@@ -116,12 +114,10 @@ float4 GrainPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV
 	float coloramount = GrainColorAmount;
 	float grainsize = GrainSize;
 	float lumamount = GrainLuma;
-	float width = BUFFER_WIDTH;
-	float height = BUFFER_HEIGHT;
 
     float3 rotOffset = float3(1.425,3.892,5.835); //rotation offset values  
     float2 rotCoordsR = coordRot(texcoord, timer + rotOffset.x);
-    float2 rot = rotCoordsR*float2(width/grainsize,height/grainsize);
+    float2 rot = rotCoordsR*float2(BUFFER_WIDTH/grainsize,BUFFER_HEIGHT/grainsize);
     float pNoise = pnoise3D(float3(rot.x,rot.y,0.0));
     float3 noise = float3(pNoise, pNoise, pNoise);
   
@@ -129,8 +125,8 @@ float4 GrainPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV
     {
         float2 rotCoordsG = coordRot(texcoord, timer + rotOffset.y);
         float2 rotCoordsB = coordRot(texcoord, timer + rotOffset.z);
-        noise.g = lerp(noise.r,pnoise3D(float3(rotCoordsG*float2(width/grainsize,height/grainsize),1.0)),coloramount);
-        noise.b = lerp(noise.r,pnoise3D(float3(rotCoordsB*float2(width/grainsize,height/grainsize),2.0)),coloramount);
+        noise.g = lerp(noise.r,pnoise3D(float3(rotCoordsG*float2(BUFFER_WIDTH/grainsize,BUFFER_HEIGHT/grainsize),1.0)),coloramount);
+        noise.b = lerp(noise.r,pnoise3D(float3(rotCoordsB*float2(BUFFER_WIDTH/grainsize,BUFFER_HEIGHT/grainsize),2.0)),coloramount);
     }
     
     float3 col = tex2D(ReShade::BackBuffer, texcoord).rgb;
