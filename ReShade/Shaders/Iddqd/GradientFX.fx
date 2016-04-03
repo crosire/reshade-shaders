@@ -184,7 +184,7 @@ float3 GradientBlendLuminosity(float3 base, float3 blend)
 float4 PS_GradientFX(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float4 Color = tex2D(ReShade::BackBuffer, texcoord);
-	float4 MainColor = (0,0,0,0);
+	float4 MainColor = float4(0,0,0,0);
     
     float angle = radians(GradientRotation) + atan2(texcoord.y, texcoord.x);
 
