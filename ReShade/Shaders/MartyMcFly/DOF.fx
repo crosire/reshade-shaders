@@ -81,16 +81,17 @@ float GetCoC(float2 coords)
 #if(DOF_AUTOFOCUS != 0)
 	scenefocus = 0.0;
 
-	[loop]
-	for(int r=0;r<DOF_FOCUSSAMPLES;r++)
-	{ 
- 		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
- 		coords.y *= ReShade::AspectRatio; 
 	#if(DOF_MOUSEDRIVEN_AF==0)
 		float2 focusPoint = DOF_FOCUSPOINT;
 	#else
 		float2 focusPoint = ReShade::MouseCoords * ReShade::PixelSize;
 	#endif
+
+	[loop]
+	for(int r=0;r<DOF_FOCUSSAMPLES;r++)
+	{ 
+ 		sincos((6.2831853 / DOF_FOCUSSAMPLES)*r,coords.y,coords.x);
+ 		coords.y *= ReShade::AspectRatio; 
  		scenefocus += tex2D(ReShade::LinearizedDepth,coords*DOF_FOCUSRADIUS + focusPoint.xy).x; 
   	}
 	scenefocus /= DOF_FOCUSSAMPLES; 
