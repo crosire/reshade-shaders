@@ -18,15 +18,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *-------------------------------------------------------------------------------------/
- *	Fast Approximate Gaussian Bloom FX (FXGB) by Pascal Matthäus
- *	Ported by WLHM15
+ * Fast Approximate Gaussian Bloom FX (FXGB) by Pascal Matthäus
+ * Ported by WLHM15
  *------------------------------------------------------------------------------------*/
  
 #include EFFECT_CONFIG(WLHM15)
 #include "Common.fx"
 
 #if USE_FXGB
-#pragma message "Fast Approximate Gaussian Bloom by Euda (Ported by WLHM15)\n"
+#pragma message "Fast Approximate Gaussian Bloom by Pascal Matthäus (Ported by WLHM15)\n"
 
 namespace Wlhm15
 {
