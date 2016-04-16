@@ -20,3 +20,12 @@
 #undef MOL_ToggleKey
 #undef MOL_CursorSize
 #undef MOL_CursorColor
+#undef USE_ADAPTIVEFOG
+#undef AFG_Color 
+#undef AFG_MaxFogFactor
+#undef AFG_FogCurve
+#undef AFG_ToggleKey
+#undef AFG_MouseDrivenFogColorSelect
+#undef AFG_BloomThreshold
+#undef AFG_BloomPower
+#undef AFG_BloomWidth
