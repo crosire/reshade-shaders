@@ -49,7 +49,7 @@ namespace Wlhm15
 
 	    float4 result = float4(red.r, green.g, blue.b, color.a);
 	
-	    return lerp(color, result, YATCAmonut);
+	    return lerp(color, result, YATCAmount);
 	}
 
   //////////////////////////////////////////////////
