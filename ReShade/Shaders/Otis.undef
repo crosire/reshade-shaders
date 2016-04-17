@@ -29,3 +29,4 @@
 #undef AFG_BloomThreshold
 #undef AFG_BloomPower
 #undef AFG_BloomWidth
+#undef AFG_FogStart
