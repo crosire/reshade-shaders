@@ -52,9 +52,6 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * float2(x, y))).rgb) )
 #define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (ReShade::PixelSize * float2(x, y))).xy )
 
-// Compute diff
-#define b_diff(z)      ( abs(blur-c[z]) )
-
 // Saturation loss reduction
 #define minim_satloss  ( (satorig*min((d[0].y + sharpdiff)/d[0].y, 1e+5) + (satorig + sharpdiff))/2 )
 
@@ -62,37 +59,37 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #define soft_if(a,b,c) ( saturate((a + b + c)/(saturate(maxedge) + 0.0067) - 0.85) )
 
 // Soft limit, modified tanh
-#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
+#if (fast_ops == 1)
+	#define soft_lim(v,s)  ( saturate(abs(v/s)*(27 + pow(v/s, 2))/(27 + 9*pow(v/s, 2)))*s ) // fast approximation
+#else
+	#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
+#endif
 
 // Maximum of four values
 #define max4(a,b,c,d)  ( max(max(a,b), max(c,d)) )
 
-// Colour to luma, fast approx gamma
-#define CtL(RGB)       ( sqrt(dot(float3(0.256, 0.651, 0.093), saturate((RGB).rgb*abs(RGB).rgb))) )
+// Compute diff
+#define b_diff(z)      ( abs(blur - c[z]) )
 
 // Center pixel diff
 #define mdiff(a,b,c,d,e,f,g) ( abs(luma[g]-luma[a]) + abs(luma[g]-luma[b])			 \
                              + abs(luma[g]-luma[c]) + abs(luma[g]-luma[d])			 \
                              + 0.5*(abs(luma[g]-luma[e]) + abs(luma[g]-luma[f])) )
 
-void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 P0_OUT : SV_Target0) {
-
-	// Get points and saturate out of range values (BTB & WTW)
-	// [                c22               ]
-	// [           c24, c9,  c23          ]
-	// [      c21, c1,  c2,  c3, c18      ]
-	// [ c19, c10, c4,  c0,  c5, c11, c16 ]
-	// [      c20, c6,  c7,  c8, c17      ]
-	// [           c15, c12, c14          ]
-	// [                c13               ]
-	float3 c[25] = { get1( 0, 0), get1(-1,-1), get1( 0,-1), get1( 1,-1), get1(-1, 0),
+void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 P0_OUT : SV_Target0)
+{
+	// Get points and clip out of range values (BTB & WTW)
+	// [                c9,               ]
+	// [           c1,  c2,  c3,          ]
+	// [      c10, c4,  c0,  c5, c11      ]
+	// [           c6,  c7,  c8,          ]
+	// [                c12,              ]
+	float3 c[13] = { get1( 0, 0), get1(-1,-1), get1( 0,-1), get1( 1,-1), get1(-1, 0),
 	                 get1( 1, 0), get1(-1, 1), get1( 0, 1), get1( 1, 1), get1( 0,-2),
-	                 get1(-2, 0), get1( 2, 0), get1( 0, 2), get1( 0, 3), get1( 1, 2),
-	                 get1(-1, 2), get1( 3, 0), get1( 2, 1), get1( 2,-1), get1(-3, 0),
-	                 get1(-2, 1), get1(-2,-1), get1( 0,-3), get1( 1,-2), get1(-1,-2) };
+	                 get1(-2, 0), get1( 2, 0), get1( 0, 2) };
 
-	// RGB to luma
-	float luma = CtL(c[0]);
+	// RGB to luma, fast approx gamma
+	float luma = sqrt(dot(float3(0.2558, 0.6511, 0.0931), c[0].rgb*c[0].rgb));
 
 	// Blur, gauss 3x3
 	float3 blur   = (2*(c[2]+c[4]+c[5]+c[7]) + (c[1]+c[3]+c[6]+c[8]) + 4*c[0])/16;
@@ -115,8 +112,8 @@ void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 	P0_OUT = float2( edge*c_comp, luma );
 }
 
-float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target {
-
+float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+{
 	float3 orig    = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 satorig = saturate(orig);
 
@@ -145,17 +142,17 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	// [    w, w, x, z, z    ]
 	// [       w, x, z       ]
 	// [          x          ]
-	float var = soft_if(d[2].x,d[9].x,d[22].x) *soft_if(d[7].x,d[12].x,d[13].x)  // x dir
+	float sbe = soft_if(d[2].x,d[9].x,d[22].x) *soft_if(d[7].x,d[12].x,d[13].x)  // x dir
 	          + soft_if(d[4].x,d[10].x,d[19].x)*soft_if(d[5].x,d[11].x,d[16].x)  // y dir
 	          + soft_if(d[1].x,d[24].x,d[21].x)*soft_if(d[8].x,d[14].x,d[17].x)  // z dir
 	          + soft_if(d[3].x,d[23].x,d[18].x)*soft_if(d[6].x,d[20].x,d[15].x); // w dir
 
 	#if (fast_ops == 1)
-		float s[2] = { lerp( L_compr_low, L_compr_high, saturate(var-2) ),
-		               lerp( D_compr_low, D_compr_high, saturate(var-2) ) };
+		float s[2] = { lerp( L_compr_low, L_compr_high, saturate(sbe-2) ),
+		               lerp( D_compr_low, D_compr_high, saturate(sbe-2) ) };
 	#else
-		float s[2] = { lerp( L_compr_low, L_compr_high, smoothstep(2, 3.1, var) ),
-		               lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, var) ) };
+		float s[2] = { lerp( L_compr_low, L_compr_high, smoothstep(2, 3.1, sbe) ),
+		               lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, sbe) ) };
 	#endif
 
 	float luma[25] = { d[0].y,  d[1].y,  d[2].y,  d[3].y,  d[4].y,
@@ -165,11 +162,11 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	                   d[20].y, d[21].y, d[22].y, d[23].y, d[24].y };
 
 	// Precalculated default squared kernel weights
-	float3 w1 = float3(0.5,           1.0, 1.41421356237); // 0.25, 1.0, 2.0
-	float3 w2 = float3(0.86602540378, 1.0, 0.5477225575);  // 0.75, 1.0, 0.3
+	static const float3 w1 = float3(0.5,           1.0, 1.41421356237); // 0.25, 1.0, 2.0
+	static const float3 w2 = float3(0.86602540378, 1.0, 0.5477225575);  // 0.75, 1.0, 0.3
 
 	// Transition to a concave kernel if the center edge val is above thr
-	float3 dW = pow(lerp( w1, w2, smoothstep( 0.3, 0.6, d[0].x)), 2);
+	float3 dW = pow(lerp( w1, w2, smoothstep(0.3, 0.6, d[0].x) ), 2);
 
 	float mdiff_c0  = 0.02 + 3*( abs(luma[0]-luma[2]) + abs(luma[0]-luma[4])
 	                           + abs(luma[0]-luma[5]) + abs(luma[0]-luma[7])
@@ -208,9 +205,9 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 			neg_laplace += pow(luma[order[pix]], 2)*(weights[pix]*lowth);
 		#else
 			float x = saturate((d[order[pix]].x - 0.01)/0.11);
-			float lowth = x*x*(2.99 - 2*x) + 0.01;
+			float lowth = x*x*(2.97 - 1.98*x) + 0.01;
 
-			neg_laplace += pow(abs(luma[order[pix]]) + 0.064, 2.4)*(weights[pix]*lowth);
+			neg_laplace += pow(abs(luma[order[pix]]) + 0.06, 2.4)*(weights[pix]*lowth);
 		#endif
 
 		weightsum   += weights[pix]*lowth;
@@ -220,7 +217,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	#if (fast_ops == 1)
 		neg_laplace = sqrt(neg_laplace/weightsum);
 	#else
-		neg_laplace = pow(abs(neg_laplace/weightsum), (1.0/2.4)) - 0.064;
+		neg_laplace = pow(abs(neg_laplace/weightsum), (1.0/2.4)) - 0.06;
 	#endif
 
 	// Compute sharpening magnitude function
@@ -261,20 +258,20 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	}
 
 	#if (fast_ops == 1)
-		float nmax = max((luma[23] + luma[24])/2, d[0].y);
-		float nmin = min((luma[0]  + luma[1])/2,  d[0].y);
+		float nmax = (max(luma[23], d[0].y) + luma[24])/2;
+		float nmin = (min(luma[1],  d[0].y) + luma[0])/2;
 	#else
-		float nmax = max(((luma[22] + luma[23]*2 + luma[24])/4), d[0].y);
-		float nmin = min(((luma[0]  + luma[1]*2  + luma[2])/4),  d[0].y);
+		float nmax = (max(luma[22] + luma[23]*2, d[0].y*3) + luma[24])/4;
+		float nmin = (min(luma[2]  + luma[1]*2,  d[0].y*3) + luma[0])/4;
 	#endif
 
 	// Calculate tanh scale factor, pos/neg
-	float nmax_scale = min(((nmax - d[0].y) + L_overshoot), max_scale_lim);
-	float nmin_scale = min(((d[0].y - nmin) + D_overshoot), max_scale_lim);
+	float nmax_scale = min((abs(nmax - d[0].y) + L_overshoot), max_scale_lim);
+	float nmin_scale = min((abs(d[0].y - nmin) + D_overshoot), max_scale_lim);
 
 	// Soft limit sharpening with tanh, lerp to control maximum compression
-	sharpdiff = lerp(  (soft_lim(max(sharpdiff, 0), nmax_scale)), max(sharpdiff, 0), s[0] )
-	          + lerp( -(soft_lim(min(sharpdiff, 0), nmin_scale)), min(sharpdiff, 0), s[1] );
+	sharpdiff = lerp(  (soft_lim( max(sharpdiff, 0), nmax_scale )), max(sharpdiff, 0), s[0] )
+	          + lerp( -(soft_lim( min(sharpdiff, 0), nmin_scale )), min(sharpdiff, 0), s[1] );
 
 	/*if (video_level_out == true)
 	{
@@ -299,7 +296,7 @@ technique AdaptiveSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle
 		PixelShader  = AdaptiveSharpenP0;
 		RenderTarget = Pass0Tex;
 	}
-	
+
 	pass AdaptiveSharpenPass2
 	{
 		VertexShader = ReShade::VS_PostProcess;
@@ -309,12 +306,11 @@ technique AdaptiveSharpen_Tech <bool enabled = RESHADE_START_ENABLED; int toggle
 
 #undef get1
 #undef get2
-#undef b_diff
 #undef minim_satloss
 #undef soft_if
 #undef soft_lim
 #undef max4
-#undef CtL
+#undef b_diff
 #undef mdiff
 
 }
