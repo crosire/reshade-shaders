@@ -42,7 +42,13 @@ namespace Ganossa
 const static int uiTolHigh = pow(2.0,UIMask_Tolerance);
 const static int uiTolLow = pow(2.0,int(max(0f,UIMask_Tolerance-(2*UIMask_Tolerance)/5)));
 
-texture uiMaskTex < source = "ReShade/Shaders/Ganossa/Textures/uiMask.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
+#if exists(STE(ReShade/Profiles/__APPLICATION_NAME__/Textures/uiMask.png))
+	#define UIMask_FilePath STE(ReShade/Profiles/__APPLICATION_NAME__/Textures/uiMask.png)
+#else
+	#define UIMask_FilePath "ReShade/Shaders/Ganossa/Textures/uiMask.png"
+#endif
+
+texture uiMaskTex < source = UIMask_FilePath; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler uiMaskColor { Texture = uiMaskTex; };
 
 texture2D uiMaskPrevTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA32F; };
