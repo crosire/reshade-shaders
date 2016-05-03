@@ -273,7 +273,7 @@ technique UIMaskHelper_Tech <bool enabled = !RESHADE_START_ENABLED; int toggle =
 }
 #endif
 
-#if UIMask_Direct
+#if !UIMask_Direct
 technique UIMask_Tech <bool enabled = RESHADE_START_ENABLED; int toggle = UIMask_ToggleKey; >
 {
 #else 
