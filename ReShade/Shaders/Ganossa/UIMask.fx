@@ -39,8 +39,8 @@
 namespace Ganossa
 {
 
-const static int uiTolHigh = pow(2,UIMask_Tolerance);
-const static int uiTolLow = pow(2,int(max(0f,UIMask_Tolerance-(2*UIMask_Tolerance)/5)));
+const static int uiTolHigh = pow(2.0,UIMask_Tolerance);
+const static int uiTolLow = pow(2.0,int(max(0f,UIMask_Tolerance-(2*UIMask_Tolerance)/5)));
 
 texture uiMaskTex < source = "ReShade/Shaders/Ganossa/Textures/uiMask.png"; > { Width = 1920; Height = 1080; MipLevels = 1; Format = RGBA8; };
 sampler uiMaskColor { Texture = uiMaskTex; };
