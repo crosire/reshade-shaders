@@ -87,7 +87,7 @@ texture texTarget
 	
 	// The internal texture format (default: RGBA8).
 	// Available formats:
-	//   R8, R16, R16F, R32F
+	//   R8, R16F, R32F
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F
 	// Available compressed formats (readonly):
