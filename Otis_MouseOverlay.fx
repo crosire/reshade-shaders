@@ -3,6 +3,8 @@
 // of effects which use the mousecoordinates supplied by ReShade so you can better see what
 // you're doing.
 ///////////////////////////////////////////////////////////////////
+// By Otis / Infuse Project
+///////////////////////////////////////////////////////////////////
 
 #include "Reshade.fxh"
 
@@ -20,7 +22,7 @@ float4 PS_MouseCoordOverlay(float4 vpos:SV_Position, float2 texcoord: TEXCOORD) 
 	return all(abs(MouseCoords-vpos.xy) < CursorSize) ? float4(CursorColor, 1.0) : tex2D(BackBuffer, texcoord);
 }
 
-technique MouseOverlay < bool enabled = false; int toggle = MOL_ToggleKey; >
+technique Otis_MouseOverlay < bool enabled = false; int toggle = MOL_ToggleKey; >
 {
 	pass MouseOverlayPass { VertexShader = VS_PostProcess; PixelShader = PS_MouseCoordOverlay;	/* renders to backbuffer*/ }
 }

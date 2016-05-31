@@ -2,12 +2,12 @@
 // This effects shows an overlay with fibonacci spirals to quickly
 // see where the golden ratios are in the image. For screenshotters mainly. 
 ///////////////////////////////////////////////////////////////////
+// By Otis / Infuse Project
+///////////////////////////////////////////////////////////////////
 
 #include "Reshade.fxh"
-#pragma message "GoldenRatio by Otis\n"
 
 // Constants
-//>GOLDEN RATIO Settings<\\
 #define GOR_ToggleKey RESHADE_TOGGLE_KEY //[undef] //-Key to toggle the overlay on or off.
 
 // Variables
@@ -53,7 +53,7 @@ void PS_Otis_GOR_RenderSpirals(float4 vpos : SV_Position, float2 texcoord : TEXC
 	outFragment = saturate(colFragment + (spiralFragment * Opacity));
 }
 
-technique GoldenRatio <bool enabled = false; int toggle = GOR_ToggleKey; >
+technique Otis_GoldenRatio <bool enabled = false; int toggle = GOR_ToggleKey; >
 {
 	pass GoldenRatioPass
 	{
