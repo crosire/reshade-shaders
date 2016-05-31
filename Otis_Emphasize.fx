@@ -13,8 +13,6 @@
 #define EMZ_ToggleKey VK_F8 //[undef] //-Key to toggle the effect on or off
 
 // Variables
-
-// Code
 uniform float ManualFocusDepth < ui_type="drag"; ui_min=0.0; ui_max=1.0; ui_tooltip="Manual focus depth of the point which has the focus. Range from 0.0, which means camera is the focus plane, till 1.0 which means the horizon is focus plane."> = 0.026;
 uniform float FocusRangeDepth < ui_type="drag"; ui_min=0.0; ui_max=1.0; ui_tooltip="The depth of the range around the manual focus depth which should be emphasized. Outside this range, de-emphasizing takes place"> = 0.01;
 uniform float FocusEdgeDepth < ui_type="drag"; ui_min=0.0; ui_max=1.0; ui_tooltip="The depth of the edge of the focus range. Range from 0.00, which means no depth, so at the edge of the focus range, the effect kicks in at full force, till 1.00, which means the effect is smoothly applied over the range focusRangeEdge-horizon."> = 0.05;
@@ -22,6 +20,7 @@ uniform float3 BlendColor < ui_tooltip="Specifies the blend color to blend with 
 uniform float BlendFactor < ui_type="drag"; ui_min=0.0; ui_max=1.0; ui_tooltip="Specifies the factor BlendColor is blended. Range from 0.0, which means full greyscale, till 1.0 which means full blend of the EMZ_BlendColor"> = 0.0;
 uniform float EffectFactor < ui_type="drag"; ui_min=0.0; ui_max=1.0; ui_tooltip="Specifies the factor the desaturation is applied. Range from 0.0, which means the effect is off (normal image), till 1.0 which means the desaturated parts are full greyscale (or color blending if that's enabled)"> = 0.9;
 
+// Code
 float CalculateDepthDiffCoC(float scenedepth)
 {
 	const float scenefocus =  ManualFocusDepth;
