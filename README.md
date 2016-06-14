@@ -1,6 +1,6 @@
-ReShade Shaders
-===============
+ReShade FX shaders
+==================
 
-This repository aims to collect various post-processing shaders that were written in the ReShade FX shader language to be used with ReShade.
+This repository aims to collect post-processing shaders written in the ReShade FX shader language.
 
-Check out [the language reference document](REFERENCE.md) and the files in this repository to get started!
+Check out [the language reference document](REFERENCE.md) to get started on how to write your own!
