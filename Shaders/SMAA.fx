@@ -71,7 +71,7 @@ uniform bool SMAA_DebugOutput
 #define SMAA_FLATTEN [flatten]
 
 #if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
-	#define SMAAGather(tex, coord) tex2Dgather(tex, coord)
+	#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
 #endif
 
 #include "SMAA.fxh"
