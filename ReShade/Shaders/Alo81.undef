@@ -1,7 +1,0 @@
-#undef USE_GRAIN
-#undef GrainPower
-#undef GrainColored
-#undef GrainColorAmount
-#undef GrainSize
-#undef GrainLuma
-#undef Grain_ToggleKey
