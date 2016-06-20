@@ -101,7 +101,7 @@ uniform bool bMXAODebugViewEnable
 #define AO_FADE____END   		0.9		//[0.0 to 1.0]	 Depth at which AO completely fades out. 0.0 = camera, 1.0 = sky. Must be higher than AO fade start.
 #define MXAO_TOGGLEKEY			0x20		//NUM5
 
-#include "../ReShade.fxh"
+#include "ReShade.fxh"
 
 //textures
 texture2D texColor : COLOR;
@@ -110,7 +110,7 @@ texture2D texLOD 	{ Width = BUFFER_WIDTH; 			  Height = BUFFER_HEIGHT; 			    Fo
 texture2D texDepthLOD 	{ Width = BUFFER_WIDTH; 			  Height = BUFFER_HEIGHT;  			    Format = R16F;  MipLevels = 5+fMXAOMipLevelAO;}; //no high prec mode anymore
 texture2D texNormal	{ Width = BUFFER_WIDTH;                           Height = BUFFER_HEIGHT; 		            Format = RGBA8; MipLevels = 5+fMXAOMipLevelIL;};
 texture2D texSSAO	{ Width = BUFFER_WIDTH*fMXAOSizeScale; 	          Height = BUFFER_HEIGHT*fMXAOSizeScale;            Format = RGBA8; };
-texture2D texDither  <string source = "bayer16x16.png";> { Width = 16;Height = 16;Format = R8;};
+texture2D texDither  < source = "bayer16x16.png";> { Width = 16;Height = 16;Format = R8;};
 
 sampler2D SamplerColor
 {
@@ -186,23 +186,10 @@ sampler2D SamplerDither
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-/*
-#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
 
 float GetLinearDepth(float2 coords)
 {
-	float depth = tex2Dlod(SamplerDepth, float4(coords.xy,0,0)).x;
-	depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * RESHADE_DEPTH_LINEARIZATION_FAR_PLANE + depth;
-	return depth;
-}
-*/
-
-#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
-
-float GetLinearDepth(float2 coords)
-{
-	float depth = tex2Dlod(SamplerDepth, float4(coords.xy,0,0)).x;
-	return ReShade::LinearizeDepth(depth, 0, 0, RESHADE_DEPTH_LINEARIZATION_FAR_PLANE);
+	return ReShade::GetLinearizedDepth(coords);
 }
 
 float3 GetPosition(float2 coords)
@@ -447,7 +434,7 @@ if(bMXAODebugViewEnable)
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-technique PostProcess < bool enabled = 1;toggle = MXAO_TOGGLEKEY;>
+technique PostProcess < enabled = true; toggle = MXAO_TOGGLEKEY;>
 {
 	pass P0
 	{

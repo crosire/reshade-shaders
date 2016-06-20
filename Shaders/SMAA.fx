@@ -75,7 +75,7 @@ uniform bool SMAA_DebugOutput
 #endif
 
 #include "SMAA.fxh"
-#include "../ReShade.fxh"
+#include "ReShade.fxh"
 
 // Textures
 

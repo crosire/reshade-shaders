@@ -4,6 +4,19 @@
 	#error "ReShade 3.0+ is required to use this header file"
 #endif
 
+#ifndef RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
+	#define RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN 0
+#endif
+#ifndef RESHADE_DEPTH_INPUT_IS_REVERSED
+	#define RESHADE_DEPTH_INPUT_IS_REVERSED 0
+#endif
+#ifndef RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
+	#define RESHADE_DEPTH_INPUT_IS_LOGARITHMIC 0
+#endif
+#ifndef RESHADE_DEPTH_LINEARIZATION_FAR_PLANE
+	#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
+#endif
+
 namespace ReShade
 {
 	// Global variables
@@ -21,21 +34,22 @@ namespace ReShade
 	sampler DepthBuffer { Texture = DepthBufferTex; };
 
 	// Helper functions
-	float LinearizeDepth(float depth, bool logarithmic, bool reverse, float farplane)
+	float GetLinearizedDepth(float2 texcoord)
 	{
-		if (logarithmic)
-		{
-			const float C = 0.01;
-			depth = (exp(depth * log(C + 1.0)) - 1.0) / C;
-		}
+#if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
+		texcoord.y = 1.0 - texcoord.y;
+#endif
+		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x;
 
-		if (reverse)
-		{
-			depth = 1.0 - depth;
-		}
-
+#if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
+		const float C = 0.01;
+		depth = (exp(depth * log(C + 1.0)) - 1.0) / C;
+#endif
+#if RESHADE_DEPTH_INPUT_IS_REVERSED
+		depth = 1.0 - depth;
+#endif
 		const float N = 1.0;
-		depth /= farplane - depth * (farplane - N);
+		depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * (RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - N);
 
 		return depth;
 	}
