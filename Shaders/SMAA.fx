@@ -215,7 +215,7 @@ float3 SMAANeighborhoodBlendingWrapPS(
 {
 	if (SMAA_DebugOutput)
 	{
-		return texcoord.x < texcoord.y ? tex2D(edgesSampler, texcoord) : tex2D(blendSampler, texcoord);
+		return texcoord.x < texcoord.y ? tex2D(edgesSampler, texcoord).rgb : tex2D(blendSampler, texcoord).rgb;
 	}
 
 	return SMAANeighborhoodBlendingPS(texcoord, offset, colorLinearSampler, blendSampler).rgb;
