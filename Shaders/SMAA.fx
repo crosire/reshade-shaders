@@ -188,16 +188,12 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	switch (SMAA_EdgeDetectionType)
-	{
-		case 1:
-			return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
-		case 2:
-		default:
-			return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler);
-		case 3:
-			return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
-	}
+	if (SMAA_EdgeDetectionType == 1)
+		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
+	if (SMAA_EdgeDetectionType == 2)
+		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
+
+	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler);
 }
 float4 SMAABlendingWeightCalculationWrapPS(
 	float4 position : SV_Position,
