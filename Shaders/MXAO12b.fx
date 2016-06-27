@@ -99,7 +99,6 @@ uniform bool bMXAODebugViewEnable
 //custom variables, depleted after Framework implementation.
 #define AO_FADE____START 		0.6		//[0.0 to 1.0]	 Depth at which AO starts to fade out. 0.0 = camera, 1.0 = sky. Must be lower than AO fade end.
 #define AO_FADE____END   		0.9		//[0.0 to 1.0]	 Depth at which AO completely fades out. 0.0 = camera, 1.0 = sky. Must be higher than AO fade start.
-#define MXAO_TOGGLEKEY			0x20		//NUM5
 
 #include "ReShade.fxh"
 
@@ -434,7 +433,7 @@ if(bMXAODebugViewEnable)
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-technique PostProcess < enabled = true; toggle = MXAO_TOGGLEKEY;>
+technique MXAO
 {
 	pass P0
 	{
