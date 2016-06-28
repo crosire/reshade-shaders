@@ -61,7 +61,7 @@ uniform float CRTCornerSize
 <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 0.02; ui_step = 0.001;
-	ui_tooltip = "Higher values => more rounded corner."
+	ui_tooltip = "Higher values => more rounded corner.";
 > = 0.0100;
 uniform float CRTDistance
 <

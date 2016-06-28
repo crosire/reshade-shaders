@@ -84,7 +84,7 @@ uniform float fLenzIntensity <
 uniform float fLenzThreshold <
 	ui_type = "drag";
 	ui_min = 0.6; ui_max = 1.0;
-	ui_tooltip = "Minimum brightness an object must have to cast lensflare.;
+	ui_tooltip = "Minimum brightness an object must have to cast lensflare.";
 > = 0.8;
 
 uniform bool bChapFlareEnable <
@@ -297,13 +297,13 @@ float3 GetDistortedTex(sampler tex, float2 sample_center, float2 sample_vector, 
 
 float3 GetBrightPass(float2 coords)
 {
-	float3 c = tex2Dlod(ReShade::BackBuffer, float4(coords, 0, 0)).rgb;
+	float3 c = tex2D(ReShade::BackBuffer, coords).rgb;
 	float3 bC = max(c - fFlareLuminance.xxx, 0.0);
 	float bright = dot(bC, 1.0);
 	bright = smoothstep(0.0f, 0.5, bright);
 	float3 result = lerp(0.0, c, bright);
 #if FLARE_DEPTH_CHECK
-	float checkdepth = tex2D(ReShade::DepthBuffer, float4(coords, 0, 0)).x;
+	float checkdepth = tex2D(ReShade::DepthBuffer, coords).x;
 	if (checkdepth < 0.99999)
 		result = 0;
 #endif
