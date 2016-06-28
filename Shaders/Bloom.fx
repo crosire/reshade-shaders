@@ -1,9 +1,8 @@
 // Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 
 uniform int iBloomMixmode <
-	ui_type = "drag";
-	ui_min = 1; ui_max = 4;
-	ui_tooltip = "1 = Linear add\n2 = Screen add\n3 = Screen/Lighten/Opacity\n4 = Lighten";
+	ui_type = "combo";
+	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 2;
 uniform float fBloomThreshold <
 	ui_type = "drag";
@@ -28,9 +27,8 @@ uniform float3 fBloomTint <
 uniform bool bLensdirtEnable <
 > = false;
 uniform int iLensdirtMixmode <
-	ui_type = "drag";
-	ui_min = 1; ui_max = 4;
-	ui_tooltip = "1 = Linear add\n2 = Screen add\n3 = Screen/Lighten/Opacity\n4 = Lighten";
+	ui_type = "combo";
+	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 1;
 uniform float fLensdirtIntensity <
 	ui_type = "drag";
@@ -565,13 +563,13 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	colorbloom = lerp(colorbloomgray, colorbloom, fBloomSaturation);
 	colorbloom *= fBloomTint;
 
-	if (iBloomMixmode == 1)
+	if (iBloomMixmode == 0)
 		color.rgb += colorbloom;
-	else if (iBloomMixmode == 2)
+	else if (iBloomMixmode == 1)
 		color.rgb = 1 - (1 - color.rgb) * (1 - colorbloom);
-	else if (iBloomMixmode == 3)
+	else if (iBloomMixmode == 2)
 		color.rgb = max(0.0f, max(color.rgb, lerp(color.rgb, (1 - (1 - saturate(colorbloom)) * (1 - saturate(colorbloom))), 1.0)));
-	else if (iBloomMixmode == 4)
+	else if (iBloomMixmode == 3)
 		color.rgb = max(color.rgb, colorbloom);
 
 	// Anamorphic flare
@@ -591,13 +589,13 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 
 		lensdirt = lerp(dot(lensdirt.xyz, 0.333), lensdirt.xyz, fLensdirtSaturation);
 
-		if (iLensdirtMixmode == 1)
+		if (iLensdirtMixmode == 0)
 			color.rgb += lensdirt;
-		else if (iLensdirtMixmode == 2)
+		else if (iLensdirtMixmode == 1)
 			color.rgb = 1 - (1 - color.rgb) * (1 - lensdirt);
-		else if (iLensdirtMixmode == 3)
+		else if (iLensdirtMixmode == 2)
 			color.rgb = max(0.0f, max(color.rgb, lerp(color.rgb, (1 - (1 - saturate(lensdirt)) * (1 - saturate(lensdirt))), 1.0)));
-		else if (iLensdirtMixmode == 4)
+		else if (iLensdirtMixmode == 3)
 			color.rgb = max(color.rgb, lensdirt);
 	}
 

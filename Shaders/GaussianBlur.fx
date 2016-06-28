@@ -4,31 +4,25 @@
 
 //Settings
 
-uniform int GaussianBlurRadius
-<
+uniform int GaussianBlurRadius <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 3;
 	ui_tooltip = "[1|2|3] Adjusts the blur radius. Higher values increase the radius";
 > = 1;
 
-uniform float GaussianBlurOffset
-<
+uniform float GaussianBlurOffset <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius.";
 	ui_step = 0.20;
 > = 1.00;
 
-uniform float GaussianBlurStrength
-<
+uniform float GaussianBlurStrength <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect.";
 	ui_step = 0.10;
 > = 1.00;
-
-
-#define GaussianBlur_ToggleKey 0x2D //[undef] //-Default is the "Insert" key. Change to RESHADE_TOGGLE_KEY to toggle with the rest of the Framework shaders.   
 
 #include "ReShade.fxh"
 
@@ -276,20 +270,17 @@ float3 GaussianBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD)
 	return saturate(color);
 }
 
-technique GaussianBlur <bool enabled = true; int toggle = GaussianBlur_ToggleKey; >
+technique GaussianBlur
 {
-
 	pass Blur1
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = GaussianBlur1;
 		RenderTarget = GaussianBlurTex;
 	}
-	
 	pass BlurFinal
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = GaussianBlurFinal;
 	}
-
 }

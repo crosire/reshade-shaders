@@ -11,9 +11,9 @@ uniform float Opacity <
 	ui_tooltip = "Opacity of overlay. 0 is invisible, 1 is opaque lines.";
 > = 0.30;
 uniform int ResizeMode <
-	ui_type = "drag";
-	ui_min = 0; ui_max = 1;
-	ui_tooltip = "Resize mode: 0 is clamp to screen (so resizing of overlay, no golden ratio by definition), 1: resize to either full with or full height while keeping aspect ratio: golden ratio by definition in lined area";
+	ui_type = "combo";
+	ui_items = "Clamp to screen\0Keep aspect ratio\0";
+	ui_tooltip = "Resize mode: Either clamp to screen (so resizing of overlay, no golden ratio by definition), or resize to either full with or full height while keeping aspect ratio: golden ratio by definition in lined area";
 > = 1;
 
 #include "Reshade.fxh"

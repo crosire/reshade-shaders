@@ -25,42 +25,33 @@
 // Adaptive sharpen - version 2016-01-12 - (requires ps >= 3.0)
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
-uniform float curve_height
-<
+uniform float curve_height <
 	ui_type = "drag";
 	ui_min = 0.3; ui_max = 2.0;
 	ui_tooltip = "Main sharpening strength.";
 > = 1.0;
-uniform float curveslope
-<
+uniform float curveslope <
 	ui_tooltip = "Sharpening curve slope, high edge values.";
 > = 0.7;
-uniform float D_overshoot
-<
+uniform float D_overshoot <
 	ui_tooltip = "Max dark overshoot before max compression.";
 > = 0.009;
-uniform float D_compr_low
-<
+uniform float D_compr_low <
 	ui_tooltip = "Max compression ratio, dark overshoot (1 / 0.250 = 4x)";
 > = 0.25;
-uniform float D_compr_high
-<
+uniform float D_compr_high <
 	ui_tooltip = "pixel surrounded by edges (1 / 0.500 = 2x)";
 > = 0.5;
-uniform float L_overshoot
-<
+uniform float L_overshoot <
 	ui_tooltip = "Max light overshoot before max compression.";
 > = 0.003;
-uniform float L_compr_low
-<
+uniform float L_compr_low <
 	ui_tooltip = "Max compression ratio, light overshoot (1 / 0.167 = 6x)";
 > = 0.167;
-uniform float L_compr_high
-<
+uniform float L_compr_high <
 	ui_tooltip = "pixel surrounded by edges (1 / 0.334 = 3x)";
 > = 0.334;
-uniform float max_scale_lim
-<
+uniform float max_scale_lim <
 	ui_tooltip = "Abs change before max compression (0.1 = +-10%).";
 > = 0.1;
 

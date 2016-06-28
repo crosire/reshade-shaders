@@ -70,9 +70,9 @@ uniform bool AL_Vibrance <
 	ui_tooltip = "Vibrance of dirt effect";
 > = false;
 uniform int AL_Adaptive <
-	ui_type = "drag";
+	ui_type = "combo";
 	ui_min = 0; ui_max = 2;
-	ui_tooltip = "0 = Warm\n1 = Cold\n2 = Light Dependent";
+	ui_items = "Warm\0Cold\0Light Dependent\0";
 > = 0;
 uniform float alDirtInt <
 	ui_type = "drag";

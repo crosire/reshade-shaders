@@ -7,94 +7,81 @@
 // Copyright © 2008-2016 Marty McFly
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uniform float fMXAOAmbientOcclusionAmount
-<
+uniform float fMXAOAmbientOcclusionAmount <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 3.00;
 	ui_tooltip = "MXAO: Linearly increases AO intensity. Can cause pitch black clipping if set too high.";
 > = 2.00;
 
-uniform bool bMXAOIndirectLightingEnable
-<
+uniform bool bMXAOIndirectLightingEnable <
 	ui_tooltip = "MXAO: Enables Indirect Lighting calculation. Will cause a major fps hit.";
 > = false;
 
-uniform float fMXAOIndirectLightingAmount
-<
+uniform float fMXAOIndirectLightingAmount <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 12.00;
 	ui_tooltip = "MXAO: Linearly increases IL intensity. Can cause overexposured white spots if set too high.";
 > = 4.00;
 
-uniform float fMXAOIndirectLightingSaturation
-<
+uniform float fMXAOIndirectLightingSaturation <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 3.00;
 	ui_tooltip = "MXAO: Boosts IL saturation for more pronounced effect.";
 > = 1.00;
 
-uniform float fMXAOSampleRadius
-<
+uniform float fMXAOSampleRadius <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 20.00;
 	ui_tooltip = "MXAO: Sample radius of GI, higher values drop performance.\nHeavily depending on game, GTASA: 2 = GTA V: 10ish.";
 > = 2.50;
 
-uniform int iMXAOSampleCount
-<
+uniform int iMXAOSampleCount <
 	ui_type = "drag";
 	ui_min = 12; ui_max = 255;
 	ui_tooltip = "MXAO: Amount of MXAO samples. Higher means more accurate and less noisy AO at the cost of fps.";
 > = 32;
 
-uniform bool bMXAOSmartSamplingEnable
-<
+uniform bool bMXAOSmartSamplingEnable <
 	ui_tooltip = "MXAO: Enables smart sample count reduction for far areas.\nEffect is lowered for low sample counts to prevent single digit sample counts in far areas.";
 > = true;
 
-uniform float fMXAOSampleRandomization
-<
+uniform float fMXAOSampleRandomization <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "MXAO: Breaks up the dither pattern a bit if sample spiral gets too visible,\nwhich can happen with low samples and/or high radius.\nNeeds stronger blurring though.";
 > = 1.00;
 
-uniform float fMXAONormalBias
-<
+uniform float fMXAONormalBias <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 0.80;
 	ui_tooltip = "MXAO: Normals bias to reduce self-occlusion of surfaces that have a low angle to each other.";
 > = 1.00;
 
-uniform bool bMXAOBackfaceCheckEnable
-<
+uniform bool bMXAOBackfaceCheckEnable <
 	ui_tooltip = "MXAO: For indirect lighting only!\nEnables back face check so surfaces facing away from the source position don't cast light. \nIt comes with a slight fps drop.";
 > = true;
 
-uniform float fMXAOBlurSharpness
-<
+uniform float fMXAOBlurSharpness <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "MXAO: AO sharpness, higher means sharper geometry edges but noisier AO, less means smoother AO but blurry in the distance.";
 > = 1.00;
 
-uniform int fMXAOBlurSteps
-<
+uniform int fMXAOBlurSteps <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 5;
 	ui_tooltip = "MXAO: Offset count for AO bilateral blur filter. Higher means smoother but also blurrier AO.";
 > = 3;
 
-uniform bool bMXAODebugViewEnable
-<
+uniform bool bMXAODebugViewEnable <
 	ui_tooltip = "MXAO: Enables raw AO/IL output for debugging and tuning purposes.";
 > = false;
 
 //non GUI-able variables/variables I was too lazy to add 
-#define fMXAOSizeScale				1.0	//[0.5 to 1.0] 	 Resolution scale in which AO is being calculated.
-#define fMXAOMipLevelIL				2	//[0 to 4]       Miplevel of IL texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. 
-#define fMXAOMipLevelAO				0	//[0 to 2]	 Miplevel of AO texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. Best results: IL MipLevel = AO MipLevel + 2
-#define bMXAOBoundaryCheckEnable		0	//[0 or 1]	 Enables screen boundary check for samples. Can be useful to remove odd behaviour with too high sample radius / objects very close to camera. It comes with a slight fps drop.
+#define fMXAOSizeScale  1.0	//[0.5 to 1.0] 	 Resolution scale in which AO is being calculated.
+#define iMXAOMipLevelIL 2	//[0 to 4]       Miplevel of IL texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. 
+#define iMXAOMipLevelAO 0	//[0 to 2]	 Miplevel of AO texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. Best results: IL MipLevel = AO MipLevel + 2
+#define bMXAOBoundaryCheckEnable 0	//[0 or 1]	 Enables screen boundary check for samples. Can be useful to remove odd behaviour with too high sample radius / objects very close to camera. It comes with a slight fps drop.
 
 //custom variables, depleted after Framework implementation.
 #define AO_FADE____START 		0.6		//[0.0 to 1.0]	 Depth at which AO starts to fade out. 0.0 = camera, 1.0 = sky. Must be lower than AO fade end.
@@ -103,82 +90,25 @@ uniform bool bMXAODebugViewEnable
 #include "ReShade.fxh"
 
 //textures
-texture2D texColor : COLOR;
-texture2D texDepth : DEPTH;
-texture2D texLOD 	{ Width = BUFFER_WIDTH; 			  Height = BUFFER_HEIGHT; 			    Format = RGBA8; MipLevels = 5+fMXAOMipLevelIL;};
-texture2D texDepthLOD 	{ Width = BUFFER_WIDTH; 			  Height = BUFFER_HEIGHT;  			    Format = R16F;  MipLevels = 5+fMXAOMipLevelAO;}; //no high prec mode anymore
-texture2D texNormal	{ Width = BUFFER_WIDTH;                           Height = BUFFER_HEIGHT; 		            Format = RGBA8; MipLevels = 5+fMXAOMipLevelIL;};
-texture2D texSSAO	{ Width = BUFFER_WIDTH*fMXAOSizeScale; 	          Height = BUFFER_HEIGHT*fMXAOSizeScale;            Format = RGBA8; };
-texture2D texDither  < source = "bayer16x16.png";> { Width = 16;Height = 16;Format = R8;};
+texture texLOD { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; MipLevels = 5 + iMXAOMipLevelIL; };
+texture texDepthLOD { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; MipLevels = 5 + iMXAOMipLevelAO; }; //no high prec mode anymore
+texture texNormal { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; MipLevels = 5 + iMXAOMipLevelIL; };
+texture texSSAO { Width = BUFFER_WIDTH*fMXAOSizeScale; Height = BUFFER_HEIGHT*fMXAOSizeScale; Format = RGBA8; };
+texture texDither < source = "bayer16x16.png";> { Width = 16; Height = 16; Format = R8; };
 
-sampler2D SamplerColor
-{
-	Texture = texColor;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
+sampler SamplerLOD { Texture = texLOD; };
+sampler SamplerDepthLOD { Texture = texDepthLOD; };
+sampler SamplerNormal { Texture = texNormal; };
+sampler SamplerSSAO { Texture = texSSAO; };
 
-sampler2D SamplerDepth
-{
-	Texture = texDepth;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
-
-sampler2D SamplerLOD
-{
-	Texture = texLOD;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
-
-sampler2D SamplerDepthLOD
-{
-	Texture = texDepthLOD;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
-
-sampler2D SamplerNormal
-{
-	Texture = texNormal;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
-
-sampler2D SamplerSSAO
-{
-	Texture = texSSAO;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
-};
-
-sampler2D SamplerDither
+sampler SamplerDither
 {
 	Texture = texDither;
 	MinFilter = POINT;
 	MagFilter = POINT;
 	MipFilter = POINT;
-	AddressU = Wrap;
-	AddressV = Wrap;
+	AddressU = WRAP;
+	AddressV = WRAP;
 };
 
 
@@ -244,8 +174,8 @@ float2 GetRandom2FromCoord(float2 coords)
 {
 	coords *= 1000.0;
 	float3 coords3 = frac(float3(coords.xyx) * 0.1031);
-    	coords3 += dot(coords3.xyz, coords3.yzx+19.19);
-    	return frac(float2((coords3.x + coords3.y)*coords3.z, (coords3.x+coords3.z)*coords3.y));
+		coords3 += dot(coords3.xyz, coords3.yzx+19.19);
+		return frac(float2((coords3.x + coords3.y)*coords3.z, (coords3.x+coords3.z)*coords3.y));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -254,7 +184,7 @@ float2 GetRandom2FromCoord(float2 coords)
 
 void PS_AO_Pre(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 color : SV_Target0, out float4 depth : SV_Target1, out float4 normal : SV_Target2)
 {
-	color = tex2D(SamplerColor, texcoord.xy);
+	color = tex2D(ReShade::BackBuffer, texcoord.xy);
 	depth = GetLinearDepth(texcoord.xy)*RESHADE_DEPTH_LINEARIZATION_FAR_PLANE;
 	normal = GetNormalFromDepth(texcoord.xy).xyzz*0.5+0.5; // * 0.5 + 0.5; //packing into 2 components not possible.
 }
@@ -284,7 +214,7 @@ if(bMXAOSmartSamplingEnable) numSamples = lerp(iMXAOSampleCount,12,scenedepth / 
 	float fNegInvR2 = -1.0/(fMXAOSampleRadius*fMXAOSampleRadius);
 
 	[loop]
-    	for (float i=1.0; i <= numSamples; i++) 
+		for (float i=1.0; i <= numSamples; i++) 
 	{
 		currentVector = mul(currentVector.xy,  radialMatrix);	
 		float2 currentOffset = texcoord.xy + currentVector.xy * SampleRadiusScaled.xy * (i+radialJitter); 
@@ -293,20 +223,20 @@ if(bMXAOSmartSamplingEnable) numSamples = lerp(iMXAOSampleCount,12,scenedepth / 
 		if(currentOffset.x < 1.0 && currentOffset.y < 1.0 && currentOffset.x > 0.0 && currentOffset.y > 0.0)
 		{
 #endif
-			float mipLevel = clamp((int)floor(log2(mipFactor*i)) - 3, fMXAOMipLevelAO, 5); //AO must not go beyond 5
+			float mipLevel = clamp((int)floor(log2(mipFactor*i)) - 3, iMXAOMipLevelAO, 5); //AO must not go beyond 5
 
 			float3 occlVec = GetPositionLOD(currentOffset.xy, mipLevel) - ScreenSpacePosition;
 			float occlDistance = length(occlVec);
- 			float SurfaceAngle = dot(occlVec/occlDistance, ScreenSpaceNormals); 
+			float SurfaceAngle = dot(occlVec/occlDistance, ScreenSpaceNormals); 
 
 			float fAO = saturate(occlDistance * fNegInvR2 + 1.0)  * saturate(SurfaceAngle - fMXAONormalBias); 	
 
 			if(bMXAOIndirectLightingEnable)
 			{
-				float3 fIL = tex2Dlod(SamplerLOD, float4(currentOffset,0,mipLevel + fMXAOMipLevelIL)).xyz;
+				float3 fIL = tex2Dlod(SamplerLOD, float4(currentOffset,0,mipLevel + iMXAOMipLevelIL)).xyz;
 				if(bMXAOBackfaceCheckEnable)
 				{
-					float3 offsetNormals = tex2Dlod(SamplerNormal, float4(currentOffset,0,mipLevel + fMXAOMipLevelIL)).xyz * 2.0 - 1.0; 
+					float3 offsetNormals = tex2Dlod(SamplerNormal, float4(currentOffset,0,mipLevel + iMXAOMipLevelIL)).xyz * 2.0 - 1.0; 
 					float facingtoSource = dot(-normalize(occlVec),offsetNormals);
 					facingtoSource = smoothstep(-0.5,0.0,facingtoSource); 
 					fIL *= facingtoSource;
@@ -370,7 +300,7 @@ void PS_AO_Blur2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	float totalweight = 1.0;
 	float tempweight = 0.0;
 
-	float4 total_ao = tex2Dlod(SamplerColor, float4(texcoord.xy,0,0));
+	float4 total_ao = tex2Dlod(ReShade::BackBuffer, float4(texcoord.xy,0,0));
 	float4 temp_ao = 0.0;
 	
 	[loop]
@@ -379,14 +309,14 @@ void PS_AO_Blur2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 		float2 axis = float2(r,r)/fMXAOSizeScale*1.25;
 
 		temp_factor = GetBlurFactors(texcoord.xy + axis * ReShade::PixelSize.xy);
-		temp_ao = tex2Dlod(SamplerColor, float4(texcoord.xy + axis * ReShade::PixelSize.xy,0,0));
+		temp_ao = tex2Dlod(ReShade::BackBuffer, float4(texcoord.xy + axis * ReShade::PixelSize.xy,0,0));
 		tempweight = GetBlurWeight(r, temp_factor, center_factor);
 
 		total_ao += temp_ao * tempweight;
 		totalweight += tempweight;
 
 		temp_factor = GetBlurFactors(texcoord.xy - axis * ReShade::PixelSize.xy);
-		temp_ao = tex2Dlod(SamplerColor, float4(texcoord.xy - axis * ReShade::PixelSize.xy,0,0));
+		temp_ao = tex2Dlod(ReShade::BackBuffer, float4(texcoord.xy - axis * ReShade::PixelSize.xy,0,0));
 		tempweight = GetBlurWeight(r, temp_factor, center_factor);
 
 		total_ao += temp_ao * tempweight;
@@ -403,10 +333,11 @@ void PS_AO_Blur2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out floa
 	mxao.xyz  = lerp(dot(mxao.xyz,float3(0.299,0.587,0.114)),mxao.xyz,fMXAOIndirectLightingSaturation) * fMXAOIndirectLightingAmount;
 	mxao.w    = 1.0-pow(1.0-mxao.w, fMXAOAmbientOcclusionAmount * 2.0);
 
-if(!bMXAODebugViewEnable)
-{
-	mxao    = lerp(mxao, 0.0, pow(colorgray,2.0));
-}
+	if (!bMXAODebugViewEnable)
+	{
+		mxao = lerp(mxao, 0.0, pow(colorgray,2.0));
+	}
+
 	mxao.w    = lerp(mxao.w, 0.0,smoothstep(AO_FADE____START, AO_FADE____END, scenedepth)); 			//AO FADEOUT
 	mxao.xyz  = lerp(mxao.xyz,0.0,smoothstep(AO_FADE____START*0.5, AO_FADE____END*0.5, scenedepth)); 		//AO FADEOUT //IL can look really bad on far objects.
 
@@ -414,17 +345,17 @@ if(!bMXAODebugViewEnable)
 	GI = max(0.0,1-GI);
 	color.xyz *= GI;
 
-if(bMXAODebugViewEnable)
-{
- 	if(bMXAOIndirectLightingEnable)
-	{	
-		color.xyz = (texcoord.x > 0.5) ? mxao.xyz : 1-mxao.w;
- 	}
-	else
+	if (bMXAODebugViewEnable)
 	{
- 		color.xyz = 1-mxao.w;
- 	}
-}
+		if (bMXAOIndirectLightingEnable)
+		{	
+			color.xyz = (texcoord.x > 0.5) ? mxao.xyz : 1-mxao.w;
+		}
+		else
+		{
+			color.xyz = 1-mxao.w;
+		}
+	}
 
 	res = color;
 }

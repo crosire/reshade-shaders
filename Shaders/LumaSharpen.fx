@@ -14,32 +14,27 @@ This is similar to using Unsharp Mask in Photoshop.
 Compiles with 3.0
 */
 
-uniform float sharp_strength
-<
+uniform float sharp_strength <
 	ui_type = "drag";
 	ui_min = 0.1; ui_max = 3.0;
 	ui_tooltip = "Strength of the sharpening";
 > = 0.65;
-uniform float sharp_clamp
-<
+uniform float sharp_clamp <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0; ui_step = 0.005;
 	ui_tooltip = "Limits maximum amount of sharpening a pixel receives";
 > = 0.035;
-uniform int pattern
-<
-	ui_type = "drag";
-	ui_min = 0; ui_max = 4;
-	ui_tooltip = "Choose a sample pattern:\n1 = Fast\n2 = Normal\n3 = Wider\n4 = Pyramid shaped";
+uniform int pattern <
+	ui_type = "combo";
+	ui_items = "Fast\0Normal\0Wider\0Pyramid shaped\0";
+	ui_tooltip = "Choose a sample pattern";
 > = 2;
-uniform float offset_bias
-<
+uniform float offset_bias <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 6.0;
 	ui_tooltip = "Offset bias adjusts the radius of the sampling pattern. I designed the pattern for offset_bias 1.0, but feel free to experiment.";
 > = 1.0;
-uniform bool show_sharpen
-<
+uniform bool show_sharpen <
 	ui_tooltip = "Visualize the strength of the sharpen (multiplied by 4 to see it better)";
 > = false;
 
@@ -74,7 +69,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	//   [ SW,   , SE ]
 
 	// -- Pattern 1 -- A (fast) 7 tap gaussian using only 2+1 texture fetches.
-	if (pattern == 1)
+	if (pattern == 0)
 	{
 		// -- Gaussian filter --
 		//   [ 1/9, 2/9,    ]     [ 1 , 2 ,   ]
@@ -93,7 +88,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	}
 
 	// -- Pattern 2 -- A 9 tap gaussian using 4+1 texture fetches.
-	if (pattern == 2)
+	if (pattern == 1)
 	{
 		// -- Gaussian filter --
 		//   [ .25, .50, .25]     [ 1 , 2 , 1 ]
@@ -109,7 +104,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	}
 
 	// -- Pattern 3 -- An experimental 17 tap gaussian using 4+1 texture fetches.
-	if (pattern == 3)
+	if (pattern == 2)
 	{
 		// -- Gaussian filter --
 		//   [   , 4 , 6 ,   ,   ]
@@ -129,7 +124,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	}
 
 	// -- Pattern 4 -- A 9 tap high pass (pyramid filter) using 4+1 texture fetches.
-	if (pattern == 4)
+	if (pattern == 3)
 	{
 		// -- Gaussian filter --
 		//   [ .50, .50, .50]     [ 1 , 1 , 1 ]

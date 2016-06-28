@@ -10,85 +10,66 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
-uniform float CRTResolution
-<
+uniform float CRTResolution <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 8.0;
 	ui_tooltip = "Input size coefficient (low values gives the 'low - res retro look').";
 > = 1.15;
 #ifndef LINEAR_PROCESSING
-uniform float CRTgamma
-<
+uniform float CRTgamma <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of simulated CRT";
 > = 2.4;
 #endif
-uniform float CRTmonitorgamma
-<
+uniform float CRTmonitorgamma <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of display monitor";
 > = 2.2;
-uniform float CRTBrightness
-<
+uniform float CRTBrightness <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 3.0;
 	ui_tooltip = "Used to boost brightness a little.";
 > = 0.9;
 
-uniform int CRTScanlineIntensity
-<
+uniform int CRTScanlineIntensity <
 	ui_type = "drag";
 	ui_min = 2; ui_max = 4;
 	ui_tooltip = "Scanlines intensity";
 > = 2;
-uniform bool CRTScanlineGaussian
-<
+uniform bool CRTScanlineGaussian <
 	ui_tooltip = "Use the new nongaussian scanlines bloom effect.";
 > = true;
-uniform bool CRTCurvature
-<
+uniform bool CRTCurvature <
 	ui_tooltip = "Barrel effect";
 > = false;
-uniform float CRTCurvatureRadius
-<
+uniform float CRTCurvatureRadius <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Curvature Radius (only effective when Curvature is enabled).";
 > = 1.5;
-uniform float CRTCornerSize
-<
+uniform float CRTCornerSize <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 0.02; ui_step = 0.001;
 	ui_tooltip = "Higher values => more rounded corner.";
 > = 0.0100;
-uniform float CRTDistance
-<
+uniform float CRTDistance <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Simulated distance from viewer to monitor.";
 > = 2.00;
-uniform float CRTAngleX
-<
+uniform float2 CRTAngle <
 	ui_type = "drag";
 	ui_min = -0.2; ui_max = 0.2;
-	ui_tooltip = "Tilt angle in radians (X coordinates).";
+	ui_tooltip = "Tilt angle in radians.";
 > = 0.00;
-uniform float CRTAngleY
-<
-	ui_type = "drag";
-	ui_min = -0.2; ui_max = 0.2;
-	ui_tooltip = "Tilt angle in radians (Y coordinates). (Value of -0.15 gives the 'arcade tilt' look)";
-> = 0.00;
-uniform float CRTOverScan
-<
+uniform float CRTOverScan <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 1.10; ui_step = 0.01;
 	ui_tooltip = "Overscan (e.g. 1.02 for 2% overscan).";
 > = 1.01;
-uniform bool CRTOversample
-<
+uniform bool CRTOversample <
 	ui_tooltip = "Enable 3x oversampling of the beam profile (warning : performance hit)";
 > = true;
 
@@ -98,8 +79,8 @@ uniform bool CRTOversample
 #define CeeJay_aspect float2(1.0, 0.75)
 
 // A bunch of useful values we'll need in the fragment shader.
-#define sinangle sin(float2(CRTAngleX, CRTAngleY))
-#define cosangle cos(float2(CRTAngleX, CRTAngleY))
+#define sinangle sin(CRTAngle)
+#define cosangle cos(CRTAngle)
 #define stretch maxscale()
 
 // Macros.

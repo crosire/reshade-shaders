@@ -4,68 +4,59 @@
 
 //Settings
 
-uniform int HighPassSharpRadius
-<
+uniform int HighPassSharpRadius <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 3;
 	ui_tooltip = "1 = 3x3 mask, 2 = 5x5 mask, 3 = 7x7 mask.";
 > = 1;
 
-uniform float HighPassSharpOffset
-<
+uniform float HighPassSharpOffset <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius limiting the sharpening to finer details.";
 	ui_step = 0.20;
 > = 1.00;
 
-uniform int HighPassBlendMode
-<
+uniform int HighPassBlendMode <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 7;
 	ui_tooltip = "1 = Soft Light, 2 = Overlay, 3 = Multiply, 4 = Hard Light, 5 = Vivid Light, 6 = Screen 7 = Linear Light";
 	ui_step = 1;
 > = 2;
 
-uniform int HighPassBlendIfDark
-<
+uniform int HighPassBlendIfDark <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels below this value will be excluded from the effect. Set to 50 to target mid-tones.";
 	ui_step = 5;
 > = 50;
 
-uniform int HighPassBlendIfLight
-<
+uniform int HighPassBlendIfLight <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels above this value will be excluded from the effect. Set to 205 to target mid-tones.";
 	ui_step = 5;
 > = 205;
 
-uniform bool HighPassViewBlendIfMask
-<
+uniform bool HighPassViewBlendIfMask <
 	ui_tooltip = "Displays the BlendIfMask. Useful when adjusting BlendIf settings.";
 > = false;
 
-uniform float HighPassDarkIntensity
-<
+uniform float HighPassDarkIntensity <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 	ui_step = 0.50;
 > = 1.0;
 
-uniform float HighPassLightIntensity
-<
+uniform float HighPassLightIntensity <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 	ui_step = 0.50;
 > = 1.0;
 
-uniform float HighPassSharpStrength
-<
+uniform float HighPassSharpStrength <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 2.00;
 	ui_tooltip = "Adjusts the strength of the effect";
@@ -73,12 +64,9 @@ uniform float HighPassSharpStrength
 > = 1.00;
 
 
-uniform bool HighPassViewSharpMask
-<
+uniform bool HighPassViewSharpMask <
 	ui_tooltip = "Displays the SharpMask. Useful when adjusting settings";
 > = false;
-
-#define HighPass_ToggleKey 0x2D //[undef] //-Default is the "Insert" key. Change to RESHADE_TOGGLE_KEY to toggle with the rest of the Framework shaders.   
 
 #include "ReShade.fxh"
 
@@ -276,13 +264,11 @@ float3 SharpBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 	return saturate(orig);
 }
 
-technique HighPassSharp <bool enabled = true; int toggle = HighPass_ToggleKey; >
+technique HighPassSharp
 {
-
 	pass Sharp
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = SharpBlurFinal;
 	}
-
 }

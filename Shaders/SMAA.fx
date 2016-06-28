@@ -14,37 +14,30 @@
 
 // -------------------------------------------------------------------------------
 
-uniform int SMAA_EdgeDetectionType
-<
-	ui_type = "drag";
-	ui_min = 1; ui_max = 3;
-	ui_tooltip = "1 = Luminance edge detection\n2 = Color edge detection\n3 = Depth edge detection";
+uniform int SMAA_EdgeDetectionType <
+	ui_type = "combo";
+	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";
 > = 1;
 
-uniform float SMAA_Threshold
-<
+uniform float SMAA_Threshold <
 	ui_min = 0.05; ui_max = 0.20;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
 > = 0.10;
-uniform int SMAA_MaxSearchSteps
-<
+uniform int SMAA_MaxSearchSteps <
 	ui_min = 0; ui_max = 98;
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
-uniform int SMAA_MaxSearchStepsDiagonal
-<
+uniform int SMAA_MaxSearchStepsDiagonal <
 	ui_min = 0; ui_max = 16;
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
-uniform int SMAA_CornerRounding
-<
+uniform int SMAA_CornerRounding <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 100;
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners. 0 seems to affect fine text the least so it's the default.";
 > = 0;
 
-uniform bool SMAA_DebugOutput
-<
+uniform bool SMAA_DebugOutput <
 	ui_tooltip = "Display the contents of the 'edgeTex' and 'blendTex' buffers.";
 > = false;
 
@@ -188,7 +181,7 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	if (SMAA_EdgeDetectionType == 1)
+	if (SMAA_EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
 	if (SMAA_EdgeDetectionType == 2)
 		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
