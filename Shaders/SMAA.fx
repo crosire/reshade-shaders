@@ -20,7 +20,8 @@ uniform int SMAA_EdgeDetectionType <
 > = 1;
 
 uniform float SMAA_Threshold <
-	ui_min = 0.05; ui_max = 0.20;
+	ui_type = "drag";
+	ui_min = 0.05; ui_max = 0.20; ui_step = 0.02;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
 > = 0.10;
 uniform int SMAA_MaxSearchSteps <
