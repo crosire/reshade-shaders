@@ -53,9 +53,9 @@ uniform float fMXAOSampleRandomization <
 
 uniform float fMXAONormalBias <
 	ui_type = "drag";
-	ui_min = 0.00; ui_max = 0.80;
+	ui_min = 0.0; ui_max = 0.8;
 	ui_tooltip = "MXAO: Normals bias to reduce self-occlusion of surfaces that have a low angle to each other.";
-> = 1.00;
+> = 0.8;
 
 uniform bool bMXAOBackfaceCheckEnable <
 	ui_tooltip = "MXAO: For indirect lighting only!\nEnables back face check so surfaces facing away from the source position don't cast light. \nIt comes with a slight fps drop.";
