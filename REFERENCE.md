@@ -128,7 +128,16 @@ sampler samplerTarget
 
 > Uniforms are variables which are constant across each iteration of a shader per pass.
 
-Annotations are used to request special runtime values:
+Annotations to customize UI appearance:
+
+ * ui_type - Can be `input`, `drag`, `combo` or `color`
+ * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_items - A list of items for the combo box, each item is terminated with a `\0` character (required when `ui_type = "combo"`)
+ * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
+ * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
+
+Annotations are also used to request special runtime values:
 
  * ``uniform float frametime < source = "frametime"; >;``  
  Time in milliseconds it took for the last frame to complete.
