@@ -4,7 +4,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Ambient Obscurance with Indirect Lighting "MXAO" 1.2b by Marty McFly
 // For ReShade 3.X only!
-// Copyright © 2008-2016 Marty McFly
+// Copyright (c) 2008-2016 Marty McFly
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uniform float fMXAOAmbientOcclusionAmount <
