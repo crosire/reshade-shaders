@@ -79,7 +79,7 @@ Insure the texture sampler(s) used by FXAA are set to bilinear filtering.
 ============================================================================*/
 
 #define FXAA_HLSL_3		1
-#define FXAA_QUALITY__PRESET	10
+#define FXAA_QUALITY__PRESET	9
 
 /*============================================================================
 
