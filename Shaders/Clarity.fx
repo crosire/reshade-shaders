@@ -21,10 +21,10 @@ uniform float ClarityOffset
 
 uniform int ClarityBlendMode
 <
-	ui_type = "drag";
-	ui_min = 1; ui_max = 6;
-	ui_tooltip = "1 = Soft Light, 2 = Overlay, 3 = Hard Light, 4 = Multiply, 5 = Vivid Light, 6 = Linear Light";
-> = 3;
+	ui_type = "combo";
+	ui_items = "\Soft Light\0Overlay\0Hard Light\0Multiply\0Vivid Light\0Linear Light\0Addition";
+	ui_tooltip = "Blend modes determine how the clarity mask is applied to the original image";
+> = 2;
 
 uniform int ClarityBlendIfDark
 <
@@ -54,29 +54,24 @@ uniform float ClarityStrength
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 0.400;
 
-//>Advanced Clarity Settings<\\
-uniform float DarkIntensity
+uniform float ClarityDarkIntensity
 <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 > = 0.400;
 
-uniform float LightIntensity
+uniform float ClarityLightIntensity
 <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 > = 0.000;
 
-#define luminance 2
-
-uniform bool ViewMask
+uniform bool ClarityViewMask
 <
 	ui_tooltip = "The mask is what creates the effect. View it when making adjustments to get a better idea of how your changes will affect the image.";
 > = false;
-
-#define Clarity_ToggleKey 0x2D //[undef] //-Default is the "Insert" key. Change to RESHADE_TOGGLE_KEY to toggle with the rest of the Framework shaders.
 
 #include "ReShade.fxh"
 
@@ -176,13 +171,12 @@ if(ClarityRadius == 4)
 	sharp = (luma+sharp)*0.5;
 	
 	float sharpMin = lerp(0.0,1.0,smoothstep(0.0,1.0,sharp));
-
 	float sharpMax = sharpMin;
-	sharpMin = lerp(sharp,sharpMin,DarkIntensity);
-	sharpMax = lerp(sharp,sharpMax,LightIntensity);
+	sharpMin = lerp(sharp,sharpMin,ClarityDarkIntensity);
+	sharpMax = lerp(sharp,sharpMax,ClarityLightIntensity);
 	sharp = lerp(sharpMin,sharpMax,step(0.5,sharp));
 
-	if(ViewMask)
+	if(ClarityViewMask)
 	{
 		orig.rgb = sharp;
 		luma = sharp;
@@ -190,40 +184,46 @@ if(ClarityRadius == 4)
 	}
 	else
 	{
-		if(ClarityBlendMode == 1)
+		if(ClarityBlendMode == 0)
 		{
 			//softlight
 			sharp = lerp(2*luma*sharp + luma*luma*(1.0-2*sharp), 2*luma*(1.0-sharp)+pow(luma,0.5)*(2*sharp-1.0), step(0.49,sharp));
 		}
 		
-		if(ClarityBlendMode == 2)
+		if(ClarityBlendMode == 1)
 		{
 			//overlay
 			sharp = lerp(2*luma*sharp, 1.0 - 2*(1.0-luma)*(1.0-sharp), step(0.50,luma));
 		}
 		
-		if(ClarityBlendMode == 3)
+		if(ClarityBlendMode == 2)
 		{
 			//Hardlight
 			sharp = lerp(2*luma*sharp, 1.0 - 2*(1.0-luma)*(1.0-sharp), step(0.50,sharp));
 		}
 		
-		if(ClarityBlendMode == 4)
+		if(ClarityBlendMode == 3)
 		{
 			//Multiply
 			sharp = saturate(2 * luma * sharp);
 		}
 		
-		if(ClarityBlendMode == 5)
+		if(ClarityBlendMode == 4)
 		{
 			//vivid light
 			sharp = lerp(2*luma*sharp, luma/(2*(1-sharp)), step(0.5,sharp));
 		}
 		
-		if(ClarityBlendMode == 6)
+		if(ClarityBlendMode == 5)
 		{
 			//Linear Light
 			sharp = luma + 2.0*sharp-1.0;
+		}
+		
+		if(ClarityBlendMode == 6)
+		{
+			//Addition
+			sharp = saturate(luma + (sharp - 0.5));
 		}
 	}
 	
@@ -506,7 +506,7 @@ if(ClarityRadius == 4)
 	return color;
 }
 
-technique Clarity <bool enabled = true; int toggle = Clarity_ToggleKey; >
+technique Clarity
 {
 	pass Clarity1
 	{
