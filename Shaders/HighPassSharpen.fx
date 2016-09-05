@@ -16,10 +16,10 @@ uniform float HighPassSharpOffset <
 > = 1.00;
 
 uniform int HighPassBlendMode <
-	ui_type = "drag";
-	ui_min = 1; ui_max = 7;
-	ui_tooltip = "1 = Soft Light, 2 = Overlay, 3 = Multiply, 4 = Hard Light, 5 = Vivid Light, 6 = Linear Light,  7 = Screen";
-> = 2;
+	ui_type = "combo";
+	ui_items = "Soft Light\0Overlay\0Mulitply\0Hard Light\0Vivid Light\0Screen\0Linear Light\0Addition";
+	ui_tooltip = "Blend modes determine how the sharp mask is applied to the original image";
+> = 1;
 
 uniform int HighPassBlendIfDark <
 	ui_type = "drag";
@@ -133,46 +133,52 @@ float3 SharpBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 	}
 	else 
 	{	
-		if(HighPassBlendMode == 1)
+		if(HighPassBlendMode == 0)
 		{
 			//softlight
 			sharp = lerp(2*luma*sharp + luma*luma*(1.0-2*sharp), 2*luma*(1.0-sharp)+pow(luma,0.5)*(2*sharp-1.0), step(0.49,sharp));
 		}
 		
-		if(HighPassBlendMode == 2)
+		if(HighPassBlendMode == 1)
 		{
 			//overlay
 			sharp = lerp(2*luma*sharp, 1.0 - 2*(1.0-luma)*(1.0-sharp), step(0.50,luma));
 		}
 		
-		if(HighPassBlendMode == 3)
+		if(HighPassBlendMode == 2)
 		{
 			//Hardlight
 			sharp = lerp(2*luma*sharp, 1.0 - 2*(1.0-luma)*(1.0-sharp), step(0.50,sharp));
 		}
 		
-		if(HighPassBlendMode == 4)
+		if(HighPassBlendMode == 3)
 		{
 			//Multiply
 			sharp = saturate(2 * luma * sharp);
 		}
 		
-		if(HighPassBlendMode == 5)
+		if(HighPassBlendMode == 4)
 		{
 			//vivid light
 			sharp = lerp(2*luma*sharp, luma/(2*(1-sharp)), step(0.5,sharp));
 		}
 		
-		if(HighPassBlendMode == 6)
+		if(HighPassBlendMode == 5)
 		{
 			//Linear Light
 			sharp = luma + 2.0*sharp-1.0;
 		}
 		
-		if(HighPassBlendMode == 7)
+		if(HighPassBlendMode == 6)
 		{
 			//Screen
 			sharp = 1.0 - (2*(1.0-luma)*(1.0-sharp));
+		}
+		
+		if(HighPassBlendMode == 7)
+		{
+			//Addition
+			sharp = saturate(luma + (sharp - 0.5));
 		}
 	}
 	
