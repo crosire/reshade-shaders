@@ -110,14 +110,14 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #define max4(a,b,c,d)  ( max(max(a,b), max(c,d)) )
 
 // Compute diff
-#define b_diff(z)      ( abs(blur - c[z]) )
+#define b_diff(pix)    ( abs(blur - c[pix]) )
 
 // Center pixel diff
 #define mdiff(a,b,c,d,e,f,g) ( abs(luma[g]-luma[a]) + abs(luma[g]-luma[b])			 \
                              + abs(luma[g]-luma[c]) + abs(luma[g]-luma[d])			 \
                              + 0.5*(abs(luma[g]-luma[e]) + abs(luma[g]-luma[f])) )
 
-void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 P0_OUT : SV_Target0)
+float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	// Get points and clip out of range values (BTB & WTW)
 	// [                c9,               ]
@@ -141,16 +141,17 @@ void AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 
 	// Edge detection
 	// Matrix weights
-	// [         1/4,        ]
-	// [      1,  1,  1      ]
-	// [ 1/4, 1,  1,  1, 1/4 ]
-	// [      1,  1,  1      ]
-	// [         1/4         ]
-	float edge = length( b_diff(0) + b_diff(1) + b_diff(2) + b_diff(3)
-	                   + b_diff(4) + b_diff(5) + b_diff(6) + b_diff(7) + b_diff(8)
-	                   + 0.25*(b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)) );
+	// [          1,         ]
+	// [      4,  5,  4      ]
+	// [  1,  5,  6,  5,  1  ]
+	// [      4,  5,  4      ]
+	// [          1          ]
+	float edge = length( 1.38*(b_diff(0))
+	                   + 1.15*(b_diff(2) + b_diff(4)  + b_diff(5)  + b_diff(7))
+	                   + 0.92*(b_diff(1) + b_diff(3)  + b_diff(6)  + b_diff(8))
+	                   + 0.23*(b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)) );
 
-	P0_OUT = float2( edge*c_comp, luma );
+	return float2( edge*c_comp, luma );
 }
 
 float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
