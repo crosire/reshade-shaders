@@ -29,12 +29,14 @@ uniform float colourfulness <
 	ui_type = "drag";
 	ui_min = -1.0; ui_max = 2.0;
 	ui_tooltip = "Degree of colourfulness, 0 = neutral";
+	ui_step = 0.01;
 > = 0.4;
 
 uniform float lim_luma <
 	ui_type = "drag";
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Lower vals allow more change near clipping";
+	ui_step = 0.01;
 > = 0.7;
 
 #include "Reshade.fxh"
@@ -43,9 +45,9 @@ uniform float lim_luma <
 #define soft_lim(v,s)  ( clamp((v/s)*(27 + pow(v/s, 2))/(27 + 9*pow(v/s, 2)), -1, 1)*s )
 
 // Weighted power mean, p=0.5
-#define wpmean(a,b,c)  ( pow((abs(c)*sqrt(abs(a)) + abs(1-c)*sqrt(abs(b))), 2) )
+#define wpmean(a,b,w)  ( pow((abs(w)*sqrt(abs(a)) + abs(1-w)*sqrt(abs(b))), 2) )
 
-// Min rgb components
+// Max RGB components
 #define max3(RGB)      ( max((RGB).r, max((RGB).g, (RGB).b)) )
 
 // sRGB gamma approximation
@@ -58,7 +60,7 @@ uniform float lim_luma <
 float3 Colourfulness(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float3 c0  = saturate(tex2D(ReShade::BackBuffer, texcoord).rgb);
-	float luma = to_gamma(max(dot(to_linear(c0), lumacoeff), 0));
+	float luma = to_gamma( max(dot(to_linear(c0), lumacoeff), 0) );
 
 	float3 colour = luma + (c0 - luma)*(max(colourfulness, -1) + 1);
 
@@ -69,7 +71,7 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 		// 120% of colour clamped to max range + overshoot
 		float3 ccldiff = clamp((diff*1.2) + c0, -0.0001, 1.0001) - c0;
 
-		// Calculate maximum saturation increase without altering ratios for RGB
+		// Calculate maximum saturation-increase without altering ratios for RGB
 		float3 diff_luma = c0 - luma;
 
 		float poslim = (1.0001 - luma)/max3(max(diff_luma, 0));
