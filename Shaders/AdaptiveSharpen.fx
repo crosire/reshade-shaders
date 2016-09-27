@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Adaptive sharpen - version 2016-07-10 - (requires ps >= 3.0)
+// Adaptive sharpen - version 2016-09-24 - (requires ps >= 3.0)
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float curve_height <
@@ -30,12 +30,13 @@ uniform float curve_height <
 	ui_min = 0.1; ui_max = 2.0;
 	ui_label = "Sharpening strength";
 	ui_tooltip = "Main control of sharpening strength";
+	ui_step = 0.01;
 > = 1.0;
 
 uniform float curveslope <
 	ui_min = 0.1; ui_max = 2.0;
 	ui_tooltip = "Sharpening curve slope, high edge values";
-> = 0.5;
+> = 0.4;
 
 uniform float L_overshoot <
 	ui_min = 0.001; ui_max = 0.1;
@@ -104,7 +105,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #endif
 
 // Weighted power mean
-#define wpmean(a,b,c)  ( pow((abs(c)*pow(abs(a), pm_p) + abs(1-c)*pow(abs(b), pm_p)), (1.0/pm_p)) )
+#define wpmean(a,b,w)  ( pow((abs(w)*pow(abs(a), pm_p) + abs(1-w)*pow(abs(b), pm_p)), (1.0/pm_p)) )
 
 // Maximum of four values
 #define max4(a,b,c,d)  ( max(max(a,b), max(c,d)) )
@@ -137,10 +138,10 @@ float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	float blur_Y = (blur.r/3 + blur.g/3 + blur.b/3);
 
 	// Contrast compression, center = 0.5, scaled to 1/3
-	float c_comp = saturate(0.266666681f + 0.9*pow(2.0, (-7.4*blur_Y)));
+	float c_comp = saturate(0.266666681f + 0.9*exp2(-7.4*blur_Y));
 
 	// Edge detection
-	// Matrix weights
+	// Relative matrix weights
 	// [          1,         ]
 	// [      4,  5,  4      ]
 	// [  1,  5,  6,  5,  1  ]
@@ -190,11 +191,11 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	          + soft_if(d[3].x,d[23].x,d[18].x)*soft_if(d[6].x,d[20].x,d[15].x); // w dir
 
 	#if (fast_ops == 1)
-		float s[2] = { lerp( L_compr_low, L_compr_high, saturate(sbe - 2) ),
-		               lerp( D_compr_low, D_compr_high, saturate(sbe - 2) ) };
+		float cs[2] = { lerp( L_compr_low, L_compr_high, saturate(sbe - 2) ),
+		                lerp( D_compr_low, D_compr_high, saturate(sbe - 2) ) };
 	#else
-		float s[2] = { lerp( L_compr_low, L_compr_high, smoothstep(2, 3.1, sbe) ),
-		               lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, sbe) ) };
+		float cs[2] = { lerp( L_compr_low, L_compr_high, smoothstep(2, 3.1, sbe) ),
+		                lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, sbe) ) };
 	#endif
 
 	float luma[25] = { d[0].y,  d[1].y,  d[2].y,  d[3].y,  d[4].y,
@@ -305,21 +306,24 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 		}
 	}
 
+	// Calculate tanh scale factor, pos/neg
 	#if (fast_ops == 1)
 		float nmax = (max(luma[23], d[0].y) + luma[24])/2;
 		float nmin = (min(luma[1],  d[0].y) + luma[0])/2;
+
+		float nmax_scale = min((abs(nmax - d[0].y) + L_overshoot), max_scale_lim);
+		float nmin_scale = min((abs(d[0].y - nmin) + D_overshoot), max_scale_lim);
 	#else
 		float nmax = (max(luma[22] + luma[23]*2, d[0].y*3) + luma[24])/4;
 		float nmin = (min(luma[2]  + luma[1]*2,  d[0].y*3) + luma[0])/4;
+
+		float nmax_scale = min(nmax - d[0].y + min(L_overshoot, 1.0001 - nmax), max_scale_lim);
+		float nmin_scale = min(d[0].y - nmin + min(D_overshoot, 0.0001 + nmin), max_scale_lim);
 	#endif
 
-	// Calculate tanh scale factor, pos/neg
-	float nmax_scale = min((abs(nmax - d[0].y) + L_overshoot), max_scale_lim);
-	float nmin_scale = min((abs(d[0].y - nmin) + D_overshoot), max_scale_lim);
-
 	// Soft limited anti-ringing with tanh, wpmean to control compression slope
-	sharpdiff = wpmean( max(sharpdiff, 0), soft_lim( max(sharpdiff, 0), nmax_scale ), s[0] )
-	          - wpmean( min(sharpdiff, 0), soft_lim( min(sharpdiff, 0), nmin_scale ), s[1] );
+	sharpdiff = wpmean( max(sharpdiff, 0), soft_lim( max(sharpdiff, 0), nmax_scale ), cs[0] )
+	          - wpmean( min(sharpdiff, 0), soft_lim( min(sharpdiff, 0), nmin_scale ), cs[1] );
 
 	/*if (video_level_out == true)
 	{
