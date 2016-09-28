@@ -147,14 +147,16 @@ Annotations are also used to request special runtime values:
  float4(year, month (1 - 12), day of month (1 - 31), time in seconds)
  * ``uniform float timer < source = "timer"; >;``  
  Timer counting time in milliseconds since game start.
- * ``uniform float timeleft < source = "timeleft"; >;``  
- Time in milliseconds that is left until the current technique timeout is reached.
  * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 9; step = 1; >;``  
  Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
  * ``uniform int random < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
  * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
+ True if specified mouse button (0 - 5) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
+ Gets the position of the mouse cursor in screen coordinates.
 
 ```c++
 // Initializers are used for the initial value when providied.
