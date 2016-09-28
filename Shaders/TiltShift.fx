@@ -7,24 +7,22 @@ uniform bool Line <
 uniform float Axis <
 	ui_type = "drag";
 	ui_min = -90; ui_max = 90; ui_step = 1;
-	ui_label = "Tilt Shift Axis";
-> = 0;
+> = 0.0;
 uniform float Offset <
 	ui_type = "drag";
 	ui_min = -5; ui_max = 5;
-	ui_label = "Tilt Shift Offset";
-> = 0;
+> = 0.0;
 
 uniform float BlurCurve <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 10;
-	ui_label = "Tilt Shift Blur Curve";
-> = 1;
+	ui_label = "Blur Curve";
+> = 1.0;
 uniform float BlurMultiplier <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 100;
-	ui_label = "Tilt Shift Blur Multiplier";
-> = 10;
+	ui_label = "Blur Multiplier";
+> = 10.0;
 
 #include "ReShade.fxh"
 
