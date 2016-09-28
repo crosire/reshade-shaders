@@ -12,46 +12,43 @@
  *                               for ReShade 3.0
  */
 
-// -------------------------------------------------------------------------------
-
-uniform int SMAA_EdgeDetectionType <
+uniform int EdgeDetectionType <
 	ui_type = "combo";
 	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";
 > = 1;
 
-uniform float SMAA_Threshold <
+uniform float EdgeDetectionThreshold <
 	ui_type = "drag";
 	ui_min = 0.05; ui_max = 0.20; ui_step = 0.02;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
 > = 0.10;
-uniform int SMAA_MaxSearchSteps <
+uniform int MaxSearchSteps <
 	ui_min = 0; ui_max = 98;
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
-uniform int SMAA_MaxSearchStepsDiagonal <
+uniform int MaxSearchStepsDiagonal <
 	ui_min = 0; ui_max = 16;
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
-uniform int SMAA_CornerRounding <
+uniform int CornerRounding <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 100;
-	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners. 0 seems to affect fine text the least so it's the default.";
+	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
 > = 0;
 
-uniform bool SMAA_DebugOutput <
-	ui_tooltip = "Display the contents of the 'edgeTex' and 'blendTex' buffers.";
+uniform int DebugOutput <
+	ui_type = "combo";
+	ui_items = "None\0'edgesTex' buffer\0'blendTex' buffer\0";
 > = false;
-
-// -------------------------------------------------------------------------------
 
 #define SMAA_RT_METRICS float4(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT, BUFFER_WIDTH, BUFFER_HEIGHT)
 #define SMAA_CUSTOM_SL 1
 #define SMAA_PRESET_CUSTOM 1
 
-#define SMAA_THRESHOLD SMAA_Threshold
-#define SMAA_MAX_SEARCH_STEPS SMAA_MaxSearchSteps
-#define SMAA_MAX_SEARCH_STEPS_DIAG SMAA_MaxSearchStepsDiagonal
-#define SMAA_CORNER_ROUNDING SMAA_CornerRounding
+#define SMAA_THRESHOLD EdgeDetectionThreshold
+#define SMAA_MAX_SEARCH_STEPS MaxSearchSteps
+#define SMAA_MAX_SEARCH_STEPS_DIAG MaxSearchStepsDiagonal
+#define SMAA_CORNER_ROUNDING CornerRounding
 
 #define SMAATexture2D(tex) sampler tex
 #define SMAATexturePass2D(tex) tex
@@ -77,7 +74,7 @@ texture edgesTex
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
-	Format = RGBA8;
+	Format = RG8;
 };
 texture blendTex
 {
@@ -182,9 +179,9 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	if (SMAA_EdgeDetectionType == 0)
+	if (EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
-	if (SMAA_EdgeDetectionType == 2)
+	if (EdgeDetectionType == 2)
 		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
 
 	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler);
@@ -203,10 +200,10 @@ float3 SMAANeighborhoodBlendingWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset : TEXCOORD1) : SV_Target
 {
-	if (SMAA_DebugOutput)
-	{
-		return texcoord.x < texcoord.y ? tex2D(edgesSampler, texcoord).rgb : tex2D(blendSampler, texcoord).rgb;
-	}
+	if (DebugOutput == 1)
+		return tex2D(edgesSampler, texcoord).rgb;
+	if (DebugOutput == 2)
+		return tex2D(blendSampler, texcoord).rgb;
 
 	return SMAANeighborhoodBlendingPS(texcoord, offset, colorLinearSampler, blendSampler).rgb;
 }
@@ -221,7 +218,6 @@ technique SMAA
 		PixelShader = SMAAEdgeDetectionWrapPS;
 		RenderTarget = edgesTex;
 		ClearRenderTargets = true;
-
 		StencilEnable = true;
 		StencilPass = REPLACE;
 		StencilRef = 1;
@@ -232,7 +228,6 @@ technique SMAA
 		PixelShader = SMAABlendingWeightCalculationWrapPS;
 		RenderTarget = blendTex;
 		ClearRenderTargets = true;
-
 		StencilEnable = true;
 		StencilPass = KEEP;
 		StencilFunc = EQUAL;
@@ -242,7 +237,6 @@ technique SMAA
 	{
 		VertexShader = SMAANeighborhoodBlendingWrapVS;
 		PixelShader = SMAANeighborhoodBlendingWrapPS;
-
 		StencilEnable = false;
 		SRGBWriteEnable = true;
 	}
