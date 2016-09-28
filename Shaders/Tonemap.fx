@@ -38,7 +38,7 @@ uniform float3 FogColor <
 
 #include "ReShade.fxh"
 
-float3 TonemapPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
+float3 TonemapPass(float4 position : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	color = saturate(color - Defog * FogColor * 2.55); // Defog

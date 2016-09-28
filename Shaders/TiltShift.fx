@@ -26,7 +26,7 @@ uniform float BlurMultiplier <
 
 #include "ReShade.fxh"
 
-float4 PS_FakeTiltShiftPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float4 PS_FakeTiltShiftPass1(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	float4 res = tex2D(ReShade::BackBuffer, texcoord);
 

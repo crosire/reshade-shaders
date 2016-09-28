@@ -15,7 +15,7 @@
  * -- Version 1.1 --
  * Optimized to only use 1 instruction (down from 2 - a 100% performance increase :) )
  * -- Version 1.2 --
- * Added the ability to highlight clipping regions of the image with #define ShowHighlightClipping 1
+ * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
  */
 
 uniform int BlackPoint <
@@ -29,7 +29,7 @@ uniform int WhitePoint <
 	ui_tooltip = "The new white point. Everything brighter than this becomes completely white";
 > = 235;
 
-uniform bool ShowHighlightClipping <
+uniform bool HighlightClipping <
 	ui_tooltip = "Colors between the two points will stretched, which increases contrast, but details above and below the points are lost (this is called clipping). Highlight the pixels that clip. Red = Some detail is lost in the highlights, Yellow = All detail is lost in the highlights, Blue = Some detail is lost in the shadows, Cyan = All detail is lost in the shadows.";
 > = false;
 
@@ -43,7 +43,7 @@ float4 LevelsPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Ta
 	float4 color = tex2D(ReShade::BackBuffer, texcoord);
 	color.rgb = color.rgb * white_point_float - (black_point_float *  white_point_float);
 
-	if (ShowHighlightClipping)
+	if (HighlightClipping)
 	{
 		float3 clipped_colors;
 

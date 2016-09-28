@@ -19,7 +19,7 @@ uniform float3 VibranceRGBBalance <
 
 #include "ReShade.fxh"
 
-float3 VibrancePass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
+float3 VibrancePass(float4 position : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
   

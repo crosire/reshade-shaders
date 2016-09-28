@@ -25,7 +25,7 @@ uniform float ImageChromaAmount <
 
 #include "ReShade.fxh"
 
-float3 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float3 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {  
 		texcoord = texcoord * 2.0 - 1.0;
 		float offsetfact = length(texcoord);

@@ -1,18 +1,11 @@
-/*
-_____________________
-
-LumaSharpen 1.5.0
-_____________________
-
-by Christian Cann Schuldt Jensen ~ CeeJay.dk
-
-It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
-It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
-
-This is similar to using Unsharp Mask in Photoshop.
-
-Compiles with 3.0
-*/
+/**
+ * LumaSharpen version 1.5.0
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
+ * It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
+ * This is similar to using Unsharp Mask in Photoshop.
+ */
 
 uniform float sharp_strength <
 	ui_type = "drag";
