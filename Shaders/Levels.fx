@@ -15,21 +15,21 @@
  * -- Version 1.1 --
  * Optimized to only use 1 instruction (down from 2 - a 100% performance increase :) )
  * -- Version 1.2 --
- * Added the ability to highlight clipping regions of the image with #define Levels_highlight_clipping 1
+ * Added the ability to highlight clipping regions of the image with #define ShowHighlightClipping 1
  */
 
-uniform int Levels_black_point <
+uniform int BlackPoint <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The black point is the new black - literally. Everything darker than this will become completely black.";
 > = 16;
-uniform int Levels_white_point <
+uniform int WhitePoint <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The new white point. Everything brighter than this becomes completely white";
 > = 235;
 
-uniform bool Levels_highlight_clipping <
+uniform bool ShowHighlightClipping <
 	ui_tooltip = "Colors between the two points will stretched, which increases contrast, but details above and below the points are lost (this is called clipping). Highlight the pixels that clip. Red = Some detail is lost in the highlights, Yellow = All detail is lost in the highlights, Blue = Some detail is lost in the shadows, Cyan = All detail is lost in the shadows.";
 > = false;
 
@@ -37,13 +37,13 @@ uniform bool Levels_highlight_clipping <
 
 float4 LevelsPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
-	float black_point_float = Levels_black_point / 255.0;
-	float white_point_float = Levels_white_point == Levels_black_point ? (255.0 / 0.00025) : (255.0 / (Levels_white_point - Levels_black_point)); // Avoid division by zero if the white and black point are the same
+	float black_point_float = BlackPoint / 255.0;
+	float white_point_float = WhitePoint == BlackPoint ? (255.0 / 0.00025) : (255.0 / (WhitePoint - BlackPoint)); // Avoid division by zero if the white and black point are the same
 
 	float4 color = tex2D(ReShade::BackBuffer, texcoord);
 	color.rgb = color.rgb * white_point_float - (black_point_float *  white_point_float);
 
-	if (Levels_highlight_clipping)
+	if (ShowHighlightClipping)
 	{
 		float3 clipped_colors;
 
