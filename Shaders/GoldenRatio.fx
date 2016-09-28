@@ -13,7 +13,8 @@ uniform float Opacity <
 uniform int ResizeMode <
 	ui_type = "combo";
 	ui_items = "Clamp to screen\0Keep aspect ratio\0";
-	ui_tooltip = "Resize mode: Either clamp to screen (so resizing of overlay, no golden ratio by definition), or resize to either full with or full height while keeping aspect ratio: golden ratio by definition in lined area";
+	ui_label = "Resize Mode";
+	ui_tooltip = "Either clamp to screen (so resizing of overlay, no golden ratio by definition), or resize to either full with or full height while keeping aspect ratio: golden ratio by definition in lined area";
 > = 1;
 
 #include "Reshade.fxh"

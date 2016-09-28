@@ -13,13 +13,14 @@ uniform float Subpix <
 uniform float EdgeThreshold <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
-	ui_tooltip = "Edge detection threshold. The minimum amount of local contrast required to apply algorithm.";
+	ui_label = "Edge Detection Threshold";
+	ui_tooltip = "The minimum amount of local contrast required to apply algorithm.";
 > = 0.125;
-
 uniform float EdgeThresholdMin <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
-	ui_tooltip = "Darkness threshold. Pixels darker than this are not processed in order to increase performance.";
+	ui_label = "Darkness Threshold";
+	ui_tooltip = "Pixels darker than this are not processed in order to increase performance.";
 > = 0.0;
 
 #define FXAA_PC 1

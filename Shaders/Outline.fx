@@ -21,42 +21,47 @@
  * 1.3  - Rewritten for ReShade 3.0 by crosire
  */
 
-uniform int OutlineEdgeDetection <
+uniform int EdgeDetectionMode <
 	ui_type = "combo";
 	ui_items = "Normal-depth edge detection\0Color edge detection\0";
+	ui_label = "Edge Detection Mode";
 > = 1;
-uniform float OutlineAccuracy <
+uniform float EdgeDetectionAccuracy <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 100.0;
-	ui_tooltip = "Edge detection accuracy.";
+	ui_label = "Edge Detection Accuracy";
 > = 1.0;
-uniform float3 OutlineColor <
-	ui_type = "color";
-	ui_tooltip = "Outline color";
-> = float3(0.0, 0.0, 0.0);
-uniform float OutlineThreshold <
+uniform float EdgeSlope <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 10.0;
+	ui_label = "Edge Slope";
 	ui_tooltip = "Ignores soft edges (less sharp corners) when increased.";
 > = 1.0;
+
+uniform float3 OutlineColor <
+	ui_type = "color";
+	ui_label = "Outline Color";
+> = float3(0.0, 0.0, 0.0);
 uniform float OutlineOpacity <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
-	ui_tooltip = "Outline opacity";
+	ui_label = "Outline Opacity";
 > = 1.0;
-uniform bool OutlineCustomBackground <
+
+uniform bool CustomBackground <
+	ui_label = "Custom Background";
 	ui_tooltip = "Uses a custom color as background when set to true.";
 > = false;
-uniform float3 OutlineBackgroundColor <
+uniform float3 BackgroundColor <
 	ui_type = "color";
-	ui_tooltip = "Background color";
+	ui_label = "Background Color";
 > = float3(0.0, 0.0, 0.0);
 
 #include "ReShade.fxh"
 
 float3 GetEdgeSample(float2 coord)
 {
-	if (OutlineEdgeDetection)
+	if (EdgeDetectionMode)
 	{
 		float4 depth = float4(
 			ReShade::GetLinearizedDepth(coord + ReShade::PixelSize * float2(1, 0)),
@@ -74,7 +79,7 @@ float3 GetEdgeSample(float2 coord)
 
 float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 {
-	float3 color = OutlineCustomBackground ? OutlineBackgroundColor : tex2D(ReShade::BackBuffer, texcoord).rgb;
+	float3 color = CustomBackground ? BackgroundColor : tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 origcolor = color;
 
 	// Sobel operator matrices
@@ -108,11 +113,11 @@ float3 PS_Outline(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : 
 	}
 	
 	// Boost edge detection
-	dotx *= OutlineAccuracy;
-	doty *= OutlineAccuracy;
+	dotx *= EdgeDetectionAccuracy;
+	doty *= EdgeDetectionAccuracy;
 
 	// Return custom color when weight over threshold
-	color = lerp(color, OutlineColor, sqrt(dot(dotx, dotx) + dot(doty, doty)) >= OutlineThreshold);
+	color = lerp(color, OutlineColor, sqrt(dot(dotx, dotx) + dot(doty, doty)) >= EdgeSlope);
 	
 	// Set opacity
 	color = lerp(origcolor, color, OutlineOpacity);

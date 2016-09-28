@@ -15,30 +15,36 @@
 uniform int EdgeDetectionType <
 	ui_type = "combo";
 	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";
+	ui_label = "Edge Detection Type";
 > = 1;
-
 uniform float EdgeDetectionThreshold <
 	ui_type = "drag";
 	ui_min = 0.05; ui_max = 0.20; ui_step = 0.02;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
+	ui_label = "Edge Detection Threshold";
 > = 0.10;
+
 uniform int MaxSearchSteps <
 	ui_min = 0; ui_max = 98;
+	ui_label = "Max Search Steps";
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
 uniform int MaxSearchStepsDiagonal <
 	ui_min = 0; ui_max = 16;
+	ui_label = "Max Search Steps Diagonal";
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
 uniform int CornerRounding <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 100;
+	ui_label = "Corner Rounding";
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
 > = 0;
 
 uniform int DebugOutput <
 	ui_type = "combo";
 	ui_items = "None\0'edgesTex' buffer\0'blendTex' buffer\0";
+	ui_label = "Debug Output";
 > = false;
 
 #define SMAA_RT_METRICS float4(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT, BUFFER_WIDTH, BUFFER_HEIGHT)

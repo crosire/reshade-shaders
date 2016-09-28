@@ -10,16 +10,19 @@
 uniform int ImageChromaHues <
 	ui_type = "drag";
 	ui_min = 2; ui_max = 30;
+	ui_label = "Hues";
 	ui_tooltip = "Amount of samples through the light spectrum to get a smooth gradient.";
 > = 25;
 uniform float ImageChromaCurve <
 	ui_type = "drag";
 	ui_min = 0.5; ui_max = 2.0;
+	ui_label = "Curve";
 	ui_tooltip = "Image chromatic aberration curve. Higher means less chroma at screen center areas.";
 > = 1.0;
 uniform float ImageChromaAmount <
 	ui_type = "drag";
 	ui_min = 5.0; ui_max = 200.0;
+	ui_label = "Amount";
 	ui_tooltip = "Linearly increases image chromatic aberration amount.";
 > = 100.0;
 

@@ -11,6 +11,7 @@ uniform float Power <
 uniform float EdgeSlope <
 	ui_type = "drag";
 	ui_min = 0.1; ui_max = 6.0;
+	ui_label = "Edge Slope";
 	ui_tooltip = "Raise this to filter out fainter edges. You might need to increase the power to compensate. Whole numbers are faster.";
 > = 1.5;
 

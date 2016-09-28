@@ -32,6 +32,7 @@ uniform float Defog <
 > = 0.0;
 uniform float3 FogColor <
 	ui_type = "color";
+	ui_label = "Defog Color";
 	ui_tooltip = "Which color tint to remove";
 > = float3(0.0, 0.0, 1.0);
 

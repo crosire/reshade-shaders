@@ -34,9 +34,10 @@ uniform float Brightness <
 uniform int ScanlineIntensity <
 	ui_type = "drag";
 	ui_min = 2; ui_max = 4;
-	ui_tooltip = "Scanlines intensity";
+	ui_label = "Scanline Intensity";
 > = 2;
 uniform bool ScanlineGaussian <
+	ui_label = "Scanline Bloom Effect";
 	ui_tooltip = "Use the new nongaussian scanlines bloom effect.";
 > = true;
 
@@ -46,22 +47,24 @@ uniform bool Curvature <
 uniform float CurvatureRadius <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 2.0;
-	ui_tooltip = "Curvature Radius (only effective when Curvature is enabled).";
+	ui_label = "Curvature Radius";
 > = 1.5;
 uniform float CornerSize <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 0.02; ui_step = 0.001;
-	ui_tooltip = "Higher values => more rounded corner.";
+	ui_label = "Corner Size";
+	ui_tooltip = "Higher values => more rounded corner";
 > = 0.0100;
 uniform float ViewerDistance <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
-	ui_tooltip = "Simulated distance from viewer to monitor.";
+	ui_Label = "Viewer Distance";
+	ui_tooltip = "Simulated distance from viewer to monitor";
 > = 2.00;
 uniform float2 Angle <
 	ui_type = "drag";
 	ui_min = -0.2; ui_max = 0.2;
-	ui_tooltip = "Tilt angle in radians.";
+	ui_tooltip = "Tilt angle in radians";
 > = 0.00;
 
 uniform float Overscan <

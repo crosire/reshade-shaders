@@ -14,6 +14,7 @@ uniform float Vibrance <
 uniform float3 VibranceRGBBalance <
 	ui_type = "drag";
 	ui_min = -10; ui_max = 10;
+	ui_label = "RGB Balance";
 	ui_tooltip = "A per channel multiplier to the Vibrance strength so you can give more boost to certain colors over others.";
 > = float3(1.0, 1.0, 1.0);
 
