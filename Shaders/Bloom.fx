@@ -172,16 +172,16 @@ uniform float3 fFlareTint <
 // If 1, only pixels with depth = 1 get lens flares
 // This prevents white objects from getting lens flares sources, which would normally happen in LDR
 #ifndef LENZ_DEPTH_CHECK
-	#define LENZ_DEPTH_CHECK 1
+	#define LENZ_DEPTH_CHECK 0
 #endif
 #ifndef CHAPMAN_DEPTH_CHECK
-	#define CHAPMAN_DEPTH_CHECK 1
+	#define CHAPMAN_DEPTH_CHECK 0
 #endif
 #ifndef GODRAY_DEPTH_CHECK
-	#define GODRAY_DEPTH_CHECK 1
+	#define GODRAY_DEPTH_CHECK 0
 #endif
 #ifndef FLARE_DEPTH_CHECK
-	#define FLARE_DEPTH_CHECK 1
+	#define FLARE_DEPTH_CHECK 0
 #endif
 
 texture texDirt < source = "LensDB.png"; > { Width = 1920; Height = 1080; Format = RGBA8; };
@@ -603,9 +603,9 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	if (bAnamFlareEnable || bLenzEnable || bGodrayEnable || bChapFlareEnable)
 	{
 		float3 lensflareSample = tex2D(SamplerLensFlare1, texcoord.xy).rgb, lensflareMask;
-		lensflareMask = tex2D(SamplerSprite, texcoord + float2(0.5, 0.5) * ReShade::PixelSize).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, 0.5) * ReShade::PixelSize).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2(0.5, -0.5) * ReShade::PixelSize).rgb;
+		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( 0.5,  0.5) * ReShade::PixelSize).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * ReShade::PixelSize).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * ReShade::PixelSize).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * ReShade::PixelSize).rgb;
 
 		color.rgb += lensflareMask * 0.25 * lensflareSample;
