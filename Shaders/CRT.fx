@@ -190,9 +190,7 @@ float4 scanlineWeights(float distance, float4 color)
 	else
 	{
 		float4 wid = 2.0 * pow(abs(color), 4.0) + 2.0;
-		float calcdistance = distance / 0.3; // Optimization  ?
-		//float4 weights = float4(distance / 0.3, distance / 0.3, distance / 0.3, distance / 0.3);
-		float4 weights = float4(calcdistance, calcdistance, calcdistance, calcdistance);
+		float4 weights = (distance / 0.3).xxxx;
 		return 1.4 * exp(-pow(abs(weights * rsqrt(0.5 * wid)), abs(wid))) / (0.2 * wid + 0.6);
 	}
 }
@@ -279,6 +277,9 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	float4 weights  = scanlineWeights(uv_ratio.y, col);
 	float4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
 
+#if __RENDERER__ < 0xa000
+	[flatten]
+#endif
 	if (Oversample)
 	{
 		uv_ratio.y = uv_ratio.y + 1.0 / 3.0 * filter;
@@ -288,18 +289,8 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		weights = weights + scanlineWeights(abs(uv_ratio.y), col) / 3.0;
 		weights2 = weights2 + scanlineWeights(abs(1.0 - uv_ratio.y), col2) / 3.0;
 	}
-#if __RENDERER__ < 0xa000
-	else
-	{
-		weights *= filter;
-		weights2 *= filter;
-	}
-#endif
 
 	float3 mul_res = (col * weights + col2 * weights2).rgb * cval.xxx;
-#if __RENDERER__ < 0xa000
-	if (!Oversample) mul_res /= filter;
-#endif
 
 	// dot-mask emulation:
 	// Output pixels are alternately tinted green and magenta.
