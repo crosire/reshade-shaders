@@ -35,32 +35,32 @@ uniform bool HighlightClipping <
 
 #include "ReShade.fxh"
 
-float4 LevelsPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
+float3 LevelsPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	float black_point_float = BlackPoint / 255.0;
 	float white_point_float = WhitePoint == BlackPoint ? (255.0 / 0.00025) : (255.0 / (WhitePoint - BlackPoint)); // Avoid division by zero if the white and black point are the same
 
-	float4 color = tex2D(ReShade::BackBuffer, texcoord);
-	color.rgb = color.rgb * white_point_float - (black_point_float *  white_point_float);
+	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
+	color = color * white_point_float - (black_point_float *  white_point_float);
 
 	if (HighlightClipping)
 	{
 		float3 clipped_colors;
 
-		clipped_colors = any(color.rgb > saturate(color.rgb)) // any colors whiter than white?
+		clipped_colors = any(color > saturate(color)) // any colors whiter than white?
 			? float3(1.0, 0.0, 0.0)
-			: color.rgb;
-		clipped_colors = all(color.rgb > saturate(color.rgb)) // all colors whiter than white?
+			: color;
+		clipped_colors = all(color > saturate(color)) // all colors whiter than white?
 			? float3(1.0, 1.0, 0.0)
 			: clipped_colors;
-		clipped_colors = any(color.rgb < saturate(color.rgb)) // any colors blacker than black?
+		clipped_colors = any(color < saturate(color)) // any colors blacker than black?
 			? float3(0.0, 0.0, 1.0)
 			: clipped_colors;
-		clipped_colors = all(color.rgb < saturate(color.rgb)) // all colors blacker than black?
+		clipped_colors = all(color < saturate(color)) // all colors blacker than black?
 			? float3(0.0, 1.0, 1.0)
 			: clipped_colors;
 
-		color.rgb = clipped_colors;
+		color = clipped_colors;
 	}
 
 	return color;
