@@ -19,10 +19,10 @@ uniform int ResizeMode <
 
 #include "Reshade.fxh"
 
-texture GOR_texSpirals < source = "GoldenSpirals.png"; > { Width = 1748; Height = 1080; MipLevels = 1; Format = RGBA8; };
-sampler GOR_samplerSpirals { Texture = GOR_texSpirals; };
+texture texSpirals < source = "GoldenSpirals.png"; > { Width = 720; Height = 480; Format = R8; };
+sampler samplerSpirals { Texture = texSpirals; };
 
-void PS_Otis_GOR_RenderSpirals(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 outFragment : SV_Target)
+void PS_RenderSpirals(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 outFragment : SV_Target)
 {
 	float phiValue = (1.0 + sqrt(5.0)) * 0.5;
 	float idealWidth = ReShade::ScreenSize.y * phiValue;
@@ -44,7 +44,7 @@ void PS_Otis_GOR_RenderSpirals(float4 vpos : SV_Position, float2 texcoord : TEXC
 	}
 
 	float4 colFragment = tex2D(ReShade::BackBuffer, texcoord);
-	float4 spiralFragment = tex2D(GOR_samplerSpirals, texcoord * sourceCoordFactor.xy - ((1.0 - sourceCoordFactor.zw) * 0.5));
+	float spiralFragment = tex2D(samplerSpirals, texcoord * sourceCoordFactor.xy - ((1.0 - sourceCoordFactor.zw) * 0.5)).x;
 	outFragment = saturate(colFragment + (spiralFragment * Opacity));
 }
 
@@ -53,6 +53,6 @@ technique GoldenRatio
 	pass
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = PS_Otis_GOR_RenderSpirals;
+		PixelShader = PS_RenderSpirals;
 	}
 }
