@@ -233,7 +233,7 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// currently rendering, which pixel are we currently rendering?
 	float2 ratio_scale = xy * rubyTextureSize - 0.5;
 
-	float filter = Oversample ? fwidth(ratio_scale.y) : 0;
+	float filter = fwidth(ratio_scale.y);
 	float2 uv_ratio = frac(ratio_scale);
 
 	// Snap to the center of the underlying texel.
@@ -288,8 +288,18 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		weights = weights + scanlineWeights(abs(uv_ratio.y), col) / 3.0;
 		weights2 = weights2 + scanlineWeights(abs(1.0 - uv_ratio.y), col2) / 3.0;
 	}
+#if __RENDERER__ < 0xa000
+	else
+	{
+		weights *= filter;
+		weights2 *= filter;
+	}
+#endif
 
-	float3 mul_res  = (col * weights + col2 * weights2).rgb * float3(cval, cval, cval);
+	float3 mul_res = (col * weights + col2 * weights2).rgb * cval.xxx;
+#if __RENDERER__ < 0xa000
+	if (!Oversample) mul_res /= filter;
+#endif
 
 	// dot-mask emulation:
 	// Output pixels are alternately tinted green and magenta.
