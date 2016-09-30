@@ -918,7 +918,7 @@ void PS_McFlyDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 
 	discRadius *= (centerDepth < 0.5) ? (1.0 / max(DOF_NEARBLURCURVE * 2.0, 1.0)) : 1.0;
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (bADOF_ImageChromaEnable)

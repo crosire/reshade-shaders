@@ -291,7 +291,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float4 high = tex2D(alInColor, texcoord);
 	float adapt = 0;
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (AL_Adaptation)
@@ -327,7 +327,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float4 highFlip = highFlipOrig;
 	float4 highLensSrc = high;
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (AL_Dirt)
@@ -386,7 +386,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float smartWeight = maxOrig * max(abs(flipcoord.x - 0.5f), 0.3f * abs(flipcoord.y - 0.5f)) * (2.2 - 1.2 * (abs(flipcoord.x - 0.5f))) * alLensInt;
 	smartWeight = min(0.85f, max(0, AL_Adaptation ? smartWeight - adapt : smartWeight));
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (AL_Lens)
@@ -420,7 +420,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		return 1.0;
 	}
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (AL_Adaptation)

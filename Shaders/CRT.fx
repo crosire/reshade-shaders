@@ -277,7 +277,7 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	float4 weights  = scanlineWeights(uv_ratio.y, col);
 	float4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
 
-#if __RENDERER__ < 0xa000
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
 	if (Oversample)
