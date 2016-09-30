@@ -1,35 +1,35 @@
 
-//Bilateral Blur by Ioxa
+//Surface Blur by Ioxa
 //Version 1.0 for ReShade 3.0
-//Based on the Bilateral filter by mrharicot at https://www.shadertoy.com/view/4dfGDH
+//Based on the  filter by mrharicot at https://www.shadertoy.com/view/4dfGDH
 
 //Settings
-#if !defined BilateralIterations
-	#define BilateralIterations 1
+#if !defined SurfaceBlurIterations
+	#define SurfaceBlurIterations 1
 #endif
 
-uniform int BilateralBlurRadius
+uniform int BlurRadius
 <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 3;
 	ui_tooltip = "1 = 3x3 mask, 2 = 5x5 mask, 3 = 7x7 mask.";
 > = 1;
 
-uniform float BilateralBlurOffset
+uniform float BlurOffset
 <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the blur radius.";
 > = 1.000;
 
-uniform float BilateralBlurEdge
+uniform float BlurEdge
 <
 	ui_type = "drag";
 	ui_min = 0.000; ui_max = 10.000;
 	ui_tooltip = "Adjusts the strength of edge detection. Lowwer values will exclude finer edges from blurring";
 > = 0.500;
 
-uniform float BilateralBlurStrength
+uniform float BlurStrength
 <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 1.00;
@@ -38,14 +38,14 @@ uniform float BilateralBlurStrength
 
 #include "ReShade.fxh"
 
-#if BilateralIterations >= 2
-	texture BilateralBlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
-	sampler BilateralBlurSampler { Texture = BilateralBlurTex;};
+#if SurfaceBlurIterations >= 2
+	texture BlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+	sampler BlurSampler { Texture = BlurTex;};
 #endif
 
-#if BilateralIterations >= 3
-	texture BilateralBlurTex2 { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
-	sampler BilateralBlurSampler2 { Texture = BilateralBlurTex2;};
+#if SurfaceBlurIterations >= 3
+	texture BlurTex2 { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+	sampler BlurSampler2 { Texture = BlurTex2;};
 #endif
 
 float normpdfE(in float3 x, in float y)
@@ -54,17 +54,17 @@ float normpdfE(in float3 x, in float y)
 	return saturate(1/pow(1+(pow(v/y,2.0)),0.5));
 }
 
-float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
+float3 BlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
-	#if BilateralIterations == 2 
-		#define BilateralFinalSampler BilateralBlurSampler
-	#elif BilateralIterations == 3
-		#define BilateralFinalSampler BilateralBlurSampler2
+	#if SurfaceBlurIterations == 2 
+		#define FinalSampler BlurSampler
+	#elif SurfaceBlurIterations == 3
+		#define FinalSampler BlurSampler2
 	#else
-		#define BilateralFinalSampler ReShade::BackBuffer
+		#define FinalSampler ReShade::BackBuffer
 	#endif
 	
-	float3 color = tex2D(BilateralFinalSampler, texcoord).rgb;
+	float3 color = tex2D(FinalSampler, texcoord).rgb;
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	
 	
@@ -72,9 +72,9 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 	float factor = 0.0;
 	float Z = 0.0;
 	float3 final_color = 0.0;
-	float sigma = ((BilateralBlurEdge+0.00001) * 0.1);
+	float sigma = ((BlurEdge+0.00001) * 0.1);
 	
-	if (BilateralBlurRadius == 1)
+	if (BlurRadius == 1)
 	{
 		int sampleOffsetsX[25] = {  0.0, 	 1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,      1,     2,     2,     3,     0,     3,     3,     1,    -1, 3, 3, 2, 2, 3, 3 };
 		int sampleOffsetsY[25] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2,     0,     3,     1,    -1,     3,     3, 2, -2, 3, -3, 3, -3};	
@@ -84,13 +84,13 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 		
 		[loop]
 		for(int i = 1; i < 5; ++i) {
-			color = tex2D(BilateralFinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralFinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -98,7 +98,7 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 		}
 	}
 	
-	if (BilateralBlurRadius == 2)
+	if (BlurRadius == 2)
 	{
 		int sampleOffsetsX[13] = {  0.0, 	   1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,    1,     2,     2 };
 		int sampleOffsetsY[13] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2};
@@ -108,13 +108,13 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(BilateralFinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralFinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -122,7 +122,7 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 		}
 	}
 
-	if (BilateralBlurRadius == 3)
+	if (BlurRadius == 3)
 	{
 		static const float sampleOffsetsX[13] = { 				  0.0, 			    1.3846153846, 			 			  0, 	 		  1.3846153846,     	   	 1.3846153846,     		    3.2307692308,     		  			  0,     		 3.2307692308,     		   3.2307692308,     		 1.3846153846,    		   1.3846153846,     		  3.2307692308,     		  3.2307692308 };
 		static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   1.3846153846, 	 		  1.3846153846,     		-1.3846153846,     					   0,     		   3.2307692308,     		 1.3846153846,    		  -1.3846153846,     		 3.2307692308,   		  -3.2307692308,     		  3.2307692308,    		     -3.2307692308 };
@@ -132,13 +132,13 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(BilateralFinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralFinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(FinalSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -148,12 +148,12 @@ float3 BilateralBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXC
 	
 	color = final_color/Z;
 
-	orig = lerp(orig.rgb, color.rgb, BilateralBlurStrength);
+	orig = lerp(orig.rgb, color.rgb, BlurStrength);
 	return saturate(orig);
 }
 
-#if BilateralIterations >= 2
-float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
+#if SurfaceBlurIterations >= 2
+float3 Blur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
 
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
@@ -163,9 +163,9 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 	float factor = 0.0;
 	float Z = 0.0;
 	float3 final_color = 0.0;
-	float sigma = ((BilateralBlurEdge+0.00001) * 0.1);
+	float sigma = ((BlurEdge+0.00001) * 0.1);
 	
-	if (BilateralBlurRadius == 1)
+	if (BlurRadius == 1)
 	{
 		int sampleOffsetsX[25] = {  0.0, 	 1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,      1,     2,     2,     3,     0,     3,     3,     1,    -1, 3, 3, 2, 2, 3, 3 };
 		int sampleOffsetsY[25] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2,     0,     3,     1,    -1,     3,     3, 2, -2, 3, -3, 3, -3};	
@@ -175,13 +175,13 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 5; ++i) {
-			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -189,7 +189,7 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		}
 	}
 	
-	if (BilateralBlurRadius == 2)
+	if (BlurRadius == 2)
 	{
 		int sampleOffsetsX[13] = {  0.0, 	   1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,    1,     2,     2 };
 		int sampleOffsetsY[13] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2};
@@ -199,13 +199,13 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -213,7 +213,7 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		}
 	}
 
-	if (BilateralBlurRadius == 3)
+	if (BlurRadius == 3)
 	{
 		static const float sampleOffsetsX[13] = { 				  0.0, 			    1.3846153846, 			 			  0, 	 		  1.3846153846,     	   	 1.3846153846,     		    3.2307692308,     		  			  0,     		 3.2307692308,     		   3.2307692308,     		 1.3846153846,    		   1.3846153846,     		  3.2307692308,     		  3.2307692308 };
 		static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   1.3846153846, 	 		  1.3846153846,     		-1.3846153846,     					   0,     		   3.2307692308,     		 1.3846153846,    		  -1.3846153846,     		 3.2307692308,   		  -3.2307692308,     		  3.2307692308,    		     -3.2307692308 };
@@ -223,13 +223,13 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(ReShade::BackBuffer, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -243,11 +243,11 @@ float3 BilateralBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 }
 #endif
 
-#if BilateralIterations >= 3
-float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
+#if SurfaceBlurIterations >= 3
+float3 Blur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
 
-	float3 color = tex2D(BilateralBlurSampler, texcoord).rgb;
+	float3 color = tex2D(BlurSampler, texcoord).rgb;
 	//float3 orig = color;
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	
@@ -255,9 +255,9 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 	float factor = 0.0;
 	float Z = 0.0;
 	float3 final_color = 0.0;
-	float sigma = ((BilateralBlurEdge+0.00001) * 0.1);
+	float sigma = ((BlurEdge+0.00001) * 0.1);
 	
-	if (BilateralBlurRadius == 1)
+	if (BlurRadius == 1)
 	{
 		int sampleOffsetsX[25] = {  0.0, 	 1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,      1,     2,     2,     3,     0,     3,     3,     1,    -1, 3, 3, 2, 2, 3, 3 };
 		int sampleOffsetsY[25] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2,     0,     3,     1,    -1,     3,     3, 2, -2, 3, -3, 3, -3};	
@@ -267,13 +267,13 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 5; ++i) {
-			color = tex2D(BilateralBlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralBlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -281,7 +281,7 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		}
 	}
 	
-	if (BilateralBlurRadius == 2)
+	if (BlurRadius == 2)
 	{
 		int sampleOffsetsX[13] = {  0.0, 	   1, 	  0, 	 1,     1,     2,     0,     2,     2,     1,    1,     2,     2 };
 		int sampleOffsetsY[13] = {  0.0,     0, 	  1, 	 1,    -1,     0,     2,     1,    -1,     2,     -2,     2,    -2};
@@ -291,13 +291,13 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(BilateralBlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralBlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -305,7 +305,7 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		}
 	}
 
-	if (BilateralBlurRadius == 3)
+	if (BlurRadius == 3)
 	{
 		static const float sampleOffsetsX[13] = { 				  0.0, 			    1.3846153846, 			 			  0, 	 		  1.3846153846,     	   	 1.3846153846,     		    3.2307692308,     		  			  0,     		 3.2307692308,     		   3.2307692308,     		 1.3846153846,    		   1.3846153846,     		  3.2307692308,     		  3.2307692308 };
 		static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   1.3846153846, 	 		  1.3846153846,     		-1.3846153846,     					   0,     		   3.2307692308,     		 1.3846153846,    		  -1.3846153846,     		 3.2307692308,   		  -3.2307692308,     		  3.2307692308,    		     -3.2307692308 };
@@ -315,13 +315,13 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 		
 		[loop]
 		for(int i = 1; i < 13; ++i) {
-			color = tex2D(BilateralBlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord + float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
 			final_color += factor*color;
 			
-			color = tex2D(BilateralBlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BilateralBlurOffset).rgb;
+			color = tex2D(BlurSampler, texcoord - float2(sampleOffsetsX[i] * ReShade::PixelSize.x, sampleOffsetsY[i] * ReShade::PixelSize.y) * BlurOffset).rgb;
 			diff = ((orig)-color);
 			factor = normpdfE(diff,sigma)*sampleWeights[i];
 			Z += factor;
@@ -335,30 +335,30 @@ float3 BilateralBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD
 }
 #endif
 
-technique BilateralBlur
+technique SurfaceBlur
 {
-#if BilateralIterations >= 2
+#if SurfaceBlurIterations >= 2
 	pass Blur1
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = BilateralBlur1;
-		RenderTarget = BilateralBlurTex;
+		PixelShader = Blur1;
+		RenderTarget = BlurTex;
 	}
 #endif 
 
-#if BilateralIterations >= 3
+#if SurfaceBlurIterations >= 3
 	pass Blur2
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = BilateralBlur2;
-		RenderTarget = BilateralBlurTex2;
+		PixelShader = Blur2;
+		RenderTarget = BlurTex2;
 	}
 #endif
 	
 	pass BlurFinal
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = BilateralBlurFinal;
+		PixelShader = BlurFinal;
 	}
 
 }
