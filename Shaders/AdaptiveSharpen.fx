@@ -99,7 +99,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Soft limit, modified tanh
 #if (fast_ops == 1)
-	#define soft_lim(v,s)  ( saturate(abs(v/s)*(27 + pow(v/s, 2))/(27 + 9*pow(v/s, 2)))*s ) // Tanh approx
+	#define soft_lim(v,s)  ( saturate(abs(v/s)*(27 + (v/s)*(v/s))/(27 + 9*(v/s)*(v/s)))*s ) // Tanh approx
 #else
 	#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
 #endif
