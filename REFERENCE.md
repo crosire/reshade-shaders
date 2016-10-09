@@ -331,6 +331,23 @@ technique Example < enabled = true; >
 		
 		// Enable or disable gamma correction applied to the output.
 		SRGBWriteEnable = false;
+
+		// Enable or disable color and alpha blending.
+		BlendEnable = false;
+
+		// The operator used for color and alpha blending.
+		// Available values:
+		//   ADD, SUBTRACT, REVSUBTRACT, MIN, MAX
+		BlendOp = ADD;
+		BlendOpAlpha = ADD;
+
+		// The data source and optional pre-blend operation used for blending.
+		// Available values:
+		//   ZERO, ONE,
+		//   SRCCOLOR, SRCALPHA, INVSRCCOLOR, INVSRCALPHA
+		//   DESTCOLOR, DESTALPHA, INVDESTCOLOR, INVDESTALPHA
+		SrcBlend = ONE;
+		DestBlend = ZERO;
 		
 		// Enable or disable the depth and stencil tests.
 		// The depth and stencil buffers are cleared before rendering each pass in a technique.
