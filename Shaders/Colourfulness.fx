@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Colourfulness - version 2016-09-04 - (requires ps >= ps_2_b)
+// Colourfulness - version 2016-10-09 - (requires ps >= ps_2_b)
 // EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float colourfulness <
@@ -74,12 +74,12 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV
 		// Calculate maximum saturation-increase without altering ratios for RGB
 		float3 diff_luma = c0 - luma;
 
-		float poslim = (1.0001 - luma)/max3(max(diff_luma, 0));
-		float neglim = (luma + 0.0001)/max3(abs(min(diff_luma, 0)));
+		float poslim = (1.0001 - luma)/max3(max(diff_luma, 1e-6));
+		float neglim = (luma + 0.0001)/max3(abs(min(diff_luma, -1e-6)));
 
-		float diffmul = min(min(abs(poslim), abs(neglim)), 32);
+		float diffmul = min(min(poslim, neglim), 32);
 
-		float3 diffmax = (luma + diff_luma*diffmul) - c0;
+		float3 diffmax = max( abs((luma + diff_luma*diffmul) - c0), 1e-6 );
 
 		// Soft limit diff
 		diff = soft_lim( diff, wpmean(diffmax, ccldiff, lim_luma) );
