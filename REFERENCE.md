@@ -349,29 +349,15 @@ technique Example < enabled = true; >
 		SrcBlend = ONE;
 		DestBlend = ZERO;
 		
-		// Enable or disable the depth and stencil tests.
+		// Enable or disable the stencil test.
 		// The depth and stencil buffers are cleared before rendering each pass in a technique.
-		DepthEnable = false; // or ZEnable
 		StencilEnable = false;
-		
-		// Enable or disable writing to the internal depth buffer for depth testing.
-		DepthWriteMask = false; // or ZWriteEnable
-		
-		// The function used for depth testing.
-		// Available values:
-		//   NEVER, ALWAYS
-		//   EQUAL, NEQUAL or NOTEQUAL
-		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
-		DepthFunc = ALWAYS; // or ZFunc
-		
+
 		// The masks applied before reading from/writing to the stencil.
 		// Available values:
 		//   0-255
 		StencilReadMask = 0xFF; // or StencilMask
 		StencilWriteMask = 0xFF;
-		
-		// The reference value used with the stencil function.
-		StencilRef = 0;
 		
 		// The function used for stencil testing.
 		// Available values:
@@ -379,6 +365,9 @@ technique Example < enabled = true; >
 		//   EQUAL, NEQUAL or NOTEQUAL
 		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
 		StencilFunc = ALWAYS;
+
+		// The reference value used with the stencil function.
+		StencilRef = 0;
 		
 		// The operation  to  perform  on  the stencil  buffer when  the
 		// stencil  test passed/failed or stencil passed  but depth test
