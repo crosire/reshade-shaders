@@ -6,9 +6,15 @@
 // Copyright © 2008-2016 Marty McFly
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#define fLUT_TextureName "lut.png"
-#define fLUT_TileSizeXY  	32
-#define fLUT_TileAmount  	32
+#ifndef fLUT_TextureName
+	#define fLUT_TextureName "lut.png"
+#endif
+#ifndef fLUT_TileSizeXY
+	#define fLUT_TileSizeXY 32
+#endif
+#ifndef fLUT_TileAmount
+	#define fLUT_TileAmount 32
+endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
