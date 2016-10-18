@@ -79,7 +79,9 @@ uniform float pm_p <
 > = 0.75;
 
 //-------------------------------------------------------------------------------------------------
-#define fast_ops 1 // Faster code path, small difference in quality
+#ifndef fast_ops
+	#define fast_ops 1 // Faster code path, small difference in quality
+#endif
 //-------------------------------------------------------------------------------------------------
 
 #include "ReShade.fxh"
