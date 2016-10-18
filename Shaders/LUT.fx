@@ -14,7 +14,7 @@
 #endif
 #ifndef fLUT_TileAmount
 	#define fLUT_TileAmount 32
-endif
+#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
