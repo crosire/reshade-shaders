@@ -25,11 +25,13 @@ uniform float EdgeDetectionThreshold <
 > = 0.10;
 
 uniform int MaxSearchSteps <
+	ui_type = "drag";
 	ui_min = 0; ui_max = 98;
 	ui_label = "Max Search Steps";
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
 uniform int MaxSearchStepsDiagonal <
+	ui_type = "drag";
 	ui_min = 0; ui_max = 16;
 	ui_label = "Max Search Steps Diagonal";
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
