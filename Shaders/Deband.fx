@@ -44,7 +44,7 @@ uniform float Range <
 	ui_min = 1; ui_max = 64;
 	ui_label = "Initial Radius";
 	ui_tooltip = "The radius increases linearly for each iteration. A higher radius will find more gradients, but a lower radius will smooth more aggressively.";
-> = 16;
+> = 16.0;
 uniform int Iterations <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 16;
