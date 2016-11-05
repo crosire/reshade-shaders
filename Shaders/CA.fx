@@ -1,66 +1,39 @@
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ReShade effect file
-// visit facebook.com/MartyMcModding for news/updates
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Yet Another Chromatic Aberration by Marty McFly
-// For private use only!
-// Copyright © 2008-2015 Marty McFly
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/**
+ * Chromatic Aberration
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Distorts the image by shifting each color component, which creates color artifacts similar to those in a very cheap lens or a cheap sensor.
+ */
 
-uniform int ImageChromaHues <
+uniform float2 Shift <
 	ui_type = "drag";
-	ui_min = 2; ui_max = 30;
-	ui_label = "Hues";
-	ui_tooltip = "Amount of samples through the light spectrum to get a smooth gradient.";
-> = 25;
-uniform float ImageChromaCurve <
+	ui_min = -10; ui_max = 10;
+	ui_tooltip = "Distance (X,Y) in pixels to shift the color components. For a slightly blurred look try fractional values (.5) between two pixels.";
+> = float2(2.5, -0.5);
+uniform float Strength <
 	ui_type = "drag";
-	ui_min = 0.5; ui_max = 2.0;
-	ui_label = "Curve";
-	ui_tooltip = "Image chromatic aberration curve. Higher means less chroma at screen center areas.";
-> = 1.0;
-uniform float ImageChromaAmount <
-	ui_type = "drag";
-	ui_min = 5.0; ui_max = 200.0;
-	ui_label = "Amount";
-	ui_tooltip = "Linearly increases image chromatic aberration amount.";
-> = 100.0;
+	ui_min = 0.0; ui_max = 1.0;
+> = 0.5;
 
 #include "ReShade.fxh"
 
-float3 PS_YACA(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
-{  
-		texcoord = texcoord * 2.0 - 1.0;
-		float offsetfact = length(texcoord);
-		offsetfact = pow(offsetfact, ImageChromaCurve) * ImageChromaAmount * ReShade::PixelSize.x;
- 
-		float3 scenecolor = 0.0;
-		float3 chromaweight = 0.0;
- 
-		[unroll]
-		for (float c = 0; c < ImageChromaHues && c < 90; c++)
-		{
-				float  temphue = c / ImageChromaHues;
-				float3 tempchroma = saturate(float3(abs(temphue * 6.0 - 3.0) - 1.0,2.0 - abs(temphue * 6.0 - 2.0),2.0 - abs(temphue * 6.0 - 4.0)));
-				float  tempoffset = (c + 0.5) / ImageChromaHues - 0.5;
-				float3 tempsample = tex2Dlod(ReShade::BackBuffer, float4(texcoord * (1.0 + offsetfact * tempoffset) * 0.5 + 0.5, 0, 0)).xyz;
+float3 ChromaticAberrationPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
+{
+	float3 color, colorInput = tex2D(ReShade::BackBuffer, texcoord).rgb;
+	// Sample the color components
+	color.r = tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * Shift)).r;
+	color.g = colorInput.g;
+	color.b = tex2D(ReShade::BackBuffer, texcoord - (ReShade::PixelSize * Shift)).b;
 
-				scenecolor += tempsample * tempchroma;
-				chromaweight += tempchroma;
-		}
-
-		// Not all hues have the same brightness, FF0000 and FFFF00 are obviously differently bright but are just different hues.
-		// There is no generic way to make it work for all different hue options. Sometimes / samples * 0.5 works, then * 0.666, then something completely different.
-		scenecolor /= dot(chromaweight, 0.333);
- 
-		return scenecolor;
+	// Adjust the strength of the effect
+	return lerp(colorInput, color, Strength);
 }
 
-technique YACA
+technique CA
 {
 	pass
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = PS_YACA;
+		PixelShader = ChromaticAberrationPass;
 	}
 }
