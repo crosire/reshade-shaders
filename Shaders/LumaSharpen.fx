@@ -21,7 +21,7 @@ uniform int pattern <
 	ui_type = "combo";
 	ui_items = "Fast\0Normal\0Wider\0Pyramid shaped\0";
 	ui_tooltip = "Choose a sample pattern";
-> = 2;
+> = 1;
 uniform float offset_bias <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 6.0;
