@@ -291,6 +291,9 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float4 high = tex2D(alInColor, texcoord);
 	float adapt = 0;
 
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+	[flatten]
+#endif
 	if (AL_Adaptation)
 	{
 		//DetectLow	
@@ -324,6 +327,9 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float4 highFlip = highFlipOrig;
 	float4 highLensSrc = high;
 
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+	[flatten]
+#endif
 	if (AL_Dirt)
 	{
 		float4 dirt = tex2D(dirtSampler, texcoord);
@@ -380,6 +386,9 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float smartWeight = maxOrig * max(abs(flipcoord.x - 0.5f), 0.3f * abs(flipcoord.y - 0.5f)) * (2.2 - 1.2 * (abs(flipcoord.x - 0.5f))) * alLensInt;
 	smartWeight = min(0.85f, max(0, AL_Adaptation ? smartWeight - adapt : smartWeight));
 
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+	[flatten]
+#endif
 	if (AL_Lens)
 	{
 		float4 lensDB = tex2D(lensDBSampler, texcoord);
@@ -406,6 +415,14 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
 	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, ReShade::ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
+	if (all(base.xyz == 1.0))
+	{
+		return 1.0;
+	}
+
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+	[flatten]
+#endif
 	if (AL_Adaptation)
 	{
 		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow((1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
@@ -416,7 +433,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	}
 	else
 	{
-		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither;
+		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither + adapt;
 		float4 baseSample = lerp(base, highSampleMix, alInt);
 		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
 		return baseSampleMix > 0.008 ? baseSample : lerp(base, highSampleMix, max(0.0f, alInt * 0.85f) * baseSampleMix);

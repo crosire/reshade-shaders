@@ -10,77 +10,79 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
-uniform float CRTResolution <
+uniform float Resolution <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 8.0;
 	ui_tooltip = "Input size coefficient (low values gives the 'low - res retro look').";
 > = 1.15;
-#ifndef LINEAR_PROCESSING
-uniform float CRTgamma <
+uniform float Gamma <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of simulated CRT";
 > = 2.4;
-#endif
-uniform float CRTmonitorgamma <
+uniform float MonitorGamma <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of display monitor";
 > = 2.2;
-uniform float CRTBrightness <
+uniform float Brightness <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 3.0;
 	ui_tooltip = "Used to boost brightness a little.";
 > = 0.9;
 
-uniform int CRTScanlineIntensity <
+uniform int ScanlineIntensity <
 	ui_type = "drag";
 	ui_min = 2; ui_max = 4;
-	ui_tooltip = "Scanlines intensity";
+	ui_label = "Scanline Intensity";
 > = 2;
-uniform bool CRTScanlineGaussian <
+uniform bool ScanlineGaussian <
+	ui_label = "Scanline Bloom Effect";
 	ui_tooltip = "Use the new nongaussian scanlines bloom effect.";
 > = true;
-uniform bool CRTCurvature <
+
+uniform bool Curvature <
 	ui_tooltip = "Barrel effect";
 > = false;
-uniform float CRTCurvatureRadius <
+uniform float CurvatureRadius <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 2.0;
-	ui_tooltip = "Curvature Radius (only effective when Curvature is enabled).";
+	ui_label = "Curvature Radius";
 > = 1.5;
-uniform float CRTCornerSize <
+uniform float CornerSize <
 	ui_type = "drag";
 	ui_min = 0.00; ui_max = 0.02; ui_step = 0.001;
-	ui_tooltip = "Higher values => more rounded corner.";
+	ui_label = "Corner Size";
+	ui_tooltip = "Higher values => more rounded corner";
 > = 0.0100;
-uniform float CRTDistance <
+uniform float ViewerDistance <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 4.0;
-	ui_tooltip = "Simulated distance from viewer to monitor.";
+	ui_Label = "Viewer Distance";
+	ui_tooltip = "Simulated distance from viewer to monitor";
 > = 2.00;
-uniform float2 CRTAngle <
+uniform float2 Angle <
 	ui_type = "drag";
 	ui_min = -0.2; ui_max = 0.2;
-	ui_tooltip = "Tilt angle in radians.";
+	ui_tooltip = "Tilt angle in radians";
 > = 0.00;
-uniform float CRTOverScan <
+
+uniform float Overscan <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 1.10; ui_step = 0.01;
 	ui_tooltip = "Overscan (e.g. 1.02 for 2% overscan).";
 > = 1.01;
-uniform bool CRTOversample <
+uniform bool Oversample <
 	ui_tooltip = "Enable 3x oversampling of the beam profile (warning : performance hit)";
 > = true;
 
 #include "ReShade.fxh"
 
-// CeeJay_aspect ratio
 #define CeeJay_aspect float2(1.0, 0.75)
 
 // A bunch of useful values we'll need in the fragment shader.
-#define sinangle sin(CRTAngle)
-#define cosangle cos(CRTAngle)
+#define sinangle sin(Angle)
+#define cosangle cos(Angle)
 #define stretch maxscale()
 
 // Macros.
@@ -96,16 +98,16 @@ uniform bool CRTOversample <
 #define mod_factor tex.x * rubyTextureSize.x * rubyOutputSize.x / rubyInputSize.x
 
 #ifdef LINEAR_PROCESSING
-	#define TEX2D(c) pow(tex2D(ReShade::BackBuffer, (c)), CRTgamma)
+	#define TEX2D(c) pow(tex2D(ReShade::BackBuffer, (c)), Gamma)
 #else
 	#define TEX2D(c) tex2D(ReShade::BackBuffer, (c))
 #endif
 
 float intersect(float2 xy)
 {
-	float A = dot(xy,xy) + (CRTDistance * CRTDistance);
-	float B = 2.0 * (CRTCurvatureRadius * (dot(xy, sinangle) - CRTDistance * cosangle.x * cosangle.y) - CRTDistance * CRTDistance);
-	float C = CRTDistance * CRTDistance + 2.0 * CRTCurvatureRadius * CRTDistance * cosangle.x * cosangle.y; //all constants
+	float A = dot(xy,xy) + (ViewerDistance * ViewerDistance);
+	float B = 2.0 * (CurvatureRadius * (dot(xy, sinangle) - ViewerDistance * cosangle.x * cosangle.y) - ViewerDistance * ViewerDistance);
+	float C = ViewerDistance * ViewerDistance + 2.0 * CurvatureRadius * ViewerDistance * cosangle.x * cosangle.y; //all constants
 	return (-B - sqrt(B * B -4.0 * A * C)) / (2.0 * A);
 }
 
@@ -113,8 +115,8 @@ float2 bkwtrans(float2 xy)
 {
 	float c = intersect(xy);
 	float2 _point = float2(c, c) * xy;
-	_point -= float2(-CRTCurvatureRadius, -CRTCurvatureRadius) * sinangle;
-	_point /= float2(CRTCurvatureRadius, CRTCurvatureRadius);
+	_point -= float2(-CurvatureRadius, -CurvatureRadius) * sinangle;
+	_point /= float2(CurvatureRadius, CurvatureRadius);
 	float2 tang = sinangle / cosangle;
 	float2 poc = _point / cosangle;
 	float A = dot(tang, tang) + 1.0;
@@ -122,21 +124,21 @@ float2 bkwtrans(float2 xy)
 	float C = dot(poc, poc) - 1.0;
 	float a = (-B + sqrt(B * B -4.0 * A * C)) / (2.0 * A);
 	float2 uv = (_point - a * sinangle) / cosangle;
-	float r = CRTCurvatureRadius * acos(a);
-	return uv * r / sin(r / CRTCurvatureRadius);
+	float r = CurvatureRadius * acos(a);
+	return uv * r / sin(r / CurvatureRadius);
 }
 float2 fwtrans(float2 uv)
 {
 	float r = FIX(sqrt(dot(uv, uv)));
-	uv *= sin(r / CRTCurvatureRadius) / r;
-	float x = 1.0 - cos(r / CRTCurvatureRadius);
-	float D = CRTDistance / CRTCurvatureRadius + x * cosangle.x * cosangle.y + dot(uv, sinangle);
-	return CRTDistance * (uv * cosangle - x * sinangle) / D;
+	uv *= sin(r / CurvatureRadius) / r;
+	float x = 1.0 - cos(r / CurvatureRadius);
+	float D = ViewerDistance / CurvatureRadius + x * cosangle.x * cosangle.y + dot(uv, sinangle);
+	return ViewerDistance * (uv * cosangle - x * sinangle) / D;
 }
 
 float3 maxscale()
 {
-	float2 c = bkwtrans(-CRTCurvatureRadius * sinangle / (1.0 + CRTCurvatureRadius / CRTDistance * cosangle.x * cosangle.y));
+	float2 c = bkwtrans(-CurvatureRadius * sinangle / (1.0 + CurvatureRadius / ViewerDistance * cosangle.x * cosangle.y));
 	float2 a = float2(0.5, 0.5) * CeeJay_aspect;
 	float2 lo = float2(fwtrans(float2(-a.x, c.y)).x, fwtrans(float2(c.x,-a.y)).y) / CeeJay_aspect;
 	float2 hi = float2(fwtrans(float2(+a.x, c.y)).x, fwtrans(float2(c.x, +a.y)).y) / CeeJay_aspect;
@@ -147,15 +149,15 @@ float2 transform(float2 coord, float2 textureSize, float2 inputSize)
 {
 	coord *= textureSize / inputSize;
 	coord = (coord - 0.5) * CeeJay_aspect * stretch.z + stretch.xy;
-	return (bkwtrans(coord) / float2(CRTOverScan, CRTOverScan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
+	return (bkwtrans(coord) / float2(Overscan, Overscan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
 }
 
 float corner(float2 coord, float2 textureSize, float2 inputSize)
 {
 	coord *= textureSize / inputSize;
-	coord = (coord - 0.5) * float2(CRTOverScan, CRTOverScan) + 0.5;
+	coord = (coord - 0.5) * float2(Overscan, Overscan) + 0.5;
 	coord = min(coord, 1.0 - coord) * CeeJay_aspect;
-	float2 cdist = float2(CRTCornerSize, CRTCornerSize);
+	float2 cdist = float2(CornerSize, CornerSize);
 	coord = (cdist - min(coord, cdist));
 	float dist = sqrt(dot(coord, coord));
 	return clamp((cdist.x-dist) * 1000.0, 0.0, 1.0);
@@ -179,7 +181,7 @@ float4 scanlineWeights(float distance, float4 color)
 	// independent of its width. That is, for a narrower beam
 	// "weights" should have a higher peak at the center of the
 	// scanline than for a wider beam.
-	if (!CRTScanlineGaussian)
+	if (!ScanlineGaussian)
 	{
 		float4 wid = 0.3 + 0.1 * pow(abs(color), 3.0);
 		float4 weights = float4(distance / wid);
@@ -188,9 +190,7 @@ float4 scanlineWeights(float distance, float4 color)
 	else
 	{
 		float4 wid = 2.0 * pow(abs(color), 4.0) + 2.0;
-		float calcdistance = distance / 0.3; // Optimization  ?
-		//float4 weights = float4(distance / 0.3, distance / 0.3, distance / 0.3, distance / 0.3);
-		float4 weights = float4(calcdistance, calcdistance, calcdistance, calcdistance);
+		float4 weights = (distance / 0.3).xxxx;
 		return 1.4 * exp(-pow(abs(weights * rsqrt(0.5 * wid)), abs(wid))) / (0.2 * wid + 0.6);
 	}
 }
@@ -218,20 +218,20 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// of the next scanline). The grid of lines represents the
 	// edges of the texels of the underlying texture.
 
-	float  Input_ratio = ceil(256 * CRTResolution);
+	float  Input_ratio = ceil(256 * Resolution);
 	float2 Resolution = float2(Input_ratio, Input_ratio);
 	float2 rubyTextureSize = Resolution;
 	float2 rubyInputSize = Resolution;
 	float2 rubyOutputSize = ReShade::ScreenSize;
 
-	float2 xy = CRTCurvature ? transform(tex, rubyTextureSize, rubyInputSize) : tex;
+	float2 xy = Curvature ? transform(tex, rubyTextureSize, rubyInputSize) : tex;
 	float cval = corner(xy, rubyTextureSize, rubyInputSize);
 
 	// Of all the pixels that are mapped onto the texel we are
 	// currently rendering, which pixel are we currently rendering?
 	float2 ratio_scale = xy * rubyTextureSize - 0.5;
 
-	float filter = CRTOversample ? fwidth(ratio_scale.y) : 0;
+	float filter = fwidth(ratio_scale.y);
 	float2 uv_ratio = frac(ratio_scale);
 
 	// Snap to the center of the underlying texel.
@@ -268,8 +268,8 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		0.0, 1.0);
 
 #ifndef LINEAR_PROCESSING
-	col  = pow(abs(col) , CRTgamma);
-	col2 = pow(abs(col2), CRTgamma);
+	col  = pow(abs(col) , Gamma);
+	col2 = pow(abs(col2), Gamma);
 #endif
 
 	// Calculate the influence of the current and next scanlines on
@@ -277,7 +277,10 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	float4 weights  = scanlineWeights(uv_ratio.y, col);
 	float4 weights2 = scanlineWeights(1.0 - uv_ratio.y, col2);
 
-	if (CRTOversample)
+#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+	[flatten]
+#endif
+	if (Oversample)
 	{
 		uv_ratio.y = uv_ratio.y + 1.0 / 3.0 * filter;
 		weights = (weights + scanlineWeights(uv_ratio.y, col)) / 3.0;
@@ -287,15 +290,15 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		weights2 = weights2 + scanlineWeights(abs(1.0 - uv_ratio.y), col2) / 3.0;
 	}
 
-	float3 mul_res  = (col * weights + col2 * weights2).rgb * float3(cval, cval, cval);
+	float3 mul_res = (col * weights + col2 * weights2).rgb * cval.xxx;
 
 	// dot-mask emulation:
 	// Output pixels are alternately tinted green and magenta.
-	float3 dotMaskWeights = lerp(float3(1.0, 0.7, 1.0), float3(0.7, 1.0, 0.7), floor(mod_factor % CRTScanlineIntensity));
-	mul_res *= dotMaskWeights * float3(0.83, 0.83, 1.0) * CRTBrightness;
+	float3 dotMaskWeights = lerp(float3(1.0, 0.7, 1.0), float3(0.7, 1.0, 0.7), floor(mod_factor % ScanlineIntensity));
+	mul_res *= dotMaskWeights * float3(0.83, 0.83, 1.0) * Brightness;
 
 	// Convert the image gamma for display on our output device.
-	mul_res = pow(abs(mul_res), 1.0 / CRTmonitorgamma);
+	mul_res = pow(abs(mul_res), 1.0 / MonitorGamma);
 
 	return mul_res;
 }

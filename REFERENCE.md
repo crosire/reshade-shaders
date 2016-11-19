@@ -128,7 +128,16 @@ sampler samplerTarget
 
 > Uniforms are variables which are constant across each iteration of a shader per pass.
 
-Annotations are used to request special runtime values:
+Annotations to customize UI appearance:
+
+ * ui_type - Can be `input`, `drag`, `combo` or `color`
+ * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_items - A list of items for the combo box, each item is terminated with a `\0` character (required when `ui_type = "combo"`)
+ * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
+ * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
+
+Annotations are also used to request special runtime values:
 
  * ``uniform float frametime < source = "frametime"; >;``  
  Time in milliseconds it took for the last frame to complete.
@@ -138,14 +147,16 @@ Annotations are used to request special runtime values:
  float4(year, month (1 - 12), day of month (1 - 31), time in seconds)
  * ``uniform float timer < source = "timer"; >;``  
  Timer counting time in milliseconds since game start.
- * ``uniform float timeleft < source = "timeleft"; >;``  
- Time in milliseconds that is left until the current technique timeout is reached.
  * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 9; step = 1; >;``  
  Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
  * ``uniform int random < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
  * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
+ True if specified mouse button (0 - 5) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
+ Gets the position of the mouse cursor in screen coordinates.
 
 ```c++
 // Initializers are used for the initial value when providied.
@@ -320,30 +331,33 @@ technique Example < enabled = true; >
 		
 		// Enable or disable gamma correction applied to the output.
 		SRGBWriteEnable = false;
-		
-		// Enable or disable the depth and stencil tests.
-		// The depth and stencil buffers are cleared before rendering each pass in a technique.
-		DepthEnable = false; // or ZEnable
-		StencilEnable = false;
-		
-		// Enable or disable writing to the internal depth buffer for depth testing.
-		DepthWriteMask = false; // or ZWriteEnable
-		
-		// The function used for depth testing.
+
+		// Enable or disable color and alpha blending.
+		BlendEnable = false;
+
+		// The operator used for color and alpha blending.
 		// Available values:
-		//   NEVER, ALWAYS
-		//   EQUAL, NEQUAL or NOTEQUAL
-		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
-		DepthFunc = ALWAYS; // or ZFunc
+		//   ADD, SUBTRACT, REVSUBTRACT, MIN, MAX
+		BlendOp = ADD;
+		BlendOpAlpha = ADD;
+
+		// The data source and optional pre-blend operation used for blending.
+		// Available values:
+		//   ZERO, ONE,
+		//   SRCCOLOR, SRCALPHA, INVSRCCOLOR, INVSRCALPHA
+		//   DESTCOLOR, DESTALPHA, INVDESTCOLOR, INVDESTALPHA
+		SrcBlend = ONE;
+		DestBlend = ZERO;
 		
+		// Enable or disable the stencil test.
+		// The depth and stencil buffers are cleared before rendering each pass in a technique.
+		StencilEnable = false;
+
 		// The masks applied before reading from/writing to the stencil.
 		// Available values:
 		//   0-255
 		StencilReadMask = 0xFF; // or StencilMask
 		StencilWriteMask = 0xFF;
-		
-		// The reference value used with the stencil function.
-		StencilRef = 0;
 		
 		// The function used for stencil testing.
 		// Available values:
@@ -351,6 +365,9 @@ technique Example < enabled = true; >
 		//   EQUAL, NEQUAL or NOTEQUAL
 		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
 		StencilFunc = ALWAYS;
+
+		// The reference value used with the stencil function.
+		StencilRef = 0;
 		
 		// The operation  to  perform  on  the stencil  buffer when  the
 		// stencil  test passed/failed or stencil passed  but depth test

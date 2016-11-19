@@ -4,7 +4,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Ambient Obscurance with Indirect Lighting "MXAO" 1.2b by Marty McFly
 // For ReShade 3.X only!
-// Copyright (c) 2008-2016 Marty McFly
+// Copyright © 2008-2016 Marty McFly
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uniform float fMXAOAmbientOcclusionAmount <
@@ -78,14 +78,26 @@ uniform bool bMXAODebugViewEnable <
 > = false;
 
 //non GUI-able variables/variables I was too lazy to add 
-#define fMXAOSizeScale  1.0	//[0.5 to 1.0] 	 Resolution scale in which AO is being calculated.
-#define iMXAOMipLevelIL 2	//[0 to 4]       Miplevel of IL texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. 
-#define iMXAOMipLevelAO 0	//[0 to 2]	 Miplevel of AO texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. Best results: IL MipLevel = AO MipLevel + 2
-#define bMXAOBoundaryCheckEnable 0	//[0 or 1]	 Enables screen boundary check for samples. Can be useful to remove odd behaviour with too high sample radius / objects very close to camera. It comes with a slight fps drop.
+#ifndef fMXAOSizeScale
+	#define fMXAOSizeScale  1.0	//[0.5 to 1.0] 	 Resolution scale in which AO is being calculated.
+#endif
+#ifndef iMXAOMipLevelIL
+	#define iMXAOMipLevelIL 2	//[0 to 4]       Miplevel of IL texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. 
+#endif
+#ifndef iMXAOMipLevelAO
+	#define iMXAOMipLevelAO 0	//[0 to 2]	 Miplevel of AO texture. 0 = fullscreen, 1 = 1/2 screen width/height, 2 = 1/4 screen width/height and so forth. Best results: IL MipLevel = AO MipLevel + 2
+#endif
+#ifndef bMXAOBoundaryCheckEnable
+	#define bMXAOBoundaryCheckEnable 0	//[0 or 1]	 Enables screen boundary check for samples. Can be useful to remove odd behaviour with too high sample radius / objects very close to camera. It comes with a slight fps drop.
+#endif
 
 //custom variables, depleted after Framework implementation.
-#define AO_FADE____START 		0.6		//[0.0 to 1.0]	 Depth at which AO starts to fade out. 0.0 = camera, 1.0 = sky. Must be lower than AO fade end.
-#define AO_FADE____END   		0.9		//[0.0 to 1.0]	 Depth at which AO completely fades out. 0.0 = camera, 1.0 = sky. Must be higher than AO fade start.
+#ifndef AO_FADE____START
+	#define AO_FADE____START 		0.6		//[0.0 to 1.0]	 Depth at which AO starts to fade out. 0.0 = camera, 1.0 = sky. Must be lower than AO fade end.
+#endif
+#ifndef AO_FADE____END
+	#define AO_FADE____END   		0.9		//[0.0 to 1.0]	 Depth at which AO completely fades out. 0.0 = camera, 1.0 = sky. Must be higher than AO fade start.
+#endif
 
 #include "ReShade.fxh"
 
