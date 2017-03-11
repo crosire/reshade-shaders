@@ -5,7 +5,6 @@ ReShade FX shading language
 
 * [Concepts](#concepts)
   * [Macros](#macros)
-  * [Pragmas](#pragmas)
   * [Textures](#textures)
   * [Samplers](#samplers)
   * [Uniforms](#uniforms)
@@ -21,7 +20,7 @@ ReShade FX shading language
 * ``__RESHADE__`` Version of the injector
 * ``__VENDOR__`` Vendor id
 * ``__DEVICE__`` Device id
-* ``__RENDERER__`` Renderer version in format 0x[Type][Major][Minor][Revision]
+* ``__RENDERER__`` Renderer version
 * ``__APPLICATION__`` Hash of the application executable name
 * ``__DATE_YEAR__`` Current year
 * ``__DATE_MONTH__`` Current month
@@ -30,29 +29,6 @@ ReShade FX shading language
 * ``BUFFER_HEIGHT`` Backbuffer height
 * ``BUFFER_RCP_WIDTH`` Reciprocal backbuffer width
 * ``BUFFER_RCP_HEIGHT`` Reciprocal backbuffer height
-
-### Pragmas
-
-* ``#pragma message "Hello World!"``  
-Displays the string "Hello World!" below the info messages. Multiple of these can be chained and will be added together.
-* ``#pragma reshade showfps``  
-Shows a framerate counter in the top right corner.
-* ``#pragma reshade showclock``  
-Shows a clock with the current local time in the top right corner.
-* ``#pragma reshade showstatistics``  
-Shows some detailed drawing statistics about the current frame.
-* ``#pragma reshade showtogglemessage``  
-Notifies when switching a technique on or off with its toggle key.
-* ``#pragma reshade skipoptimization``  
-Forces the internal compilers to skip the optimization step.
-* ``#pragma reshade screenshot_key 0x20``  
-Changes the screenshot key to the key code 0x20, in this case the space button.
-* ``#pragma reshade screenshot_path "\\path\\to\\screenshots"``  
-Sets the screenshot output directory to "\path\to\screenshots"
-* ``#pragma reshade screenshot_format bmp``  
-Sets the screenshot file format to BMP.
-* ``#pragma reshade screenshot_format png``  
-Sets the screenshot file format to PNG.
 
 ### Textures
 
@@ -66,9 +42,9 @@ Annotations:
 Semantics on textures are used to request special textures:
 
  * ``texture texColor : COLOR;``  
- Recieves the backbuffer contents (read-only).
+ Receives the backbuffer contents (read-only).
  * ``texture texDepth : DEPTH;``  
- Recieves the game's depth information (read-only).
+ Receives the game's depth information (read-only).
 
 Declared textures are created at runtime with the parameters specified in their definition body.
 
@@ -82,7 +58,7 @@ texture texTarget
 	Width = BUFFER_WIDTH / 2;
 	Height = BUFFER_HEIGHT / 2;
 	
-	// The amount of mipmaps including the base level (default: 1).
+	// The number of mipmaps including the base level (default: 1).
 	MipLevels = 1;
 	
 	// The internal texture format (default: RGBA8).
@@ -90,7 +66,7 @@ texture texTarget
 	//   R8, R16F, R32F
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F
-	// Available compressed formats (readonly):
+	// Available compressed formats (read-only):
 	//   DXT1 or BC1, DXT3 or BC2, DXT5 or BC3
 	//   LATC1 or BC4, LATC2 or BC5
 	Format = RGBA8;
@@ -125,7 +101,7 @@ sampler samplerColor
 	// An offset applied to the calculated mipmap level (default: 0).
 	MipLODBias = 0.0f;
 	
-	// The maxmimum mipmap levels accessible.
+	// The maximum mipmap levels accessible.
 	MinLOD = 0.0f;
 	MaxLOD = 1000.0f;
 	
@@ -152,7 +128,16 @@ sampler samplerTarget
 
 > Uniforms are variables which are constant across each iteration of a shader per pass.
 
-Annotations are used to request special runtime values:
+Annotations to customize UI appearance:
+
+ * ui_type - Can be `input`, `drag`, `combo` or `color`
+ * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_items - A list of items for the combo box, each item is terminated with a `\0` character (required when `ui_type = "combo"`)
+ * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
+ * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
+
+Annotations are also used to request special runtime values:
 
  * ``uniform float frametime < source = "frametime"; >;``  
  Time in milliseconds it took for the last frame to complete.
@@ -162,14 +147,16 @@ Annotations are used to request special runtime values:
  float4(year, month (1 - 12), day of month (1 - 31), time in seconds)
  * ``uniform float timer < source = "timer"; >;``  
  Timer counting time in milliseconds since game start.
- * ``uniform float timeleft < source = "timeleft"; >;``  
- Time in milliseconds that is left until the current technique timeout is reached.
  * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 9; step = 1; >;``  
  Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
  * ``uniform int random < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
  * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
+ True if specified mouse button (0 - 5) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
+ Gets the position of the mouse cursor in screen coordinates.
 
 ```c++
 // Initializers are used for the initial value when providied.
@@ -281,7 +268,7 @@ void ExamplePS0(float4 pos : SV_Position, float2 texcoord : TEXCOORD0, out float
 float4 ExamplePS1(float4 pos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
 {
 	// Here color information is sampled with "samplerTarget" and thus from "texTarget" (see sampler declaration above),
-	// which was set as rendertarget in the previous pass (see the technique definition below) and now contains its output.
+	// which was set as render target in the previous pass (see the technique definition below) and now contains its output.
 	// In this case it is the game output, but downsampled to half because the texture is only half of the screen size.
 	float4 color = tex2D(samplerTarget, texcoord);
 	
@@ -304,8 +291,8 @@ float4 ExamplePS1(float4 pos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Ta
 ### Techniques
 
 > An effect file can have multiple techniques, each representing a full render pipeline, which is executed to apply post-processing effects. ReShade executes all enabled techniques in the order they were defined in the effect file.
-> A technique is made up of one or more passes which contain info about which renderstates to set and what shaders to execute. They are run sequentially starting with the top most declared. A name is optional.
-> Each pass can set renderstates. The default value is used if one is not specified in the pass body.
+> A technique is made up of one or more passes which contain info about which render states to set and what shaders to execute. They are run sequentially starting with the top most declared. A name is optional.
+> Each pass can set render states. The default value is used if one is not specified in the pass body.
 
 Annotations:
 
@@ -314,7 +301,7 @@ Annotations:
  * ``technique tech2 < timeout = 1000; > { ... }``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.
  * ``technique tech3 < toggle = 0x20; > { ... }``  
- Toggle this technique when the specified keycode is pressed.
+ Toggle this technique when the specified key is pressed.
  * ``technique tech3 < toggleTime = 100; > { ... }``  
  Toggle this technique at the specified time (seconds after midnight).
 
@@ -335,36 +322,42 @@ technique Example < enabled = true; >
 		// Be aware that you can only read **OR** write a texture at the same time, so do not sample from it while it is still bound as render target here.
 		// RenderTarget and RenderTarget0 are aliases.
 		RenderTarget = texTarget;
+
+		// Clears all bound render targets to zero before rendering when set to true.
+		ClearRenderTargets = true;
 		
-		// A mask applied to the color output before it is written to the rendertarget.
+		// A mask applied to the color output before it is written to the render target.
 		RenderTargetWriteMask = 0xF; // or ColorWriteEnable
 		
 		// Enable or disable gamma correction applied to the output.
-		SRGBWriteEnable = FALSE;
-		
-		// Enable or disable the depth and stencil tests.
-		// The depthstencil is cleared at the start of a technique.
-		DepthEnable = FALSE; // or ZEnable
-		StencilEnable = FALSE;
-		
-		// Enable or disable writing to the internal depth buffer for depth testing.
-		DepthWriteMask = FALSE; // or ZWriteEnable
-		
-		// The function used for depth testing.
+		SRGBWriteEnable = false;
+
+		// Enable or disable color and alpha blending.
+		BlendEnable = false;
+
+		// The operator used for color and alpha blending.
 		// Available values:
-		//   NEVER, ALWAYS
-		//   EQUAL, NEQUAL or NOTEQUAL
-		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
-		DepthFunc = ALWAYS; // or ZFunc
+		//   ADD, SUBTRACT, REVSUBTRACT, MIN, MAX
+		BlendOp = ADD;
+		BlendOpAlpha = ADD;
+
+		// The data source and optional pre-blend operation used for blending.
+		// Available values:
+		//   ZERO, ONE,
+		//   SRCCOLOR, SRCALPHA, INVSRCCOLOR, INVSRCALPHA
+		//   DESTCOLOR, DESTALPHA, INVDESTCOLOR, INVDESTALPHA
+		SrcBlend = ONE;
+		DestBlend = ZERO;
 		
+		// Enable or disable the stencil test.
+		// The depth and stencil buffers are cleared before rendering each pass in a technique.
+		StencilEnable = false;
+
 		// The masks applied before reading from/writing to the stencil.
 		// Available values:
 		//   0-255
 		StencilReadMask = 0xFF; // or StencilMask
 		StencilWriteMask = 0xFF;
-		
-		// The reference value used with the stencil function.
-		StencilRef = 0;
 		
 		// The function used for stencil testing.
 		// Available values:
@@ -372,6 +365,9 @@ technique Example < enabled = true; >
 		//   EQUAL, NEQUAL or NOTEQUAL
 		//   LESS, GREATER, LEQUAL or LESSEQUAL, GEQUAL or GREATEREQUAL
 		StencilFunc = ALWAYS;
+
+		// The reference value used with the stencil function.
+		StencilRef = 0;
 		
 		// The operation  to  perform  on  the stencil  buffer when  the
 		// stencil  test passed/failed or stencil passed  but depth test
