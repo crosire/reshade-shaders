@@ -35,7 +35,7 @@ uniform float kResolutionScale <
 	ui_min = 0.01;
 	ui_max = 1.0;
 	ui_tooltip = "Resolution Scale [MetaCRT]";
-> = 0.2;
+> = 1.0;
 
 uniform float kBrightness <
 	ui_type = "drag";
