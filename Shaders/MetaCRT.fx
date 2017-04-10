@@ -55,9 +55,16 @@ uniform bool bBorders <
 	ui_tooltip = "Enable Borders [MetaCRT]";
 > = true;
 
+uniform bool bZoom <
+	ui_tooltip = "Enable Mouse Zoom [MetaCRT]";
+> = true;
+
 #define kScreenRsolution float2(ScreenResX, ScreenResY);
 
 uniform float  iGlobalTime < source = "timer"; >;
+uniform bool iMouse < source = "mousebutton"; keycode = 1; toggle = false; >;
+
+uniform float2 iMousePos < source = "mousepoint"; >;
 
 float3 PulseIntegral( float3 x, float s1, float s2 )
 {
@@ -253,6 +260,13 @@ float4 PS_MetaCRT( float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
 	float2 vUV = texcoord.xy / ReShade::ScreenSize;
 
     float3 vResult = SampleScreen( vUV * 1.0 - 0.0 );
+	
+	if (bZoom){
+		if ( iMouse > 0.0 )
+		{
+			vUV = (vUV - 0.5) * (iMousePos.y/ReShade::ScreenSize.y) + 0.5;
+		}
+	}
 	
 	if (bBorders){
 		vResult = SampleScreen( vUV * 1.1 - 0.05 );
