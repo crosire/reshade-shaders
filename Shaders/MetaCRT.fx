@@ -2,8 +2,6 @@
 
 // 2D screen effect from "Meta CRT" -> https://www.shadertoy.com/view/4dlyWX
 
-//float kResolutionScale = 1.0;
-
 uniform float ScreenResX <
 	ui_type = "drag";
 	ui_min = 0.0;
@@ -18,12 +16,12 @@ uniform float ScreenResY <
 	ui_tooltip = "Screen Height [Meta CRT]";
 > = 576.0;
 
-uniform float kResolutionScale <
+uniform float fAmbientEmissive <
 	ui_type = "drag";
-	ui_min = 0.01;
-	ui_max = 1.0;
-	ui_tooltip = "Resolution Scale [MetaCRT]";
-> = 0.2;
+	ui_min = 0.0;
+	ui_max = 5.0;
+	ui_tooltip = "Monitor Gamma [MetaCRT]";
+> = 0.1;
 
 uniform float fBlackEmissive <
 	ui_type = "drag";
@@ -32,19 +30,19 @@ uniform float fBlackEmissive <
 	ui_tooltip = "Slot Gamma [MetaCRT]";
 > = 0.02;
 
+uniform float kResolutionScale <
+	ui_type = "drag";
+	ui_min = 0.01;
+	ui_max = 1.0;
+	ui_tooltip = "Resolution Scale [MetaCRT]";
+> = 0.2;
+
 uniform float kBrightness <
 	ui_type = "drag";
 	ui_min = 0.1;
 	ui_max = 10.0;
 	ui_tooltip = "Brightness [MetaCRT]";
-> = 1.0;
-
-uniform float fAmbientEmissive <
-	ui_type = "drag";
-	ui_min = 0.0;
-	ui_max = 5.0;
-	ui_tooltip = "Monitor Gamma [MetaCRT]";
-> = 0.1;
+> = 1.75;
 
 uniform float fNoiseIntensity <
 	ui_type = "drag";
@@ -74,7 +72,7 @@ float3 PulseIntegral( float3 x, float s1, float s2 )
     //return clamp( (x - s1), 0.0f, s2 - s1);
     //return t;
     
-    return clamp( (x - s1), float3(0.0, 0.0,0.0), float3(s2 - s1,s2 - s1,s2 - s1));
+    return clamp( (x - s1), float3(0.0,0.0,0.0), float3(s2 - s1,s2 - s1,s2 - s1));
 }
 
 float PulseIntegral( float x, float s1, float s2 )
@@ -121,22 +119,22 @@ float3 Bayer( float2 vUV, float2 vBlur )
     
     vResult = min(vResultX,vResultY)  * 5.0;
         
-    //vResult = float3(1.0,1.0,1.0);
+    //vResult = float3(1.0);
     
     return vResult;
 }
 
 float3 GetPixelMatrix( float2 vUV )
 {
-	if (1){ 
-		float2 dx = ddx( vUV );
-		float2 dy = ddy( vUV );
-		float dU = length( float2( dx.x, dy.x ) );
-		float dV = length( float2( dx.y, dy.y ) );
-		if (dU <= 0.0 || dV <= 0.0 ) return float3(1.0,1.0,1.0);
-		return Bayer( vUV, float2(dU, dV) * 1.0);
-	} else {
-		return float3(1.0,1.0,1.0);
+if (1){
+    float2 dx = ddx( vUV );
+    float2 dy = ddy( vUV );
+    float dU = length( float2( dx.x, dy.x ) );
+    float dV = length( float2( dx.y, dy.y ) );
+    if (dU <= 0.0 || dV <= 0.0 ) return float3(1.0,1.0,1.0);
+    return Bayer( vUV, float2(dU, dV) * 1.0);
+} else {
+    return float3(1.0,1.0,1.0);
 	}
 }
 
@@ -149,16 +147,16 @@ float Scanline( float y, float fBlur )
 
 float GetScanline( float2 vUV )
 {
-if(1){
+if (1){
     vUV.y *= 0.25;
     float2 dx = ddx( vUV );
     float2 dy = ddy( vUV );
     float dV = length( float2( dx.y, dy.y ) );
     if (dV <= 0.0 ) return 1.0;
     return Scanline( vUV.y, dV * 1.3 );
-	} else {
-		return 1.0;
-	}
+ } else {
+    return 1.0;
+  }
 }
 
 struct Interference
@@ -233,14 +231,14 @@ float3 SampleScreen( float2 vUV )
     //vTextureUV.x += (interference.scanLineRandom * 2.0f - 1.0f) * 0.025f * noiseIntensity;
     
     
-    float3 vPixelEmissive = tex2D( ReShade::BackBuffer, vTextureUV.xy ).rgb;
+    float3 vPixelEmissive = tex2D( ReShade::BackBuffer, vTextureUV.xy).rgb;
         
     vPixelEmissive = clamp( vPixelEmissive + (interference.noise - 0.5) * 2.0 * noiseIntensity, 0.0, 1.0 );
     
 	float3 vResult = (vPixelEmissive * vPixelEmissive * fBrightness + vBlackEmissive) * vPixelMatrix * fScanline + vAmbientEmissive;
     
     // TODO: feather edge?
-    if( any( ( vUV.xy >= float2(1.0,1.0) ) ) || any ( ( vUV.xy < float2(0.0,0.0) ) ) )
+    if( any(  vUV.xy >= float2(1.0,1.0) ) || any ( vUV.xy < float2(0.0,0.0) ) )
     {
         return float3(0.0,0.0,0.0);
     }
@@ -253,6 +251,7 @@ float4 PS_MetaCRT( float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
 {
 	float2 texcoord = uv * ReShade::ScreenSize;
 	float2 vUV = texcoord.xy / ReShade::ScreenSize;
+
     float3 vResult = SampleScreen( vUV * 1.0 - 0.0 );
 	
 	if (bBorders){
