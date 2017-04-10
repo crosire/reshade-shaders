@@ -62,7 +62,8 @@ uniform bool bZoom <
 #define kScreenRsolution float2(ScreenResX, ScreenResY);
 
 uniform float  iGlobalTime < source = "timer"; >;
-uniform bool iMouse < source = "mousebutton"; keycode = 1; toggle = false; >;
+uniform bool iMouse1 < source = "mousebutton"; keycode = 0; toggle = false; >;
+uniform bool iMouse2 < source = "mousebutton"; keycode = 1; toggle = false; >;
 
 uniform float2 iMousePos < source = "mousepoint"; >;
 
@@ -262,7 +263,7 @@ float4 PS_MetaCRT( float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
     float3 vResult = SampleScreen( vUV * 1.0 - 0.0 );
 	
 	if (bZoom){
-		if ( iMouse > 0.0 )
+		if ( (iMouse1) || (iMouse2) )
 		{
 			vUV = (vUV - 0.5) * (iMousePos.y/ReShade::ScreenSize.y) + 0.5;
 		}
