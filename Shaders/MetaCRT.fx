@@ -40,7 +40,7 @@ uniform float kResolutionScale <
 uniform float kBrightness <
 	ui_type = "drag";
 	ui_min = 0.1;
-	ui_max = 10.0;
+	ui_max = 256.0;
 	ui_tooltip = "Brightness [MetaCRT]";
 > = 1.75;
 
@@ -262,7 +262,7 @@ float4 PS_MetaCRT( float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
 
     float3 vResult = SampleScreen( vUV * 1.0 - 0.0 );
 	
-	if (bZoom){
+	if (bZoom && bBorders){
 		if ( (iMouse1) || (iMouse2) )
 		{
 			vUV = (vUV - 0.5) * (iMousePos.y/ReShade::ScreenSize.y) + 0.5;
