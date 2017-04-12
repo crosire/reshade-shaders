@@ -51,6 +51,10 @@ uniform float fNoiseIntensity <
 	ui_tooltip = "Noise Intensity [MetaCRT]";
 > = 0.0;
 
+uniform bool bScanlineInterference <
+	ui_tooltip = "Enable Scanline Interference [MetaCRT]";
+> = false;
+
 uniform bool bBorders <
 	ui_tooltip = "Enable Borders [MetaCRT]";
 > = true;
@@ -134,15 +138,15 @@ float3 Bayer( float2 vUV, float2 vBlur )
 
 float3 GetPixelMatrix( float2 vUV )
 {
-if (1){
-    float2 dx = ddx( vUV );
-    float2 dy = ddy( vUV );
-    float dU = length( float2( dx.x, dy.x ) );
-    float dV = length( float2( dx.y, dy.y ) );
-    if (dU <= 0.0 || dV <= 0.0 ) return float3(1.0,1.0,1.0);
-    return Bayer( vUV, float2(dU, dV) * 1.0);
-} else {
-    return float3(1.0,1.0,1.0);
+	if (1){
+		float2 dx = ddx( vUV );
+		float2 dy = ddy( vUV );
+		float dU = length( float2( dx.x, dy.x ) );
+		float dV = length( float2( dx.y, dy.y ) );
+		if (dU <= 0.0 || dV <= 0.0 ) return float3(1.0,1.0,1.0);
+		return Bayer( vUV, float2(dU, dV) * 1.0);
+	} else {
+		return float3(1.0,1.0,1.0);
 	}
 }
 
@@ -155,16 +159,16 @@ float Scanline( float y, float fBlur )
 
 float GetScanline( float2 vUV )
 {
-if (1){
-    vUV.y *= 0.25;
-    float2 dx = ddx( vUV );
-    float2 dy = ddy( vUV );
-    float dV = length( float2( dx.y, dy.y ) );
-    if (dV <= 0.0 ) return 1.0;
-    return Scanline( vUV.y, dV * 1.3 );
- } else {
-    return 1.0;
-  }
+	if (1){
+		vUV.y *= 0.25;
+		float2 dx = ddx( vUV );
+		float2 dy = ddy( vUV );
+		float dV = length( float2( dx.y, dy.y ) );
+		if (dV <= 0.0 ) return 1.0;
+		return Scanline( vUV.y, dV * 1.3 );
+	} else {
+		return 1.0;
+	}
 }
 
 struct Interference
@@ -236,8 +240,9 @@ float3 SampleScreen( float2 vUV )
 
     float noiseIntensity = fNoiseIntensity;
     
-    //vTextureUV.x += (interference.scanLineRandom * 2.0f - 1.0f) * 0.025f * noiseIntensity;
-    
+	if (bScanlineInterference){
+		vTextureUV.x += (interference.scanLineRandom * 2.0f - 1.0f) * 0.025f * noiseIntensity;
+	}
     
     float3 vPixelEmissive = tex2D( ReShade::BackBuffer, vTextureUV.xy).rgb;
         
