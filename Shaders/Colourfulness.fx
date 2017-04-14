@@ -41,7 +41,7 @@ uniform float lim_luma <
 
 //-------------------------------------------------------------------------------------------------
 #ifndef fast_luma
-	#define fast_luma 0 // Rapid approx of sRGB gamma, small difference in quality
+	#define fast_luma 1 // Rapid approx of sRGB gamma, small difference in quality
 #endif
 //-------------------------------------------------------------------------------------------------
 
@@ -65,7 +65,6 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Targ
 		float3 c0  = tex2D(ReShade::BackBuffer, tex).rgb;
 		float luma = sqrt(dot(saturate(c0*abs(c0)), lumacoeff));
 		c0 = saturate(c0);
-
 	#else // Better approx of sRGB gamma
 		float3 c0  = saturate(tex2D(ReShade::BackBuffer, tex).rgb);
 		float luma = pow(dot(pow(c0 + 0.06, 2.4), lumacoeff), 1.0/2.4) - 0.06;
