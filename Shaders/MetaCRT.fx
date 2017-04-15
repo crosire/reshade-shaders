@@ -62,7 +62,7 @@ uniform float fVerticalLines <
 	ui_min = 0.0;
 	ui_max = BUFFER_HEIGHT + 3;
 	ui_label = "Vertical Lines Number [Meta CRT]";
-	ui_tooltip="Its recommended to change it to alwats make it the Width value + 3";
+	ui_tooltip="Used by Scanline Interference. Its recommended to change it to always make it the width value + 3";
 > = 483.0;
 
 uniform bool bBorders <
