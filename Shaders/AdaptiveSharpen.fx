@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016, bacondither
+// Copyright (c) 2015-2017, bacondither
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,8 +22,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Adaptive sharpen - version 2016-09-24 - (requires ps >= 3.0)
-// Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
+// Adaptive sharpen - version 2017-04-11
+// EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float curve_height <
 	ui_type = "drag";
@@ -68,10 +68,15 @@ uniform float D_compr_high <
 	ui_tooltip = "Dark compression, surrounded by edges (0.504=~2.5x)";
 > = 0.504;
 
-uniform float max_scale_lim <
+uniform float scale_lim <
 	ui_min = 0.01; ui_max = 1.0;
-	ui_tooltip = "Abs max change before compression (0.1=+-10%)";
+	ui_tooltip = "Abs max change before compression";
 > = 0.1;
+
+uniform float scale_cs <
+	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Compression slope above scale_lim";
+> = 0.056;
 
 uniform float pm_p <
 	ui_min = 0.01; ui_max = 1.0;
@@ -90,37 +95,43 @@ texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F;
 sampler Pass0_Sampler { Texture = Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * float2(x, y))).rgb) )
-#define get2(x,y)      ( tex2D(Pass0_Sampler, texcoord + (ReShade::PixelSize * float2(x, y))).xy )
-
-// Saturation loss reduction
-#define minim_satloss  ( (satorig*min((d[0].y + sharpdiff)/d[0].y, 1e+5) + (satorig + sharpdiff))/2 )
+#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize*float2(x, y)).rgb) )
+#define get2(x,y)      ( tex2D(Pass0_Sampler, tex + ReShade::PixelSize*float2(x, y)).xy )
 
 // Soft if, fast approx
-#define soft_if(a,b,c) ( saturate((a + b + c)/(saturate(maxedge) + 0.003) - 0.85) )
+#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)/(abs(maxedge) + 0.03) - 0.85) )
 
 // Soft limit, modified tanh
-#if (fast_ops == 1)
-	#define soft_lim(v,s)  ( saturate(abs(v/s)*(27 + (v/s)*(v/s))/(27 + 9*(v/s)*(v/s)))*s ) // Tanh approx
+#if (fast_ops == 1) // Tanh approx
+	#define soft_lim(v,s)  ( saturate(abs(v/s)*(27 + (v/s)*(v/s))/(27 + 9*(v/s)*(v/s)))*s )
 #else
-	#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*16)/s) - 1)/(exp(2*min(abs(v), s*16)/s) + 1))*s )
+	#define soft_lim(v,s)  ( ((exp(2*min(abs(v), s*24)/s) - 1)/(exp(2*min(abs(v), s*24)/s) + 1))*s )
 #endif
 
 // Weighted power mean
 #define wpmean(a,b,w)  ( pow((abs(w)*pow(abs(a), pm_p) + abs(1-w)*pow(abs(b), pm_p)), (1.0/pm_p)) )
 
 // Maximum of four values
-#define max4(a,b,c,d)  ( max(max(a,b), max(c,d)) )
+#define max4(a,b,c,d)  ( max(max(a, b), max(c, d)) )
 
 // Compute diff
 #define b_diff(pix)    ( abs(blur - c[pix]) )
+
+// Fast-skip threshold, keep max possible error under 1/16-bit
+#if (fast_ops == 1)
+	// Approx of x = tanh(x/y)*y + 1/2^16, y = min(L_overshoot, D_overshoot)
+	#define fskip_th       ( 0.03523085*pow(min(L_overshoot, D_overshoot), 0.65884327) )
+#else
+	// x = tanh(x/y)*y + 1/2^16, y = 0.0001
+	#define fskip_th       ( 0.0000836583 )
+#endif
 
 // Center pixel diff
 #define mdiff(a,b,c,d,e,f,g) ( abs(luma[g]-luma[a]) + abs(luma[g]-luma[b])			 \
                              + abs(luma[g]-luma[c]) + abs(luma[g]-luma[d])			 \
                              + 0.5*(abs(luma[g]-luma[e]) + abs(luma[g]-luma[f])) )
 
-float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
 	// Get points and clip out of range values (BTB & WTW)
 	// [                c9,               ]
@@ -154,13 +165,12 @@ float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	                   + 0.92*(b_diff(1) + b_diff(3)  + b_diff(6)  + b_diff(8))
 	                   + 0.23*(b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)) );
 
-	return float2( edge*c_comp, luma );
+	return float2(edge*c_comp, luma);
 }
 
-float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
-	float3 orig    = tex2D(ReShade::BackBuffer, texcoord).rgb;
-	float3 satorig = saturate(orig);
+	float3 origsat = saturate(tex2D(ReShade::BackBuffer, tex).rgb);
 
 	// Get points, .x= edge, .y= luma
 	// [                d22               ]
@@ -193,11 +203,11 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	          + soft_if(d[3].x,d[23].x,d[18].x)*soft_if(d[6].x,d[20].x,d[15].x); // w dir
 
 	#if (fast_ops == 1)
-		float cs[2] = { lerp( L_compr_low, L_compr_high, saturate(sbe - 2) ),
-		                lerp( D_compr_low, D_compr_high, saturate(sbe - 2) ) };
+		float2 cs = lerp( float2(L_compr_low,  D_compr_low),
+		                  float2(L_compr_high, D_compr_high), saturate(1.091*sbe - 2.282) );
 	#else
-		float cs[2] = { lerp( L_compr_low, L_compr_high, smoothstep(2, 3.1, sbe) ),
-		                lerp( D_compr_low, D_compr_high, smoothstep(2, 3.1, sbe) ) };
+		float2 cs = lerp( float2(L_compr_low,  D_compr_low),
+		                  float2(L_compr_high, D_compr_high), smoothstep(2, 3.1, sbe) );
 	#endif
 
 	float luma[25] = { d[0].y,  d[1].y,  d[2].y,  d[3].y,  d[4].y,
@@ -212,7 +222,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 
 	// Transition to a concave kernel if the center edge val is above thr
 	#if (fast_ops == 1)
-		float3 dW = pow(lerp( W1, W2, saturate((2.27*d[0].x) - 0.75) ), 2);
+		float3 dW = pow(lerp( W1, W2, saturate(2.4*d[0].x - 0.82) ), 2);
 	#else
 		float3 dW = pow(lerp( W1, W2, smoothstep(0.3, 0.8, d[0].x) ), 2);
 	#endif
@@ -247,11 +257,10 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	float weightsum   = 0;
 	float neg_laplace = 0;
 
-	[unroll]
-	for (int pix = 0; pix < 12; ++pix)
+	[unroll] for (int pix = 0; pix < 12; ++pix)
 	{
 		#if (fast_ops == 1)
-			float lowthr = clamp(((11*d[pix + 1].x) - 0.16), 0.01, 1);
+			float lowthr = clamp((11.88*d[pix + 1].x - 0.208), 0.01, 1);
 
 			neg_laplace += pow(luma[pix + 1], 2)*(weights[pix]*lowthr);
 		#else
@@ -277,69 +286,99 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) 
 	// Calculate sharpening diff and scale
 	float sharpdiff = (d[0].y - neg_laplace)*(lowthrsum*sharpen_val*0.8 + 0.01);
 
-	#if (fast_ops == 1)
-		const int numloop = 2;
-	#else
-		const int numloop = 3;
-	#endif
-
-	// Calculate local near min & max, partial sort
-	[unroll]
-	for (int i = 0; i < numloop; ++i)
+	// Skip limiting on flat areas where sharpdiff is low
+	[branch] if (abs(sharpdiff) > fskip_th)
 	{
-		float temp;
-
-		for (int i1 = i; i1 < 24-i; i1 += 2)
+		// Calculate local near min & max, partial sort
+		// Manually unrolled outer loops, solves OpenGL slowdown
 		{
-			temp = luma[i1];
-			luma[i1]   = min(luma[i1], luma[i1+1]);
-			luma[i1+1] = max(temp, luma[i1+1]);
+			float temp; int i1; int i2;
+
+			// 1st iteration
+			[unroll] for (i1 = 0; i1 < 24; i1 += 2)
+			{
+				temp = luma[i1];
+				luma[i1]   = min(luma[i1], luma[i1+1]);
+				luma[i1+1] = max(temp, luma[i1+1]);
+			}
+			[unroll] for (i2 = 24; i2 > 0; i2 -= 2)
+			{
+				temp = luma[0];
+				luma[0]    = min(luma[0], luma[i2]);
+				luma[i2]   = max(temp, luma[i2]);
+
+				temp = luma[24];
+				luma[24]   = max(luma[24], luma[i2-1]);
+				luma[i2-1] = min(temp, luma[i2-1]);
+			}
+
+			// 2nd iteration
+			[unroll] for (i1 = 1; i1 < 23; i1 += 2)
+			{
+				temp = luma[i1];
+				luma[i1]   = min(luma[i1], luma[i1+1]);
+				luma[i1+1] = max(temp, luma[i1+1]);
+			}
+			[unroll] for (i2 = 23; i2 > 1; i2 -= 2)
+			{
+				temp = luma[1];
+				luma[1]    = min(luma[1], luma[i2]);
+				luma[i2]   = max(temp, luma[i2]);
+
+				temp = luma[23];
+				luma[23]   = max(luma[23], luma[i2-1]);
+				luma[i2-1] = min(temp, luma[i2-1]);
+			}
+
+			#if (fast_ops != 1) // 3rd iteration
+				[unroll] for (i1 = 2; i1 < 22; i1 += 2)
+				{
+					temp = luma[i1];
+					luma[i1]   = min(luma[i1], luma[i1+1]);
+					luma[i1+1] = max(temp, luma[i1+1]);
+				}
+				[unroll] for (i2 = 22; i2 > 2; i2 -= 2)
+				{
+					temp = luma[2];
+					luma[2]    = min(luma[2], luma[i2]);
+					luma[i2]   = max(temp, luma[i2]);
+
+					temp = luma[22];
+					luma[22]   = max(luma[22], luma[i2-1]);
+					luma[i2-1] = min(temp, luma[i2-1]);
+				}
+			#endif
 		}
 
-		for (int i2 = 24-i; i2 > i; i2 -= 2)
-		{
-			temp = luma[i];
-			luma[i]    = min(luma[i], luma[i2]);
-			luma[i2]   = max(temp, luma[i2]);
+		// Calculate tanh scale factor, pos/neg
+		#if (fast_ops == 1)
+			float nmax = (max(luma[23], d[0].y) + luma[24])/2;
+			float nmin = (min(luma[1],  d[0].y) + luma[0])/2;
 
-			temp = luma[24-i];
-			luma[24-i] = max(luma[24-i], luma[i2-1]);
-			luma[i2-1] = min(temp, luma[i2-1]);
-		}
+			float nmax_scale = abs(nmax - d[0].y) + L_overshoot;
+			float nmin_scale = abs(d[0].y - nmin) + D_overshoot;
+		#else
+			float nmax = (max(luma[22] + luma[23]*2, d[0].y*3) + luma[24])/4;
+			float nmin = (min(luma[2]  + luma[1]*2,  d[0].y*3) + luma[0])/4;
+
+			float nmax_scale = nmax - d[0].y + min(L_overshoot, 1.0001 - nmax);
+			float nmin_scale = d[0].y - nmin + min(D_overshoot, 0.0001 + nmin);
+		#endif
+
+		nmax_scale = min(nmax_scale, scale_lim*(1 - scale_cs) + nmax_scale*scale_cs);
+		nmin_scale = min(nmin_scale, scale_lim*(1 - scale_cs) + nmin_scale*scale_cs);
+
+		// Soft limited anti-ringing with tanh, wpmean to control compression slope
+		sharpdiff = wpmean( max(sharpdiff, 0), soft_lim( max(sharpdiff, 0), nmax_scale ), cs.x )
+		          - wpmean( min(sharpdiff, 0), soft_lim( min(sharpdiff, 0), nmin_scale ), cs.y );
 	}
 
-	// Calculate tanh scale factor, pos/neg
-	#if (fast_ops == 1)
-		float nmax = (max(luma[23], d[0].y) + luma[24])/2;
-		float nmin = (min(luma[1],  d[0].y) + luma[0])/2;
+	// Compensate for saturation loss/gain while making pixels brighter/darker
+	float sharpdiff_lim = saturate(d[0].y + sharpdiff) - d[0].y;
+	float satmul = (d[0].y + sharpdiff_lim + 0.03)/(d[0].y + 0.03);
+	float3 res = d[0].y + (sharpdiff_lim + sharpdiff)/2 + (origsat - d[0].y)*satmul;
 
-		float nmax_scale = min((abs(nmax - d[0].y) + L_overshoot), max_scale_lim);
-		float nmin_scale = min((abs(d[0].y - nmin) + D_overshoot), max_scale_lim);
-	#else
-		float nmax = (max(luma[22] + luma[23]*2, d[0].y*3) + luma[24])/4;
-		float nmin = (min(luma[2]  + luma[1]*2,  d[0].y*3) + luma[0])/4;
-
-		float nmax_scale = min(nmax - d[0].y + min(L_overshoot, 1.0001 - nmax), max_scale_lim);
-		float nmin_scale = min(d[0].y - nmin + min(D_overshoot, 0.0001 + nmin), max_scale_lim);
-	#endif
-
-	// Soft limited anti-ringing with tanh, wpmean to control compression slope
-	sharpdiff = wpmean( max(sharpdiff, 0), soft_lim( max(sharpdiff, 0), nmax_scale ), cs[0] )
-	          - wpmean( min(sharpdiff, 0), soft_lim( min(sharpdiff, 0), nmin_scale ), cs[1] );
-
-	/*if (video_level_out == true)
-	{
-		[flatten]
-		if (sharpdiff > 0) { return ( orig + (minim_satloss - satorig) ); }
-
-		else { return ( orig + sharpdiff ); }
-	}*/
-
-	// Normal path
-	[flatten]
-	if (sharpdiff > 0) { return minim_satloss; }
-
-	else { return ( satorig + sharpdiff ); }
+	return saturate(res);
 }
 
 technique AdaptiveSharpen
