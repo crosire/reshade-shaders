@@ -1,66 +1,76 @@
 #include "ReShade.fxh"
 
+// Meta CRT by P_Malin, ported to ReShade by Matsilagi
+
 // 2D screen effect from "Meta CRT" -> https://www.shadertoy.com/view/4dlyWX
 
 uniform float ScreenResX <
 	ui_type = "drag";
 	ui_min = 0.0;
 	ui_max = BUFFER_WIDTH;
-	ui_tooltip = "Screen Width [Meta CRT]";
+	ui_label = "Screen Width [Meta CRT]";
 > = 480.0;
 
 uniform float ScreenResY <
 	ui_type = "drag";
 	ui_min = 0.0;
 	ui_max = BUFFER_HEIGHT;
-	ui_tooltip = "Screen Height [Meta CRT]";
+	ui_label = "Screen Height [Meta CRT]";
 > = 576.0;
 
 uniform float fAmbientEmissive <
 	ui_type = "drag";
 	ui_min = 0.0;
 	ui_max = 5.0;
-	ui_tooltip = "Monitor Gamma [MetaCRT]";
+	ui_label = "Monitor Gamma [MetaCRT]";
 > = 0.1;
 
 uniform float fBlackEmissive <
 	ui_type = "drag";
 	ui_min = 0.0;
 	ui_max = 3.0;
-	ui_tooltip = "Slot Gamma [MetaCRT]";
+	ui_label = "Slot Gamma [MetaCRT]";
 > = 0.02;
 
 uniform float kResolutionScale <
 	ui_type = "drag";
 	ui_min = 0.01;
 	ui_max = 1.0;
-	ui_tooltip = "Resolution Scale [MetaCRT]";
+	ui_label = "Resolution Scale [MetaCRT]";
 > = 1.0;
 
 uniform float kBrightness <
 	ui_type = "drag";
 	ui_min = 0.1;
 	ui_max = 256.0;
-	ui_tooltip = "Brightness [MetaCRT]";
+	ui_label = "Brightness [MetaCRT]";
 > = 1.75;
 
 uniform float fNoiseIntensity <
 	ui_type = "drag";
 	ui_min = 0.0;
 	ui_max = 1.0;
-	ui_tooltip = "Noise Intensity [MetaCRT]";
+	ui_label = "Noise Intensity [MetaCRT]";
 > = 0.0;
 
 uniform bool bScanlineInterference <
-	ui_tooltip = "Enable Scanline Interference [MetaCRT]";
+	ui_label = "Enable Scanline Interference [MetaCRT]";
 > = false;
 
+uniform float fVerticalLines <
+	ui_type = "drag";
+	ui_min = 0.0;
+	ui_max = BUFFER_HEIGHT + 3;
+	ui_label = "Vertical Lines Number [Meta CRT]";
+	ui_tooltip = "Used by Scanline Interference. Its recommended to change it to always make it the width value + 3";
+> = 483.0;
+
 uniform bool bBorders <
-	ui_tooltip = "Enable Borders [MetaCRT]";
+	ui_label = "Enable Borders [MetaCRT]";
 > = true;
 
 uniform bool bZoom <
-	ui_tooltip = "Enable Mouse Zoom [MetaCRT]";
+	ui_label = "Enable Mouse Zoom [MetaCRT]";
 > = true;
 
 #define kScreenRsolution float2(ScreenResX, ScreenResY);
@@ -201,7 +211,7 @@ float InterferenceSmoothNoise1D( float x )
 
 float InterferenceNoise( float2 uv )
 {
-	float displayVerticalLines = 483.0;
+	float displayVerticalLines = fVerticalLines;
     float scanLine = floor(uv.y * displayVerticalLines); 
     float scanPos = scanLine + uv.x;
 	float timeSeed = frac( (iGlobalTime*0.001) * 123.78 );
