@@ -204,7 +204,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 
 	#if (fast_ops == 1)
 		float2 cs = lerp( float2(L_compr_low,  D_compr_low),
-		                  float2(L_compr_high, D_compr_high), saturate(sbe - 2) );
+		                  float2(L_compr_high, D_compr_high), saturate(1.091*sbe - 2.282) );
 	#else
 		float2 cs = lerp( float2(L_compr_low,  D_compr_low),
 		                  float2(L_compr_high, D_compr_high), smoothstep(2, 3.1, sbe) );
@@ -222,7 +222,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 
 	// Transition to a concave kernel if the center edge val is above thr
 	#if (fast_ops == 1)
-		float3 dW = pow(lerp( W1, W2, saturate((2.27*d[0].x) - 0.75) ), 2);
+		float3 dW = pow(lerp( W1, W2, saturate(2.4*d[0].x - 0.82) ), 2);
 	#else
 		float3 dW = pow(lerp( W1, W2, smoothstep(0.3, 0.8, d[0].x) ), 2);
 	#endif
@@ -260,7 +260,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 	[unroll] for (int pix = 0; pix < 12; ++pix)
 	{
 		#if (fast_ops == 1)
-			float lowthr = clamp(((11*d[pix + 1].x) - 0.16), 0.01, 1);
+			float lowthr = clamp((11.88*d[pix + 1].x - 0.208), 0.01, 1);
 
 			neg_laplace += pow(luma[pix + 1], 2)*(weights[pix]*lowthr);
 		#else
@@ -301,7 +301,6 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 				luma[i1]   = min(luma[i1], luma[i1+1]);
 				luma[i1+1] = max(temp, luma[i1+1]);
 			}
-
 			[unroll] for (i2 = 24; i2 > 0; i2 -= 2)
 			{
 				temp = luma[0];
@@ -320,7 +319,6 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 				luma[i1]   = min(luma[i1], luma[i1+1]);
 				luma[i1+1] = max(temp, luma[i1+1]);
 			}
-
 			[unroll] for (i2 = 23; i2 > 1; i2 -= 2)
 			{
 				temp = luma[1];
@@ -339,7 +337,6 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 					luma[i1]   = min(luma[i1], luma[i1+1]);
 					luma[i1+1] = max(temp, luma[i1+1]);
 				}
-
 				[unroll] for (i2 = 22; i2 > 2; i2 -= 2)
 				{
 					temp = luma[2];
