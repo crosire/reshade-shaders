@@ -26,7 +26,7 @@ uniform float EdgeThresholdMin <
 #define FXAA_PC 1
 #define FXAA_HLSL_3 1
 #define FXAA_QUALITY__PRESET 15
-#define FXAA_GREEN_AS_LUMA 1
+#define FXAA_GREEN_AS_LUMA 0
 
 #if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
 	#define FXAA_GATHER4_ALPHA 1
@@ -49,6 +49,15 @@ sampler FXAATexture
 };
 
 // Pixel shaders
+
+#if !FXAA_GREEN_AS_LUMA
+float4 FXAALumaPass(float4 vpos : SV_Position, noperspective float2 texcoord : TEXCOORD) : SV_Target
+{
+	float4 color = tex2D(FXAATexture, texcoord.xy);
+	color.a = sqrt(dot(color.rgb, float3(0.299, 0.587, 0.114)));
+	return color;
+}
+#endif
 
 float4 FXAAPixelShader(float4 vpos : SV_Position, noperspective float2 texcoord : TEXCOORD) : SV_Target
 {
@@ -76,6 +85,14 @@ float4 FXAAPixelShader(float4 vpos : SV_Position, noperspective float2 texcoord 
 	
 technique FXAA
 {
+#if !FXAA_GREEN_AS_LUMA
+	pass
+	{
+		VertexShader = PostProcessVS;
+		PixelShader = FXAALumaPass;
+		SRGBWriteEnable = true;
+	}
+#endif	
 	pass
 	{
 		VertexShader = PostProcessVS;
