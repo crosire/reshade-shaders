@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Colourfulness - version 2017-03-22
+// Colourfulness - version 2017-04-21
 // EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float colourfulness <
@@ -53,8 +53,9 @@ uniform float lim_luma <
 // Weighted power mean, p=0.5
 #define wpmean(a,b,w)  ( pow((abs(w)*sqrt(abs(a)) + abs(1-w)*sqrt(abs(b))), 2) )
 
-// Max RGB components
+// Max/Min RGB components
 #define max3(RGB)      ( max((RGB).r, max((RGB).g, (RGB).b)) )
+#define min3(RGB)      ( min((RGB).r, min((RGB).g, (RGB).b)) )
 
 // Mean of Rec. 709 & 601 luma coefficients
 #define lumacoeff        float3(0.2558, 0.6511, 0.0931)
@@ -70,25 +71,23 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Targ
 		float luma = pow(dot(pow(c0 + 0.06, 2.4), lumacoeff), 1.0/2.4) - 0.06;
 	#endif
 
-	float3 colour = luma + (c0 - luma)*(colourfulness + 1);
-
-	float3 c_diff = colour - c0;
+	// Calc colour saturation change
+	float3 diff_luma = c0 - luma;
+	float3 c_diff = diff_luma*(colourfulness + 1) - diff_luma;
 
 	if (colourfulness > 0.0)
 	{
-		// 120% of colour clamped to max range + overshoot
-		float3 ccldiff = clamp((c_diff*1.2) + c0, -0.0001, 1.0001) - c0;
+		// 120% of c_diff clamped to max visible range + overshoot
+		float3 rlc_diff = clamp((c_diff*1.2) + c0, -0.0001, 1.0001) - c0;
 
-		// Calculate maximum saturation-increase without altering ratios for RGB
-		float3 diff_luma = c0 - luma;
+		// Calc max saturation-increase without altering RGB ratios
+		float poslim = (1.0002 - luma)/(abs(max3(diff_luma)) + 0.0001);
+		float neglim = (luma + 0.0002)/(abs(min3(diff_luma)) + 0.0001);
 
-		float poslim = (1.0002 - luma)/(max3(max(diff_luma, 0)) + 0.0001);
-		float neglim = (luma + 0.0002)/(max3(abs(min(diff_luma, 0))) + 0.0001);
-
-		float3 diffmax = (luma + diff_luma*min(min(poslim, neglim), 32)) - c0;
+		float3 diffmax = diff_luma*min(min(poslim, neglim), 32) - diff_luma;
 
 		// Soft limit diff
-		c_diff = soft_lim( c_diff, max( wpmean(diffmax, ccldiff, lim_luma), 1e-6 ) );
+		c_diff = soft_lim( c_diff, max( wpmean(diffmax, rlc_diff, lim_luma), 1e-6 ) );
 	}
 
 	return saturate(c0 + c_diff);
