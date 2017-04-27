@@ -214,7 +214,7 @@ Intrinsics:
 
 In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
 
- * ``float4 tex2Dfetch(sampler2D s, int2 coords)``  
+ * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
  Fetches a value from the texture directly without any sampling.
  * ``float4 tex2Dgather(sampler2D s, float2 coords, int comp)``  
  Gathers the specified component of the four neighboring pixels and returns the result.
