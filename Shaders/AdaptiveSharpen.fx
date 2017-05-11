@@ -99,7 +99,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #define get2(x,y)      ( tex2D(Pass0_Sampler, tex + ReShade::PixelSize*float2(x, y)).xy )
 
 // Soft if, fast approx
-#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)/(abs(maxedge) + 0.03) - 0.85) )
+#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)*rcp(abs(maxedge) + 0.03) - 0.85) )
 
 // Soft limit, modified tanh
 #if (fast_ops == 1) // Tanh approx
@@ -172,7 +172,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 {
 	float3 origsat = saturate(tex2D(ReShade::BackBuffer, tex).rgb);
 
-	// Get points, .x= edge, .y= luma
+	// Get points, .x = edge, .y = luma
 	// [                d22               ]
 	// [           d24, d9,  d23          ]
 	// [      d21, d1,  d2,  d3, d18      ]
