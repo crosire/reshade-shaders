@@ -99,7 +99,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 #define get2(x,y)      ( tex2D(Pass0_Sampler, tex + ReShade::PixelSize*float2(x, y)).xy )
 
 // Soft if, fast approx
-#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)/(abs(maxedge) + 0.03) - 0.85) )
+#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)*rcp(abs(maxedge) + 0.03) - 0.85) )
 
 // Soft limit, modified tanh
 #if (fast_ops == 1) // Tanh approx
@@ -114,7 +114,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 // Maximum of four values
 #define max4(a,b,c,d)  ( max(max(a, b), max(c, d)) )
 
-// Compute diff
+// Component-wise distance
 #define b_diff(pix)    ( abs(blur - c[pix]) )
 
 // Fast-skip threshold, keep max possible error under 1/16-bit
@@ -172,7 +172,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 {
 	float3 origsat = saturate(tex2D(ReShade::BackBuffer, tex).rgb);
 
-	// Get points, .x= edge, .y= luma
+	// Get points, .x = edge, .y = luma
 	// [                d22               ]
 	// [           d24, d9,  d23          ]
 	// [      d21, d1,  d2,  d3, d18      ]
@@ -262,7 +262,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 		#if (fast_ops == 1)
 			float lowthr = clamp((11.88*d[pix + 1].x - 0.208), 0.01, 1);
 
-			neg_laplace += pow(luma[pix + 1], 2)*(weights[pix]*lowthr);
+			neg_laplace += (luma[pix + 1]*luma[pix + 1])*(weights[pix]*lowthr);
 		#else
 			float x = saturate((d[pix + 1].x - 0.01)/0.10);
 			float lowthr = x*x*(2.97 - 1.98*x) + 0.01; // x*x((3.0-c*3) - (2.0-c*2)*x) + c
