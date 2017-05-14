@@ -154,7 +154,7 @@ Annotations are also used to request special runtime values:
  * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
- True if specified mouse button (0 - 5) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ True if specified mouse button (0 - 4) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
  Gets the position of the mouse cursor in screen coordinates.
 
