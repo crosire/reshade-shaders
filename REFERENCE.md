@@ -84,30 +84,27 @@ sampler samplerColor
 {
 	// The texture to be used for sampling.
 	Texture = texColorBuffer;
-	
+
 	// The method used for resolving  texture coordinates which  are outside
 	// of bounds.
 	// Available values: CLAMP, MIRROR, WRAP or REPEAT, BORDER
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	AddressW = CLAMP;
-	
-	// The minification, magnification and minification mipmap filter types.
-	// Available values: POINT, LINEAR, ANISOTROPIC
-	MinFilter = LINEAR;
+
+	// The magnification, minification and mipmap filtering types.
+	// Available values: POINT, LINEAR
 	MagFilter = LINEAR;
+	MinFilter = LINEAR;
 	MipFilter = LINEAR;
-	
+
 	// An offset applied to the calculated mipmap level (default: 0).
 	MipLODBias = 0.0f;
-	
+
 	// The maximum mipmap levels accessible.
 	MinLOD = 0.0f;
 	MaxLOD = 1000.0f;
-	
-	// The maximum anisotropy used when anisotropic filtering is enabled.
-	MaxAnisotropy = 1;
-	
+
 	// Enable or disable converting  to linear colors when sampling from the
 	// texture.
 	SRGBTexture = false;
