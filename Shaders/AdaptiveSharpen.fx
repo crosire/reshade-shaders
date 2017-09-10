@@ -34,7 +34,7 @@ uniform float curve_height <
 > = 1.0;
 
 uniform float curveslope <
-	ui_min = 0.1; ui_max = 2.0;
+	ui_min = 0.01; ui_max = 2.0;
 	ui_tooltip = "Sharpening curve slope, high edge values";
 > = 0.4;
 
@@ -91,12 +91,12 @@ uniform float pm_p <
 
 #include "ReShade.fxh"
 
-texture Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
-sampler Pass0_Sampler { Texture = Pass0Tex; };
+texture AS_Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
+sampler AS_Pass0Sampler { Texture = AS_Pass0Tex; };
 
 // Get destination pixel values
-#define get1(x,y)      ( saturate(tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize*float2(x, y)).rgb) )
-#define get2(x,y)      ( tex2D(Pass0_Sampler, tex + ReShade::PixelSize*float2(x, y)).xy )
+#define getB(x,y)      ( saturate(tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize*float2(x, y)).rgb) )
+#define getT(x,y)      ( tex2D(AS_Pass0Sampler, tex + ReShade::PixelSize*float2(x, y)).xy )
 
 // Soft if, fast approx
 #define soft_if(a,b,c) ( saturate((a + b + c + 0.06)*rcp(abs(maxedge) + 0.03) - 0.85) )
@@ -120,7 +120,7 @@ sampler Pass0_Sampler { Texture = Pass0Tex; };
 // Fast-skip threshold, keep max possible error under 1/16-bit
 #if (fast_ops == 1)
 	// Approx of x = tanh(x/y)*y + 1/2^16, y = min(L_overshoot, D_overshoot)
-	#define fskip_th       ( 0.03523085*pow(min(L_overshoot, D_overshoot), 0.65884327) )
+	#define fskip_th       ( 0.03523085*pow(min(abs(L_overshoot), abs(D_overshoot)), 0.65884327) )
 #else
 	// x = tanh(x/y)*y + 1/2^16, y = 0.0001
 	#define fskip_th       ( 0.0000836583 )
@@ -139,9 +139,9 @@ float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 	// [      c10, c4,  c0,  c5, c11      ]
 	// [           c6,  c7,  c8,          ]
 	// [                c12,              ]
-	float3 c[13] = { get1( 0, 0), get1(-1,-1), get1( 0,-1), get1( 1,-1), get1(-1, 0),
-	                 get1( 1, 0), get1(-1, 1), get1( 0, 1), get1( 1, 1), get1( 0,-2),
-	                 get1(-2, 0), get1( 2, 0), get1( 0, 2) };
+	float3 c[13] = { getB( 0, 0), getB(-1,-1), getB( 0,-1), getB( 1,-1), getB(-1, 0),
+	                 getB( 1, 0), getB(-1, 1), getB( 0, 1), getB( 1, 1), getB( 0,-2),
+	                 getB(-2, 0), getB( 2, 0), getB( 0, 2) };
 
 	// Colour to luma, fast approx gamma, avg of rec. 709 & 601 luma coeffs
 	float luma = sqrt(dot(float3(0.2558, 0.6511, 0.0931), c[0]*c[0]));
@@ -170,9 +170,9 @@ float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 
 float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
-	float3 origsat = saturate(tex2D(ReShade::BackBuffer, tex).rgb);
+	float3 origsat = getB(0, 0);
 
-	// Get points, .x = edge, .y = luma
+	// Get texture points, .x = edge, .y = luma
 	// [                d22               ]
 	// [           d24, d9,  d23          ]
 	// [      d21, d1,  d2,  d3, d18      ]
@@ -180,11 +180,11 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 	// [      d20, d6,  d7,  d8, d17      ]
 	// [           d15, d12, d14          ]
 	// [                d13               ]
-	float2 d[25] = { get2( 0, 0), get2(-1,-1), get2( 0,-1), get2( 1,-1), get2(-1, 0),
-	                 get2( 1, 0), get2(-1, 1), get2( 0, 1), get2( 1, 1), get2( 0,-2),
-	                 get2(-2, 0), get2( 2, 0), get2( 0, 2), get2( 0, 3), get2( 1, 2),
-	                 get2(-1, 2), get2( 3, 0), get2( 2, 1), get2( 2,-1), get2(-3, 0),
-	                 get2(-2, 1), get2(-2,-1), get2( 0,-3), get2( 1,-2), get2(-1,-2) };
+	float2 d[25] = { getT( 0, 0), getT(-1,-1), getT( 0,-1), getT( 1,-1), getT(-1, 0),
+	                 getT( 1, 0), getT(-1, 1), getT( 0, 1), getT( 1, 1), getT( 0,-2),
+	                 getT(-2, 0), getT( 2, 0), getT( 0, 2), getT( 0, 3), getT( 1, 2),
+	                 getT(-1, 2), getT( 3, 0), getT( 2, 1), getT( 2,-1), getT(-3, 0),
+	                 getT(-2, 1), getT(-2,-1), getT( 0,-3), getT( 1,-2), getT(-1,-2) };
 
 	// Allow for higher overshoot if the current edge pixel is surrounded by similar edge pixels
 	float maxedge = max4( max4(d[1].x,d[2].x,d[3].x,d[4].x), max4(d[5].x,d[6].x,d[7].x,d[8].x),
@@ -264,8 +264,8 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 
 			neg_laplace += (luma[pix + 1]*luma[pix + 1])*(weights[pix]*lowthr);
 		#else
-			float x = saturate((d[pix + 1].x - 0.01)/0.10);
-			float lowthr = x*x*(2.97 - 1.98*x) + 0.01; // x*x((3.0-c*3) - (2.0-c*2)*x) + c
+			float t = saturate((d[pix + 1].x - 0.01)/0.10);
+			float lowthr = t*t*(2.97 - 1.98*t) + 0.01; // t*t((3 - a*3) - (2 - a*2)*t) + a
 
 			neg_laplace += pow(abs(luma[pix + 1]) + 0.06, 2.4)*(weights[pix]*lowthr);
 		#endif
@@ -376,7 +376,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 	// Compensate for saturation loss/gain while making pixels brighter/darker
 	float sharpdiff_lim = saturate(d[0].y + sharpdiff) - d[0].y;
 	float satmul = (d[0].y + sharpdiff_lim + 0.03)/(d[0].y + 0.03);
-	float3 res = d[0].y + (sharpdiff_lim + sharpdiff)/2 + (origsat - d[0].y)*satmul;
+	float3 res = d[0].y + (sharpdiff_lim*3 + sharpdiff)/4 + (origsat - d[0].y)*satmul;
 
 	return saturate(res);
 }
@@ -387,7 +387,7 @@ technique AdaptiveSharpen
 	{
 		VertexShader = PostProcessVS;
 		PixelShader  = AdaptiveSharpenP0;
-		RenderTarget = Pass0Tex;
+		RenderTarget = AS_Pass0Tex;
 	}
 
 	pass AdaptiveSharpenPass2
