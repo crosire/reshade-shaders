@@ -54,8 +54,8 @@ uniform float lim_luma <
 #define wpmean(a,b,w)  ( pow(abs(w)*sqrt(abs(a)) + abs(1-w)*sqrt(abs(b)), 2) )
 
 // Max/Min RGB components
-#define max3(RGB)      ( max((RGB).r, max((RGB).g, (RGB).b)) )
-#define min3(RGB)      ( min((RGB).r, min((RGB).g, (RGB).b)) )
+#define maxRGB(c)      ( max((c).r, max((c).g, (c).b)) )
+#define minRGB(c)      ( min((c).r, min((c).g, (c).b)) )
 
 // Mean of Rec. 709 & 601 luma coefficients
 #define lumacoeff        float3(0.2558, 0.6511, 0.0931)
@@ -81,8 +81,8 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Targ
 		float3 rlc_diff = clamp((c_diff*1.2) + c0, -0.0001, 1.0001) - c0;
 
 		// Calc max saturation-increase without altering RGB ratios
-		float poslim = (1.0002 - luma)/(abs(max3(diff_luma)) + 0.0001);
-		float neglim = (luma + 0.0002)/(abs(min3(diff_luma)) + 0.0001);
+		float poslim = (1.0002 - luma)/(abs(maxRGB(diff_luma)) + 0.0001);
+		float neglim = (luma + 0.0002)/(abs(minRGB(diff_luma)) + 0.0001);
 
 		float3 diffmax = diff_luma*min(min(poslim, neglim), 32) - diff_luma;
 
