@@ -84,30 +84,27 @@ sampler samplerColor
 {
 	// The texture to be used for sampling.
 	Texture = texColorBuffer;
-	
+
 	// The method used for resolving  texture coordinates which  are outside
 	// of bounds.
 	// Available values: CLAMP, MIRROR, WRAP or REPEAT, BORDER
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 	AddressW = CLAMP;
-	
-	// The minification, magnification and minification mipmap filter types.
-	// Available values: POINT, LINEAR, ANISOTROPIC
-	MinFilter = LINEAR;
+
+	// The magnification, minification and mipmap filtering types.
+	// Available values: POINT, LINEAR
 	MagFilter = LINEAR;
+	MinFilter = LINEAR;
 	MipFilter = LINEAR;
-	
+
 	// An offset applied to the calculated mipmap level (default: 0).
 	MipLODBias = 0.0f;
-	
+
 	// The maximum mipmap levels accessible.
 	MinLOD = 0.0f;
 	MaxLOD = 1000.0f;
-	
-	// The maximum anisotropy used when anisotropic filtering is enabled.
-	MaxAnisotropy = 1;
-	
+
 	// Enable or disable converting  to linear colors when sampling from the
 	// texture.
 	SRGBTexture = false;
@@ -154,7 +151,7 @@ Annotations are also used to request special runtime values:
  * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
- True if specified mouse button (0 - 5) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ True if specified mouse button (0 - 4) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
  Gets the position of the mouse cursor in screen coordinates.
 
@@ -214,7 +211,7 @@ Intrinsics:
 
 In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
 
- * ``float4 tex2Dfetch(sampler2D s, int2 coords)``  
+ * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
  Fetches a value from the texture directly without any sampling.
  * ``float4 tex2Dgather(sampler2D s, float2 coords, int comp)``  
  Gathers the specified component of the four neighboring pixels and returns the result.

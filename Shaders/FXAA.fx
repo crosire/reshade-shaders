@@ -1,7 +1,7 @@
 /**
- *                                          FXAA 3.11
+ *                                  FXAA 3.11
  *
- *                                       for ReShade 3.0
+ *                               for ReShade 3.0
  */
 
 uniform float Subpix <
@@ -24,6 +24,7 @@ uniform float EdgeThresholdMin <
 > = 0.0;
 
 //-------------------------------------- Non-GUI-settings -----------------------------------------
+
 #ifndef FXAA_QUALITY__PRESET
 	// Valid Quality Presets
 	// 10 to 15 - default medium dither (10=fastest, 15=highest quality)
@@ -39,6 +40,7 @@ uniform float EdgeThresholdMin <
 #ifndef FXAA_LINEAR_LIGHT
 	#define FXAA_LINEAR_LIGHT 1
 #endif
+
 //-------------------------------------------------------------------------------------------------
 
 #if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
@@ -69,12 +71,12 @@ sampler FXAATexture
 // Pixel shaders
 
 #if !FXAA_GREEN_AS_LUMA
-	float4 FXAALumaPass(float4 vpos : SV_Position, noperspective float2 texcoord : TEXCOORD) : SV_Target
-	{
-		float4 color = tex2D(ReShade::BackBuffer, texcoord.xy);
-		color.a = sqrt(dot(color.rgb*color.rgb, float3(0.299, 0.587, 0.114)));
-		return color;
-	}
+float4 FXAALumaPass(float4 vpos : SV_Position, noperspective float2 texcoord : TEXCOORD) : SV_Target
+{
+	float4 color = tex2D(ReShade::BackBuffer, texcoord.xy);
+	color.a = sqrt(dot(color.rgb * color.rgb, float3(0.299, 0.587, 0.114)));
+	return color;
+}
 #endif
 
 float4 FXAAPixelShader(float4 vpos : SV_Position, noperspective float2 texcoord : TEXCOORD) : SV_Target
@@ -103,13 +105,13 @@ float4 FXAAPixelShader(float4 vpos : SV_Position, noperspective float2 texcoord 
 
 technique FXAA
 {
-	#if !FXAA_GREEN_AS_LUMA
-		pass
-		{
-			VertexShader = PostProcessVS;
-			PixelShader = FXAALumaPass;
-		}
-	#endif
+#if !FXAA_GREEN_AS_LUMA
+	pass
+	{
+		VertexShader = PostProcessVS;
+		PixelShader = FXAALumaPass;
+	}
+#endif
 	pass
 	{
 		VertexShader = PostProcessVS;
