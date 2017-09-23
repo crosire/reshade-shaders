@@ -23,7 +23,7 @@ uniform float EdgeThresholdMin <
 	ui_tooltip = "Pixels darker than this are not processed in order to increase performance.";
 > = 0.0;
 
-//-------------------------------------- Non-GUI-settings -----------------------------------------
+//------------------------------ Non-GUI-settings -------------------------------------------------
 
 #ifndef FXAA_QUALITY__PRESET
 	// Valid Quality Presets

@@ -164,7 +164,7 @@ float4 main_fragment( float4 position : POSITION,
 #define __empty1     97 // (null)
 //Character indexing ends
 
-texture Texttex < source = "FontAtlas.bmp"; > {
+texture Texttex < source = "FontAtlas.png"; > {
     Width  = 512;
     Height = 512;
 };
