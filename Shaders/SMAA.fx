@@ -12,27 +12,35 @@
  *                               for ReShade 3.0
  */
 
+//------------------- Preprocessor Settings -------------------
+
+#ifndef SMAA_PREDICATION
+ #define SMAA_PREDICATION		0      //[0 or 1] Enables predication which uses BOTH the color and the depth texture for edge detection to more accurately detect edges.
+#endif
+
+//----------------------- UI Variables ------------------------
 uniform int EdgeDetectionType <
 	ui_type = "combo";
 	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";
 	ui_label = "Edge Detection Type";
 > = 1;
+
 uniform float EdgeDetectionThreshold <
 	ui_type = "drag";
-	ui_min = 0.05; ui_max = 0.20; ui_step = 0.02;
+	ui_min = 0.05; ui_max = 0.20; ui_step = 0.01;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
 	ui_label = "Edge Detection Threshold";
 > = 0.10;
 
 uniform int MaxSearchSteps <
 	ui_type = "drag";
-	ui_min = 0; ui_max = 98;
+	ui_min = 0; ui_max = 112;
 	ui_label = "Max Search Steps";
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
 uniform int MaxSearchStepsDiagonal <
 	ui_type = "drag";
-	ui_min = 0; ui_max = 16;
+	ui_min = 0; ui_max = 20;
 	ui_label = "Max Search Steps Diagonal";
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
@@ -42,6 +50,29 @@ uniform int CornerRounding <
 	ui_label = "Corner Rounding";
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
 > = 0;
+
+#if SMAA_PREDICATION == 1
+uniform float PredicationThreshold <
+	ui_type = "drag";
+	ui_min = 0.005; ui_max = 1.00; ui_step = 0.01;
+	ui_tooltip = "Threshold to be used in the additional predication buffer.";
+	ui_label = "Predication Threshold";
+> = 0.01;
+
+uniform float PredicationScale <
+	ui_type = "drag";
+	ui_min = 0; ui_max = 8;
+	ui_tooltip = "How much to scale the global threshold used for luma or color edge.";
+	ui_label = "Predication Scale";
+> = 0.2;
+
+uniform float PredicationStreght <
+	ui_type = "drag";
+	ui_min = 0; ui_max = 5;
+	ui_tooltip = "How much to locally decrease the threshold.";
+	ui_label = "Predication Streght";
+> = 0.4;
+#endif
 
 uniform int DebugOutput <
 	ui_type = "combo";
@@ -57,7 +88,12 @@ uniform int DebugOutput <
 #define SMAA_MAX_SEARCH_STEPS MaxSearchSteps
 #define SMAA_MAX_SEARCH_STEPS_DIAG MaxSearchStepsDiagonal
 #define SMAA_CORNER_ROUNDING CornerRounding
-
+#if SMAA_PREDICATION == 1
+#define SMAA_PREDICATION_THRESHOLD PredicationThreshold
+#define SMAA_PREDICATION_SCALE PredicationScale
+#define SMAA_PREDICATION_STRENGTH PredicationStreght
+#endif
+#define predicationSampler ReShade::DepthBuffer
 #define SMAATexture2D(tex) sampler tex
 #define SMAATexturePass2D(tex) tex
 #define SMAASampleLevelZero(tex, coord) tex2Dlod(tex, float4(coord, coord))
@@ -188,11 +224,19 @@ float2 SMAAEdgeDetectionWrapPS(
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
 	if (EdgeDetectionType == 0)
-		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
+		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler
+	#if SMAA_PREDICATION == 1
+		,predicationSampler
+	#endif
+	);
 	if (EdgeDetectionType == 2)
 		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
 
-	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler);
+	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler
+	#if SMAA_PREDICATION == 1
+		,predicationSampler
+	#endif
+	);
 }
 float4 SMAABlendingWeightCalculationWrapPS(
 	float4 position : SV_Position,
