@@ -98,12 +98,12 @@ sampler samplerColor
 	MinFilter = LINEAR;
 	MipFilter = LINEAR;
 
-	// An offset applied to the calculated mipmap level (default: 0).
-	MipLODBias = 0.0f;
-
 	// The maximum mipmap levels accessible.
 	MinLOD = 0.0f;
 	MaxLOD = 1000.0f;
+
+	// An offset applied to the calculated mipmap level (default: 0).
+	MipLODBias = 0.0f;
 
 	// Enable or disable converting  to linear colors when sampling from the
 	// texture.
@@ -148,8 +148,10 @@ Annotations are also used to request special runtime values:
  Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
  * ``uniform int random < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
- * ``uniform bool keydown < source = "key"; keycode = 0x20; toggle = false; >;``  
- True if specified keycode (in this case the spacebar) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform bool keydown < source = "key"; keycode = 0x20; mode = ""; >;``  
+ True if specified keycode (in this case the spacebar) is pressed and false otherwise.
+ If mode is set to "press" the value is true only in the frame the key was initially held down.
+ If mode is set to "toggle" the value stays true until the key is pressed a second time.
  * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
  True if specified mouse button (0 - 4) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
