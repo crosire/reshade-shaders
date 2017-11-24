@@ -72,7 +72,7 @@ uniform float PredicationStrength <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "How much to locally decrease the threshold.";
-	ui_label = "Predication Stregth";
+	ui_label = "Predication Strength";
 > = 0.4;
 #endif
 
