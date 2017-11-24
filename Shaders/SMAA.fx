@@ -38,12 +38,14 @@ uniform int MaxSearchSteps <
 	ui_label = "Max Search Steps";
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
+
 uniform int MaxSearchStepsDiagonal <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 20;
 	ui_label = "Max Search Steps Diagonal";
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
+
 uniform int CornerRounding <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 100;
@@ -51,7 +53,7 @@ uniform int CornerRounding <
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
 > = 0;
 
-#if SMAA_PREDICATION == 1
+#if SMAA_PREDICATION
 uniform float PredicationThreshold <
 	ui_type = "drag";
 	ui_min = 0.005; ui_max = 1.00; ui_step = 0.01;
@@ -66,11 +68,11 @@ uniform float PredicationScale <
 	ui_label = "Predication Scale";
 > = 0.2;
 
-uniform float PredicationStreght <
+uniform float PredicationStrength <
 	ui_type = "drag";
-	ui_min = 0; ui_max = 5;
+	ui_min = 0; ui_max = 4;
 	ui_tooltip = "How much to locally decrease the threshold.";
-	ui_label = "Predication Streght";
+	ui_label = "Predication Stregth";
 > = 0.4;
 #endif
 
@@ -88,11 +90,13 @@ uniform int DebugOutput <
 #define SMAA_MAX_SEARCH_STEPS MaxSearchSteps
 #define SMAA_MAX_SEARCH_STEPS_DIAG MaxSearchStepsDiagonal
 #define SMAA_CORNER_ROUNDING CornerRounding
-#if SMAA_PREDICATION == 1
+
+#if SMAA_PREDICATION
 #define SMAA_PREDICATION_THRESHOLD PredicationThreshold
 #define SMAA_PREDICATION_SCALE PredicationScale
-#define SMAA_PREDICATION_STRENGTH PredicationStreght
+#define SMAA_PREDICATION_STRENGTH PredicationStrength
 #endif
+
 #define predicationSampler ReShade::DepthBuffer
 #define SMAATexture2D(tex) sampler tex
 #define SMAATexturePass2D(tex) tex
@@ -225,7 +229,7 @@ float2 SMAAEdgeDetectionWrapPS(
 {
 	if (EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler
-	#if SMAA_PREDICATION == 1
+	#if SMAA_PREDICATION
 		,predicationSampler
 	#endif
 	);
@@ -233,7 +237,7 @@ float2 SMAAEdgeDetectionWrapPS(
 		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
 
 	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler
-	#if SMAA_PREDICATION == 1
+	#if SMAA_PREDICATION
 		,predicationSampler
 	#endif
 	);
