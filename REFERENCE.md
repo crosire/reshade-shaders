@@ -332,6 +332,7 @@ technique Example < enabled = true; >
 		SRGBWriteEnable = false;
 
 		// Enable or disable color and alpha blending.
+		// Don't forget to also set "ClearRenderTargets" to "false" if you want to blend with existing data in a render target.
 		BlendEnable = false;
 
 		// The operator used for color and alpha blending.
@@ -346,7 +347,9 @@ technique Example < enabled = true; >
 		//   SRCCOLOR, SRCALPHA, INVSRCCOLOR, INVSRCALPHA
 		//   DESTCOLOR, DESTALPHA, INVDESTCOLOR, INVDESTALPHA
 		SrcBlend = ONE;
+		SrcBlendAlpha = ONE;
 		DestBlend = ZERO;
+		DestBlendAlpha = ZERO;
 		
 		// Enable or disable the stencil test.
 		// The depth and stencil buffers are cleared before rendering each pass in a technique.
