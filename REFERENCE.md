@@ -156,6 +156,8 @@ Annotations are also used to request special runtime values:
  True if specified mouse button (0 - 4) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
  * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
  Gets the position of the mouse cursor in screen coordinates.
+ * ``uniform float2 mousedelta < source = "mousedelta"; >;``  
+ Gets the movement of the mouse cursor in screen coordinates.
 
 ```c++
 // Initializers are used for the initial value when providied.
