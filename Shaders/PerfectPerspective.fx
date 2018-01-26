@@ -22,7 +22,7 @@ uniform float Strength <
 uniform float3 Color <
 	ui_label = "Background Color";
 	ui_type = "Color";
-> = 0.0;
+> = float3(0.027, 0.027, 0.027);
 
 uniform int FOV <
 	ui_label = "Field of View";
