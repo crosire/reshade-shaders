@@ -48,7 +48,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 {
 	// Convert FOV to half-radians and calc cotangent
 	float ctanFOVh = radians(FOV * 0.5);
-	ctanFOVh = 1.0 / tan(ctanFOVh);
+	ctanFOVh = cos(ctanFOVh) / sin(ctanFOVh);
 	// Get Aspect Ratio
 	float AspectR = ReShade::AspectRatio;
 	float Edge;
@@ -84,9 +84,9 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 
 	// Stereographic transform
 	SphCoord *=
-		(1.0 + length( float3(SphCoord, ctanFOVh) ))
+		(ctanFOVh + length( float3(SphCoord, ctanFOVh) ))
 		/ 
-		(1.0 + length( float2(Edge, ctanFOVh) ))
+		(ctanFOVh + length( float2(Edge, ctanFOVh) ))
 	;
 
 	// Aspect Ratio back to square
