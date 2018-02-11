@@ -20,23 +20,29 @@ uniform float Strength <
 > = 1.0;
 
 uniform float3 Color <
-	ui_label = "Background Color";
+	ui_label = "Borders Color";
 	ui_type = "Color";
 > = float3(0.027, 0.027, 0.027);
 
 uniform int FOV <
 	ui_label = "Field of View";
-	ui_tooltip = "In-game horizontal Field of View";
+	ui_tooltip = "Match in-game Field of View";
 	ui_type = "drag";
-	ui_min = 60; ui_max = 110;
+	ui_min = 45; ui_max = 120;
 > = 90;
 
 uniform int Type <
-	ui_label = "Type of alignment";
+	ui_label = "Type of FOV";
+	ui_tooltip = "If image bulges in movement, change it to Diagonal. When proportions are distorted, choose Vertical";
 	ui_type = "combo";
-	ui_items = "horizontal\0diagonal\0vertical\0";
+	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
 > = 0;
 
+uniform int Alignment <
+	ui_label = "Border Size";
+	ui_type = "combo";
+	ui_items = "Optimal Borders\0No Borders\0Full View\0";
+> = 0;
 
   //////////////////////
  /////// SHADER ///////
@@ -47,30 +53,40 @@ uniform int Type <
 float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	// Convert FOV to half-radians and calc cotangent
-	float ctanFOVh = radians(FOV * 0.5);
+	float ctanFOVh = radians(float(FOV) * 0.5);
 	ctanFOVh = cos(ctanFOVh) / sin(ctanFOVh);
 	// Get Aspect Ratio
 	float AspectR = ReShade::AspectRatio;
+	// Convert 0.5 FOV cotangent to horizontal
+	if (Type == 1) // from diagonal
+	{
+		ctanFOVh *= length(
+			float2(1.0, 1.0 / AspectR)
+		);
+	}
+	else if (Type == 2) // from vertical
+	{
+		ctanFOVh /= AspectR;
+	}
+
 	float Edge;
 	float2 SphCoord = texcoord;
 
 
 	// Horizontal
-	if (Type == 0)
+	if (Alignment == 0)
 	{
 		Edge = 1.0;
 	}
-
 	// Diagonal
-	else if (Type == 1)
+	else if (Alignment == 1)
 	{
 		Edge = length(
 			float2(1.0, 1.0 / AspectR)
 		);
 	}
-
 	// Vertical
-	else if (Type == 2)
+	else
 	{
 		Edge = 1.0 / AspectR;
 	}
