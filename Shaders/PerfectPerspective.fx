@@ -56,17 +56,15 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float ctanFOVh = radians(float(FOV) * 0.5);
 	ctanFOVh = cos(ctanFOVh) / sin(ctanFOVh);
 	// Get Aspect Ratio
-	float AspectR = ReShade::AspectRatio;
+	float AspectR = 1.0 / ReShade::AspectRatio;
 	// Convert 0.5 FOV cotangent to horizontal
 	if (Type == 1) // from diagonal
 	{
-		ctanFOVh *= length(
-			float2(1.0, 1.0 / AspectR)
-		);
+		ctanFOVh *= sqrt(AspectR * AspectR + 1.0);
 	}
 	else if (Type == 2) // from vertical
 	{
-		ctanFOVh /= AspectR;
+		ctanFOVh *= AspectR;
 	}
 
 	float Edge;
@@ -81,14 +79,12 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Diagonal
 	else if (Alignment == 1)
 	{
-		Edge = length(
-			float2(1.0, 1.0 / AspectR)
-		);
+		Edge = sqrt(AspectR * AspectR + 1.0);
 	}
 	// Vertical
 	else
 	{
-		Edge = 1.0 / AspectR;
+		Edge = AspectR;
 	}
 
 
@@ -96,7 +92,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	SphCoord = SphCoord * 2.0 - 1.0;
 
 	// Aspect Ratio correction
-	SphCoord.y /= AspectR;
+	SphCoord.y *= AspectR;
 
 	// Stereographic transform
 	SphCoord *=
@@ -106,7 +102,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	;
 
 	// Aspect Ratio back to square
-	SphCoord.y *= AspectR;
+	SphCoord.y /= AspectR;
 
 	// Back to UV Coordinates
 	SphCoord = SphCoord * 0.5 + 0.5;
