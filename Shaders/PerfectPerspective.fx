@@ -109,7 +109,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	SphCoord.y *= AspectR;
 
 	// Back to UV Coordinates
-	SphCoord = (SphCoord + 1.0) * 0.5;
+	SphCoord = SphCoord * 0.5 + 0.5;
 
 	// Distortion correction amount
 	SphCoord = lerp(texcoord, SphCoord, Strength);
