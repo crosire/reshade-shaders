@@ -7,17 +7,11 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS
+// Perfect Perspective PS ver. 2.0
 
   ////////////////////
  /////// MENU ///////
 ////////////////////
-
-uniform float Strength <
-	ui_tooltip = "Distortion scale. 0 is Linear perspective and 1 is Stereographic perspective.";
-	ui_type = "drag";
-	ui_min = 0.0; ui_max = 1.0;
-> = 1.0;
 
 uniform float3 Color <
 	ui_label = "Borders Color";
@@ -38,11 +32,11 @@ uniform int Type <
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
 > = 0;
 
-uniform int Alignment <
-	ui_label = "Border Size";
-	ui_type = "combo";
-	ui_items = "Optimal Borders\0No Borders\0Full View\0";
-> = 0;
+uniform float Zooming <
+	ui_label = "Adjust Borders Size";
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
+> = 1.0;
 
   //////////////////////
  /////// SHADER ///////
@@ -50,73 +44,63 @@ uniform int Alignment <
 
 #include "ReShade.fxh"
 
+// Stereographic-Gnomonic lookup function
+// Input data:
+	// SqrTanFOVq >> squared tangent of quater FOV angle
+	// Coordinates >> UV coordinates (from -1, to 1), where (0,0) is at the center of the screen
+float Formula(float SqrTanFOVq, float2 Coordinates)
+{
+	float Result = 1.0 - SqrTanFOVq;
+	Result /= 1.0 - SqrTanFOVq * (Coordinates.x * Coordinates.x + (Coordinates.y * Coordinates.y));
+	return Result;
+}
+
+// Shader pass
 float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
-	// Convert FOV to half-radians and calc cotangent
-	float ctanFOVh = radians(float(FOV) * 0.5);
-	ctanFOVh = cos(ctanFOVh) / sin(ctanFOVh);
-	// Get Aspect Ratio
-	float AspectR = ReShade::AspectRatio;
-	// Convert 0.5 FOV cotangent to horizontal
-	if (Type == 1) // from diagonal
-	{
-		ctanFOVh *= length(
-			float2(1.0, 1.0 / AspectR)
-		);
-	}
-	else if (Type == 2) // from vertical
-	{
-		ctanFOVh /= AspectR;
-	}
-
-	float Edge;
+	// Get Pixel Position
 	float2 SphCoord = texcoord;
+	// Get Aspect Ratio
+	float AspectR = 1.0 / ReShade::AspectRatio;
 
+	// Convert FOV type..
+	float FovType = 1.0;
+		if (Type == 1) // ..to diagonal
+		{
+			FovType = sqrt(AspectR * AspectR + 1.0);
+		}
+		else if (Type == 2) // ..to vertical
+		{
+			FovType = AspectR;
+		}
 
-	// Horizontal
-	if (Alignment == 0)
-	{
-		Edge = 1.0;
-	}
-	// Diagonal
-	else if (Alignment == 1)
-	{
-		Edge = length(
-			float2(1.0, 1.0 / AspectR)
-		);
-	}
-	// Vertical
-	else
-	{
-		Edge = 1.0 / AspectR;
-	}
-
+	// Convert 1/4 FOV to radians and calc tangent squared
+	float SqrTanFOVq = float(FOV) * 0.25;
+		SqrTanFOVq = radians(SqrTanFOVq);
+		SqrTanFOVq = tan(SqrTanFOVq);
+		SqrTanFOVq *= SqrTanFOVq;
 
 	// Convert UV to Radial Coordinates
 	SphCoord = SphCoord * 2.0 - 1.0;
-
 	// Aspect Ratio correction
-	SphCoord.y /= AspectR;
+	SphCoord.y *= AspectR;
+	// Zoom in image and adjust FOV type (pass 1 of 2)
+	SphCoord *= Zooming / FovType;
 
-	// Stereographic transform
-	SphCoord *=
-		(ctanFOVh + length( float3(SphCoord, ctanFOVh) ))
-		/ 
-		(ctanFOVh + length( float2(Edge, ctanFOVh) ))
-	;
+	// Stereographic-Gnomonic lookup
+	SphCoord *= Formula(SqrTanFOVq, SphCoord);
+
+	// Adjust FOV type (pass 2 of 2)
+	SphCoord *= FovType;
 
 	// Aspect Ratio back to square
-	SphCoord.y *= AspectR;
+	SphCoord.y /= AspectR;
 
 	// Back to UV Coordinates
-	SphCoord = (SphCoord + 1.0) * 0.5;
-
-	// Distortion correction amount
-	SphCoord = lerp(texcoord, SphCoord, Strength);
+	SphCoord = SphCoord * 0.5 + 0.5;
 
 	// Sample display image
 	float3 Display = tex2D(ReShade::BackBuffer, SphCoord).rgb;
-
 
 	// Mask out outside-border pixels
 	if (SphCoord.x < 1.0 && SphCoord.x > 0.0 && SphCoord.y < 1.0 && SphCoord.y > 0.0)
