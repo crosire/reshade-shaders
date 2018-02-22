@@ -64,15 +64,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float AspectR = 1.0 / ReShade::AspectRatio;
 
 	// Convert FOV type..
-	float FovType = 1.0;
-		if (Type == 1) // ..to diagonal
-		{
-			FovType = sqrt(AspectR * AspectR + 1.0);
-		}
-		else if (Type == 2) // ..to vertical
-		{
-			FovType = AspectR;
-		}
+	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
 
 	// Convert 1/4 FOV to radians and calc tangent squared
 	float SqrTanFOVq = float(FOV) * 0.25;
@@ -103,16 +95,8 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float3 Display = tex2D(ReShade::BackBuffer, SphCoord).rgb;
 
 	// Mask out outside-border pixels
-	if (SphCoord.x < 1.0 && SphCoord.x > 0.0 && SphCoord.y < 1.0 && SphCoord.y > 0.0)
-	{
-		return Display;
-	}
-	else
-	{
-		return Color;
-	}
+	return (SphCoord.x < 1.0 && SphCoord.x > 0.0 && SphCoord.y > 0.0 && SphCoord.y < 1.0) ? Display : Color;
 }
-
 
 technique PerfectPerspective
 {
