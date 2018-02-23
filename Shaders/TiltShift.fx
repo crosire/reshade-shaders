@@ -80,18 +80,18 @@ float4 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.016436,
 		0.011254
 	};
-
+	// Grab first pass screen texture
 	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
-	float BlurAmount = Image.a * BlurMultiplier;
-	Image.rgb *= Weight[0];
-
-	float UvOffset = ReShade::PixelSize.x * BlurAmount;
-	for (int i = 1; i < 11; i++)
+	if (Image.a > 0)
 	{
-		Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(i * UvOffset, 0)).rgba * Weight[i];
-		Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgba * Weight[i];
+		float UvOffset = ReShade::PixelSize.x * Image.a * BlurMultiplier;
+		Image.rgb *= Weight[0];
+		for (int i = 1; i < 11; i++)
+		{
+			Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(i * UvOffset, 0)).rgba * Weight[i];
+			Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgba * Weight[i];
+		}
 	}
-
 	return Image;
 }
 
@@ -111,18 +111,18 @@ float3 TiltShiftPass3PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.016436,
 		0.011254
 	};
-
+	// Grab second pass screen texture
 	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
-	float BlurAmount = Image.a * BlurMultiplier;
-	Image.rgb *= Weight[0];
-
-	float UvOffset = ReShade::PixelSize.y * BlurAmount;
-	for (int i = 1; i < 11; i++)
+	if (Image.a > 0)
 	{
-		Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(0, i * UvOffset)).rgb * Weight[i];
-		Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(0, i * UvOffset)).rgb * Weight[i];
+		float UvOffset = ReShade::PixelSize.y * Image.a * BlurMultiplier;
+		Image.rgb *= Weight[0];
+		for (int i = 1; i < 11; i++)
+		{
+			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(0, i * UvOffset)).rgb * Weight[i];
+			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(0, i * UvOffset)).rgb * Weight[i];
+		}
 	}
-
 	return Image.rgb;
 }
 
