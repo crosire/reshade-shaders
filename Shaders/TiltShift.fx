@@ -38,33 +38,7 @@ uniform float BlurMultiplier <
 
 #include "ReShade.fxh"
 
-float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TexCoord) : SV_Target
-{
-	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
-	// Grab Aspect Ratio
-	float Aspect = ReShade::AspectRatio;
-	// Correct Aspect Ratio
-	float2 UvCoordAspect = UvCoord;
-	UvCoordAspect.y += Aspect * 0.5 - 0.5;
-	UvCoordAspect.y /= Aspect;
-	// Center coordinates
-	UvCoordAspect = UvCoordAspect * 2 - 1;
-	// Tilt vector
-	float2 TiltVector;
-	float Angle = radians(-Axis);
-	TiltVector.x = sin(Angle);
-	TiltVector.y = cos(Angle);
-	// Blur Mask
-	float BlurMask = abs(dot(TiltVector, UvCoordAspect) + Offset);
-
-	Image.a = pow(saturate(BlurMask), BlurCurve);
-	// Image IS Red IF (Line IS True AND BlurMask < 0.01), ELSE Image IS Image
-	Image.rgb = (Line && BlurMask < 0.01) ? float3(1, 0, 0) : Image.rgb;
-
-	return Image;
-}
-
-float4 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
+float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
 {
 	const float Weight[11] =
 	{
@@ -80,22 +54,44 @@ float4 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.016436,
 		0.011254
 	};
-	// Grab first pass screen texture
-	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
+		// Grab screen texture
+		float4 Image;
+		Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
+		// Grab Aspect Ratio
+		float Aspect = ReShade::AspectRatio;
+		// Correct Aspect Ratio
+		float2 UvCoordAspect = UvCoord;
+		UvCoordAspect.y += Aspect * 0.5 - 0.5;
+		UvCoordAspect.y /= Aspect;
+		// Center coordinates
+		UvCoordAspect = UvCoordAspect * 2 - 1;
+		// Tilt vector
+		float2 TiltVector;
+		float Angle = radians(-Axis);
+		TiltVector.x = sin(Angle);
+		TiltVector.y = cos(Angle);
+		// Blur Mask
+		float BlurMask = abs(dot(TiltVector, UvCoordAspect) + Offset);
+		// Set alpha channel
+		Image.a = pow(saturate(BlurMask), BlurCurve);
+	// Horizontal gaussian blur 
 	if (Image.a > 0)
 	{
 		float UvOffset = ReShade::PixelSize.x * Image.a * BlurMultiplier;
 		Image.rgb *= Weight[0];
 		for (int i = 1; i < 11; i++)
 		{
-			Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(i * UvOffset, 0)).rgba * Weight[i];
-			Image.rgba += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgba * Weight[i];
+			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(i * UvOffset, 0)).rgb * Weight[i];
+			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgb * Weight[i];
 		}
 	}
+	// Draw red line
+	// Image IS Red IF (Line IS True AND BlurMask < 0.01), ELSE Image IS Image
+	Image.rgb = (Line && BlurMask < 0.01) ? float3(1, 0, 0) : Image.rgb;
 	return Image;
 }
 
-float3 TiltShiftPass3PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
+float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
 {
 	const float Weight[11] =
 	{
@@ -113,6 +109,7 @@ float3 TiltShiftPass3PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 	};
 	// Grab second pass screen texture
 	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
+	// Vertical gaussian blur
 	if (Image.a > 0)
 	{
 		float UvOffset = ReShade::PixelSize.y * Image.a * BlurMultiplier;
@@ -128,19 +125,14 @@ float3 TiltShiftPass3PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 
 technique TiltShift
 {
-	pass CircleOfConfusionToAlpha
+	pass AlphaAndHorizontalGaussianBlur
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = TiltShiftPass1PS;
 	}
-	pass HorizontalGaussianBlur
-	{
-		VertexShader = PostProcessVS;
-		PixelShader = TiltShiftPass2PS;
-	}
 	pass VerticalGaussianBlur
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = TiltShiftPass3PS;
+		PixelShader = TiltShiftPass2PS;
 	}
 }
