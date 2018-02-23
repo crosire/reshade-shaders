@@ -26,7 +26,7 @@ uniform float Offset <
 uniform float BlurCurve <
 	ui_label = "Blur Curve";
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 5.0; ui_step = 0.01;
+	ui_min = 1.0; ui_max = 5.0; ui_step = 0.01;
 	ui_label = "Blur Curve";
 > = 1.0;
 uniform float BlurMultiplier <
@@ -70,14 +70,16 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		float Angle = radians(-Axis);
 		TiltVector.x = sin(Angle);
 		TiltVector.y = cos(Angle);
-		// Blur Mask
+		// Blur mask
 		float BlurMask = abs(dot(TiltVector, UvCoordAspect) + Offset);
-		// Set alpha channel
-		Image.a = pow(saturate(BlurMask), BlurCurve);
+		BlurMask = max(0, min(1, BlurMask));
+			// Set alpha channel
+			Image.a = BlurMask;
+		BlurMask = pow(Image.a, BlurCurve);
 	// Horizontal gaussian blur 
-	if (Image.a > 0)
+	if (BlurMask > 0)
 	{
-		float UvOffset = ReShade::PixelSize.x * Image.a * BlurMultiplier;
+		float UvOffset = ReShade::PixelSize.x * BlurMask * BlurMultiplier;
 		Image.rgb *= Weight[0];
 		for (int i = 1; i < 11; i++)
 		{
@@ -85,9 +87,6 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgb * Weight[i];
 		}
 	}
-	// Draw red line
-	// Image IS Red IF (Line IS True AND BlurMask < 0.01), ELSE Image IS Image
-	Image.rgb = (Line && BlurMask < 0.01) ? float3(1, 0, 0) : Image.rgb;
 	return Image;
 }
 
@@ -109,10 +108,12 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 	};
 	// Grab second pass screen texture
 	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
+	// Blur mask
+	float BlurMask = pow(Image.a, BlurCurve);
 	// Vertical gaussian blur
-	if (Image.a > 0)
+	if (BlurMask > 0)
 	{
-		float UvOffset = ReShade::PixelSize.y * Image.a * BlurMultiplier;
+		float UvOffset = ReShade::PixelSize.y * BlurMask * BlurMultiplier;
 		Image.rgb *= Weight[0];
 		for (int i = 1; i < 11; i++)
 		{
@@ -120,6 +121,9 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(0, i * UvOffset)).rgb * Weight[i];
 		}
 	}
+	// Draw red line
+	// Image IS Red IF (Line IS True AND Image.a < 0.01), ELSE Image IS Image
+	Image.rgb = (Line && Image.a < 0.01) ? float3(1, 0, 0) : Image.rgb;
 	return Image.rgb;
 }
 
@@ -130,7 +134,7 @@ technique TiltShift
 		VertexShader = PostProcessVS;
 		PixelShader = TiltShiftPass1PS;
 	}
-	pass VerticalGaussianBlur
+	pass VerticalGaussianBlurAndRedLine
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = TiltShiftPass2PS;
