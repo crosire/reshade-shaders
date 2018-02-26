@@ -1,13 +1,11 @@
 /*
-Copyright (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
 To view a copy of this license, visit 
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
-
-// Filmic Anamorph Sharpen PS
 
   ////////////////////
  /////// MENU ///////
@@ -63,11 +61,10 @@ float Overlay(float LayerA, float LayerB)
 	float MinA = min(LayerA, 0.5) * 2;
 	float MinB = min(LayerB, 0.5) * 2;
 
-	float MaxA = 1 - (max(LayerA, 0.5) * 2 - 1);
-	float MaxB = 1 - (max(LayerB, 0.5) * 2 - 1);
+	float MaxA = 2 - max(LayerA, 0.5) * 2;
+	float MaxB = 2 - max(LayerB, 0.5) * 2;
 
-	float Result = (MinA * MinB + 1 - MaxA * MaxB) * 0.5;
-	return Result;
+	return (MinA * MinB + 1 - MaxA * MaxB) * 0.5;
 }
 
 // Convert RGB to YUV.luma
@@ -107,58 +104,56 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	// Sample display depth image
 	float SourceDepth = tex2D(SamplerDepth, UvCoord).r;
 
-	float2 North = float2(UvCoord.x, UvCoord.y + Pixel.y);
-	float2 South = float2(UvCoord.x, UvCoord.y - Pixel.y);
-	float2 West = float2(UvCoord.x + Pixel.x, UvCoord.y);
-	float2 East = float2(UvCoord.x - Pixel.x, UvCoord.y);
+	float2 NorSouWesEst[4] = {
+		float2(UvCoord.x, UvCoord.y + Pixel.y),
+		float2(UvCoord.x, UvCoord.y - Pixel.y),
+		float2(UvCoord.x + Pixel.x, UvCoord.y),
+		float2(UvCoord.x - Pixel.x, UvCoord.y)
+	};
 
-	float2 DepthNorth = float2(UvCoord.x, UvCoord.y + DepthPixel.y);
-	float2 DepthSouth = float2(UvCoord.x, UvCoord.y - DepthPixel.y);
-	float2 DepthWest = float2(UvCoord.x + DepthPixel.x, UvCoord.y);
-	float2 DepthEast = float2(UvCoord.x - DepthPixel.x, UvCoord.y);
+	float2 DepthNorSouWesEst[4] = {
+		float2(UvCoord.x, UvCoord.y + DepthPixel.y),
+		float2(UvCoord.x, UvCoord.y - DepthPixel.y),
+		float2(UvCoord.x + DepthPixel.x, UvCoord.y),
+		float2(UvCoord.x - DepthPixel.x, UvCoord.y)
+	};
 
 	// Choose luma coefficient, if True BT.709 Luma, else BT.601 Luma
 	float3 LumaCoefficient = (Coefficient == 0) ? float3( 0.2126,  0.7152,  0.0722) : float3( 0.299,  0.587,  0.114);
 
 	// Luma high-pass color
-	float HighPassColor;
-	HighPassColor  = Luma(tex2D(SamplerColor, North).rgb, LumaCoefficient);
-	HighPassColor += Luma(tex2D(SamplerColor, South).rgb, LumaCoefficient);
-	HighPassColor += Luma(tex2D(SamplerColor, West).rgb, LumaCoefficient);
-	HighPassColor += Luma(tex2D(SamplerColor, East).rgb, LumaCoefficient);
-	HighPassColor *= 0.25;
-	HighPassColor = 1 - HighPassColor;
-	HighPassColor = (HighPassColor + Luma(Source, LumaCoefficient)) * 0.5;
+	float HighPassColor =
+	   Luma(tex2D(SamplerColor, NorSouWesEst[0]).rgb, LumaCoefficient)
+	 + Luma(tex2D(SamplerColor, NorSouWesEst[1]).rgb, LumaCoefficient)
+	 + Luma(tex2D(SamplerColor, NorSouWesEst[2]).rgb, LumaCoefficient)
+	 + Luma(tex2D(SamplerColor, NorSouWesEst[3]).rgb, LumaCoefficient);
+	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - Luma(Source, LumaCoefficient));
 	
 	// Luma high-pass depth
-	float DepthMask;
-	DepthMask  = tex2D(SamplerDepth, DepthNorth).r;
-	DepthMask += tex2D(SamplerDepth, DepthSouth).r;
-	DepthMask += tex2D(SamplerDepth, DepthWest).r;
-	DepthMask += tex2D(SamplerDepth, DepthEast).r;
-	DepthMask += tex2D(SamplerDepth, North).r;
-	DepthMask += tex2D(SamplerDepth, South).r;
-	DepthMask += tex2D(SamplerDepth, West).r;
-	DepthMask += tex2D(SamplerDepth, East).r;
-	DepthMask *= 0.125;
-
-	DepthMask = 1.0 - DepthMask;
-	DepthMask = (DepthMask + SourceDepth);
+	float DepthMask =
+	   tex2D(SamplerDepth, DepthNorSouWesEst[0]).r
+	 + tex2D(SamplerDepth, DepthNorSouWesEst[1]).r
+	 + tex2D(SamplerDepth, DepthNorSouWesEst[2]).r
+	 + tex2D(SamplerDepth, DepthNorSouWesEst[3]).r
+	 + tex2D(SamplerDepth, NorSouWesEst[0]).r
+	 + tex2D(SamplerDepth, NorSouWesEst[1]).r
+	 + tex2D(SamplerDepth, NorSouWesEst[2]).r
+	 + tex2D(SamplerDepth, NorSouWesEst[3]).r;
+	DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
 	DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
-	DepthMask = 1.0 - Contrast * (1.0 - DepthMask);
-	DepthMask = saturate(DepthMask);
+	DepthMask = saturate(Contrast * DepthMask + 1.0 - Contrast);
 
 	// Sharpen strength
 	HighPassColor = lerp(0.5, HighPassColor, Strength * DepthMask);
 
 	// Clamping sharpen
-	HighPassColor = min(HighPassColor, Clamp);
-	HighPassColor = max(HighPassColor, 1 - Clamp);
+	HighPassColor = max(min(HighPassColor, Clamp), 1 - Clamp);
 
-	float3 Sharpen;
-	Sharpen.r = Overlay(Source.r, HighPassColor);
-	Sharpen.g = Overlay(Source.g, HighPassColor);
-	Sharpen.b = Overlay(Source.b, HighPassColor);
+	float3 Sharpen = float3(
+		Overlay(Source.r, HighPassColor),
+		Overlay(Source.g, HighPassColor),
+		Overlay(Source.b, HighPassColor)
+	);
 
 	if (Preview) // Preview mode ON
 	{

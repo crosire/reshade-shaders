@@ -46,13 +46,13 @@ float3 LetterboxPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_T
 	else if (UserAspect > RealAspect)
 	{
 		// Get Letterbox Bars width
-		float Bars = (1.0 - RealAspect / UserAspect) * 0.5;
+		float Bars = 0.5 - 0.5 * RealAspect / UserAspect;
 		return (texcoord.y > Bars && texcoord.y < 1.0 - Bars) ? Display : lerp(Display, Color, Opacity);
 	}
 	else
 	{
 		// Get Pillarbox Bars width
-		float Bars = (1.0 - UserAspect / RealAspect) * 0.5;
+		float Bars = 0.5 - 0.5 * UserAspect / RealAspect;
 		return (texcoord.x > Bars && texcoord.x < 1.0 - Bars) ? Display : lerp(Display, Color, Opacity);
 	}
 }

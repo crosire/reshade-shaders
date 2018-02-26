@@ -38,6 +38,15 @@ uniform float BlurMultiplier <
 
 #include "ReShade.fxh"
 
+// Define screen texture with mirror tiles
+texture TexColorBuffer : COLOR;
+sampler SamplerColor
+{
+	Texture = TexColorBuffer;
+	AddressU = MIRROR;
+	AddressV = MIRROR;
+};
+
 float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
 {
 	const float Weight[11] =
@@ -56,7 +65,7 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 	};
 		// Grab screen texture
 		float4 Image;
-		Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
+		Image.rgb = tex2D(SamplerColor, UvCoord).rgb;
 		// Grab Aspect Ratio
 		float Aspect = ReShade::AspectRatio;
 		// Correct Aspect Ratio
@@ -83,8 +92,11 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		Image.rgb *= Weight[0];
 		for (int i = 1; i < 11; i++)
 		{
-			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(i * UvOffset, 0)).rgb * Weight[i];
-			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(i * UvOffset, 0)).rgb * Weight[i];
+			float SampleOffset = i * UvOffset;
+			Image.rgb += (
+				tex2Dlod(SamplerColor, float4(UvCoord.xy + float2(SampleOffset, 0), 0, 0)).rgb
+				+ tex2Dlod(SamplerColor, float4(UvCoord.xy - float2(SampleOffset, 0), 0, 0)).rgb
+			) * Weight[i];
 		}
 	}
 	return Image;
@@ -107,7 +119,7 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.011254
 	};
 	// Grab second pass screen texture
-	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
+	float4 Image = tex2D(SamplerColor, UvCoord);
 	// Blur mask
 	float BlurMask = pow(Image.a, BlurCurve);
 	// Vertical gaussian blur
@@ -117,14 +129,16 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		Image.rgb *= Weight[0];
 		for (int i = 1; i < 11; i++)
 		{
-			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy + float2(0, i * UvOffset)).rgb * Weight[i];
-			Image.rgb += tex2D(ReShade::BackBuffer, UvCoord.xy - float2(0, i * UvOffset)).rgb * Weight[i];
+			float SampleOffset = i * UvOffset;
+			Image.rgb += (
+				tex2Dlod(SamplerColor, float4(UvCoord.xy + float2(0, SampleOffset), 0, 0)).rgb
+				+ tex2Dlod(SamplerColor, float4(UvCoord.xy - float2(0, SampleOffset), 0, 0)).rgb
+			) * Weight[i];
 		}
 	}
 	// Draw red line
 	// Image IS Red IF (Line IS True AND Image.a < 0.01), ELSE Image IS Image
-	Image.rgb = (Line && Image.a < 0.01) ? float3(1, 0, 0) : Image.rgb;
-	return Image.rgb;
+	return (Line && Image.a < 0.01) ? float3(1, 0, 0) : Image.rgb;
 }
 
 technique TiltShift

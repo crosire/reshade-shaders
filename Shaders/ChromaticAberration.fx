@@ -82,8 +82,7 @@ float3 ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoo
 	RadialCoord.x *= Aspect;
 
 	// Generate radial mask from center (0) to the corner of the screen (1)
-	float Mask = length(RadialCoord) * rsqrt(Aspect * Aspect + 1.0);
-	Mask = pow(Mask, Curve);
+	float Mask = pow(length(RadialCoord) * rsqrt(Aspect * Aspect + 1.0), Curve);
 
 	// Reset values for each pixel sample
 	float3 BluredImage = 0;
