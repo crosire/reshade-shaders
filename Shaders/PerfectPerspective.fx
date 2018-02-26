@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.1
+// Perfect Perspective PS ver. 2.1.1
 
   ////////////////////
  /////// MENU ///////
@@ -74,9 +74,6 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 {
 	// Get Aspect Ratio
 	float AspectR = 1.0 / ReShade::AspectRatio;
-
-	// Get pixel UV size
-	float2 Pixel = ReShade::PixelSize;
 
 	// Convert FOV type..
 	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
