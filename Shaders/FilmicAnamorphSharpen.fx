@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.1 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.2 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -74,22 +74,6 @@ float Luma(float3 Source, float3 Coefficients)
 	return Result.r + Result.g + Result.b;
 }
 
-// Define screen texture with mirror tiles
-sampler SamplerColor
-{
-	Texture = ReShade::BackBufferTex;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-};
-
-// Define depth texture with mirror tiles
-sampler SamplerDepth
-{
-	Texture = ReShade::DepthBufferTex;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-};
-
 // Sharpen pass
 float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCoord) : SV_Target
 {
@@ -98,9 +82,9 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	float2 DepthPixel = Pixel * float(Offset + 1);
 	Pixel *= float(Offset);
 	// Sample display image
-	float3 Source = tex2D(SamplerColor, UvCoord).rgb;
+	float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 	// Sample display depth image
-	float SourceDepth = tex2D(SamplerDepth, UvCoord).r;
+	float SourceDepth = tex2D(ReShade::DepthBuffer, UvCoord).r;
 
 	float2 NorSouWesEst[4] = {
 		float2(UvCoord.x, UvCoord.y + Pixel.y),
@@ -121,22 +105,22 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 
 	// Luma high-pass color
 	float HighPassColor =
-	   Luma(tex2D(SamplerColor, NorSouWesEst[0]).rgb, LumaCoefficient)
-	 + Luma(tex2D(SamplerColor, NorSouWesEst[1]).rgb, LumaCoefficient)
-	 + Luma(tex2D(SamplerColor, NorSouWesEst[2]).rgb, LumaCoefficient)
-	 + Luma(tex2D(SamplerColor, NorSouWesEst[3]).rgb, LumaCoefficient);
+	   Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[0]).rgb, LumaCoefficient)
+	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[1]).rgb, LumaCoefficient)
+	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[2]).rgb, LumaCoefficient)
+	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[3]).rgb, LumaCoefficient);
 	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - Luma(Source, LumaCoefficient));
 	
 	// Luma high-pass depth
 	float DepthMask =
-	   tex2D(SamplerDepth, DepthNorSouWesEst[0]).r
-	 + tex2D(SamplerDepth, DepthNorSouWesEst[1]).r
-	 + tex2D(SamplerDepth, DepthNorSouWesEst[2]).r
-	 + tex2D(SamplerDepth, DepthNorSouWesEst[3]).r
-	 + tex2D(SamplerDepth, NorSouWesEst[0]).r
-	 + tex2D(SamplerDepth, NorSouWesEst[1]).r
-	 + tex2D(SamplerDepth, NorSouWesEst[2]).r
-	 + tex2D(SamplerDepth, NorSouWesEst[3]).r;
+	   tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[0]).r
+	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[1]).r
+	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[2]).r
+	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[3]).r
+	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[0]).r
+	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[1]).r
+	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[2]).r
+	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[3]).r;
 	DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
 	DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
 	DepthMask = saturate(Contrast * DepthMask + 1.0 - Contrast);
