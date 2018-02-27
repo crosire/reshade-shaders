@@ -1,127 +1,39 @@
-/*
-Copyright (c) 2018 Jacob Maximilian Fober
+/**
+ * Chromatic Aberration
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Distorts the image by shifting each color component, which creates color artifacts similar to those in a very cheap lens or a cheap sensor.
+ */
 
-This work is licensed under the Creative Commons 
-Attribution-NonCommercial-ShareAlike 4.0 International License. 
-To view a copy of this license, visit 
-http://creativecommons.org/licenses/by-nc-sa/4.0/.
-*/
-
-// Chromatic Aberration PS
-// inspired by Marty McFly YACA shader
-
-  ////////////////////
- /////// MENU ///////
-////////////////////
-
-uniform int Aberration <
-	ui_label = "Aberration scale in pixels";
+uniform float2 Shift <
 	ui_type = "drag";
-	ui_min = -16; ui_max = 48;
-> = 6;
-
-uniform float Curve <
-	ui_label = "Aberration curve";
+	ui_min = -10; ui_max = 10;
+	ui_tooltip = "Distance (X,Y) in pixels to shift the color components. For a slightly blurred look try fractional values (.5) between two pixels.";
+> = float2(2.5, -0.5);
+uniform float Strength <
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 4.0; ui_step = 0.01;
-> = 1.0;
-
-uniform bool Automatic <
-	ui_label = "Automatic sample count";
-	ui_tooltip = "Amount of samples will be adjusted automatically";
-> = true;
-
-uniform int SampleCount <
-	ui_label = "Samples";
-	ui_tooltip = "Amount of samples (only even numbers are accepted, odd numbers will be clamped)";
-	ui_type = "drag";
-	ui_min = 6; ui_max = 32;
-> = 8;
-
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+	ui_min = 0.0; ui_max = 1.0;
+> = 0.5;
 
 #include "ReShade.fxh"
 
-// Special Hue generator by JMF
-float3 Spectrum(float Hue)
+float3 ChromaticAberrationPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
-	float Hue4 = Hue * 4.0;
-	float3 HueColor = abs(Hue4 - float3(1.0, 2.0, 1.0));
-	HueColor = saturate(1.5 - HueColor);
-	HueColor.xz += saturate(Hue4 - 3.5);
-	HueColor.z = 1.0 - HueColor.z;
-	return HueColor;
+	float3 color, colorInput = tex2D(ReShade::BackBuffer, texcoord).rgb;
+	// Sample the color components
+	color.r = tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * Shift)).r;
+	color.g = colorInput.g;
+	color.b = tex2D(ReShade::BackBuffer, texcoord - (ReShade::PixelSize * Shift)).b;
+
+	// Adjust the strength of the effect
+	return lerp(colorInput, color, Strength);
 }
 
-// Define screen texture with mirror tiles
-texture TexColorBuffer : COLOR;
-sampler SamplerColor
-{
-	Texture = TexColorBuffer;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-};
-
-float3 ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
-{
-	// Grab Aspect Ratio
-	float Aspect = ReShade::AspectRatio;
-	// Grab Pixel V size
-	float Pixel = ReShade::PixelSize.y;
-
-	// Adjust number of samples
-	// IF Automatic IS True Ceil odd numbers to even with minimum 6, else Clamp odd numbers to even
-	int Samples = Automatic ? max(6, 2 * ceil(abs(Aberration) * 0.5) + 2) : floor(SampleCount * 0.5) * 2;
-	// Clamp maximum sample count
-	Samples = min(Samples, 48);
-
-	// Convert UVs to radial coordinates with correct Aspect Ratio
-	float2 RadialCoord = texcoord * 2.0 - 1.0;
-	RadialCoord.x *= Aspect;
-
-	// Generate radial mask from center (0) to the corner of the screen (1)
-	float Mask = pow(length(RadialCoord) * rsqrt(Aspect * Aspect + 1.0), Curve);
-
-	// Reset values for each pixel sample
-	float3 BluredImage = 0;
-	float OffsetBase = Mask * Aberration * Pixel * 2.0;
-	
-	// Each loop represents one pass
-	if (abs(OffsetBase) < Pixel)
-	{
-		BluredImage = tex2D(SamplerColor, texcoord).rgb;
-	}
-	else
-	{
-		for (int P = 0; P < Samples && P <= 48; P++)
-		{
-			// Calculate current sample
-			float CurrentSample = float(P) / float(Samples);
-
-			float Offset = OffsetBase * CurrentSample + 1.0;
-
-			// Scale UVs at center
-			float2 Position = RadialCoord / Offset;
-			// Convert aspect ratio back to square
-			Position.x /= Aspect;
-			// Convert radial coordinates to UV
-			Position = Position * 0.5 + 0.5;
-
-			// Multiply texture sample by HUE color
-			BluredImage += Spectrum(CurrentSample) * tex2Dlod(SamplerColor, float4(Position, 0, 0)).rgb;
-		}
-		BluredImage = BluredImage / Samples * 2.0;
-	}
-	return BluredImage;
-}
-
-technique ChromaticAberration
+technique CA
 {
 	pass
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = ChromaticAberrationPS;
+		PixelShader = ChromaticAberrationPass;
 	}
 }
