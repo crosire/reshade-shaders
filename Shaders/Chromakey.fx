@@ -1,5 +1,5 @@
 /*
-Chromakey PS v1.0 (c) 2018 Jacob Maximilian Fober
+Chromakey PS v1.0.1 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -50,8 +50,6 @@ uniform float3 CustomColor <
 
 float3 ChromakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
-	// Sample display image
-	float3 Display = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	// Sample depth image
 	float Depth = tex2D(ReShade::DepthBuffer, texcoord).r;
 
@@ -62,7 +60,7 @@ float3 ChromakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_T
 	bool IsItFront = (Pass == 0);
 	return (
 		Threshold < pow(Depth, Curve) ? IsItFront : !IsItFront
-	) ? Screen : Display;
+	) ? Screen : tex2D(ReShade::BackBuffer, texcoord).rgb;
 }
 
 technique Chromakey
