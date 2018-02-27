@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.0.1 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -39,10 +39,9 @@ uniform float BlurMultiplier <
 #include "ReShade.fxh"
 
 // Define screen texture with mirror tiles
-texture TexColorBuffer : COLOR;
 sampler SamplerColor
 {
-	Texture = TexColorBuffer;
+	Texture = ReShade::BackBufferTex;
 	AddressU = MIRROR;
 	AddressV = MIRROR;
 };

@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.1.1
+// Perfect Perspective PS ver. 2.1.2
 
   ////////////////////
  /////// MENU ///////
@@ -50,10 +50,9 @@ uniform float Zooming <
 #include "ReShade.fxh"
 
 // Define screen texture with mirror tiles
-texture TexColorBuffer : COLOR;
 sampler SamplerColor
 {
-	Texture = TexColorBuffer;
+	Texture = ReShade::BackBufferTex;
 	AddressU = MIRROR;
 	AddressV = MIRROR;
 };
