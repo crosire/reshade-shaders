@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.3 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.4 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -58,13 +58,11 @@ uniform int Contrast <
 // Overlay blending mode
 float Overlay(float LayerA, float LayerB)
 {
-	float MinA = min(LayerA, 0.5) * 2;
-	float MinB = min(LayerB, 0.5) * 2;
-
-	float MaxA = 2 - max(LayerA, 0.5) * 2;
-	float MaxB = 2 - max(LayerB, 0.5) * 2;
-
-	return (MinA * MinB + 1 - MaxA * MaxB) * 0.5;
+	float MinA = min(LayerA, 0.5);
+	float MinB = min(LayerB, 0.5);
+	float MaxA = max(LayerA, 0.5);
+	float MaxB = max(LayerB, 0.5);
+	return 2 * (MinA * MinB + MaxA + MaxB - MaxA * MaxB) - 1.5;
 }
 
 // Convert RGB to YUV.luma
