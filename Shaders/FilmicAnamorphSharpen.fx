@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.2 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.3 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -19,7 +19,7 @@ uniform float Strength <
 
 uniform bool Preview <
 	ui_label = "Preview";
-	ui_tooltip = "Preview sharpen layer and mask for adjustment";
+	ui_tooltip = "Preview sharpen layer and mask for adjustment. If you don't see red strokes, try changing Preprocessor Definitions in the Settings tab.";
 > = false;
 
 uniform int Coefficient <
@@ -47,7 +47,7 @@ uniform int Contrast <
 	ui_tooltip = "Depth high-pass mask amount";
 	ui_type = "drag";
 	ui_min = 0; ui_max = 2000; ui_step = 1;
-> = 1618;
+> = 128;
 
   //////////////////////
  /////// SHADER ///////
@@ -84,7 +84,7 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	// Sample display image
 	float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 	// Sample display depth image
-	float SourceDepth = tex2D(ReShade::DepthBuffer, UvCoord).r;
+	float SourceDepth = ReShade::GetLinearizedDepth(UvCoord);
 
 	float2 NorSouWesEst[4] = {
 		float2(UvCoord.x, UvCoord.y + Pixel.y),
@@ -113,14 +113,14 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	
 	// Luma high-pass depth
 	float DepthMask =
-	   tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[0]).r
-	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[1]).r
-	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[2]).r
-	 + tex2D(ReShade::DepthBuffer, DepthNorSouWesEst[3]).r
-	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[0]).r
-	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[1]).r
-	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[2]).r
-	 + tex2D(ReShade::DepthBuffer, NorSouWesEst[3]).r;
+	   ReShade::GetLinearizedDepth(DepthNorSouWesEst[0])
+	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[1])
+	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[2])
+	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[3])
+	 + ReShade::GetLinearizedDepth(NorSouWesEst[0])
+	 + ReShade::GetLinearizedDepth(NorSouWesEst[1])
+	 + ReShade::GetLinearizedDepth(NorSouWesEst[2])
+	 + ReShade::GetLinearizedDepth(NorSouWesEst[3]);
 	DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
 	DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
 	DepthMask = saturate(Contrast * DepthMask + 1.0 - Contrast);
