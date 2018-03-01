@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS v1.0.2 (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.0.3 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -35,6 +35,10 @@ uniform float BlurMultiplier <
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.2;
 	ui_label = "Blur Multiplier";
 > = 6.0;
+
+// First pass render target, to make sure Alpha channel exists
+texture AlphaTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+sampler AlphaSampler { Texture = AlphaTex; };
 
 #include "ReShade.fxh"
 
@@ -110,7 +114,7 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.011254
 	};
 	// Grab second pass screen texture
-	float4 Image = tex2D(ReShade::BackBuffer, UvCoord);
+	float4 Image = tex2D(AlphaSampler, UvCoord);
 	// Blur mask
 	float BlurMask = pow(Image.a, BlurCurve);
 	// Vertical gaussian blur
@@ -122,8 +126,8 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		{
 			float SampleOffset = i * UvOffset;
 			Image.rgb += (
-				tex2Dlod(ReShade::BackBuffer, float4(UvCoord.xy + float2(0, SampleOffset), 0, 0)).rgb
-				+ tex2Dlod(ReShade::BackBuffer, float4(UvCoord.xy - float2(0, SampleOffset), 0, 0)).rgb
+				tex2Dlod(AlphaSampler, float4(UvCoord.xy + float2(0, SampleOffset), 0, 0)).rgb
+				+ tex2Dlod(AlphaSampler, float4(UvCoord.xy - float2(0, SampleOffset), 0, 0)).rgb
 			) * Weight[i];
 		}
 	}
@@ -138,6 +142,7 @@ technique TiltShift
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = TiltShiftPass1PS;
+		RenderTarget = AlphaTex;
 	}
 	pass VerticalGaussianBlurAndRedLine
 	{
