@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.1.1
+// Chromatic Aberration PS (Prism) v1.1.2
 // inspired by Marty McFly YACA shader
 
   ////////////////////
@@ -63,7 +63,8 @@ sampler SamplerColor
 	AddressV = MIRROR;
 };
 
-float3 ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
+void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord,
+out float3 BluredImage : SV_Target)
 {
 	// Grab Aspect Ratio
 	float Aspect = ReShade::AspectRatio;
@@ -83,8 +84,6 @@ float3 ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoo
 	// Generate radial mask from center (0) to the corner of the screen (1)
 	float Mask = pow(length(RadialCoord) * rsqrt(Aspect * Aspect + 1.0), Curve);
 
-	// Reset values for each pixel sample
-	float3 BluredImage = 0;
 	float OffsetBase = Mask * Aberration * Pixel * 2.0;
 	
 	// Each loop represents one pass
@@ -113,7 +112,6 @@ float3 ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoo
 		}
 		BluredImage = BluredImage / Samples * 2.0;
 	}
-	return BluredImage;
 }
 
 technique ChromaticAberration

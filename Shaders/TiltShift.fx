@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS v1.0.3 (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.0.4 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -37,12 +37,12 @@ uniform float BlurMultiplier <
 > = 6.0;
 
 // First pass render target, to make sure Alpha channel exists
-texture AlphaTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
-sampler AlphaSampler { Texture = AlphaTex; };
+texture TiltShiftTarget { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+sampler TiltShiftSampler { Texture = TiltShiftTarget; };
 
 #include "ReShade.fxh"
 
-float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
+void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out float4 Image : SV_Target)
 {
 	const float Weight[11] =
 	{
@@ -59,7 +59,6 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.011254
 	};
 		// Grab screen texture
-		float4 Image;
 		Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 		// Grab Aspect Ratio
 		float Aspect = ReShade::AspectRatio;
@@ -94,10 +93,9 @@ float4 TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 			) * Weight[i];
 		}
 	}
-	return Image;
 }
 
-float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : SV_Target
+void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out float4 Image : SV_Target)
 {
 	const float Weight[11] =
 	{
@@ -114,7 +112,7 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		0.011254
 	};
 	// Grab second pass screen texture
-	float4 Image = tex2D(AlphaSampler, UvCoord);
+	Image = tex2D(TiltShiftSampler, UvCoord);
 	// Blur mask
 	float BlurMask = pow(Image.a, BlurCurve);
 	// Vertical gaussian blur
@@ -126,14 +124,14 @@ float3 TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD) : 
 		{
 			float SampleOffset = i * UvOffset;
 			Image.rgb += (
-				tex2Dlod(AlphaSampler, float4(UvCoord.xy + float2(0, SampleOffset), 0, 0)).rgb
-				+ tex2Dlod(AlphaSampler, float4(UvCoord.xy - float2(0, SampleOffset), 0, 0)).rgb
+				tex2Dlod(TiltShiftSampler, float4(UvCoord.xy + float2(0, SampleOffset), 0, 0)).rgb
+				+ tex2Dlod(TiltShiftSampler, float4(UvCoord.xy - float2(0, SampleOffset), 0, 0)).rgb
 			) * Weight[i];
 		}
 	}
 	// Draw red line
 	// Image IS Red IF (Line IS True AND Image.a < 0.01), ELSE Image IS Image
-	return (Line && Image.a < 0.01) ? float3(1, 0, 0) : Image.rgb;
+	Image.rgb = (Line && Image.a < 0.01) ? float3(1, 0, 0) : Image.rgb;
 }
 
 technique TiltShift
@@ -142,7 +140,7 @@ technique TiltShift
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = TiltShiftPass1PS;
-		RenderTarget = AlphaTex;
+		RenderTarget = TiltShiftTarget;
 	}
 	pass VerticalGaussianBlurAndRedLine
 	{
