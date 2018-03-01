@@ -1,7 +1,7 @@
 /**
- * Technicolor version 1.1
+ * Technicolor version 1.1.1
  * Original by DKT70
- * Optimized by CeeJay.dk
+ * Optimized by CeeJay.dk and Jacob Max Fober
  */
 
 uniform float Power <
@@ -21,12 +21,12 @@ uniform float Strength <
 
 float3 TechnicolorPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
-	const float3 cyanfilter = float3(0.0, 1.30, 1.0);
-	const float3 magentafilter = float3(1.0, 0.0, 1.05);
-	const float3 yellowfilter = float3(1.6, 1.6, 0.05);
-	const float2 redorangefilter = float2(1.05, 0.620); // RG_
-	const float2 greenfilter = float2(0.30, 1.0);       // RG_
-	const float2 magentafilter2 = magentafilter.rb;     // R_B
+	static const float3 cyanfilter = float3(0.0, 1.30, 1.0);
+	static const float3 magentafilter = float3(1.0, 0.0, 1.05);
+	static const float3 yellowfilter = float3(1.6, 1.6, 0.05);
+	static const float2 redorangefilter = float2(1.05, 0.620); // RG_
+	static const float2 greenfilter = float2(0.30, 1.0);       // RG_
+	static const float2 magentafilter2 = magentafilter.rb;     // R_B
 
 	float3 tcol = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	
