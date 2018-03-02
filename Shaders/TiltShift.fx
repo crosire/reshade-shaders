@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS v1.0.5 (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.0.4 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -44,7 +44,7 @@ sampler TiltShiftSampler { Texture = TiltShiftTarget; };
 
 void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out float4 Image : SV_Target)
 {
-	static const float Weight[11] =
+	const float Weight[11] =
 	{
 		0.082607,
 		0.080977,
@@ -97,7 +97,7 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 
 void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out float4 Image : SV_Target)
 {
-	static const float Weight[11] =
+	const float Weight[11] =
 	{
 		0.082607,
 		0.080977,
