@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS v1.0.4 (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.0.5 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -33,7 +33,6 @@ uniform float BlurMultiplier <
 	ui_label = "Blur Multiplier";
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.2;
-	ui_label = "Blur Multiplier";
 > = 6.0;
 
 // First pass render target, to make sure Alpha channel exists
@@ -60,19 +59,15 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	};
 		// Grab screen texture
 		Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
-		// Grab Aspect Ratio
-		float Aspect = ReShade::AspectRatio;
 		// Correct Aspect Ratio
 		float2 UvCoordAspect = UvCoord;
-		UvCoordAspect.y += Aspect * 0.5 - 0.5;
-		UvCoordAspect.y /= Aspect;
+		UvCoordAspect.y += ReShade::AspectRatio * 0.5 - 0.5;
+		UvCoordAspect.y /= ReShade::AspectRatio;
 		// Center coordinates
 		UvCoordAspect = UvCoordAspect * 2 - 1;
 		// Tilt vector
-		float2 TiltVector;
 		float Angle = radians(-Axis);
-		TiltVector.x = sin(Angle);
-		TiltVector.y = cos(Angle);
+		float2 TiltVector = float2(sin(Angle), cos(Angle));
 		// Blur mask
 		float BlurMask = abs(dot(TiltVector, UvCoordAspect) + Offset);
 		BlurMask = max(0, min(1, BlurMask));
