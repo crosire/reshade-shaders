@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.4 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.5 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -65,13 +65,6 @@ float Overlay(float LayerA, float LayerB)
 	return 2 * (MinA * MinB + MaxA + MaxB - MaxA * MaxB) - 1.5;
 }
 
-// Convert RGB to YUV.luma
-float Luma(float3 Source, float3 Coefficients)
-{
-	float3 Result = Source * Coefficients;
-	return Result.r + Result.g + Result.b;
-}
-
 // Sharpen pass
 float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCoord) : SV_Target
 {
@@ -103,11 +96,11 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 
 	// Luma high-pass color
 	float HighPassColor =
-	   Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[0]).rgb, LumaCoefficient)
-	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[1]).rgb, LumaCoefficient)
-	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[2]).rgb, LumaCoefficient)
-	 + Luma(tex2D(ReShade::BackBuffer, NorSouWesEst[3]).rgb, LumaCoefficient);
-	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - Luma(Source, LumaCoefficient));
+	   dot(tex2D(ReShade::BackBuffer, NorSouWesEst[0]).rgb, LumaCoefficient)
+	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[1]).rgb, LumaCoefficient)
+	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[2]).rgb, LumaCoefficient)
+	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[3]).rgb, LumaCoefficient);
+	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
 	
 	// Luma high-pass depth
 	float DepthMask =
