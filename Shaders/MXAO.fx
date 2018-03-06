@@ -330,7 +330,7 @@ void TesselateNormals(inout float3 N, in float3 P, in MXAO_VSOUT MXAO)
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-float GetCullingMask(in MXAO_VSOUT MXAO)
+bool GetCullingMask(in MXAO_VSOUT MXAO)
 {
         float4 cOffsets = float4(ReShade::PixelSize.xy,-ReShade::PixelSize.xy) * 8;
         float cullingArea = tex2D(sMXAO_CullingTex, MXAO.scaledcoord.xy + cOffsets.xy).x;
