@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.0
+// Perfect Perspective PS ver. 2.2.1
 
   ////////////////////
  /////// MENU ///////
@@ -32,7 +32,7 @@ uniform float Vertical <
 	ui_tooltip = "0.0 - cylindrical projection, 1.0 - spherical";
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
-> = 0.5;
+> = 0.618;
 
 uniform int Type <
 	ui_label = "Type of FOV";
