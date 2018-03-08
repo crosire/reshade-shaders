@@ -7,12 +7,13 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.1.2
+// Perfect Perspective PS ver. 2.2.1
 
   ////////////////////
  /////// MENU ///////
 ////////////////////
 
+#ifndef ShaderAnalyzer
 uniform float4 Color <
 	ui_label = "Borders Color";
 	ui_tooltip = "Use Alpha to adjust opacity";
@@ -25,6 +26,13 @@ uniform int FOV <
 	ui_type = "drag";
 	ui_min = 45; ui_max = 120;
 > = 90;
+
+uniform float Vertical <
+	ui_label = "Vertical Amount";
+	ui_tooltip = "0.0 - cylindrical projection, 1.0 - spherical";
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 1.0;
+> = 0.618;
 
 uniform int Type <
 	ui_label = "Type of FOV";
@@ -42,6 +50,7 @@ uniform float Zooming <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
 > = 1.0;
+#endif
 
   //////////////////////
  /////// SHADER ///////
@@ -64,7 +73,7 @@ sampler SamplerColor
 float Formula(float SqrTanFOVq, float2 Coordinates)
 {
 	float Result = 1.0 - SqrTanFOVq;
-	Result /= 1.0 - SqrTanFOVq * (Coordinates.x * Coordinates.x + Coordinates.y * Coordinates.y);
+	Result /= 1.0 - SqrTanFOVq * dot(Coordinates, Coordinates);
 	return Result;
 }
 
@@ -88,8 +97,8 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Zoom in image and adjust FOV type (pass 1 of 2)
 	SphCoord *= Zooming / FovType;
 
-	// Stereographic-Gnomonic lookup and FOV type pass 2 of 2
-	SphCoord *= Formula(SqrTanFOVq, SphCoord) * FovType;
+	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type pass 2 of 2
+	SphCoord *= Formula(SqrTanFOVq, float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
 
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
