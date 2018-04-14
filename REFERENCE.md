@@ -133,6 +133,7 @@ Annotations to customize UI appearance:
  * ui_items - A list of items for the combo box, each item is terminated with a `\0` character (required when `ui_type = "combo"`)
  * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
  * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
+ * ui_category - Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
 
 Annotations are also used to request special runtime values:
 
@@ -216,7 +217,11 @@ Intrinsics:
 In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
 
  * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
- Fetches a value from the texture directly without any sampling.
+ Fetches a value from the texture directly without any sampling.\
+   coords.x : [0, texture width)\
+   coords.y : [0, texture height)\
+   coords.z : ignored\
+   coords.w : [0, texture mip levels)
  * ``float4 tex2Dgather(sampler2D s, float2 coords, int comp)``  
  Gathers the specified component of the four neighboring pixels and returns the result.
  * ``float4 tex2Dgatheroffset(sampler2D s, float2 coords, int2 offset, int comp)``
