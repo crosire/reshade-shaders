@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.1
+// Perfect Perspective PS ver. 2.2.2
 
   ////////////////////
  /////// MENU ///////
@@ -100,6 +100,8 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type pass 2 of 2
 	SphCoord *= Formula(SqrTanFOVq, float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
 
+	bool AtBorders = abs(SphCoord.x) > 1 || abs(SphCoord.y) > AspectR;
+
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
 
@@ -110,7 +112,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float3 Display = tex2D(SamplerColor, SphCoord).rgb;
 
 	// Mask outside-border pixels or mirror
-	return SphCoord.x < 0 || SphCoord.x > 1 || SphCoord.y < 0 || SphCoord.y > 1 ?
+	return AtBorders ?
 		Borders ?
 			lerp(Display, Color.rgb, Color.a)
 		: lerp(tex2D(SamplerColor, texcoord).rgb, Color.rgb, Color.a)
