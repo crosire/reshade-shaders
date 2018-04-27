@@ -7,24 +7,19 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.2
+// Perfect Perspective PS ver. 2.2.3
 
   ////////////////////
  /////// MENU ///////
 ////////////////////
 
 #ifndef ShaderAnalyzer
-uniform float4 Color <
-	ui_label = "Borders Color";
-	ui_tooltip = "Use Alpha to adjust opacity";
-	ui_type = "Color";
-> = float4(0.027, 0.027, 0.027, 0.902);
-
 uniform int FOV <
 	ui_label = "Field of View";
 	ui_tooltip = "Match in-game Field of View";
 	ui_type = "drag";
 	ui_min = 45; ui_max = 120;
+	ui_category = "Distortion";
 > = 90;
 
 uniform float Vertical <
@@ -32,6 +27,7 @@ uniform float Vertical <
 	ui_tooltip = "0.0 - cylindrical projection, 1.0 - spherical";
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
+	ui_category = "Distortion";
 > = 0.618;
 
 uniform int Type <
@@ -39,16 +35,26 @@ uniform int Type <
 	ui_tooltip = "If image bulges in movement, change it to Diagonal. When proportions are distorted, choose Vertical";
 	ui_type = "combo";
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
+	ui_category = "Distortion";
 > = 0;
 
+uniform float4 Color <
+	ui_label = "Color";
+	ui_tooltip = "Use Alpha to adjust opacity";
+	ui_type = "Color";
+	ui_category = "Borders";
+> = float4(0.027, 0.027, 0.027, 0.902);
+
 uniform bool Borders <
-	ui_label = "Mirror Borders";
+	ui_label = "Mirrored Borders";
+	ui_category = "Borders";
 > = true;
 
 uniform float Zooming <
-	ui_label = "Adjust Borders Size";
+	ui_label = "Border Scale";
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
+	ui_category = "Borders";
 > = 1.0;
 #endif
 
