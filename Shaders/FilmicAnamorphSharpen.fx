@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.5 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.7 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -16,11 +16,6 @@ uniform float Strength <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 3.0; ui_step = 0.005;
 > = 1.0;
-
-uniform bool Preview <
-	ui_label = "Preview";
-	ui_tooltip = "Preview sharpen layer and mask for adjustment. If you don't see red strokes, try changing Preprocessor Definitions in the Settings tab.";
-> = false;
 
 uniform int Coefficient <
 	ui_label = "Luma coefficient";
@@ -48,6 +43,12 @@ uniform int Contrast <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 2000; ui_step = 1;
 > = 128;
+
+uniform bool Preview <
+	ui_label = "Preview";
+	ui_tooltip = "Preview sharpen layer and mask for adjustment. If you don't see red strokes, try changing Preprocessor Definitions in the Settings tab.";
+	ui_category = "Debug View";
+> = false;
 
   //////////////////////
  /////// SHADER ///////
@@ -92,26 +93,23 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	};
 
 	// Choose luma coefficient, if True BT.709 Luma, else BT.601 Luma
-	float3 LumaCoefficient = (Coefficient == 0) ? float3( 0.2126,  0.7152,  0.0722) : float3( 0.299,  0.587,  0.114);
+	float3 LumaCoefficient = (Coefficient == 0) ?
+	float3( 0.2126,  0.7152,  0.0722) : float3( 0.299,  0.587,  0.114);
 
 	// Luma high-pass color
-	float HighPassColor =
-	   dot(tex2D(ReShade::BackBuffer, NorSouWesEst[0]).rgb, LumaCoefficient)
-	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[1]).rgb, LumaCoefficient)
-	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[2]).rgb, LumaCoefficient)
-	 + dot(tex2D(ReShade::BackBuffer, NorSouWesEst[3]).rgb, LumaCoefficient);
-	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
-	
 	// Luma high-pass depth
-	float DepthMask =
-	   ReShade::GetLinearizedDepth(DepthNorSouWesEst[0])
-	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[1])
-	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[2])
-	 + ReShade::GetLinearizedDepth(DepthNorSouWesEst[3])
-	 + ReShade::GetLinearizedDepth(NorSouWesEst[0])
-	 + ReShade::GetLinearizedDepth(NorSouWesEst[1])
-	 + ReShade::GetLinearizedDepth(NorSouWesEst[2])
-	 + ReShade::GetLinearizedDepth(NorSouWesEst[3]);
+	float HighPassColor;
+	float DepthMask;
+
+	for (int s = 0; s < 4; s++)
+	{
+		HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
+		DepthMask += ReShade::GetLinearizedDepth(NorSouWesEst[s])
+		+ ReShade::GetLinearizedDepth(DepthNorSouWesEst[s]);
+	}
+
+	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
+
 	DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
 	DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
 	DepthMask = saturate(Contrast * DepthMask + 1.0 - Contrast);
