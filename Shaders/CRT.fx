@@ -10,6 +10,11 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
+uniform float Amount <
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Amount of CRT effect you want";
+> = 1.00;
 uniform float Resolution <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 8.0;
@@ -300,7 +305,10 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// Convert the image gamma for display on our output device.
 	mul_res = pow(abs(mul_res), 1.0 / MonitorGamma);
 
-	return mul_res;
+	float3 color = TEX2D(tex).rgb;
+	color = lerp(color, mul_res, Amount);
+
+	return saturate(color);
 }
 
 technique AdvancedCRT
