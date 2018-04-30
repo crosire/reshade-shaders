@@ -10,6 +10,11 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
+uniform float Amount <
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Amount of CRT effect you want";
+> = 1.00;
 uniform float Resolution <
 	ui_type = "drag";
 	ui_min = 1.0; ui_max = 8.0;
@@ -224,18 +229,18 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	float2 rubyInputSize = Resolution;
 	float2 rubyOutputSize = ReShade::ScreenSize;
 
-	float2 xy = Curvature ? transform(tex, rubyTextureSize, rubyInputSize) : tex;
-	float cval = corner(xy, rubyTextureSize, rubyInputSize);
+	float2 orig_xy = Curvature ? transform(tex, rubyTextureSize, rubyInputSize) : tex;
+	float cval = corner(orig_xy, rubyTextureSize, rubyInputSize);
 
 	// Of all the pixels that are mapped onto the texel we are
 	// currently rendering, which pixel are we currently rendering?
-	float2 ratio_scale = xy * rubyTextureSize - 0.5;
+	float2 ratio_scale = orig_xy * rubyTextureSize - 0.5;
 
 	float filter = fwidth(ratio_scale.y);
 	float2 uv_ratio = frac(ratio_scale);
 
 	// Snap to the center of the underlying texel.
-	xy = (floor(ratio_scale) + 0.5) / rubyTextureSize;
+	float2 xy = (floor(ratio_scale) + 0.5) / rubyTextureSize;
 
 	// Calculate Lanczos scaling coefficients describing the effect
 	// of various neighbour texels in a scanline on the current
@@ -300,7 +305,10 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// Convert the image gamma for display on our output device.
 	mul_res = pow(abs(mul_res), 1.0 / MonitorGamma);
 
-	return mul_res;
+	float3 color = TEX2D(orig_xy).rgb * cval.xxx;
+	color = lerp(color, mul_res, Amount);
+
+	return saturate(color);
 }
 
 technique AdvancedCRT
