@@ -29,6 +29,7 @@ uniform float Curve <
 uniform bool Automatic <
 	ui_label = "Automatic sample count";
 	ui_tooltip = "Amount of samples will be adjusted automatically";
+	ui_category = "Performance";
 > = true;
 
 uniform int SampleCount <
@@ -36,6 +37,7 @@ uniform int SampleCount <
 	ui_tooltip = "Amount of samples (only even numbers are accepted, odd numbers will be clamped)";
 	ui_type = "drag";
 	ui_min = 6; ui_max = 32;
+	ui_category = "Performance";
 > = 8;
 
   //////////////////////
