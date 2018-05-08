@@ -7,17 +7,19 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.1.2
+// Chromatic Aberration PS (Prism) v1.2.0
 // inspired by Marty McFly YACA shader
 
   ////////////////////
  /////// MENU ///////
 ////////////////////
 
+#ifndef ShaderAnalyzer
+
 uniform int Aberration <
 	ui_label = "Aberration scale in pixels";
 	ui_type = "drag";
-	ui_min = -16; ui_max = 48;
+	ui_min = -48; ui_max = 48;
 > = 6;
 
 uniform float Curve <
@@ -39,6 +41,8 @@ uniform int SampleCount <
 	ui_min = 6; ui_max = 32;
 	ui_category = "Performance";
 > = 8;
+
+#endif
 
   //////////////////////
  /////// SHADER ///////
@@ -98,9 +102,9 @@ out float3 BluredImage : SV_Target)
 		for (int P = 0; P < Samples && P <= 48; P++)
 		{
 			// Calculate current sample
-			float CurrentSample = float(P) / float(Samples);
+			float CurrentProgress = float(P) / float(Samples);
 
-			float Offset = OffsetBase * CurrentSample + 1.0;
+			float Offset = OffsetBase * (CurrentProgress - 0.5) + 1.0;
 
 			// Scale UVs at center
 			float2 Position = RadialCoord / Offset;
@@ -110,7 +114,7 @@ out float3 BluredImage : SV_Target)
 			Position = Position * 0.5 + 0.5;
 
 			// Multiply texture sample by HUE color
-			BluredImage += Spectrum(CurrentSample) * tex2Dlod(SamplerColor, float4(Position, 0, 0)).rgb;
+			BluredImage += Spectrum(CurrentProgress) * tex2Dlod(SamplerColor, float4(Position, 0, 0)).rgb;
 		}
 		BluredImage = BluredImage / Samples * 2.0;
 	}
