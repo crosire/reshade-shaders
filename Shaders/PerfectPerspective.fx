@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.4
+// Perfect Perspective PS ver. 2.2.5
 
   ////////////////////
  /////// MENU ///////
@@ -89,7 +89,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Get Aspect Ratio
 	float AspectR = 1.0 / ReShade::AspectRatio;
 	// Get Pixel Size
-	float PixelSize = ReShade::PixelSize.x * 4;
+	float2 PixelSize = ReShade::PixelSize * 3;
 
 	// Convert FOV type..
 	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
@@ -111,14 +111,11 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
 
-	// Outside borders check with AA
-	float AtBorders = smoothstep(
+	float2 AtBorders = // Outside borders check with AA
+	smoothstep(
 		1-PixelSize, // min
 		1+PixelSize, // max
-		max(
-			abs(SphCoord.y), 
-			abs(SphCoord.x)
-		)
+		abs(SphCoord)
 	);
 
 	// Back to UV Coordinates
@@ -135,7 +132,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 			Color.rgb, 
 			Color.a
 		), 
-		AtBorders
+		max(AtBorders.x, AtBorders.y)
 	);
 }
 
