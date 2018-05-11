@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.5
+// Perfect Perspective PS ver. 2.2.6
 
   ////////////////////
  /////// MENU ///////
@@ -113,7 +113,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float2 PixelSize = fwidth(SphCoord);
 
 	// Outside borders check with AA
-	float2 AtBorders = smoothstep( 1, PixelSize + 1, abs(SphCoord) );
+	float2 AtBorders = smoothstep( 1 - PixelSize, PixelSize + 1, abs(SphCoord) );
 
 	// Back to UV Coordinates
 	SphCoord = SphCoord * 0.5 + 0.5;
