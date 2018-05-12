@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.3
+// Perfect Perspective PS ver. 2.2.6
 
   ////////////////////
  /////// MENU ///////
@@ -106,10 +106,14 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type pass 2 of 2
 	SphCoord *= Formula(SqrTanFOVq, float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
 
-	bool AtBorders = abs(SphCoord.x) > 1 || abs(SphCoord.y) > AspectR;
-
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
+
+	// Get Pixel Size in steregoraphic coordinates
+	float2 PixelSize = fwidth(SphCoord);
+
+	// Outside borders check with AA
+	float2 AtBorders = smoothstep( 1 - PixelSize, PixelSize + 1, abs(SphCoord) );
 
 	// Back to UV Coordinates
 	SphCoord = SphCoord * 0.5 + 0.5;
@@ -118,11 +122,15 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float3 Display = tex2D(SamplerColor, SphCoord).rgb;
 
 	// Mask outside-border pixels or mirror
-	return AtBorders ?
-		Borders ?
-			lerp(Display, Color.rgb, Color.a)
-		: lerp(tex2D(SamplerColor, texcoord).rgb, Color.rgb, Color.a)
-	: Display;
+	return lerp(
+		Display, 
+		lerp(
+			Borders ? Display : tex2D(SamplerColor, texcoord).rgb, 
+			Color.rgb, 
+			Color.a
+		), 
+		max(AtBorders.x, AtBorders.y)
+	);
 }
 
 technique PerfectPerspective
