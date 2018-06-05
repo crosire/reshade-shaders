@@ -8,7 +8,7 @@
 	#define RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN 0
 #endif
 #ifndef RESHADE_DEPTH_INPUT_IS_REVERSED
-	#define RESHADE_DEPTH_INPUT_IS_REVERSED 0
+	#define RESHADE_DEPTH_INPUT_IS_REVERSED 1
 #endif
 #ifndef RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 	#define RESHADE_DEPTH_INPUT_IS_LOGARITHMIC 0
@@ -20,9 +20,18 @@
 namespace ReShade
 {
 	// Global variables
+#if defined(__RESHADE_FXC__)
+	float GetAspectRatio() { return BUFFER_WIDTH * BUFFER_RCP_HEIGHT; }
+	float2 GetPixelSize() { return float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT); }
+	float2 GetScreenSize() { return float2(BUFFER_WIDTH, BUFFER_HEIGHT); }
+	#define AspectRatio GetAspectRatio()
+	#define PixelSize GetPixelSize()
+	#define ScreenSize GetScreenSize()
+#else
 	static const float AspectRatio = BUFFER_WIDTH * BUFFER_RCP_HEIGHT;
 	static const float2 PixelSize = float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT);
 	static const float2 ScreenSize = float2(BUFFER_WIDTH, BUFFER_HEIGHT);
+#endif
 	
 	// Global textures and samplers
 	texture BackBufferTex : COLOR;

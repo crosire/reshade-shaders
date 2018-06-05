@@ -51,8 +51,8 @@ uniform float fLUT_AmountLuma <
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "ReShade.fxh"
-texture texLUT < source = fLUT_TextureName; > { Width = fLUT_TileSizeXY*fLUT_TileAmount; Height = fLUT_TileSizeXY * fLUT_LutAmount; Format = RGBA8; };
-sampler	SamplerLUT 	{ Texture = texLUT; };
+texture texMultiLUT < source = fLUT_TextureName; > { Width = fLUT_TileSizeXY*fLUT_TileAmount; Height = fLUT_TileSizeXY * fLUT_LutAmount; Format = RGBA8; };
+sampler	SamplerMultiLUT { Texture = texMultiLUT; };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
@@ -70,7 +70,7 @@ void PS_MultiLUT_Apply(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, ou
 	float lerpfact = frac(lutcoord.z);
 	lutcoord.x += (lutcoord.z-lerpfact)*texelsize.y;
 
-	float3 lutcolor = lerp(tex2D(SamplerLUT, lutcoord.xy).xyz, tex2D(SamplerLUT, float2(lutcoord.x+texelsize.y,lutcoord.y)).xyz,lerpfact);
+	float3 lutcolor = lerp(tex2D(SamplerMultiLUT, lutcoord.xy).xyz, tex2D(SamplerMultiLUT, float2(lutcoord.x+texelsize.y,lutcoord.y)).xyz,lerpfact);
 
 	color.xyz = lerp(normalize(color.xyz), normalize(lutcolor.xyz), fLUT_AmountChroma) * 
 	            lerp(length(color.xyz),    length(lutcolor.xyz),    fLUT_AmountLuma);
