@@ -212,7 +212,7 @@ Parameter Qualifiers:
 
 Intrinsics:
 
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dgrad, tex2Dlod, tex2Dproj, transpose, trunc
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dgrad, tex2Dlod, tex2Dproj, transpose, trunc
 
 In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
 
