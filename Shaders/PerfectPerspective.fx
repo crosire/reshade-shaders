@@ -72,7 +72,7 @@ sampler SamplerColor
 	AddressV = MIRROR;
 };
 
-// Stereographic-Gnomonic lookup function
+// Stereographic-Gnomonic lookup function by Jacob Max Fober
 // Input data:
 	// FOV >> Camera Field of View in degrees
 	// Coordinates >> UV coordinates (from -1, to 1), where (0,0) is at the center of the screen
@@ -100,7 +100,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Zoom in image and adjust FOV type (pass 1 of 2)
 	SphCoord *= Zooming / FovType;
 
-	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type pass 2 of 2
+	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type (pass 2 of 2)
 	SphCoord *= Formula(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
 
 	// Aspect Ratio back to square
@@ -109,7 +109,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Get Pixel Size in steregoraphic coordinates
 	float2 PixelSize = fwidth(SphCoord);
 
-	// Outside borders check with AA
+	// Outside borders check with Anti-Aliasing
 	float2 AtBorders = smoothstep( 1 - PixelSize, PixelSize + 1, abs(SphCoord) );
 
 	// Back to UV Coordinates
