@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.6
+// Perfect Perspective PS ver. 2.2.7
 
   ////////////////////
  /////// MENU ///////
@@ -74,13 +74,14 @@ sampler SamplerColor
 
 // Stereographic-Gnomonic lookup function
 // Input data:
-	// SqrTanFOVq >> squared tangent of quater FOV angle
+	// FOV >> Camera Field of View in degrees
 	// Coordinates >> UV coordinates (from -1, to 1), where (0,0) is at the center of the screen
-float Formula(float SqrTanFOVq, float2 Coordinates)
+float Formula(float2 Coordinates)
 {
-	float Result = 1.0 - SqrTanFOVq;
-	Result /= 1.0 - SqrTanFOVq * dot(Coordinates, Coordinates);
-	return Result;
+	// Convert 1/4 FOV to radians and calc tangent squared
+	float SqrTanFOVq = tan(radians(float(FOV) * 0.25));
+	SqrTanFOVq *= SqrTanFOVq;
+	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * dot(Coordinates, Coordinates));
 }
 
 // Shader pass
@@ -92,10 +93,6 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Convert FOV type..
 	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
 
-	// Convert 1/4 FOV to radians and calc tangent squared
-	float SqrTanFOVq = tan(radians(float(FOV) * 0.25));
-	SqrTanFOVq *= SqrTanFOVq;
-
 	// Convert UV to Radial Coordinates
 	float2 SphCoord = texcoord * 2.0 - 1.0;
 	// Aspect Ratio correction
@@ -104,7 +101,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	SphCoord *= Zooming / FovType;
 
 	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type pass 2 of 2
-	SphCoord *= Formula(SqrTanFOVq, float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
+	SphCoord *= Formula(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
 
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
