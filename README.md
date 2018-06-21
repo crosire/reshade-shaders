@@ -2,6 +2,7 @@ ReShade FX shaders
 ==================
 
 This repository aims to collect post-processing shaders written in the ReShade FX shader language.
+To get ReShade, visit https://reshade.me
 
 Installation
 ------------
