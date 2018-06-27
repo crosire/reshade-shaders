@@ -153,8 +153,10 @@ Annotations are also used to request special runtime values:
  True if specified keycode (in this case the spacebar) is pressed and false otherwise.
  If mode is set to "press" the value is true only in the frame the key was initially held down.
  If mode is set to "toggle" the value stays true until the key is pressed a second time.
- * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; toggle = false; >;``  
- True if specified mouse button (0 - 4) is pressed and false otherwise. If toggle is true the value stays true until the key is pressed a second time.
+ * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; mode = ""; >;``  
+ True if specified mouse button (0 - 4) is pressed and false otherwise.
+ If mode is set to "press" the value is true only in the frame the key was initially held down.
+ If mode is set to "toggle" the value stays true until the key is pressed a second time.
  * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
  Gets the position of the mouse cursor in screen coordinates.
  * ``uniform float2 mousedelta < source = "mousedelta"; >;``  
@@ -212,7 +214,7 @@ Parameter Qualifiers:
 
 Intrinsics:
 
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dgrad, tex2Dlod, tex2Dproj, transpose, trunc
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dgrad, tex2Dlod, tex2Dproj, transpose, trunc
 
 In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
 

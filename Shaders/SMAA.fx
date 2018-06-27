@@ -15,7 +15,7 @@
 //------------------- Preprocessor Settings -------------------
 
 #ifndef SMAA_PREDICATION
- #define SMAA_PREDICATION		0      //[0 or 1] Enables predication which uses BOTH the color and the depth texture for edge detection to more accurately detect edges.
+ #define SMAA_PREDICATION		0      //[0 or 1] Enables predication which uses BOTH the color and the depth texture for edge detection.
 #endif
 
 //----------------------- UI Variables ------------------------

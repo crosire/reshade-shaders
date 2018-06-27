@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017, bacondither
+// Copyright (c) 2015-2018, bacondither
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Adaptive sharpen - version 2017-11-01
+// Adaptive sharpen - version 2018-04-14
 // EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float curve_height <
@@ -36,51 +36,61 @@ uniform float curve_height <
 uniform float curveslope <
 	ui_min = 0.01; ui_max = 2.0;
 	ui_tooltip = "Sharpening curve slope, high edge values";
+	ui_category = "Advanced";
 > = 0.5;
 
 uniform float L_overshoot <
 	ui_min = 0.001; ui_max = 0.1;
 	ui_tooltip = "Max light overshoot before compression";
+	ui_category = "Advanced";
 > = 0.003;
 
 uniform float L_compr_low <
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Light compression, default (0.167=~6x)";
+	ui_category = "Advanced";
 > = 0.167;
 
 uniform float L_compr_high <
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Light compression, surrounded by edges (0.334=~3x)";
+	ui_category = "Advanced";
 > = 0.334;
 
 uniform float D_overshoot <
 	ui_min = 0.001; ui_max = 0.1;
 	ui_tooltip = "Max dark overshoot before compression";
+	ui_category = "Advanced";
 > = 0.009;
 
 uniform float D_compr_low <
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Dark compression, default (0.250=4x)";
+	ui_category = "Advanced";
 > = 0.250;
 
 uniform float D_compr_high <
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Dark compression, surrounded by edges (0.500=2x)";
+	ui_category = "Advanced";
 > = 0.500;
 
 uniform float scale_lim <
 	ui_min = 0.01; ui_max = 1.0;
 	ui_tooltip = "Abs max change before compression";
+	ui_category = "Advanced";
 > = 0.1;
 
 uniform float scale_cs <
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Compression slope above scale_lim";
+	ui_category = "Advanced";
 > = 0.056;
 
 uniform float pm_p <
 	ui_min = 0.01; ui_max = 1.0;
 	ui_tooltip = "Power mean p-value";
+	ui_category = "Advanced";
 > = 0.7;
 
 //-------------------------------------------------------------------------------------------------
@@ -104,7 +114,7 @@ sampler AS_Pass0Sampler { Texture = AS_Pass0Tex; };
 #define getT(x,y)      ( tex2D(AS_Pass0Sampler, texc(x, y)).xy )
 
 // Soft if, fast linear approx
-#define soft_if(a,b,c) ( saturate((a + b + c + 0.06)*rcp(abs(maxedge) + 0.03) - 0.85) )
+#define soft_if(a,b,c) ( saturate((a + b + c + 0.056)*rcp(abs(maxedge) + 0.03) - 0.85) )
 
 // Soft limit, modified tanh
 #if (fast_ops == 1) // Tanh approx
@@ -154,15 +164,14 @@ float2 AdaptiveSharpenP0(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 	float luma = sqrt(dot(float3(0.2558, 0.6511, 0.0931), sqr(c[0])));
 
 	// Blur, gauss 3x3
-	float3 blur  = (2*(c[2]+c[4]+c[5]+c[7]) + (c[1]+c[3]+c[6]+c[8]) + 4*c[0])/16;
-	float blur_Y = (blur.r/3 + blur.g/3 + blur.b/3);
+	float3 blur = (2*(c[2]+c[4]+c[5]+c[7]) + (c[1]+c[3]+c[6]+c[8]) + 4*c[0])/16;
 
 	// Contrast compression, center = 0.5, scaled to 1/3
-	float c_comp = saturate(0.266666681f + 0.9*exp2(-7.4*blur_Y));
+	float c_comp = saturate(4.0/15.0 + 0.9*exp2(dot(blur, -37.0/15.0)));
 
 	// Edge detection
 	// Relative matrix weights
-	// [          1,         ]
+	// [          1          ]
 	// [      4,  5,  4      ]
 	// [  1,  5,  6,  5,  1  ]
 	// [      4,  5,  4      ]
@@ -383,7 +392,7 @@ float3 AdaptiveSharpenP1(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_
 
 	// Compensate for saturation loss/gain while making pixels brighter/darker
 	float sharpdiff_lim = saturate(d[0].y + sharpdiff) - d[0].y;
-	float satmul = (d[0].y + sharpdiff_lim + 0.03)/(d[0].y + 0.03);
+	float satmul = (d[0].y + max(sharpdiff_lim*0.9, sharpdiff_lim)*1.03 + 0.03)/(d[0].y + 0.03);
 	float3 res = d[0].y + (sharpdiff_lim*3 + sharpdiff)/4 + (origsat - d[0].y)*satmul;
 
 	return saturate(res);
