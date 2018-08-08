@@ -30,16 +30,6 @@
 #define Depth_Max 50
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
-//Stereopsis Output//
-uniform int Mode <
-	ui_type = "combo";
-	ui_items = "Reprojection L\0Reprojection R\0Reprojection L & R\0";
-	ui_label = "·Reprojection Mode·";
-	ui_tooltip = "Reprojection Mode changes the view output for this shader.\n"
-			     "Reproject L or R uses a lot less resoruses than L & R.\n"
-			     "Default is Reprojection of Left & Right Eyes.";
-	ui_category = "Stereopsis Output";
-> = 2;
 
 //Divergence & Convergence//
 uniform float Divergence <
@@ -150,7 +140,7 @@ uniform float Interlace_Optimization <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 0.5;
 	ui_label = " Interlace Optimization";
-	ui_tooltip = "Interlace Optimization Is used to reduce alisesing in a Line interlaced image.\n"
+	ui_tooltip = "Interlace Optimization Is used to reduce alisesing in a Line Interlaced image.\n"
 	             "This has the side effect of softening the image.\n"
 	             "Default is 0.25";
 	ui_category = "Stereoscopic Options";
@@ -267,20 +257,6 @@ float Lumi(in float2 texcoord : TEXCOORD0)
 	}
 	
 /////////////////////////////////////////////////////////////////////////////////Depth Map Information/////////////////////////////////////////////////////////////////////////////////
-float D()
-{
-	float D,D_Ammount = Divergence;
-	if(Mode == 2)
-	{
-		D = D_Ammount;
-	}
-	else
-	{
-		D = D_Ammount * 2.0;
-	}
-
-	return D;
-}
 
 float NearestScaled( float DM )
 {
@@ -396,7 +372,7 @@ float Conv(float DM_A,float DM_B,float2 texcoord)
 
 void  Disocclusion(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0)
 {
-float X, Y, Z, W = 1, A, DP = D(), Disocclusion_PowerA , AMoffset = 0.00285714, BMoffset = 0.09090909;
+float X, Y, Z, W = 1, A, DP = Divergence, Disocclusion_PowerA , AMoffset = 0.00285714, BMoffset = 0.09090909;
 float2 dirA, DM;
 
 	DP *= Disocclusion_Power_Adjust;
@@ -438,7 +414,7 @@ float2  Encode(in float2 texcoord : TEXCOORD0) //zBuffer Color Channel Encode
 	GetDepthL.x = Conv(GetDepthL.x,GetDepthL.y,texcoord);
 	GetDepthR.x = Conv(GetDepthR.x,GetDepthR.y,texcoord);
 	
-	float MS = D()*pix.x;
+	float MS = Divergence*pix.x;
 	
 	// X Left	
 	float X = texcoord.x+MS*GetDepthL.x;
@@ -466,13 +442,8 @@ float4 PS_calcLR(float2 texcoord)
 	
 	float DepthL = Znum, DepthR = Znum, N, S, L, R;
 	
-	//P is Perspective Adjustment,PD is Perspective Aliment for mode 0 & 1.
-	float P = Perspective * pix.x, PD = (D() * 0.5) * pix.x;
-	
-	if (Mode == 0)
-		texcoord.x = texcoord.x	- PD;	
-	else if (Mode == 1)
-		texcoord.x = texcoord.x	+ PD;	
+	//P is Perspective Adjustment.
+	float P = Perspective * pix.x;
 						
 	if(Eye_Swap)
 	{
@@ -524,43 +495,18 @@ float4 PS_calcLR(float2 texcoord)
 	}
 	
 		[loop]
-		for (int i = 0; i < D() + 0.5; i++) 
+		for (int i = 0; i < Divergence + 0.5; i++) 
 		{
-			if(Mode == 0)
+			//L
+			if ( Encode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x) )
 			{
-				//L
-				if ( Encode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x))
-				{
-					DepthL = i * pix.x; //Good
-				}
-				
-				DepthR = 0;
-			}	
-			
-			if(Mode == 1)
-			{
-				DepthL = 0;
-				
-				//R
-				if ( Encode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x )
-				{
-					DepthR = i * pix.x; //Good
-				}
+				DepthL = i * pix.x; //Good
 			}
 			
-			if(Mode == 2)
+			//R
+			if ( Encode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x )
 			{
-				//L
-				if ( Encode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x) )
-				{
-					DepthL = i * pix.x; //Good
-				}
-				
-				//R
-				if ( Encode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x )
-				{
-					DepthR = i * pix.x; //Good
-				}
+				DepthR = i * pix.x; //Good
 			}
 		}				
 
