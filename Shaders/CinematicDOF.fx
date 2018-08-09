@@ -288,129 +288,6 @@ namespace CinematicDOF
 		return (pixelDepth < focusInfo.focusDepth) ? 0 - toReturn : toReturn;
 	}
 
-	// Calculates the new RGBA fragment for a pixel at texcoord in source using a disc based blur technique described in [Jimenez2014] (Though without using tiles)
-	// Function is used in main blur phase, the pre-blur phase (where here a multi-disc pass is used and where Jimenez uses a single disc pass) which 
-	// blurs only the far plane. 
-	// Performance only depends on # of rings, controlled by the BlurQuality UI option.
-	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
-	//		radiusFactor, the factor to apply to the disc radii for the samples read. Used in pre-blur which uses a smaller radius
-	// 		source, the source buffer to read RGBA data from
-	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source.
-	float4 PerformDiscBlur(VSDISCBLURINFO blurInfo, float radiusFactor, sampler2D source)
-	{
-		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
-		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
-		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
-		float absoluteFragmentRadius = abs(signedFragmentRadius);
-		// we'll not process near plane fragments as they're processed in a separate pass. 
-		if(signedFragmentRadius < 0)
-		{
-			// near plane fragment, will be done in near plane pass 
-			return fragment;
-		}
-		
-		// as the disc radii are [-1, 1] we can't use them directly as radii for discs to gather with. We have to make a mapping between [0-1]
-		// and the max blur range we want to support. Say we want to have a max blur range of 5% of the screen (so 0.05). 
-		// which is on a 1080p screen 96 pixels. So we lerp between 0 and 0.05 with the disc size (which can be max 1.0)
-		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
-		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
-		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
-		float3 averageMax = average.xyz;
-		float maxLuma = 0;
-		float2 pointOffset = float2(0,0);
-		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
-		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
-		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
-		{
-			float pointsOnRing = ringIndex * pointsFirstRing;
-			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
-			float anglePerPoint = 6.28318530717958 / pointsOnRing;
-			float ringWeight = (blurInfo.numberOfRings-ringIndex);
-			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
-			{
-				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
-				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
-				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
-				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if(signedSampleRadius <= 0)
-				{
-					// The tap is in the near plane, so we'll ignore it, as near plane fragments handling is done in another pass if this is the main blur phase
-					continue;
-				}
-				float4 tap = tex2Dlod(source, tapCoords);
-				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
-				// different setups, I can only conclude: nothing is. 
-				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
-				average.xyz += tap.xyz * weight;
-				average.w += weight;
-				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
-				// If sample is brighter than the current max, we promote it as the max to bleed out as a highlight. 
-				// Dim highlight using Karis average [Jimenez2014] a bit to fight fireflies. 
-				if(luma > HighlightThreshold && luma > maxLuma)
-				{
-					averageMax = tap.xyz * (1.0 / 0.2 * luma) * 3;
-					maxLuma=luma;
-				}
-			}
-		}
-		fragment.xyz = average.xyz/average.w;
-		// we use a highlight gain which is too high in the UI but it gives better control over the highlights by the user hence the div 10
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10));
-		return fragment;
-	}
-
-
-	// Same as PerformDiscBlur but this version is for the pre-blur. It's factored out to have a more streamlined function instead of a lot of if()
-	// expressions in the code. 
-	// Performance only depends on # of rings, controlled by the BlurQuality UI option.
-	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
-	//		radiusFactor, the factor to apply to the disc radii for the samples read. Used in pre-blur which uses a smaller radius
-	// 		source, the source buffer to read RGBA data from
-	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source.
-	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, float radiusFactor, sampler2D source)
-	{
-		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
-		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
-		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
-		float absoluteFragmentRadius = abs(signedFragmentRadius);
-		bool isNearPlaneFragment = signedFragmentRadius < 0;
-
-		// pre blur blurs near plane fragments with near plane samples and far plane fragments with far plane samples [Jimenez2014].
-		float radiusInPixels = lerp(0.0, isNearPlaneFragment ? blurInfo.nearPlaneMaxBlurInPixels : blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
-		float2 pointOffset = float2(0,0);
-		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
-		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
-		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
-		{
-			float pointsOnRing = ringIndex * pointsFirstRing;
-			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
-			float anglePerPoint = 6.28318530717958 / pointsOnRing;
-			float ringWeight = (blurInfo.numberOfRings-ringIndex);
-			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
-			{
-				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
-				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
-				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
-				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if((signedSampleRadius <= 0 && !isNearPlaneFragment) || (signedSampleRadius > 0 && isNearPlaneFragment))
-				{
-					// The tap is in a different plane than the fragment, ignore it. 
-					continue;
-				}
-				float4 tap = tex2Dlod(source, tapCoords);
-				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
-				// different setups, I can only conclude: nothing is. 
-				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
-				average.xyz += tap.xyz * weight;
-				average.w += weight;
-			}
-		}
-		fragment.xyz = average.xyz/average.w;
-		return fragment;
-	}
-
 
 	// Same as PerformDiscBlur but this time for the near plane. It's in a separate function to avoid a lot of if/switch statements as
 	// the near plane blur requires different semantics. For comments on the code, see PerformDiscBlur.
@@ -469,10 +346,135 @@ namespace CinematicDOF
 			}
 		}
 		fragment.xyz = average.xyz/average.w;
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10));
+		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10) * saturate(fragmentRadius * blurInfo.numberOfRings * 0.5));
 		return fragment;
 	}
 
+	
+	// Calculates the new RGBA fragment for a pixel at texcoord in source using a disc based blur technique described in [Jimenez2014] (Though without using tiles)
+	// Function is used in main blur phase, the pre-blur phase (where here a multi-disc pass is used and where Jimenez uses a single disc pass) which 
+	// blurs only the far plane. 
+	// Performance only depends on # of rings, controlled by the BlurQuality UI option.
+	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
+	//		radiusFactor, the factor to apply to the disc radii for the samples read. Used in pre-blur which uses a smaller radius
+	// 		source, the source buffer to read RGBA data from
+	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source.
+	float4 PerformDiscBlur(VSDISCBLURINFO blurInfo, float radiusFactor, sampler2D source)
+	{
+		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
+		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
+		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
+		float absoluteFragmentRadius = abs(signedFragmentRadius);
+		// we'll not process near plane fragments as they're processed in a separate pass. 
+		if(signedFragmentRadius <= 0)
+		{
+			// near plane fragment, will be done in near plane pass 
+			return fragment;
+		}
+		
+		// as the disc radii are [-1, 1] we can't use them directly as radii for discs to gather with. We have to make a mapping between [0-1]
+		// and the max blur range we want to support. Say we want to have a max blur range of 5% of the screen (so 0.05). 
+		// which is on a 1080p screen 96 pixels. So we lerp between 0 and 0.05 with the disc size (which can be max 1.0)
+		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
+		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
+		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
+		float4 average = float4(fragment.xyz, 1.0);
+		float3 averageMax = average.xyz;
+		float maxLuma = 0;
+		float2 pointOffset = float2(0,0);
+		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
+		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
+		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
+		{
+			float pointsOnRing = ringIndex * pointsFirstRing;
+			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
+			float anglePerPoint = 6.28318530717958 / pointsOnRing;
+			float ringWeight = (blurInfo.numberOfRings-ringIndex);
+			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
+			{
+				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
+				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
+				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
+				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
+				if(signedSampleRadius < 0)
+				{
+					// The tap is in the near plane, so we'll ignore it, as near plane fragments handling is done in another pass if this is the main blur phase
+					continue;
+				}
+				float4 tap = tex2Dlod(source, tapCoords);
+				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
+				// different setups, I can only conclude: nothing is. 
+				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
+				average.xyz += tap.xyz * weight;
+				average.w += weight;
+				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
+				// If sample is brighter than the current max, we promote it as the max to bleed out as a highlight. 
+				// Dim highlight using Karis average [Jimenez2014] a bit to fight fireflies. 
+				if(luma > HighlightThreshold && luma > maxLuma)
+				{
+					averageMax = tap.xyz * (1.0 / 0.2 * luma) * 3;
+					maxLuma=luma;
+				}
+			}
+		}
+		fragment.xyz = average.xyz/average.w;
+		// we use a highlight gain which is too high in the UI but it gives better control over the highlights by the user hence the div 10
+		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10) * saturate(absoluteFragmentRadius*blurInfo.numberOfRings * 2));
+		return fragment;
+	}
+
+
+	// Same as PerformDiscBlur but this version is for the pre-blur. It's factored out to have a more streamlined function instead of a lot of if()
+	// expressions in the code. 
+	// Performance only depends on # of rings, controlled by the BlurQuality UI option.
+	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
+	//		radiusFactor, the factor to apply to the disc radii for the samples read. Used in pre-blur which uses a smaller radius
+	// 		source, the source buffer to read RGBA data from
+	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source.
+	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, float radiusFactor, sampler2D source)
+	{
+		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
+		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
+		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
+		float absoluteFragmentRadius = abs(signedFragmentRadius);
+		bool isNearPlaneFragment = signedFragmentRadius < 0;
+
+		// pre blur blurs near plane fragments with near plane samples and far plane fragments with far plane samples [Jimenez2014].
+		float radiusInPixels = lerp(0.0, isNearPlaneFragment ? blurInfo.nearPlaneMaxBlurInPixels : blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
+		float4 average = float4(fragment.xyz, 1.0);
+		float2 pointOffset = float2(0,0);
+		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
+		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
+		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
+		{
+			float pointsOnRing = ringIndex * pointsFirstRing;
+			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
+			float anglePerPoint = 6.28318530717958 / pointsOnRing;
+			float ringWeight = (blurInfo.numberOfRings-ringIndex);
+			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
+			{
+				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
+				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
+				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
+				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
+				if((signedSampleRadius <= 0 && !isNearPlaneFragment) || (signedSampleRadius > 0 && isNearPlaneFragment))
+				{
+					// The tap is in a different plane than the fragment, ignore it. 
+					continue;
+				}
+				float4 tap = tex2Dlod(source, tapCoords);
+				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
+				// different setups, I can only conclude: nothing is. 
+				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
+				average.xyz += tap.xyz * weight;
+				average.w += weight;
+			}
+		}
+		fragment.xyz = average.xyz/average.w;
+		return fragment;
+	}
+
+	
 	// Function to obtain the blur disc radius from the source sampler specified and optionally flatten it to zero. Used to blur the blur disc radii using a 
 	// separated gaussian blur function.
 	// In:	source, the source to read the blur disc radius value to process from
@@ -544,7 +546,8 @@ namespace CinematicDOF
 		return saturate(fragment);
 	}
 
-	
+	// Functions which fills the passed in struct with focus data. This code is factored out to be able to call it either from a vertex shader
+	// (in d3d10+) or from a pixel shader (d3d9) to work around compilation issues in reshade.
 	void FillFocusInfoData(inout VSFOCUSINFO toFill)
 	{
 		// Reshade depth buffer ranges from 0.0->1.0, where 1.0 is 1000 in world units. All camera element sizes are in mm, so we state 1 in world units is 
