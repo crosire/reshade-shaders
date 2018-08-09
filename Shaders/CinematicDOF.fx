@@ -32,8 +32,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
-// 08-aug-2018:		v1.0.1, namespace addition for samplers/textures.
-// 08-aug-2018:		v1.0, beta. Feature complete. 
+// 09-aug-2018:		v1.0.2: Added workaround for d3d9 glitch in reshade 3.4.
+// 08-aug-2018:		v1.0.1: namespace addition for samplers/textures.
+// 08-aug-2018:		v1.0.0: beta. Feature complete. 
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Additional credits:
@@ -543,6 +544,25 @@ namespace CinematicDOF
 		return saturate(fragment);
 	}
 
+	
+	void FillFocusInfoData(inout VSFOCUSINFO toFill)
+	{
+		// Reshade depth buffer ranges from 0.0->1.0, where 1.0 is 1000 in world units. All camera element sizes are in mm, so we state 1 in world units is 
+		// 1 meter. This means to calculate from the linearized depth buffer value to meter we have to multiply by 1000.
+		// Manual focus value is already in meter (well, sort of. This differs per game so we silently assume it's meter), so we first divide it by
+		// 1000 to make it equal to a depth value read from the depth linearized depth buffer.
+		float2 autoFocusPointToUse = UseMouseDrivenAutoFocus ? MouseCoords * ReShade::PixelSize : AutoFocusPoint;
+		toFill.focusDepth = UseAutoFocus ? ReShade::GetLinearizedDepth(autoFocusPointToUse) : (ManualFocusPlane / 1000);
+		toFill.focusDepthInM = toFill.focusDepth * 1000.0; 		// km to m
+		toFill.focusDepthInMM = toFill.focusDepthInM * 1000.0; 	// m to mm
+		toFill.pixelSizeLength = length(ReShade::PixelSize);
+		
+		// HyperFocal calculation, see https://photo.stackexchange.com/a/33898. Useful to calculate the edges of the depth of field area
+		float hyperFocal = (FocalLength * FocalLength) / (FNumber * SENSOR_SIZE);
+		float hyperFocalFocusDepthFocus = (hyperFocal * toFill.focusDepthInMM);
+		toFill.nearPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal + ((toFill.focusDepthInMM) - FocalLength));	// in mm
+		toFill.farPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal - ((toFill.focusDepthInMM) - FocalLength));		// in mm
+	}
 
 	//////////////////////////////////////////////////
 	//
@@ -550,6 +570,7 @@ namespace CinematicDOF
 	//
 	//////////////////////////////////////////////////
 
+	
 	// Vertex shader which is used to calculate per-frame static focus info so it's not done per pixel, but only per vertex. 
 	VSFOCUSINFO VS_Focus(in uint id : SV_VertexID)
 	{
@@ -558,22 +579,18 @@ namespace CinematicDOF
 		focusInfo.texcoord.x = (id == 2) ? 2.0 : 0.0;
 		focusInfo.texcoord.y = (id == 1) ? 2.0 : 0.0;
 		focusInfo.vpos = float4(focusInfo.texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
-		
-		// Reshade depth buffer ranges from 0.0->1.0, where 1.0 is 1000 in world units. All camera element sizes are in mm, so we state 1 in world units is 
-		// 1 meter. This means to calculate from the linearized depth buffer value to meter we have to multiply by 1000.
-		// Manual focus value is already in meter (well, sort of. This differs per game so we silently assume it's meter), so we first divide it by
-		// 1000 to make it equal to a depth value read from the depth linearized depth buffer.
-		float2 autoFocusPointToUse = UseMouseDrivenAutoFocus ? MouseCoords * ReShade::PixelSize : AutoFocusPoint;
-		focusInfo.focusDepth =  UseAutoFocus ? ReShade::GetLinearizedDepth(autoFocusPointToUse) : (ManualFocusPlane / 1000);
-		focusInfo.focusDepthInM = focusInfo.focusDepth * 1000.0; 		// km to m
-		focusInfo.focusDepthInMM = focusInfo.focusDepthInM * 1000.0; 	// m to mm
-		focusInfo.pixelSizeLength = length(ReShade::PixelSize);
-		
-		// HyperFocal calculation, see https://photo.stackexchange.com/a/33898. Useful to calculate the edges of the depth of field area
-		float hyperFocal = (FocalLength * FocalLength) / (FNumber * SENSOR_SIZE);
-		float hyperFocalFocusDepthFocus = (hyperFocal * focusInfo.focusDepthInMM);
-		focusInfo.nearPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal + ((focusInfo.focusDepthInMM) - FocalLength));	// in mm
-		focusInfo.farPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal - ((focusInfo.focusDepthInMM) - FocalLength));		// in mm
+
+#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+		// fill in dummies, will be filled in pixel shader. Less fast but it is what it is...
+		focusInfo.focusDepth = 0;
+		focusInfo.focusDepthInM = 0;
+		focusInfo.focusDepthInMM = 0;
+		focusInfo.pixelSizeLength = 0;
+		focusInfo.nearPlaneInMM = 0;
+		focusInfo.farPlaneInMM = 0;
+#else
+		FillFocusInfoData(focusInfo);
+#endif
 		return focusInfo;
 	}
 
@@ -602,6 +619,9 @@ namespace CinematicDOF
 	// Pixel shader which produces a blur disc radius for each pixel and returns the calculated value. 
 	void PS_Focus(VSFOCUSINFO focusInfo, out float fragment : SV_Target0)
 	{
+#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+		FillFocusInfoData(focusInfo);
+#endif
 		fragment = CalculateBlurDiscSize(focusInfo);
 	}
 
@@ -672,6 +692,9 @@ namespace CinematicDOF
 	// as normal. It then also blends the focus plane as a separate color to make focusing really easy. 
 	void PS_FocusHelper(in VSFOCUSINFO focusInfo, out float4 fragment : SV_Target0)
 	{
+#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+		FillFocusInfoData(focusInfo);
+#endif
 		fragment = tex2D(SamplerCDBuffer3, focusInfo.texcoord);
 		if(ShowOutOfFocusPlaneOnMouseDown && LeftMouseDown)
 		{
