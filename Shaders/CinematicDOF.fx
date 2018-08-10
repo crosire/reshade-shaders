@@ -81,7 +81,8 @@ namespace CinematicDOF
 		ui_category = "Focusing";
 		ui_label = "Auto-focus point";
 		ui_type = "drag";
-		ui_min = 0.0; ui_max = 1.0;
+		ui_step = 0.001;
+		ui_min = 0.000; ui_max = 1.000;
 		ui_tooltip = "The X and Y coordinates of the auto-focus point. 0,0 is the upper left corner,\nand 0.5, 0.5 is at the center of the screen. Only used if 'Use auto focus' is enabled.";
 	> = float2(0.5, 0.5);
 	uniform float ManualFocusPlane <
