@@ -43,8 +43,8 @@ uniform float Divergence <
 > = 25.0;
 
 uniform bool ZPD_GUIDE <
-	ui_label = " ZPD GUIDE";
-	ui_tooltip = "A Guide used to Adjust Convergence.";
+	ui_label = " ZPD Guide";
+	ui_tooltip = "A Guide used to help adjust convergence.";
 	ui_category = "Divergence & Convergence";
 > = false;
 
@@ -53,9 +53,10 @@ uniform float ZPD <
 	ui_min = 0.0; ui_max = 0.100;
 	ui_label = " Zero Parallax Distance";
 	ui_tooltip = "ZPD controls the focus distance for the screen Pop-out effect also known as Convergence.\n"
-				"For FPS Games keeps this low Since you don't want your gun to pop out of screen.\n"
-				"If you want to push this higher you need to adjust your weapon hand below.\n"
-				"Default is 0.010, Zero is off.";
+				 "For FPS Games keeps this low Since you don't want your gun to pop out of screen.\n"
+				 "If you want to push this higher you need to adjust your weapon hand below.\n"
+				 "It helps to keep this around 0.03 when adjusting the depth map or weapon.\n"
+				 "Default is 0.010, Zero is off.";
 	ui_category = "Divergence & Convergence";
 > = 0.010;
 
@@ -114,8 +115,8 @@ uniform int Weapon_Scale <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 2;
 	ui_label = " Weapon Scale";
-	ui_tooltip = "Use this to target the weapon hand in world.";
-	ui_category = "Weapon Depth Map";
+	ui_tooltip = "Use this to set the proper weapon hand scale.";
+	ui_category = "Weapon Hand Adjust";
 > = 0;
 
 uniform float3 Weapon_Adjust <
@@ -123,8 +124,11 @@ uniform float3 Weapon_Adjust <
 	ui_min = 0.0; ui_max = 10.0;
 	ui_label = " Weapon Hand Adjust";
 	ui_tooltip = "Adjust Weapon depth map for your games.\n"
-	             "Default is float3(CutOff  is 0.0 Off,Power is 2.0,Trim is 1.5).";
-	ui_category = "Weapon Depth Map";
+				 "X, The CutOff point used to set a diffrent depth scale for first person view.\n"
+				 "Y, The Power needed to scale the first person view apart from world scale.\n"
+				 "Z, Adjust is used to fine tune the first person view scale.\n"
+	             "Default is float3(X 0.0, Y 2.0, Z 1.5).";
+	ui_category = "Weapon Hand Adjust";
 > = float3(0.0,2.0,1.5);
 
 //Stereoscopic Options//
@@ -166,13 +170,14 @@ uniform float Perspective <
 	ui_type = "drag";
 	ui_min = -100; ui_max = 100;
 	ui_label = " Perspective Slider";
-	ui_tooltip = "Determines the perspective point. Default is 0";
+	ui_tooltip = "Determines the perspective point of your stereo pair.\n"
+				 "Default is 0.0";
 	ui_category = "Stereoscopic Options";
 > = 0;
 
 uniform bool Eye_Swap <
 	ui_label = " Swap Eyes";
-	ui_tooltip = "L/R to R/L.";
+	ui_tooltip = "Left : Right to Right : Left.";
 	ui_category = "Stereoscopic Options";
 > = false;
 
@@ -260,41 +265,36 @@ float Lumi(in float2 texcoord : TEXCOORD0)
 
 float NearestScaled( float DM )
 {
-	float NearestScaled, ScaleAdjust, TrasformAdjust;
+	float WDM = DM, Nearest_Scaled = Weapon_Adjust.y, Scale_Adjust = Weapon_Adjust.z,CutOff = Weapon_Adjust.x/100, Set_Scale;
 	
 	if (Weapon_Scale == 0)
 	{
-		NearestScaled = 0.001/(Weapon_Adjust.y*0.5);
-		ScaleAdjust = Weapon_Adjust.z * 1.5;
-		TrasformAdjust = 7.5;
+		Nearest_Scaled = 0.001/(Nearest_Scaled*0.5);
+		Scale_Adjust = Scale_Adjust * 1.5;
+		Set_Scale = 7.5;
 	}
 	else if (Weapon_Scale == 1)
 	{
-		NearestScaled = 0.0001/(Weapon_Adjust.y*0.5);
-		ScaleAdjust = Weapon_Adjust.z * 6.25;
-		TrasformAdjust = 3.75;
+		Nearest_Scaled = 0.0001/(Nearest_Scaled*0.5);
+		Scale_Adjust = Scale_Adjust * 6.25;
+		Set_Scale = 5.625;
 	}
 	else if (Weapon_Scale == 2)
 	{
-		NearestScaled = 0.00001/(Weapon_Adjust.y*0.5);
-		ScaleAdjust = Weapon_Adjust.z * 50.0;
-		TrasformAdjust = 1.0;
+		Nearest_Scaled = 0.00001/(Nearest_Scaled*0.5);
+		Scale_Adjust = Scale_Adjust * 50.0;
+		Set_Scale = 3.75;
 	}
-	
-	DM = (smoothstep(0,1,DM) / NearestScaled ) - ScaleAdjust;
-	
-	float Far = 1, Near = 0.125/TrasformAdjust; //Division Depth Map Adjust - Near
-	
-	DM = Far * Near / (Far + DM * (Near - Far));
-	
-    return  DM;
-}
 
-float NearestScaledMerge( float DM )
-{
-		float Merge = lerp(DM,NearestScaled(DM),step(DM,Weapon_Adjust.x/100));
-		Merge = lerp(Merge,DM,0.250);
-		return  Merge;
+	WDM = (smoothstep(0,1,WDM) / Nearest_Scaled ) - Scale_Adjust;
+	
+	float Far = 1, Near = 0.125/Set_Scale;
+	
+	WDM = Far * Near / (Far + WDM * (Near - Far));
+    
+	float Merge = lerp(DM,WDM,step(DM,CutOff)); //Cutoff point
+	Merge = lerp(Merge,DM,0.250);
+	return  Merge;
 }
 
 void DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 Color : SV_Target)
@@ -330,10 +330,8 @@ void DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, 
 			DM.y = NormalReverseLocked;
 		}
 		
-		R = DM.x;
-		R = saturate(R);
-		G = NearestScaledMerge(DM.y);
-		//G = saturate(G);
+		R = saturate(DM.x);
+		G = saturate(NearestScaled(DM.y));
 	
 	Color = float4(R,G,B,A);
 }
@@ -408,19 +406,15 @@ float2 dirA, DM;
 
 float2  Encode(in float2 texcoord : TEXCOORD0) //zBuffer Color Channel Encode
 {
-	float2 GetDepthL = tex2Dlod(SamplerDiso,float4(texcoord.x,texcoord.y,0,0)).xy;
-	float2 GetDepthR = tex2Dlod(SamplerDiso,float4(texcoord.x,texcoord.y,0,0)).xy;
+	float2 DM = tex2Dlod(SamplerDiso,float4(texcoord.x,texcoord.y,0,0)).xy, GetDepthL = DM, GetDepthR = DM;
 	
 	GetDepthL.x = Conv(GetDepthL.x,GetDepthL.y,texcoord);
 	GetDepthR.x = Conv(GetDepthR.x,GetDepthR.y,texcoord);
 	
 	float MS = Divergence*pix.x;
 	
-	// X Left	
-	float X = texcoord.x+MS*GetDepthL.x;
-
-	// Y Right
-	float Y = (1-texcoord.x)+MS*GetDepthR.x;	
+	// X Left & Y Right
+	float X = texcoord.x+MS*GetDepthL.x, Y = (1-texcoord.x)+MS*GetDepthR.x;
 	
 	return float2(X,Y);
 }
