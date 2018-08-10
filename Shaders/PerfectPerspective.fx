@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.2.7
+// Perfect Perspective PS ver. 2.2.8
 
   ////////////////////
  /////// MENU ///////
@@ -24,7 +24,8 @@ uniform int FOV <
 
 uniform float Vertical <
 	ui_label = "Vertical Amount";
-	ui_tooltip = "0.0 - cylindrical projection, 1.0 - spherical";
+	ui_tooltip = "0.0 - cylindrical projection \n"
+		"1.0 - spherical projection";
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_category = "Distortion";
@@ -32,7 +33,8 @@ uniform float Vertical <
 
 uniform int Type <
 	ui_label = "Type of FOV";
-	ui_tooltip = "If image bulges in movement, change it to Diagonal. When proportions are distorted, choose Vertical";
+	ui_tooltip = "If the image bulges in movement (too high FOV), change it to 'Diagonal' \n"
+		"When proportions are distorted at the periphery (too low FOV), choose 'Vertical'";
 	ui_type = "combo";
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
 	ui_category = "Distortion";
