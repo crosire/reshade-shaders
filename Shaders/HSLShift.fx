@@ -7,11 +7,6 @@
 
 // UI ELEMENTS /////////////////////////////////////
 ////////////////////////////////////////////////////
-  uniform bool EnableHSL <
-    	ui_category = " \n";
-    	ui_label = "Toggle HSL";
-  > = true;
-
   uniform float3 HUERed <
       ui_type = "color";
       ui_label="Red";
@@ -194,7 +189,6 @@
 // PIXEL SHADER ////////////////////////////////////
 ////////////////////////////////////////////////////
   float4	PS_HSLShift(float4 position : SV_Position, float2 txcoord : TexCoord) : SV_Target {
-      if (EnableHSL == 0) return tex2D(ReShade::BackBuffer, txcoord);
       return float4(HSLShift(tex2D(ReShade::BackBuffer, txcoord).rgb), 1.0);
   }
 
