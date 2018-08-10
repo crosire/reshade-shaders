@@ -183,12 +183,20 @@ namespace CinematicDOF
 		ui_tooltip = "The threshold for highlights. A pixel with a luminosity higher than this\nvalue is considered as a highlight";
 		ui_step = 0.01;
 	> = 0.0;
-	uniform float HighlightGain <
+	uniform float HighlightGainNearPlane <
 		ui_category = "Highlight tweaking";
-		ui_label = "Highlight gain";
+		ui_label = "Highlight gain in the near plane";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The gain for highlights. The higher the more a highlight gets brighter.";
+		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets brighter.";
+		ui_step = 0.01;
+	> = 0.0;
+	uniform float HighlightGainFarPlane <
+		ui_category = "Highlight tweaking";
+		ui_label = "Highlight gain in the far plane";
+		ui_type = "drag";
+		ui_min = 0.00; ui_max = 1.00;
+		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets brighter.";
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- DEBUG
@@ -346,7 +354,7 @@ namespace CinematicDOF
 			}
 		}
 		fragment.xyz = average.xyz/average.w;
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10) * saturate(fragmentRadius * blurInfo.numberOfRings * 0.5));
+		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGainNearPlane) * saturate(fragmentRadius*fragmentRadius));
 		return fragment;
 	}
 
@@ -412,14 +420,13 @@ namespace CinematicDOF
 				// Dim highlight using Karis average [Jimenez2014] a bit to fight fireflies. 
 				if(luma > HighlightThreshold && luma > maxLuma)
 				{
-					averageMax = tap.xyz * (1.0 / 0.2 * luma) * 3;
+					averageMax = tap.xyz * (1.0 / 0.2 * luma);
 					maxLuma=luma;
 				}
 			}
 		}
 		fragment.xyz = average.xyz/average.w;
-		// we use a highlight gain which is too high in the UI but it gives better control over the highlights by the user hence the div 10
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGain/10) * saturate(absoluteFragmentRadius*blurInfo.numberOfRings * 2));
+		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGainFarPlane) * saturate(4*absoluteFragmentRadius*absoluteFragmentRadius));
 		return fragment;
 	}
 
