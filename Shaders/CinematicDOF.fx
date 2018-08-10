@@ -39,6 +39,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Additional credits:
 // Gaussian blur code based on the Gaussian blur ReShade shader by Ioxa
+// Thanks to Daodan for the crosshair code in the focus helper.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // References:
 //
@@ -134,6 +135,13 @@ namespace CinematicDOF
 		ui_type= "color";
 		ui_tooltip = "Specifies the color of the focus plane rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.0, 0.0, 1.0);
+	
+	uniform float4 FocusCrosshairColor<
+		ui_category = "Focusing, overlay";
+		ui_label = "Focus crosshair color";
+		ui_type = "color";
+		ui_tooltip = "Specifies the color of the crosshair for the norma, non-mousedriven auto-focus.\nAuto-focus must be enabled\nMouse-driven auto-focus must be disabled";
+	> = float4(1.0, 0.0, 1.0, 1.0);
 	// ------------- BLUR TWEAKING
 	uniform float FarPlaneMaxBlur <
 		ui_category = "Blur tweaking";
@@ -724,6 +732,12 @@ namespace CinematicDOF
 				}
 			}
 			fragment = lerp(fragment, colorToBlend, OutOfFocusPlaneColorTransparency);
+			if(UseAutoFocus)
+			{
+				float2 focusPointCoords = UseMouseDrivenAutoFocus ? MouseCoords * ReShade::PixelSize : AutoFocusPoint;
+				fragment = lerp(fragment, FocusCrosshairColor, FocusCrosshairColor.w * saturate(exp(-BUFFER_WIDTH * length(focusInfo.texcoord - float2(focusPointCoords.x, focusInfo.texcoord.y)))));
+				fragment = lerp(fragment, FocusCrosshairColor, FocusCrosshairColor.w * saturate(exp(-BUFFER_HEIGHT * length(focusInfo.texcoord - float2(focusInfo.texcoord.x, focusPointCoords.y)))));
+			}
 		}
 	}
 
