@@ -135,13 +135,13 @@ namespace CinematicDOF
 		ui_type= "color";
 		ui_tooltip = "Specifies the color of the focus plane rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.0, 0.0, 1.0);
-	
 	uniform float4 FocusCrosshairColor<
 		ui_category = "Focusing, overlay";
 		ui_label = "Focus crosshair color";
 		ui_type = "color";
-		ui_tooltip = "Specifies the color of the crosshair for the norma, non-mousedriven auto-focus.\nAuto-focus must be enabled\nMouse-driven auto-focus must be disabled";
+		ui_tooltip = "Specifies the color of the crosshair for the auto-focus.\nAuto-focus must be enabled";
 	> = float4(1.0, 0.0, 1.0, 1.0);
+	
 	// ------------- BLUR TWEAKING
 	uniform float FarPlaneMaxBlur <
 		ui_category = "Blur tweaking";
