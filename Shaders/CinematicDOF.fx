@@ -570,8 +570,8 @@ namespace CinematicDOF
 		// HyperFocal calculation, see https://photo.stackexchange.com/a/33898. Useful to calculate the edges of the depth of field area
 		float hyperFocal = (FocalLength * FocalLength) / (FNumber * SENSOR_SIZE);
 		float hyperFocalFocusDepthFocus = (hyperFocal * toFill.focusDepthInMM);
-		toFill.nearPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal + ((toFill.focusDepthInMM) - FocalLength));	// in mm
-		toFill.farPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal - ((toFill.focusDepthInMM) - FocalLength));		// in mm
+		toFill.nearPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal + (toFill.focusDepthInMM - FocalLength));	// in mm
+		toFill.farPlaneInMM = hyperFocalFocusDepthFocus / (hyperFocal - (toFill.focusDepthInMM - FocalLength));		// in mm
 	}
 
 	//////////////////////////////////////////////////
@@ -711,7 +711,7 @@ namespace CinematicDOF
 			float depthPixelInMM = ReShade::GetLinearizedDepth(focusInfo.texcoord) * 1000.0 * 1000.0;
 			float coc = tex2D(SamplerCDFocus, focusInfo.texcoord).x;
 			float4 colorToBlend = fragment;
-			if(depthPixelInMM < focusInfo.nearPlaneInMM || depthPixelInMM > focusInfo.farPlaneInMM)
+			if(depthPixelInMM < focusInfo.nearPlaneInMM || (focusInfo.farPlaneInMM > 0 && depthPixelInMM > focusInfo.farPlaneInMM))
 			{
 				colorToBlend = float4(OutOfFocusPlaneColor, 1.0);
 			}
