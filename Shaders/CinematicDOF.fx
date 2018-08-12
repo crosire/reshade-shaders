@@ -32,6 +32,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
+//							Finetuned the near highlight extrapolation a bit. Removed highlight threshold as it ruined the blur
+// 10-aug-2018:		v1.0.3: Daodan's crosshair code added.
 // 09-aug-2018:		v1.0.2: Added workaround for d3d9 glitch in reshade 3.4.
 // 08-aug-2018:		v1.0.1: namespace addition for samplers/textures.
 // 08-aug-2018:		v1.0.0: beta. Feature complete. 
@@ -184,14 +187,6 @@ namespace CinematicDOF
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- HIGHLIGHT TWEAKING
-	uniform float HighlightThreshold <
-		ui_category = "Highlight tweaking";
-		ui_label = "Highlight threshold";
-		ui_type = "drag";
-		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The threshold for highlights. A pixel with a luminosity higher than this\nvalue is considered as a highlight";
-		ui_step = 0.01;
-	> = 0.0;
 	uniform float HighlightGainNearPlane <
 		ui_category = "Highlight tweaking";
 		ui_label = "Highlight gain in the near plane";
@@ -330,7 +325,8 @@ namespace CinematicDOF
 		
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
+		float weight = max(0.001, fragmentRadius);
+		float4 average = float4(fragment.xyz * weight, weight);
 		float3 averageMax = average.xyz;
 		float maxLuma = 0;
 		float2 pointOffset = float2(0,0);
@@ -351,13 +347,13 @@ namespace CinematicDOF
 				// [Hammon2007] formula to calculate the needed blur radius to use.
 				float sampleRadius = 2 * max(blurredRadius, originalRadius) - originalRadius;
 				float4 tap = tex2Dlod(source, tapCoords);
-				float weight = (numberOfRings-ringIndex) * saturate(abs(sampleRadius)*fragmentRadius);
+				weight = (numberOfRings-ringIndex) * saturate(abs(sampleRadius)*fragmentRadius);
 				average.xyz += tap.xyz * weight;
 				average.w += weight;
 				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
-				if(luma > HighlightThreshold && luma>maxLuma)
+				if(luma>maxLuma)
 				{
-					averageMax = tap.xyz * (1.0 / 0.2 * luma) * 3;
+					averageMax = tap.xyz * (1.0 / 0.2 * luma);
 					maxLuma=luma;
 				}
 			}
@@ -395,7 +391,8 @@ namespace CinematicDOF
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
 		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
+		float weight = max(0.0001, absoluteFragmentRadius);
+		float4 average = float4(fragment.xyz * weight, weight);
 		float3 averageMax = average.xyz;
 		float maxLuma = 0;
 		float2 pointOffset = float2(0,0);
@@ -421,13 +418,13 @@ namespace CinematicDOF
 				float4 tap = tex2Dlod(source, tapCoords);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
+				weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
 				average.xyz += tap.xyz * weight;
 				average.w += weight;
 				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
 				// If sample is brighter than the current max, we promote it as the max to bleed out as a highlight. 
 				// Dim highlight using Karis average [Jimenez2014] a bit to fight fireflies. 
-				if(luma > HighlightThreshold && luma > maxLuma)
+				if(luma > maxLuma)
 				{
 					averageMax = tap.xyz * (1.0 / 0.2 * luma);
 					maxLuma=luma;
@@ -599,7 +596,7 @@ namespace CinematicDOF
 		focusInfo.texcoord.y = (id == 1) ? 2.0 : 0.0;
 		focusInfo.vpos = float4(focusInfo.texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 
-#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
 		// fill in dummies, will be filled in pixel shader. Less fast but it is what it is...
 		focusInfo.focusDepth = 0;
 		focusInfo.focusDepthInM = 0;
@@ -638,7 +635,7 @@ namespace CinematicDOF
 	// Pixel shader which produces a blur disc radius for each pixel and returns the calculated value. 
 	void PS_Focus(VSFOCUSINFO focusInfo, out float fragment : SV_Target0)
 	{
-#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400		// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
 		FillFocusInfoData(focusInfo);
 #endif
 		fragment = CalculateBlurDiscSize(focusInfo);
@@ -711,7 +708,7 @@ namespace CinematicDOF
 	// as normal. It then also blends the focus plane as a separate color to make focusing really easy. 
 	void PS_FocusHelper(in VSFOCUSINFO focusInfo, out float4 fragment : SV_Target0)
 	{
-#if __RENDERER__ == 0x9300	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
 		FillFocusInfoData(focusInfo);
 #endif
 		fragment = tex2D(SamplerCDBuffer3, focusInfo.texcoord);
