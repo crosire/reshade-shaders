@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 17-aug-2018:		v1.0.5: Much better highlighting, higher range for manual focus
 // 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
 //							Finetuned the near highlight extrapolation a bit. Removed highlight threshold as it ruined the blur
 // 10-aug-2018:		v1.0.3: Daodan's crosshair code added.
