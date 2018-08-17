@@ -41,6 +41,7 @@ uniform int Ascii_spacing <
 	ui_category = "Font style";
 > = 1;
 
+/*
 uniform int Ascii_font <
 	ui_type = "drag";
 	ui_min = 1;
@@ -49,16 +50,16 @@ uniform int Ascii_font <
 	ui_tooltip = "1 = 5x5 font, 2 = 3x5 font";
 	ui_category = "Font style";
 > = 1;
+*/
 
-/*
 uniform int Ascii_font <
 	ui_type = "combo";
 	ui_label = "Font Size";
 	ui_tooltip = "1 = 5x5 font, 2 = 3x5 font";
 	ui_category = "Font style";
-	ui_items = "5x5 font\03x5 font\0";
+	ui_items = "Normal 5x5 font\0Smaller 3x5 font\0";
 > = 1;
-*/
+
 
 uniform int Ascii_font_color_mode < 
 	ui_type = "drag";
