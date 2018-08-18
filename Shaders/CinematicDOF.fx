@@ -350,9 +350,8 @@ namespace CinematicDOF
 		
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
-		float3 averageMax = average.xyz;
-		float maxLuma = 0;
+		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -362,6 +361,7 @@ namespace CinematicDOF
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (numberOfRings-ringIndex);
+			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
 				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
@@ -373,8 +373,8 @@ namespace CinematicDOF
 				float4 tap = tex2Dlod(source, tapCoords);
 				
 				float absoluteSampleRadius = abs(sampleRadius);
-				float weight = lerp(1, ringIndex/blurInfo.numberOfRings, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
-				float threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
+				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
 				average.xyz += (tap.xyz + lerp(float3(0, 0, 0), tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
 			}
@@ -411,7 +411,8 @@ namespace CinematicDOF
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
 		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
-		float4 average = float4(fragment.xyz, 1.0);
+		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * absoluteFragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -421,6 +422,7 @@ namespace CinematicDOF
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (blurInfo.numberOfRings-ringIndex);
+			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
 				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
@@ -436,13 +438,13 @@ namespace CinematicDOF
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
 				float absoluteSampleRadius = abs(signedSampleRadius);
-				float weight = lerp(1, ringIndex/blurInfo.numberOfRings, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius);
-				float threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
-				average.xyz += (tap.xyz + lerp(float3(0, 0, 0), tap.xyz, threshold * absoluteSampleRadius)) * weight;
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius);
+				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
+				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
 			}
 		}
-		fragment.xyz = average.xyz/average.w;
+		fragment.xyz = average.xyz/(average.w + (average.w==0));
 		return fragment;
 	}
 
