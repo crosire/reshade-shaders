@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 17-aug-2018:		v1.0.5: Much better highlighting, higher range for manual focus
 // 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
 //							Finetuned the near highlight extrapolation a bit. Removed highlight threshold as it ruined the blur
 // 10-aug-2018:		v1.0.3: Daodan's crosshair code added.
@@ -93,7 +94,7 @@ namespace CinematicDOF
 		ui_category = "Focusing";
 		ui_label= "Manual-focus plane";
 		ui_type = "drag";
-		ui_min = 0.100; ui_max = 100.00;
+		ui_min = 0.100; ui_max = 150.00;
 		ui_step = 0.01;
 		ui_tooltip = "The depth of focal plane related to the camera when 'Use auto-focus' is off.\nOnly used if 'Use auto-focus' is disabled.";
 	> = 10.00;
@@ -187,20 +188,44 @@ namespace CinematicDOF
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- HIGHLIGHT TWEAKING
-	uniform float HighlightGainNearPlane <
+	uniform float HighlightEdgeBias <
 		ui_category = "Highlight tweaking";
-		ui_label = "Highlight gain in the near plane";
+		ui_label="Highlight edge bias";
 		ui_type = "drag";
-		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets brighter.";
+		ui_min = 0.00; ui_max = 2.00;
+		ui_tooltip = "The bias for the highlight: 0 means equally spread, 2 means everything is at the\nedge of the bokeh circle.";
 		ui_step = 0.01;
 	> = 0.0;
 	uniform float HighlightGainFarPlane <
-		ui_category = "Highlight tweaking";
-		ui_label = "Highlight gain in the far plane";
+		ui_category = "Highlight tweaking, far plane";
+		ui_label = "Highlight gain";
+		ui_type = "drag";
+		ui_min = 0.00; ui_max = 1000.00;
+		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_step = 1;
+	> = 0.0;
+	uniform float HighlightThresholdFarPlane <
+		ui_category = "Highlight tweaking, far plane";
+		ui_label="Highlight threshold";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets brighter.";
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
+		ui_step = 0.01;
+	> = 0.0;
+	uniform float HighlightGainNearPlane <
+		ui_category = "Highlight tweaking, near plane";
+		ui_label = "Highlight gain";
+		ui_type = "drag";
+		ui_min = 0.00; ui_max = 1000.00;
+		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_step = 1;
+	> = 0.0;
+	uniform float HighlightThresholdNearPlane <
+		ui_category = "Highlight tweaking, near plane";
+		ui_label="Highlight threshold";
+		ui_type = "drag";
+		ui_min = 0.00; ui_max = 1.00;
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- DEBUG
@@ -325,10 +350,8 @@ namespace CinematicDOF
 		
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
-		float weight = max(0.001, fragmentRadius);
-		float4 average = float4(fragment.xyz * weight, weight);
-		float3 averageMax = average.xyz;
-		float maxLuma = 0;
+		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -338,6 +361,7 @@ namespace CinematicDOF
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (numberOfRings-ringIndex);
+			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
 				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
@@ -347,19 +371,15 @@ namespace CinematicDOF
 				// [Hammon2007] formula to calculate the needed blur radius to use.
 				float sampleRadius = 2 * max(blurredRadius, originalRadius) - originalRadius;
 				float4 tap = tex2Dlod(source, tapCoords);
-				weight = (numberOfRings-ringIndex) * saturate(abs(sampleRadius)*fragmentRadius);
-				average.xyz += tap.xyz * weight;
+				
+				float absoluteSampleRadius = abs(sampleRadius);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
+				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
+				average.xyz += (tap.xyz + lerp(float3(0, 0, 0), tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
-				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
-				if(luma>maxLuma)
-				{
-					averageMax = tap.xyz * (1.0 / 0.2 * luma);
-					maxLuma=luma;
-				}
 			}
 		}
 		fragment.xyz = average.xyz/average.w;
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGainNearPlane) * saturate(fragmentRadius*fragmentRadius));
 		return fragment;
 	}
 
@@ -391,10 +411,8 @@ namespace CinematicDOF
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
 		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
-		float weight = max(0.0001, absoluteFragmentRadius);
-		float4 average = float4(fragment.xyz * weight, weight);
-		float3 averageMax = average.xyz;
-		float maxLuma = 0;
+		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * absoluteFragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -404,6 +422,7 @@ namespace CinematicDOF
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (blurInfo.numberOfRings-ringIndex);
+			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
 				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
@@ -418,21 +437,14 @@ namespace CinematicDOF
 				float4 tap = tex2Dlod(source, tapCoords);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
-				average.xyz += tap.xyz * weight;
+				float absoluteSampleRadius = abs(signedSampleRadius);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius);
+				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
+				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
-				float luma = dot(tap.xyz, float3(0.3, 0.59, 0.11));
-				// If sample is brighter than the current max, we promote it as the max to bleed out as a highlight. 
-				// Dim highlight using Karis average [Jimenez2014] a bit to fight fireflies. 
-				if(luma > maxLuma)
-				{
-					averageMax = tap.xyz * (1.0 / 0.2 * luma);
-					maxLuma=luma;
-				}
 			}
 		}
-		fragment.xyz = average.xyz/average.w;
-		fragment.xyz = lerp(fragment.xyz, averageMax, saturate(HighlightGainFarPlane) * saturate(4*absoluteFragmentRadius*absoluteFragmentRadius));
+		fragment.xyz = average.xyz/(average.w + (average.w==0));
 		return fragment;
 	}
 
