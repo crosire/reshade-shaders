@@ -375,7 +375,7 @@ namespace CinematicDOF
 				float absoluteSampleRadius = abs(sampleRadius);
 				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
 				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
-				average.xyz += (tap.xyz + lerp(float3(0, 0, 0), tap.xyz, threshold * absoluteSampleRadius)) * weight;
+				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
 			}
 		}
@@ -429,16 +429,12 @@ namespace CinematicDOF
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if(signedSampleRadius < 0)
-				{
-					// The tap is in the near plane, so we'll ignore it, as near plane fragments handling is done in another pass if this is the main blur phase
-					continue;
-				}
+				// an if statement here which skips the tap read altogether is slower than doing the read and multiplying with 1 or 0 depending on the boolean expression.
 				float4 tap = tex2Dlod(source, tapCoords);
+				float absoluteSampleRadius = abs(signedSampleRadius);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float absoluteSampleRadius = abs(signedSampleRadius);
-				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius) * (signedSampleRadius < 0 ? 0 : 1);
 				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
 				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
@@ -468,9 +464,9 @@ namespace CinematicDOF
 		float radiusInPixels = lerp(0.0, isNearPlaneFragment ? blurInfo.nearPlaneMaxBlurInPixels : blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
 		float4 average = float4(fragment.xyz, 1.0);
 		float2 pointOffset = float2(0,0);
-		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
+		float ringRadiusDeltaInPixels = radiusInPixels / ((blurInfo.numberOfRings-1) + (blurInfo.numberOfRings==1));
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
-		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
+		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings-1; ringIndex++)
 		{
 			float pointsOnRing = ringIndex * pointsFirstRing;
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
@@ -482,15 +478,10 @@ namespace CinematicDOF
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if((signedSampleRadius <= 0 && !isNearPlaneFragment) || (signedSampleRadius > 0 && isNearPlaneFragment))
-				{
-					// The tap is in a different plane than the fragment, ignore it. 
-					continue;
-				}
 				float4 tap = tex2Dlod(source, tapCoords);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
+				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius) * (((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius < 0 && isNearPlaneFragment)) ? 1 : 0);
 				average.xyz += tap.xyz * weight;
 				average.w += weight;
 			}
