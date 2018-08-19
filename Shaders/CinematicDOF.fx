@@ -201,7 +201,7 @@ namespace CinematicDOF
 		ui_label = "Highlight gain";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1000.00;
-		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold. Best results are\nachieved with bright spots in dark(er) backgrounds. Start with a high threshold to limit\nthe number of bright spots and then crank up this gain slowly to accentuate them.";
 		ui_step = 1;
 	> = 0.0;
 	uniform float HighlightThresholdFarPlane <
@@ -209,7 +209,7 @@ namespace CinematicDOF
 		ui_label="Highlight threshold";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.";
 		ui_step = 0.01;
 	> = 0.0;
 	uniform float HighlightGainNearPlane <
@@ -217,7 +217,7 @@ namespace CinematicDOF
 		ui_label = "Highlight gain";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1000.00;
-		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold. Best results are\nachieved with bright spots in dark(er) foregrounds. Start with a high threshold to limit\nthe number of bright spots and then crank up this gain slowly to accentuate them.";
 		ui_step = 1;
 	> = 0.0;
 	uniform float HighlightThresholdNearPlane <
@@ -225,7 +225,7 @@ namespace CinematicDOF
 		ui_label="Highlight threshold";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.";
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- DEBUG
