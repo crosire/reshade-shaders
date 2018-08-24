@@ -351,7 +351,7 @@ namespace CinematicDOF
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
 		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
-		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
