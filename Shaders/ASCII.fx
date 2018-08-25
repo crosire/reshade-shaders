@@ -1,109 +1,109 @@
-#include "ReShade.fxh"
-
-uniform float Ascii_spacing <
-	ui_type = "drag";
-	ui_min = 0.0;
-	ui_max = 9.0;
-	ui_label = "Character Spacing [ASCII]";
-	ui_tooltip = "Determines the spacing between characters. I feel 1 to 3 looks best.";
-> = 1;
-
-uniform int Ascii_font <
-	ui_type = "drag";
-	ui_min = 1;
-	ui_max = 2;
-	ui_label = "Font Type [ASCII]";
-	ui_tooltip = "1 = 5x5 font, 2 = 3x5 font";
-> = 1;
-
-uniform int Ascii_font_r <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Font Color Red [ASCII]";
-> = 255;
-
-uniform int Ascii_font_g <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Font Color Green [ASCII]";
-> = 255;
-
-uniform int Ascii_font_b <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Font Color Blue [ASCII]";
-> = 255;
-
-uniform int Ascii_back_r <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Background Color Red [ASCII]";
-> = 0;
-
-uniform int Ascii_back_g <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Background Color Green [ASCII]";
-> = 0;
-
-uniform int Ascii_back_b <
-	ui_type ="drag";
-	ui_min = 0;
-	ui_max = 255;
-	ui_tooltip = "Background Color Blue [ASCII]";
-> = 0;
-
-uniform bool Ascii_swap_colors <
-	ui_label = "Swap Colors [ASCII]";
-	ui_tooltip = "Swaps the font and background color when you are too lazy to edit the settings above (I know I am)";
-> = false;
-
-uniform bool Ascii_invert_brightness <
-	ui_label = "Invert Brightness [ASCII]";
-> = 0;
-
-uniform bool Ascii_dithering_temporal <
-	ui_label = "Temporal Dithering [ASCII]";
-> = 0;
-
-uniform int Ascii_font_color_mode < 
-	ui_type = "drag";
-	ui_min = 0;
-	ui_max = 2;
-	ui_label = "Font Color Mode [ASCII]";
-	ui_tooltip = "0 = font_color, 1 = image color, 2 = colorized grayscale";
-> = 1;
-
-#define Ascii_font_color float3(Ascii_font_r,Ascii_font_g,Ascii_font_b)
-#define Ascii_background_color float3(Ascii_back_r, Ascii_back_g, Ascii_back_b)
-#define asciiSampler ReShade::BackBuffer
-
-uniform float timer < source = "timer"; >;
-uniform float framecount < source = "framecount"; >;
-
   /*------------.
   | :: Ascii :: |
   '------------*/
 /*
   Ascii by Christian Cann Schuldt Jensen ~ CeeJay.dk
+  (Version 0.8)
 
 	Converts the image to ASCII characters using a greyscale algoritm,
 	cherrypicked characters and a custom bitmap font stored in a set of floats.
 	
 	It has 17 gray levels but uses dithering to greatly increase that number.
-	
-Version 0.7. by CeeJay.dk
-- a work in progress
 
-0.7 adds the 3x5 font
-
+History :	
+-- Version 0.7 by CeeJay.dk -- 
+   Added the 3x5 font
+-- Version 0.8 by CeeJay.dk -- 
+   Cleaned up settings UI for Reshade 3.x
 */
 
+#include "ReShade.fxh"
+
+  /*------------------.
+  | :: UI Settings :: |
+  '------------------*/
+
+/*
+  uniform float Version <
+	ui_label = "Version";
+	ui_min = 0.8;
+	ui_max = 0.8;
+	ui_step = 1.0;
+	ui_category = "Author : CeeJay.dk\n\nTo increase the size of the characters on screen simply lower your resolution in-game\n\nTry using this with Nostagia or EGA. It also looks best if you first increase the contrast with Curves.\n\n";
+> = float(0.8);
+*/
+uniform int Ascii_spacing <
+	ui_type = "drag";
+	ui_min = 0;
+	ui_max = 5;
+	ui_label = "Character Spacing";
+	ui_tooltip = "Determines the spacing between characters. I feel 1 to 3 looks best.";
+	ui_category = "Font style";
+> = 1;
+
+/*
+uniform int Ascii_font <
+	ui_type = "drag";
+	ui_min = 1;
+	ui_max = 2;
+	ui_label = "Font Size";
+	ui_tooltip = "1 = 5x5 font, 2 = 3x5 font";
+	ui_category = "Font style";
+> = 1;
+*/
+
+uniform int Ascii_font <
+	ui_type = "combo";
+	ui_label = "Font Size";
+	ui_tooltip = "1 = 5x5 font, 2 = 3x5 font";
+	ui_category = "Font style";
+	ui_items = "Normal 5x5 font\0Smaller 3x5 font\0";
+> = 1;
+
+
+uniform int Ascii_font_color_mode < 
+	ui_type = "drag";
+	ui_min = 0;
+	ui_max = 2;
+	ui_label = "Font Color Mode";
+	ui_tooltip = "0 = Foreground color on background color, 1 = Colorized grayscale, 2 = Full color";
+	ui_category = "Color options";
+> = 1;
+
+uniform float3 Ascii_font_color <
+	ui_type = "color";
+	ui_label = "Font Color";
+	ui_tooltip = "Choose a font color";
+	ui_category = "Color options";
+> = float3(1.0, 1.0, 1.0);
+
+uniform float3 Ascii_background_color <
+	ui_type = "color";
+	ui_label = "Background Color";
+	ui_tooltip = "Choose a background color";
+	ui_category = "Color options";
+> = float3(0.0, 0.0, 0.0);
+
+uniform bool Ascii_swap_colors <
+	ui_label = "Swap Colors";
+	ui_tooltip = "Swaps the font and background color when you are too lazy to edit the settings above (I know I am)";
+	ui_category = "Color options";
+> = 0;
+
+uniform bool Ascii_invert_brightness <
+	ui_label = "Invert Brightness";
+	ui_category = "Color options";
+> = 0;
+
+uniform bool Ascii_dithering_temporal <
+	ui_label = "Temporal Dithering";
+	ui_category = "Dithering";
+> = 0;
+
+#define asciiSampler ReShade::BackBuffer
+
+uniform float timer < source = "timer"; >;
+uniform float framecount < source = "framecount"; >;
 
 
 float3 AsciiPass( float2 tex )
@@ -150,7 +150,7 @@ float3 AsciiPass( float2 tex )
 */
 	
 
-  //-- Pattern 2 - Sample ALL the ReShade::PixelSizes! --
+  //-- Pattern 2 - Sample ALL the pixels! --
   float3 color = tex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * ReShade::PixelSize).rgb;
   color += tex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * ReShade::PixelSize).rgb;
   color += tex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * ReShade::PixelSize).rgb;
@@ -199,7 +199,7 @@ float3 AsciiPass( float2 tex )
   | :: Get position :: |
   '-------------------*/
 	
-	float2 p = frac((ReShade::ScreenSize / Ascii_block) * tex);  //p is the position of the current ReShade::PixelSize inside the character
+	float2 p = frac((ReShade::ScreenSize / Ascii_block) * tex);  //p is the position of the current pixel inside the character
 
 	p = trunc(p * Ascii_block);
 	//p = trunc(p * Ascii_block - float2(1.5,1.5)) ;
@@ -215,22 +215,8 @@ float3 AsciiPass( float2 tex )
     //float even_frame = (frac(timer / (1000. / 59.9 * 2.)) <= 0.50) ? -1.0 : 1.0;
   }
 
+  //TODO : Try make an ordered dither rather than the random dither. Random looks a bit too noisy for my taste.	
 
-/*
-  //Calculate grid position
-  //float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.6,0.8) )) + 0.25);
-  float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
-  //float grid_position = frac( dot(cursor_position,((ReShade::ScreenSize / Ascii_block) * float2(0.75,0.5) )) + 0.25);
-
-  //Calculate how big the shift should be
-  float dither_shift = (0.25 / num_of_chars);
-
-  //modify shift acording to grid position.
-  dither_shift = lerp(2.0 * dither_shift, -2.0 * dither_shift, grid_position); //shift acording to grid position.
-
-  //shift the color by dither_shift
-  gray += dither_shift;
-*/  
   //Pseudo Random Number Generator
   // -- PRNG 1 - Reference --
   float seed = dot(cursor_position, float2(12.9898,78.233)); //I could add more salt here if I wanted to
@@ -246,7 +232,7 @@ float3 AsciiPass( float2 tex )
   dither_shift = dither_shift * noise - dither_shift_half; // MAD
 
   //shift the color by dither_shift
-  gray += dither_shift; //subReShade::PixelSize dithering
+  gray += dither_shift; //subpixel dithering
 
   /*---------------------------.
   | :: Convert to character :: |
@@ -332,15 +318,15 @@ float3 AsciiPass( float2 tex )
 
 
 	/*--------------------------------.
-  | :: Decode character bitfield :: |
-  '--------------------------------*/
+  	| :: Decode character bitfield :: |
+ 	'--------------------------------*/
   
 	float character = 0.0;
 	
 	//test values
 	//n = -(exp2(24.)-1.0); //-(2^24-1) All bits set - a white 5x5 box
 
-	float lit = (gray <= (1./num_of_chars)) //if black then set all ReShade::PixelSizes to black (the space character)
+	float lit = (gray <= (1./num_of_chars)) //if black then set all pixels to black (the space character)
 		? 0.0
 		: 1.0 ;
 
@@ -348,7 +334,7 @@ float3 AsciiPass( float2 tex )
 		? lit 
 		: 0.0 ;
 
-	signbit = (x > 23.5) //is this the first ReShade::PixelSize in the character?
+	signbit = (x > 23.5) //is this the first pixel in the character?
 		? signbit
 		: 0.0 ;
 
@@ -382,27 +368,25 @@ float3 AsciiPass( float2 tex )
   '----------------*/
   
 	if (Ascii_swap_colors){
-		if (Ascii_font_color_mode  == 1){
-			color = (character) ? character * color : Ascii_font_color / 255.0;
-		} else if (Ascii_font_color_mode  == 2){
-			color = (character) ? (Ascii_background_color / 255.0) * gray : Ascii_font_color / 255.0;	
+		if (Ascii_font_color_mode  == 2){
+			color = (character) ? character * color : Ascii_font_color;
+		} else if (Ascii_font_color_mode  == 1){
+			color = (character) ? (Ascii_background_color) * gray : Ascii_font_color;	
 		} else { // Ascii_font_color_mode == 0 
-			color = (character) ? (Ascii_background_color / 255.0) : Ascii_font_color / 255.0;
+			color = (character) ? (Ascii_background_color) : Ascii_font_color;
 		}
 	} else {
 			
-	if (Ascii_font_color_mode  == 1){
-			color = (character) ? character * color : Ascii_background_color / 255.0;
-	} else if (Ascii_font_color_mode  == 2) {
-			color = (character) ? (Ascii_font_color / 255.0) * gray : Ascii_background_color / 255.0;	
-	} else {// Ascii_font_color_mode == 0 
-			color = (character) ? (Ascii_font_color / 255.0) : Ascii_background_color / 255.0;
-	}
+	if (Ascii_font_color_mode  == 2){
+		color = (character) ? character * color : Ascii_background_color;
+		} else if (Ascii_font_color_mode  == 1) {
+			color = (character) ? (Ascii_font_color) * gray : Ascii_background_color;	
+		} else {// Ascii_font_color_mode == 0 
+			color = (character) ? (Ascii_font_color) : Ascii_background_color;
+		}
 	}
 		
-	
 
-		
 	//colorInput.rgb = saturate(colorInput.rgb);
 	//colorInput.rgb = pow(colorInput.rgb, 0.5);
 	//colorInput.rgb = sqrt(colorInput.rgb);
@@ -451,7 +435,7 @@ Here are some various chacters and gradients I created in my quest to get the be
  .:^"~csoCwSO8Q0#
  .:^"~c?o*wSO8Q0#
 
-n value // # of ReShade::PixelSizes // character
+n value // # of pixels // character
 -----------//----//-------------------
 4194304.   //  1 // . (bottom aligned) *
 131200.    //  2 // : (middle aligned) *
@@ -530,4 +514,5 @@ I might use
  .'.'.'.
  '.'.'.'
 
+UPDATE: That didn't work. It looks messy when characters differ in position like this.
 */
