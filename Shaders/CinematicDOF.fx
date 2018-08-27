@@ -201,7 +201,7 @@ namespace CinematicDOF
 		ui_label = "Highlight gain";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1000.00;
-		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_tooltip = "The gain for highlights in the far plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold. Best results are\nachieved with bright spots in dark(er) backgrounds. Start with a high threshold to limit\nthe number of bright spots and then crank up this gain slowly to accentuate them.";
 		ui_step = 1;
 	> = 0.0;
 	uniform float HighlightThresholdFarPlane <
@@ -209,7 +209,7 @@ namespace CinematicDOF
 		ui_label="Highlight threshold";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.";
 		ui_step = 0.01;
 	> = 0.0;
 	uniform float HighlightGainNearPlane <
@@ -217,7 +217,7 @@ namespace CinematicDOF
 		ui_label = "Highlight gain";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1000.00;
-		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold.";
+		ui_tooltip = "The gain for highlights in the near plane. The higher the more a highlight gets\nbrighter. Tweak this in tandem with the Highlight threshold. Best results are\nachieved with bright spots in dark(er) foregrounds. Start with a high threshold to limit\nthe number of bright spots and then crank up this gain slowly to accentuate them.";
 		ui_step = 1;
 	> = 0.0;
 	uniform float HighlightThresholdNearPlane <
@@ -225,7 +225,7 @@ namespace CinematicDOF
 		ui_label="Highlight threshold";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted.";
+		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.";
 		ui_step = 0.01;
 	> = 0.0;
 	// ------------- DEBUG
@@ -351,7 +351,7 @@ namespace CinematicDOF
 		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
 		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
-		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -375,7 +375,7 @@ namespace CinematicDOF
 				float absoluteSampleRadius = abs(sampleRadius);
 				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
 				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
-				average.xyz += (tap.xyz + lerp(float3(0, 0, 0), tap.xyz, threshold * absoluteSampleRadius)) * weight;
+				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
 			}
 		}
@@ -412,7 +412,7 @@ namespace CinematicDOF
 		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
 		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
 		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
-		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * absoluteFragmentRadius)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * absoluteFragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
@@ -429,16 +429,12 @@ namespace CinematicDOF
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if(signedSampleRadius < 0)
-				{
-					// The tap is in the near plane, so we'll ignore it, as near plane fragments handling is done in another pass if this is the main blur phase
-					continue;
-				}
+				// an if statement here which skips the tap read altogether is slower than doing the read and multiplying with 1 or 0 depending on the boolean expression.
 				float4 tap = tex2Dlod(source, tapCoords);
+				float absoluteSampleRadius = abs(signedSampleRadius);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float absoluteSampleRadius = abs(signedSampleRadius);
-				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius) * (signedSampleRadius < 0 ? 0 : 1);
 				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
 				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
@@ -468,9 +464,9 @@ namespace CinematicDOF
 		float radiusInPixels = lerp(0.0, isNearPlaneFragment ? blurInfo.nearPlaneMaxBlurInPixels : blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
 		float4 average = float4(fragment.xyz, 1.0);
 		float2 pointOffset = float2(0,0);
-		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
+		float ringRadiusDeltaInPixels = radiusInPixels / ((blurInfo.numberOfRings-1) + (blurInfo.numberOfRings==1));
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
-		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
+		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings-1; ringIndex++)
 		{
 			float pointsOnRing = ringIndex * pointsFirstRing;
 			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
@@ -482,15 +478,10 @@ namespace CinematicDOF
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
-				if((signedSampleRadius <= 0 && !isNearPlaneFragment) || (signedSampleRadius > 0 && isNearPlaneFragment))
-				{
-					// The tap is in a different plane than the fragment, ignore it. 
-					continue;
-				}
 				float4 tap = tex2Dlod(source, tapCoords);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius);
+				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius) * (((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius < 0 && isNearPlaneFragment)) ? 1 : 0);
 				average.xyz += tap.xyz * weight;
 				average.w += weight;
 			}
