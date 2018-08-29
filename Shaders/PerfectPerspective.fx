@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.3.0
+// Perfect Perspective PS ver. 2.3.1
 
   ////////////////////
  /////// MENU ///////
@@ -91,6 +91,21 @@ sampler SamplerColor
 	AddressV = MIRROR;
 };
 
+// RGB to YUV matrix
+static const float3x3 RGB2YUV =
+float3x3(
+	float3(0.2126, 0.7152, 0.0722),
+	float3(-0.09991, -0.33609, 0.436),
+	float3(0.615, -0.55861, -0.05639)
+);
+// YUV to RGB matrix
+static const float3x3 YUV2RGB =
+float3x3(
+	float3(1, 0, 1.28033),
+	float3(1, -0.21482, -0.38059),
+	float3(1, 2.12798, 0)
+);
+
 // Stereographic-Gnomonic lookup function by Jacob Max Fober
 // Input data:
 	// FOV >> Camera Field of View in degrees
@@ -153,29 +168,40 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Output type choice
 	if (Debug)
 	{
-		// Calculate Pixel Size difference
-		PixelSize = ScrPixelSize / PixelSize;
-		PixelSize /= ResScale; // simulate Dynamic Super Resolution (DSR)
-		float PixelScale = min(PixelSize.x, PixelSize.y);
+		// Calculate radial screen coordinates before and after perspective transformation
+		float4 RadialCoord = float4(texcoord, SphCoord) * 2 - 1;
+		// Correct vertical aspect ratio
+		RadialCoord.yw *= AspectR;
+
+		// Calculate Pixel Size difference...
+		float PixelScale = fwidth( length(RadialCoord.xy) );
+		// ...and simulate Dynamic Super Resolution (DSR) scalar
+		PixelScale /= ResScale * fwidth( length(RadialCoord.zw) );
+
 		// Separate supersampling and undersampling scalars
-		PixelSize.x = min(PixelScale, 0.5) * 2;
-		PixelSize.y = max(PixelScale, 0.5) * 2 - 1;
+		PixelSize.x = min(PixelScale, 1);
+		PixelSize.y = max(PixelScale, 1) - 1;
 
 		// Define Mapping colors
-		float3 SuperSampl = float3(0, 1, 0.2); // Green
-		float3 UnderSampl = float3(1, 0, 0.2); // Red
-		float Neutral = 0.0625; // Black
+		float3 UnderSampl = float3(1, 0, 0.3); // Red
+		float3 SuperSampl = float3(0, 1, 0.6); // Green
 
-		// Map scale-to-colors
-		SuperSampl = lerp(SuperSampl, Neutral, PixelSize.x);
-		UnderSampl = lerp(Neutral, UnderSampl, PixelSize.y);
-		// Super-Under sampling mask
-		float SuperUnderMask = min(floor(PixelScale * 2), 1);
-		// Return 3-color scale map
-		float3 ResMap = lerp(SuperSampl, UnderSampl, SuperUnderMask);
-		ResMap = saturate(ResMap);
-		// Blend scale map with background
-		return normalize(ResMap) * (length(Display) * 0.8 + 0.2);
+		// Color supersampled and undersampled pixels
+		SuperSampl = lerp(SuperSampl, 0, PixelSize.x);
+		UnderSampl = lerp(0, UnderSampl, PixelSize.y);
+
+		// Combine to 3-tone map
+		float3 ScaleMap = saturate(SuperSampl + UnderSampl);
+
+		// Blend Scale Map color value with Display luminace...
+		// ...in YUV color space
+		ScaleMap.yz = mul(RGB2YUV, ScaleMap).yz;
+		ScaleMap.x = mul(RGB2YUV, Display).x * 0.8 + 0.1;
+
+		// Convert Scale Map back to RGB color space
+		ScaleMap = mul(YUV2RGB, ScaleMap);
+
+		return ScaleMap;
 	}
 	else
 	{
