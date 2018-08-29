@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.3.1
+// Perfect Perspective PS ver. 2.3.2
 
   ////////////////////
  /////// MENU ///////
@@ -177,18 +177,19 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 		float PixelScale = fwidth( length(RadialCoord.xy) );
 		// ...and simulate Dynamic Super Resolution (DSR) scalar
 		PixelScale /= ResScale * fwidth( length(RadialCoord.zw) );
+		PixelScale -= 1;
 
 		// Separate supersampling and undersampling scalars
-		PixelSize.x = min(PixelScale, 1);
-		PixelSize.y = max(PixelScale, 1) - 1;
+		PixelSize.x = abs(min(PixelScale, 0));
+		PixelSize.y = max(PixelScale, 0);
 
 		// Define Mapping colors
 		float3 UnderSampl = float3(1, 0, 0.3); // Red
 		float3 SuperSampl = float3(0, 1, 0.6); // Green
 
 		// Color supersampled and undersampled pixels
-		SuperSampl = lerp(SuperSampl, 0, PixelSize.x);
-		UnderSampl = lerp(0, UnderSampl, PixelSize.y);
+		SuperSampl *= PixelSize.x;
+		UnderSampl *= PixelSize.y;
 
 		// Combine to 3-tone map
 		float3 ScaleMap = saturate(SuperSampl + UnderSampl);
