@@ -193,7 +193,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 		// Combine to 3-tone map
 		float3 ScaleMap = saturate(SuperSampl + UnderSampl);
 
-		// Blend Scale Map color value with Display luminace...
+		// Blend Scale Map color value with Display luminance...
 		// ...in YUV color space
 		ScaleMap.yz = mul(RGB2YUV, ScaleMap).yz;
 		ScaleMap.x = mul(RGB2YUV, Display).x * 0.8 + 0.1;
