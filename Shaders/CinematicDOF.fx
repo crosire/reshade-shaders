@@ -6,7 +6,7 @@
 //
 // This shader has been released under the following license:
 //
-// Copyright (c) 2018, Frans Bouma
+// Copyright (c) 2018 Frans Bouma
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 04-sep-2018:		v1.0.6: Small fix for DX9 and autofocus.
 // 17-aug-2018:		v1.0.5: Much better highlighting, higher range for manual focus
 // 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
 //							Finetuned the near highlight extrapolation a bit. Removed highlight threshold as it ruined the blur
@@ -246,7 +247,6 @@ namespace CinematicDOF
 
 	#define SENSOR_SIZE			0.024		// Height of the 35mm full-frame format (36mm x 24mm)
 	#define PI 					3.1415926535897932
-
 
 	texture texCDFocus			{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
 	texture texCDFocusTmp1		{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };		// width reduced as it's not noticable 
@@ -599,7 +599,7 @@ namespace CinematicDOF
 		focusInfo.texcoord.y = (id == 1) ? 2.0 : 0.0;
 		focusInfo.vpos = float4(focusInfo.texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 
-#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 	// doing focusing in vertex shaders in dx9 doesn't work for auto-focus, so we'll just do it in the pixel shader instead
 		// fill in dummies, will be filled in pixel shader. Less fast but it is what it is...
 		focusInfo.focusDepth = 0;
 		focusInfo.focusDepthInM = 0;
@@ -638,7 +638,7 @@ namespace CinematicDOF
 	// Pixel shader which produces a blur disc radius for each pixel and returns the calculated value. 
 	void PS_Focus(VSFOCUSINFO focusInfo, out float fragment : SV_Target0)
 	{
-#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400		// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 	// doing focusing in vertex shaders in dx9 doesn't work for auto-focus, so we'll just do it in the pixel shader instead
 		FillFocusInfoData(focusInfo);
 #endif
 		fragment = CalculateBlurDiscSize(focusInfo);
@@ -711,7 +711,7 @@ namespace CinematicDOF
 	// as normal. It then also blends the focus plane as a separate color to make focusing really easy. 
 	void PS_FocusHelper(in VSFOCUSINFO focusInfo, out float4 fragment : SV_Target0)
 	{
-#if __RENDERER__ <= 0x9300 && __RESHADE__ <= 30400	// d3d9 gives a compile error due to a glitch in reshade if we read from the depth buffer in a vertex shader so we'll work around that
+#if __RENDERER__ <= 0x9300 	// doing focusing in vertex shaders in dx9 doesn't work for auto-focus, so we'll just do it in the pixel shader instead
 		FillFocusInfoData(focusInfo);
 #endif
 		fragment = tex2D(SamplerCDBuffer3, focusInfo.texcoord);
