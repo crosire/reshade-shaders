@@ -21,7 +21,7 @@
 	* Levels (might be needed because older system were often displayed on televisions and older monitors - not modern monitors)
 
 	History:
-	(*) Feature (+) Improvement	(x) Bugfix (-) Information
+	(*) Feature (+) Improvement (x) Bugfix (-) Information (!) Compatibility
 	
 	Version 1.0
 	* Color reduction to C64 palette

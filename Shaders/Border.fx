@@ -15,11 +15,23 @@
  * Cleaned up setting for Reshade 3.x
  */
 
+#include "ReShade.fxh"
+
+/*
 uniform float2 border_width <
 	ui_type = "input";
 	ui_label = "Size";
 	ui_tooltip = "Measured in pixels. If this is set to zero then the ratio will be used instead.";
-> = float2(0, 0);
+> = float2(0.0, 0.0);
+*/
+
+uniform float2 border_width <
+	ui_type = "drag";
+	ui_label = "Size";
+	ui_tooltip = "Measured in pixels. If this is set to zero then the ratio will be used instead.";
+	ui_min = 0.0; ui_max = (BUFFER_WIDTH * 0.5);
+	ui_step = 1.0;
+	> = float2(0.0, 0.0);
 
 uniform float border_ratio <
 	ui_type = "input";
@@ -29,11 +41,8 @@ uniform float border_ratio <
 
 uniform float3 border_color <
 	ui_type = "color";
-	ui_label = "Color";
 	ui_label = "Border Color";
 > = float3(0.0, 0.0, 0.0);
-
-#include "ReShade.fxh"
 
 float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
