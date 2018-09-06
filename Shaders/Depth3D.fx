@@ -24,7 +24,7 @@
 //USER EDITABLE PREPROCESSOR FUNCTIONS START//
 
 // Determines The resolution of the Depth Map.
-#define Depth_Map_Division 2.0
+#define Depth_Map_Division 1.75
 
 // Determines the Max Depth amount, in ReShades GUI.
 #define Depth_Max 50
@@ -76,7 +76,7 @@ uniform float Disocclusion_Power_Adjust <
 	ui_tooltip = "Automatic occlusion masking power adjust.\n"
 				"Default is 1.0";
 	ui_category = "Occlusion Masking";
-> = 1.250;
+> = 1.0;
 
 //Depth Map//
 uniform int Depth_Map <
@@ -97,6 +97,17 @@ uniform float Depth_Map_Adjust <
 				 "Default is 7.5";
 	ui_category = "Depth Map";
 > = 7.5;
+
+uniform float Offset <
+	ui_type = "drag";
+	ui_min = 0; ui_max = 1.0;
+	ui_label = " Depth Map Offset";
+	ui_tooltip = "Depth Map Offset is for non conforming ZBuffer.\n"
+				 "It,s rare if you need to use this in any game.\n"
+				 "Use this to make adjustments to DM 0 or DM 1.\n"
+				 "Default and starts at Zero, & it's Off.";
+	ui_category = "Depth Map";
+> = 0.0;
 
 uniform bool Depth_Map_View <
 	ui_label = " Depth Map View";
@@ -127,7 +138,7 @@ uniform float3 Weapon_Adjust <
 				 "X, The CutOff point used to set a diffrent depth scale for first person view.\n"
 				 "Y, The Power needed to scale the first person view apart from world scale.\n"
 				 "Z, Adjust is used to fine tune the first person view scale.\n"
-	             "Default is float3(X 0.0, Y 2.0, Z 1.5).";
+	             "Default is float3(X 0.0, Y 2.0, Z 1.5)";
 	ui_category = "Weapon Hand Adjust";
 > = float3(0.0,2.0,1.5);
 
@@ -230,7 +241,14 @@ sampler SamplerDiso
 		MagFilter = LINEAR;
 		MipFilter = LINEAR;
 	};
-			
+
+texture texEncode  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA32F;}; 
+
+sampler SamplerEncode
+	{
+		Texture = texEncode;
+	};			
+
 uniform float2 Mousecoords < source = "mousepoint"; > ;	
 ////////////////////////////////////////////////////////////////////////////////////Cross Cursor////////////////////////////////////////////////////////////////////////////////////	
 float4 MouseCursor(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
@@ -309,25 +327,18 @@ void DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, 
 		//Near & Far Adjustment
 		float Far = 1, Near = 0.125/Depth_Map_Adjust, NearLocked = 0.125/7.5; //Division Depth Map Adjust - Near
 		
-		//0. Normal
-		float Normal = Far * Near / (Far + zBuffer * (Near - Far));
-		float NormalLocked = Far * NearLocked / (Far + zBuffer * (NearLocked - Far));
+		float2 DM, Offsets = float2(1 + Offset,1 - Offset), Z = float2( zBuffer, 1 - zBuffer );
 		
-		//1. Reverse
-		float NormalReverse = Far * Near / (Near + zBuffer * (Far - Near));
-		float NormalReverseLocked = Far * NearLocked / (NearLocked + zBuffer * (Far - NearLocked));
-			
-		float2 DM;
+		if (Offset > 0)
+		Z = min( 1, float2( Z.x*Offsets.x , ( Z.y - 0.0 ) / ( Offsets.y - 0.0 ) ) );
 		
-		if (Depth_Map == 0)
+		if (Depth_Map == 0) //DM0. Normal
 		{
-			DM.x = Normal;
-			DM.y = NormalLocked;
+			DM = float2( 2.0 * Near * Far / (Far + Near - (2.0 * Z.x - 1.0) * (Far - Near)), 2.0 * NearLocked * Far / (Far + NearLocked - (2.0 * Z.x - 1.0) * (Far - NearLocked)) );
 		}		
-		else
+		else //DM1. Reverse
 		{
-			DM.x = NormalReverse;
-			DM.y = NormalReverseLocked;
+			DM = float2( 2.0 * Near * Far / (Far + Near - Z.y * (Far - Near)) , 2.0 * NearLocked * Far / (Far + NearLocked - Z.y * (Far - NearLocked)) );
 		}
 		
 		R = saturate(DM.x);
@@ -342,25 +353,25 @@ float AutoDepthRange( float d, float2 texcoord )
     return min(1,( d - 0 ) / ( LumAdjust - 0));
 }
 
-float Conv(float DM_A,float DM_B,float2 texcoord)
+float Conv(float2 DM_IN,float2 texcoord)
 {
 	float DM, Convergence, Z = ZPD, ZP = 0.5625;
 		
 		if (ZPD == 0)
 			ZP = 1.0;
 				
-		float Convergence_A = 1 - Z / DM_A;		
-		float Convergence_B = 1 - Z / DM_B;
+		float Convergence_A = 1 - Z / DM_IN.x;		
+		float Convergence_B = 1 - Z / DM_IN.y;
 						
 		if (Auto_Depth_Range > 0)
 		{
-			DM_A = AutoDepthRange(DM_A,texcoord);
+			DM_IN.x = AutoDepthRange(DM_IN.x,texcoord);
 		}
 		
 		if (Weapon_Adjust.x > 0)
 			Convergence_A = Convergence_B;
 		
-		DM = DM_A;		
+		DM = DM_IN.x;		
 		Convergence	= Convergence_A;
 			
 		Z = lerp(Convergence,DM, ZP);
@@ -370,53 +381,57 @@ float Conv(float DM_A,float DM_B,float2 texcoord)
 
 void  Disocclusion(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0)
 {
-float X, Y, Z, W = 1, A, DP = Divergence, Disocclusion_PowerA , AMoffset = 0.00285714, BMoffset = 0.09090909;
-float2 dirA, DM;
+float X, Y, Z, W = 1, A, S, MS =  Divergence * pix.x, Div = 0.09090909;
+float2 DM, dir;
 
-	DP *= Disocclusion_Power_Adjust;
-		
-	Disocclusion_PowerA = DP*AMoffset;
-		
+	MS *= Disocclusion_Power_Adjust;
+	
+	A += 5.5; // Normal
+	dir = float2(0.5,0.0);	
+	
+	const float weight[11] = {0.0,0.010,-0.010,0.020,-0.020,0.030,-0.030,0.040,-0.040,0.050,-0.050}; //By 11
+				
 	if (Disocclusion_Power_Adjust > 0) 
-	{
-		const float weight[11] = {0.0,0.010,-0.010,0.020,-0.020,0.030,-0.030,0.040,-0.040,0.050,-0.050}; //By 10
-
-		dirA = float2(0.5,0.0);
-		A = Disocclusion_PowerA;
-
-		
+	{	
 		[loop]
 		for (int i = 0; i < 11; i++)
 		{	
-			DM += tex2Dlod(SamplerDepth,float4(texcoord + dirA * weight[i] * A,0,0)).xy*BMoffset;
-
-		}	
+			S = weight[i] * MS;
+			DM += tex2Dlod(SamplerDepth,float4(texcoord + dir * S * A,0,0)).xy*Div;
+		}
 	}
 	else
 	{
 		DM = tex2Dlod(SamplerDepth,float4(texcoord,0,0)).xy;
 	}
-
+	
 	X = DM.x;
 	Y = DM.y;	
+	
 	color = float4(X,Y,Z,W);
 }
 
 /////////////////////////////////////////L/R//////////////////////////////////////////////////////////////////////
 
-float2  Encode(in float2 texcoord : TEXCOORD0) //zBuffer Color Channel Encode
+void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) //zBuffer Color Channel Encode
 {
-	float2 DM = tex2Dlod(SamplerDiso,float4(texcoord.x,texcoord.y,0,0)).xy, GetDepthL = DM, GetDepthR = DM;
+	float2 DepthL = 1.0, DepthR = 1.0;
+	float samples[3] = {0.5,0.75,1.0}, MSL = (Divergence * 0.25) * pix.x, S, MS = Divergence * pix.x;
+		[loop]
+	for ( int i = 0 ; i < 3; i++ ) 
+	{
+		S = samples[i] * MSL;
+		DepthL = min(DepthL,tex2Dlod(SamplerDiso, float4(texcoord.x - S, texcoord.y,0,0)).xy);
+		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4(texcoord.x + S, texcoord.y,0,0)).xy);
+	}
 	
-	GetDepthL.x = Conv(GetDepthL.x,GetDepthL.y,texcoord);
-	GetDepthR.x = Conv(GetDepthR.x,GetDepthR.y,texcoord);
-	
-	float MS = Divergence*pix.x;
+	float DL = Conv(DepthL,texcoord);
+	float DR = Conv(DepthR,texcoord);
 	
 	// X Left & Y Right
-	float X = texcoord.x+MS*GetDepthL.x, Y = (1-texcoord.x)+MS*GetDepthR.x;
+	float X = texcoord.x+MS*DL, Y = (1-texcoord.x)+MS*DR;
 	
-	return float2(X,Y);
+	color = float4(X,Y,0.0,1.0);
 }
 
 float4 PS_calcLR(float2 texcoord)
@@ -434,7 +449,7 @@ float4 PS_calcLR(float2 texcoord)
 		Znum = 0;
 	}
 	
-	float DepthL = Znum, DepthR = Znum, N, S, L, R;
+	float DepthL = Znum, DepthR = Znum, N, S, j, L, R;
 	
 	//P is Perspective Adjustment.
 	float P = Perspective * pix.x;
@@ -489,19 +504,16 @@ float4 PS_calcLR(float2 texcoord)
 	}
 	
 		[loop]
-		for (int i = 0; i < Divergence + 0.5; i++) 
+		for (int i = 0; i < Divergence; i++) 
 		{
+			j = i + (i * 0.125);	
 			//L
-			if ( Encode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x) )
-			{
-				DepthL = i * pix.x; //Good
-			}
+			[flatten] if(tex2Dlod(SamplerEncode,float4(TCL.x+i*pix.x,TCL.y,0,0)).y >= (1-TCL.x))
+						DepthL = j*pix.x;
 			
 			//R
-			if ( Encode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x )
-			{
-				DepthR = i * pix.x; //Good
-			}
+			[flatten] if(tex2Dlod(SamplerEncode,float4(TCR.x-i*pix.x,TCR.y,0,0)).x >= TCR.x )
+						DepthR = j*pix.x;
 		}				
 
 		Left = tex2Dlod(BackBuffer, float4(TCL.x + DepthL, TCL.y,0,0));
@@ -729,6 +741,12 @@ technique Cross_Cursor
 
 technique Depth3D
 {
+		pass AverageLuminance
+	{
+		VertexShader = PostProcessVS;
+		PixelShader = Average_Luminance;
+		RenderTarget = texLumi;
+	}
 		pass zbuffer
 	{
 		VertexShader = PostProcessVS;
@@ -741,11 +759,11 @@ technique Depth3D
 		PixelShader = Disocclusion;
 		RenderTarget = texDiso;
 	}
-		pass AverageLuminance
+		pass Encoding
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = Average_Luminance;
-		RenderTarget = texLumi;
+		PixelShader = Encode;
+		RenderTarget = texEncode;
 	}
 		pass StereoOut
 	{
