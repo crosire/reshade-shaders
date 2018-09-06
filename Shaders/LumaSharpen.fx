@@ -25,9 +25,16 @@ uniform float sharp_clamp <
 > = 0.035;
 uniform int pattern <
 	ui_type = "combo";
-	ui_items = "Fast\0Normal\0Wider\0Pyramid shaped\0";
+	ui_items =	"Fast" "\0"
+				"Normal" "\0"
+				"Wider"	"\0"
+				"Pyramid shaped" "\0";
 	ui_label = "Sample pattern";
-	ui_tooltip = "Choose a sample pattern.\n* Fast is faster but slightly lower quality.\n* Normal is normal.\n* Wider is less sensitive to noise but also to fine details.\n* Pyramid has a slightly more aggresive look.";
+	ui_tooltip = "Choose a sample pattern.\n"
+	"Fast is faster but slightly lower quality.\n"
+	"Normal is normal.\n"
+	"Wider is less sensitive to noise but also to fine details.\n"
+	"Pyramid has a slightly more aggresive look.";
 > = 1;
 uniform float offset_bias <
 	ui_type = "drag";
