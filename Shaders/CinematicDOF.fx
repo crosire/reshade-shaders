@@ -32,7 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
-// 21-sep-2018:		v1.0.7: Better near-plane bleed. Optimized near plane CoC storage so less reads are needed.
+// 21-sep-2018:		v1.0.7: Better near-plane bleed. Optimized near plane CoC storage so less reads are needed. Corrected post-blur bleed.
 // 04-sep-2018:		v1.0.6: Small fix for DX9 and autofocus.
 // 17-aug-2018:		v1.0.5: Much better highlighting, higher range for manual focus
 // 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
@@ -228,9 +228,6 @@ namespace CinematicDOF
 		ui_category = "Debugging";
 		ui_tooltip = "Shows the near coc blur buffer as b&w";
 	> = false;
-	uniform bool ShowOriginal <
-		ui_category = "Debugging";
-	> = false;
 
 	//////////////////////////////////////////////////
 	//
@@ -321,8 +318,8 @@ namespace CinematicDOF
 
 	// Same as PerformDiscBlur but this time for the near plane. It's in a separate function to avoid a lot of if/switch statements as
 	// the near plane blur requires different semantics. For comments on the code, see PerformDiscBlur.
-	// Based on [Hammon2007] and [Nilsson2012]: D1 = 2 * max(D0, Db) - D0, where D1 is the blur disc radius to use, D0 is the original blur disc 
-	// radius and Db is the blurred variant. 
+	// Based on [Nilsson2012] and a variant of Jimenez2014 where far/in-focus pixels are receiving a higher weight so they bleed into the near plane, 
+	// additionally the end result is blended with the backbuffer to make details shimmer through the blurred outline. 
 	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
 	// 		source, the source to read RGBA fragments from
 	// Out: RGBA fragment for the pixel at texcoord in source, which is the blurred variant of it if it's in the near plane.
@@ -537,7 +534,8 @@ namespace CinematicDOF
 
 		float coc = tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x;
 		float4 fragment = tex2Dlod(source, float4(texcoord, 0, 0));
-		if(abs(coc) < length(ReShade::PixelSize))
+		float absoluteCoC = abs(coc);
+		if(absoluteCoC < length(ReShade::PixelSize))
 		{
 			// in focus, ignore
 			return fragment;
@@ -547,8 +545,9 @@ namespace CinematicDOF
 		for(int i = 1; i < 18; ++i)
 		{
 			float2 coordOffset = factorToUse * offset[i];
-			fragment.rgb += tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).rgb * weight[i];
-			fragment.rgb += tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).rgb * weight[i];
+			float weightSample = weight[i];
+			fragment.rgb += tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).rgb * weightSample;
+			fragment.rgb += tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).rgb * weightSample;
 		}
 		return saturate(fragment);
 	}
@@ -652,7 +651,7 @@ namespace CinematicDOF
 	// Pixel shader which performs the near plane blur pass. Uses a blurred buffer of blur disc radii, based on [Hammon2007] and [Nilsson2012].
 	void PS_NearBokehBlur(VSDISCBLURINFO blurInfo, out float4 fragment : SV_Target0)
 	{
-		fragment = PerformNearPlaneDiscBlur(blurInfo, SamplerCDBuffer2);
+		fragment = PerformNearPlaneDiscBlur(blurInfo, SamplerCDBuffer3);
 	}
 
 	// Pixel shader which performs the first part of the gaussian blur on the blur disc values
@@ -672,7 +671,7 @@ namespace CinematicDOF
 	// Pixel shader which performs the first part of the gaussian post-blur smoothing pass, to iron out undersampling issues with the disc blur
 	void PS_PostSmoothing1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 fragment : SV_Target0)
 	{
-		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer1, texcoord, float2(ReShade::PixelSize.x, 0.0));
+		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer2, texcoord, float2(ReShade::PixelSize.x, 0.0));
 	}
 
 	// Pixel shader which performs the second part of the gaussian post-blur smoothing pass, to iron out undersampling issues with the disc blur
@@ -690,10 +689,10 @@ namespace CinematicDOF
 			}
 			return;
 		}
-		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer2, texcoord, float2(0.0, ReShade::PixelSize.y));
-		float4 originalFragment = tex2D(SamplerCDBuffer1, texcoord);
-		float coc = tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x;
-		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(6 * coc));		// weight based on coc radius combined with a magic value that fell out of the magic hatter's hat. Magic!
+		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer1, texcoord, float2(0.0, ReShade::PixelSize.y));
+		float4 originalFragment = tex2D(SamplerCDBuffer2, texcoord);
+		float coc = abs(tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x);
+		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(coc < length(ReShade::PixelSize) ? 0 : coc));
 		fragment.w = 1.0;
 	}
 
@@ -705,7 +704,7 @@ namespace CinematicDOF
 #if __RENDERER__ <= 0x9300 	// doing focusing in vertex shaders in dx9 doesn't work for auto-focus, so we'll just do it in the pixel shader instead
 		FillFocusInfoData(focusInfo);
 #endif
-		fragment = tex2D(SamplerCDBuffer3, focusInfo.texcoord);
+		fragment = tex2D(SamplerCDBuffer1, focusInfo.texcoord);
 		if(ShowOutOfFocusPlaneOnMouseDown && LeftMouseDown)
 		{
 			float depthPixelInMM = ReShade::GetLinearizedDepth(focusInfo.texcoord) * 1000.0 * 1000.0;
@@ -745,9 +744,10 @@ namespace CinematicDOF
 		pass CoCBlur2 { VertexShader = PostProcessVS; PixelShader = PS_CoCGaussian2; RenderTarget = texCDFocusBlurred; }
 		pass PreBlur { VertexShader = VS_DiscBlur; PixelShader = PS_PreBlur; RenderTarget = texCDBuffer1; }
 		pass BokehBlur { VertexShader = VS_DiscBlur; PixelShader = PS_BokehBlur; RenderTarget = texCDBuffer2; }
-		pass NearBokehBlur { VertexShader = VS_DiscBlur; PixelShader = PS_NearBokehBlur; RenderTarget = texCDBuffer1; }
-		pass PostSmoothing1 { VertexShader = PostProcessVS; PixelShader = PS_PostSmoothing1; RenderTarget = texCDBuffer2; }
+		// do smoothing before near plane to avoid leaking near plane bleed blur into smoothed blur. 
+		pass PostSmoothing1 { VertexShader = PostProcessVS; PixelShader = PS_PostSmoothing1; RenderTarget = texCDBuffer1; }
 		pass PostSmoothing2 { VertexShader = PostProcessVS; PixelShader = PS_PostSmoothing2; RenderTarget = texCDBuffer3; }
+		pass NearBokehBlur { VertexShader = VS_DiscBlur; PixelShader = PS_NearBokehBlur; RenderTarget = texCDBuffer1; }
 		pass FocusHelper { VertexShader = VS_Focus; PixelShader = PS_FocusHelper; }
 	}
 
