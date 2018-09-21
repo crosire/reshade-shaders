@@ -32,6 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 21-sep-2018:		v1.0.7: Better near-plane bleed. Optimized near plane CoC storage so less reads are needed. 
+//							Corrected post-blur bleed. Corrected near plane highlight bleed. Overall micro-optimizations.
 // 04-sep-2018:		v1.0.6: Small fix for DX9 and autofocus.
 // 17-aug-2018:		v1.0.5: Much better highlighting, higher range for manual focus
 // 12-aug-2018:		v1.0.4: Finetuned the workaround for d3d9 to only affect reshade 3.4 or lower. 
@@ -54,9 +56,6 @@
 // 
 // [Jimenez2014]	Jorge Jimenez, Sledgehammer Games: Next generation post processing in Call of Duty Advanced Warfare, SIGGRAPH2014
 //					http://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare
-//
-// [Hammon2007]		Earl Hammon, jr, Infinity Ward: Practical Post-Processing Detph of Field, CPU Gems 3, ch. 28.
-//					http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.302.2964&rep=rep1&type=pdf
 //
 // [Nilsson2012]	Filip Nilsson: Implementing realistic depth of field in OpenGL. 
 //					http://fileadmin.cs.lth.se/cs/education/edan35/lectures/12dof.pdf
@@ -164,14 +163,6 @@ namespace CinematicDOF
 		ui_step = 0.01;
 		ui_tooltip = "The maximum blur a pixel can have. Use this as a tweak to adjust the max near\nplane blur defined by the lens parameters.";
 	> = 1.0;
-	uniform float NearPlaneEdgeBlurStrength <
-		ui_category = "Blur tweaking";
-		ui_label = "Near plane edge blur strength";
-		ui_type = "drag";
-		ui_min = 0.00; ui_max = 10.00;
-		ui_step = 0.01;
-		ui_tooltip = "The strength of the blur of the edges of out-of-focus elements in the near-plane.\n0.0 gives hard edges, 1.0 gives ideal edges. Values bigger than 1.0 can give additional softness\nfor elements very near the camera.";
-	> = 1.00;
 	uniform float BlurQuality <
 		ui_category = "Blur tweaking";
 		ui_label = "Overall blur quality";
@@ -249,8 +240,8 @@ namespace CinematicDOF
 	#define PI 					3.1415926535897932
 
 	texture texCDFocus			{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
-	texture texCDFocusTmp1		{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };		// width reduced as it's not noticable 
-	texture texCDFocusBlurred	{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };		// width reduced as it's not noticable
+	texture texCDFocusTmp1		{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };	// half res, single value
+	texture texCDFocusBlurred	{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };	// half res, blurred CoC (r) and real CoC (g)
 	texture texCDBuffer1 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 	texture texCDBuffer2 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; }; 
 	texture texCDBuffer3 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; }; 
@@ -328,58 +319,60 @@ namespace CinematicDOF
 
 	// Same as PerformDiscBlur but this time for the near plane. It's in a separate function to avoid a lot of if/switch statements as
 	// the near plane blur requires different semantics. For comments on the code, see PerformDiscBlur.
-	// Based on [Hammon2007] and [Nilsson2012]: D1 = 2 * max(D0, Db) - D0, where D1 is the blur disc radius to use, D0 is the original blur disc 
-	// radius and Db is the blurred variant. 
+	// Based on [Nilsson2012] and a variant of Jimenez2014 where far/in-focus pixels are receiving a higher weight so they bleed into the near plane, 
+	// additionally the end result is blended with the backbuffer to make details shimmer through the blurred outline. 
 	// In:	blurInfo, the pre-calculated disc blur information from the vertex shader.
 	// 		source, the source to read RGBA fragments from
 	// Out: RGBA fragment for the pixel at texcoord in source, which is the blurred variant of it if it's in the near plane.
 	float4 PerformNearPlaneDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
 		float numberOfRings = blurInfo.numberOfRings + 1;		// use one extra ring as undersampling is really prominent in near-camera objects.
-		float pointsFirstRing = 9; 	// each ring has a multiple of this value of sample points. Use a couple more than far plane to battle undersampling here.
+		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. Use a couple more than far plane to battle undersampling here.
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		float4 fragmentCoords = float4(blurInfo.texcoord, 0, 0);
-		float fragmentRadius = tex2Dlod(SamplerCDFocusBlurred, fragmentCoords).x;
+		// x contains blurred CoC, y contains original CoC
+		float2 fragmentRadii = tex2Dlod(SamplerCDFocusBlurred, fragmentCoords).xy;
 
-		if(fragmentRadius <=0)
+		if(fragmentRadii.x <=0)
 		{
 			// the blurred CoC value is still 0, we'll never end up with a pixel that has a different value than fragment, so abort now by
 			// returning the fragment we already read.
 			return fragment;
 		}
 		
-		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
-		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadius);
+		float radiusInPixels = lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadii.x);
 		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
-		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadii.x * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
+		float pointsOnRing = pointsFirstRing;
+		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		for(float ringIndex = 1; ringIndex <= numberOfRings; ringIndex++)
 		{
-			float pointsOnRing = ringIndex * pointsFirstRing;
-			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (numberOfRings-ringIndex);
 			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
+			float angle = anglePerPoint;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
-				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
+				sincos(angle, pointOffset.y, pointOffset.x);
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
-				float blurredRadius = tex2Dlod(SamplerCDFocusBlurred, tapCoords).x;
-				float originalRadius = tex2Dlod(SamplerCDFocus, tapCoords).x;
-				// [Hammon2007] formula to calculate the needed blur radius to use.
-				float sampleRadius = 2 * max(blurredRadius, originalRadius) - originalRadius;
 				float4 tap = tex2Dlod(source, tapCoords);
 				
-				float absoluteSampleRadius = abs(sampleRadius);
-				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius);
-				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
+				// x contains blurred CoC, y contains original CoC
+				float2 sampleRadii = tex2Dlod(SamplerCDFocusBlurred, tapCoords).xy;
+				float absoluteSampleRadius = sampleRadii.x + (sampleRadii.y > 0 ? fragmentRadii.x : 0);		// bleed the background into foreground for fake background reconstruction in blurred phase
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadii.x);
+				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdNearPlane) * (sampleRadii.y < 0 ? HighlightGainNearPlane : 0), 0);
 				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
+				angle+=anglePerPoint;
 			}
+			pointsOnRing+=pointsFirstRing;
+			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
-		fragment.xyz = average.xyz/average.w;
+		fragment.xyz = lerp(fragment.xyz, average.xyz/average.w, saturate(3*(fragmentRadii.y < 0 ? 1.0 : fragmentRadii.x)));
 		return fragment;
 	}
 
@@ -396,10 +389,9 @@ namespace CinematicDOF
 	{
 		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
-		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
-		float absoluteFragmentRadius = abs(signedFragmentRadius);
+		float fragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
 		// we'll not process near plane fragments as they're processed in a separate pass. 
-		if(signedFragmentRadius <= 0)
+		if(fragmentRadius <= 0)
 		{
 			// near plane fragment, will be done in near plane pass 
 			return fragment;
@@ -408,24 +400,24 @@ namespace CinematicDOF
 		// as the disc radii are [-1, 1] we can't use them directly as radii for discs to gather with. We have to make a mapping between [0-1]
 		// and the max blur range we want to support. Say we want to have a max blur range of 5% of the screen (so 0.05). 
 		// which is on a 1080p screen 96 pixels. So we lerp between 0 and 0.05 with the disc size (which can be max 1.0)
-		// Value is factor 100 too high in the UI to give the user better control over the value, so we divide by 100.
 		// We need it in pixels as we need to take into account the pixel size to keep the aspect ratio correct for the disc blur sampling
-		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, absoluteFragmentRadius);
+		float radiusInPixels = lerp(0.0, blurInfo.farPlaneMaxBlurInPixels, fragmentRadius);
 		float threshold = max((dot(fragment.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
-		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * absoluteFragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
+		float4 average = float4((fragment.xyz + lerp(0, fragment.xyz, threshold * fragmentRadius * 0.1)) * saturate(1-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / (blurInfo.numberOfRings-1);
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
+		float pointsOnRing = pointsFirstRing;
+		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings; ringIndex++)
 		{
-			float pointsOnRing = ringIndex * pointsFirstRing;
-			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (blurInfo.numberOfRings-ringIndex);
 			float ringHighlightMax = ringIndex/blurInfo.numberOfRings;
+			float angle = anglePerPoint;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
-				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
+				sincos(angle, pointOffset.y, pointOffset.x);
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
@@ -434,11 +426,14 @@ namespace CinematicDOF
 				float absoluteSampleRadius = abs(signedSampleRadius);
 				// this weight is the 'best' I could find against bleed of 'almost in focus' pixels. It's not ideal, but after a lot of 
 				// different setups, I can only conclude: nothing is. 
-				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * absoluteFragmentRadius) * (signedSampleRadius < 0 ? 0 : 1);
+				float weight = lerp(1, ringHighlightMax, HighlightEdgeBias) * saturate(absoluteSampleRadius * fragmentRadius) * (signedSampleRadius < 0 ? 0 : 1);
 				threshold = max((dot(tap.xyz, float3(0.3, 0.59, 0.11)) - HighlightThresholdFarPlane) * HighlightGainFarPlane, 0);
 				average.xyz += (tap.xyz + lerp(0, tap.xyz, threshold * absoluteSampleRadius)) * weight;
 				average.w += weight;
+				angle+=anglePerPoint;
 			}
+			pointsOnRing+=pointsFirstRing;
+			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
 		fragment.xyz = average.xyz/(average.w + (average.w==0));
 		return fragment;
@@ -454,7 +449,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source.
 	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, float radiusFactor, sampler2D source)
 	{
-		float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
+		float pointsFirstRing = 6; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		float signedFragmentRadius = tex2Dlod(SamplerCDFocus, float4(blurInfo.texcoord, 0, 0)).x * radiusFactor;
 		float absoluteFragmentRadius = abs(signedFragmentRadius);
@@ -466,15 +461,16 @@ namespace CinematicDOF
 		float2 pointOffset = float2(0,0);
 		float ringRadiusDeltaInPixels = radiusInPixels / ((blurInfo.numberOfRings-1) + (blurInfo.numberOfRings==1));
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * ringRadiusDeltaInPixels;
+		float pointsOnRing = pointsFirstRing;
+		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		for(float ringIndex = 1; ringIndex <= blurInfo.numberOfRings-1; ringIndex++)
 		{
-			float pointsOnRing = ringIndex * pointsFirstRing;
-			float2 currentRingRadiusCoords = ringRadiusDeltaCoords * ringIndex;
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float ringWeight = (blurInfo.numberOfRings-ringIndex);
+			float angle = anglePerPoint;
 			for(float pointNumber = 1; pointNumber <= pointsOnRing; pointNumber++)
 			{
-				sincos(anglePerPoint * pointNumber, pointOffset.y, pointOffset.x);
+				sincos(angle, pointOffset.y, pointOffset.x);
 				// adjust with radius of ring and pixel size to get back to sampler units and to get circular bokeh on every aspect ratio
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float signedSampleRadius = tex2Dlod(SamplerCDFocus, tapCoords).x * radiusFactor;
@@ -484,7 +480,10 @@ namespace CinematicDOF
 				float weight = ringWeight * saturate(abs(signedSampleRadius)*absoluteFragmentRadius) * (((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius < 0 && isNearPlaneFragment)) ? 1 : 0);
 				average.xyz += tap.xyz * weight;
 				average.w += weight;
+				angle+=anglePerPoint;
 			}
+			pointsOnRing+=pointsFirstRing;
+			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
 		fragment.xyz = average.xyz/average.w;
 		return fragment;
@@ -522,12 +521,13 @@ namespace CinematicDOF
 		float coc = GetBlurDiscRadiusFromSource(source, texcoord, flattenToZero);
 		coc *= weight[0];
 		
-		float2 factorToUse = offsetWeight * NearPlaneEdgeBlurStrength;
+		float2 factorToUse = offsetWeight * NearPlaneMaxBlur;
 		for(int i = 1; i < 18; ++i)
 		{
 			float2 coordOffset = factorToUse * offset[i];
-			coc += GetBlurDiscRadiusFromSource(source, texcoord + coordOffset, flattenToZero) * weight[i];
-			coc += GetBlurDiscRadiusFromSource(source, texcoord - coordOffset, flattenToZero) * weight[i];
+			float weightSample = weight[i];
+			coc += GetBlurDiscRadiusFromSource(source, texcoord + coordOffset, flattenToZero) * weightSample;
+			coc += GetBlurDiscRadiusFromSource(source, texcoord - coordOffset, flattenToZero) * weightSample;
 		}
 		
 		return saturate(coc);
@@ -546,7 +546,8 @@ namespace CinematicDOF
 
 		float coc = tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x;
 		float4 fragment = tex2Dlod(source, float4(texcoord, 0, 0));
-		if(abs(coc) < length(ReShade::PixelSize))
+		float absoluteCoC = abs(coc);
+		if(absoluteCoC < length(ReShade::PixelSize))
 		{
 			// in focus, ignore
 			return fragment;
@@ -556,8 +557,9 @@ namespace CinematicDOF
 		for(int i = 1; i < 18; ++i)
 		{
 			float2 coordOffset = factorToUse * offset[i];
-			fragment.rgb += tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).rgb * weight[i];
-			fragment.rgb += tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).rgb * weight[i];
+			float weightSample = weight[i];
+			fragment.rgb += tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).rgb * weightSample;
+			fragment.rgb += tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).rgb * weightSample;
 		}
 		return saturate(fragment);
 	}
@@ -672,10 +674,10 @@ namespace CinematicDOF
 	}
 
 	// Pixel shader which performs the second part of the gaussian blur on the blur disc values
-	void PS_CoCGaussian2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
+	void PS_CoCGaussian2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 fragment : SV_Target0)
 	{
-		// from tmp1 to tmp2
-		fragment = PerformSingleValueGaussianBlur(SamplerCDFocusTmp1, texcoord, float2(0.0, ReShade::PixelSize.y), false);
+		// from tmp1 to tmp2. Merge original CoC into g.
+		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDFocusTmp1, texcoord, float2(0.0, ReShade::PixelSize.y), false), tex2D(SamplerCDFocus, texcoord).x);
 	}
 
 	// Pixel shader which performs the first part of the gaussian post-blur smoothing pass, to iron out undersampling issues with the disc blur
@@ -701,8 +703,8 @@ namespace CinematicDOF
 		}
 		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer2, texcoord, float2(0.0, ReShade::PixelSize.y));
 		float4 originalFragment = tex2D(SamplerCDBuffer1, texcoord);
-		float coc = tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x;
-		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(6 * coc));		// weight based on coc radius combined with a magic value that fell out of the magic hatter's hat. Magic!
+		float coc = abs(tex2Dlod(SamplerCDFocus, float4(texcoord, 0, 0)).x);
+		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(coc < length(ReShade::PixelSize) ? 0 : coc));
 		fragment.w = 1.0;
 	}
 
