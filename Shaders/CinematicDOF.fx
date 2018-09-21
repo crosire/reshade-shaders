@@ -56,9 +56,6 @@
 // [Jimenez2014]	Jorge Jimenez, Sledgehammer Games: Next generation post processing in Call of Duty Advanced Warfare, SIGGRAPH2014
 //					http://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare
 //
-// [Hammon2007]		Earl Hammon, jr, Infinity Ward: Practical Post-Processing Detph of Field, CPU Gems 3, ch. 28.
-//					http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.302.2964&rep=rep1&type=pdf
-//
 // [Nilsson2012]	Filip Nilsson: Implementing realistic depth of field in OpenGL. 
 //					http://fileadmin.cs.lth.se/cs/education/edan35/lectures/12dof.pdf
 ////////////////////////////////////////////////////////////////////////////////////////////////////
