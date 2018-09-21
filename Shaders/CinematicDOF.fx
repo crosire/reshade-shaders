@@ -242,8 +242,8 @@ namespace CinematicDOF
 	#define PI 					3.1415926535897932
 
 	texture texCDFocus			{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
-	texture texCDFocusTmp1		{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };		// width reduced as it's not noticable 
-	texture texCDFocusBlurred	{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };		// width reduced as it's not noticable
+	texture texCDFocusTmp1		{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };	// half res, single value
+	texture texCDFocusBlurred	{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };	// half res, blurred CoC (r) and real CoC (g)
 	texture texCDBuffer1 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 	texture texCDBuffer2 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; }; 
 	texture texCDBuffer3 		{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; }; 
@@ -656,10 +656,10 @@ namespace CinematicDOF
 	}
 
 	// Pixel shader which performs the first part of the gaussian blur on the blur disc values
-	void PS_CoCGaussian1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 fragment : SV_Target0)
+	void PS_CoCGaussian1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
 		// from source CoC to tmp1
-		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDFocus, texcoord, float2(ReShade::PixelSize.x, 0.0), true), 0);
+		fragment = PerformSingleValueGaussianBlur(SamplerCDFocus, texcoord, float2(ReShade::PixelSize.x, 0.0), true);
 	}
 
 	// Pixel shader which performs the second part of the gaussian blur on the blur disc values
