@@ -26,17 +26,17 @@
 //USER EDITABLE PREPROCESSOR FUNCTIONS START//
 
 // Determines the Max Depth amount, in ReShades GUI.
-#define Depth_Max 50
+#define Depth_Max 52.5
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
 //Divergence & Convergence//
 uniform float Divergence <
 	ui_type = "drag";
 	ui_min = 1; ui_max = Depth_Max;
-	ui_label = "·Divergence Slider·";
-	ui_tooltip = "Divergence increases differences between the left and right retinal images and allows you to experience depth.\n" 
+	ui_label = "·Divergence·";
+	ui_tooltip = "Divergence increases differences between the left and right images, allows you to experience depth.\n" 
 				 "The process of deriving binocular depth information is called stereopsis.\n"
-				 "You can override this value.";
+				 "You can override this value, at an peformance cost.";
 	ui_category = "Divergence & Convergence";
 > = 25.0;
 
@@ -67,47 +67,47 @@ uniform float Auto_Depth_Range <
 	ui_category = "Divergence & Convergence";
 > = 0.0;
 
-//Depth Map//
+//Depth Buffer Adjust//
 uniform int Depth_Map <
 	ui_type = "combo";
-	ui_items = "DM0 Normal\0DM1 Normal Reversed\0";
-	ui_label = "·Depth Map Selection·";
-	ui_tooltip = "Linearization for the zBuffer also known as Depth Map.\n"
-			     "Normally you want to use DM0 or DM1 in most cases.";
-	ui_category = "Depth Map";
+	ui_items = "Z-Buffer Normal\0Z-Buffer Reversed\0";
+	ui_label = "·Z-Buffer Selection·";
+	ui_tooltip = "Select Depth Buffer Linearization.";
+	ui_category = "Depth Buffer Adjust";
 > = 0;
 
 uniform float Depth_Map_Adjust <
 	ui_type = "drag";
-	ui_min = 1.0; ui_max = 150.0;
-	ui_label = " Depth Map Adjustment";
-	ui_tooltip = "This allows for you to adjust the DM precision.\n"
-				 "Adjust this to keep it as low as possible.\n"
+	ui_min = 1.0; ui_max = 250.0;
+	ui_label = " Z-Buffer Adjustment";
+	ui_tooltip = "This allows for you to adjust Depth Buffer Precision.\n"
+				 "Try to adjust this to keep it as low as possible.\n"
+				 "Don't go too high with this adjustment.\n"
 				 "Default is 7.5";
-	ui_category = "Depth Map";
+	ui_category = "Depth Buffer Adjust";
 > = 7.5;
 
 uniform float Offset <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 1.0;
-	ui_label = " Depth Map Offset";
-	ui_tooltip = "Depth Map Offset is for non conforming ZBuffer.\n"
-				 "It,s rare if you need to use this in any game.\n"
-				 "Use this to make adjustments to DM 0 or DM 1.\n"
-				 "Default and starts at Zero, & it's Off.";
-	ui_category = "Depth Map";
+	ui_label = " Z-Buffer Offset";
+	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
+				 "It's rare if you need to use this in any game.\n"
+				 "This makes adjustments to Normal and Reversed.\n"
+				 "Default is Zero & Zero is Off.";
+	ui_category = "Depth Buffer Adjust";
 > = 0.0;
 
 uniform bool Depth_Map_View <
-	ui_label = " Depth Map View";
-	ui_tooltip = "Display the Depth Map.";
-	ui_category = "Depth Map";
+	ui_label = " Display Depth";
+	ui_tooltip = "Display the Depth Buffer.";
+	ui_category = "Depth Buffer Adjust";
 > = false;
 
 uniform bool Depth_Map_Flip <
-	ui_label = " Depth Map Flip";
-	ui_tooltip = "Flip the depth map if it is upside down.";
-	ui_category = "Depth Map";
+	ui_label = " Flip Depth";
+	ui_tooltip = "Flip the Depth Buffer if it is upside down.";
+	ui_category = "Depth Buffer Adjust";
 > = false;
 
 //Weapon Hand Scale Options//
@@ -292,32 +292,32 @@ float NearestScaled( float DM )
 
 void DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 Color : SV_Target)
 {		
-		float R,G,B,A = 1.0;
-		if (Depth_Map_Flip)
-			texcoord.y =  1 - texcoord.y;
-			
-		float zBuffer = tex2D(DepthBuffer, texcoord).r; //Depth Buffer
+	float R,G,B,A = 1.0;
+	if (Depth_Map_Flip)
+		texcoord.y =  1 - texcoord.y;
+		
+	float zBuffer = tex2D(DepthBuffer, texcoord).r; //Depth Buffer
 
-		//Conversions to linear space.....
-		//Near & Far Adjustment
-		float Far = 1, Near = 0.125/Depth_Map_Adjust, NearLocked = 0.125/7.5; //Division Depth Map Adjust - Near
-		
-		float2 DM, Offsets = float2(1 + Offset,1 - Offset), Z = float2( zBuffer, 1 - zBuffer );
-		
-		if (Offset > 0)
-		Z = min( 1, float2( Z.x*Offsets.x , ( Z.y - 0.0 ) / ( Offsets.y - 0.0 ) ) );
-		
-		if (Depth_Map == 0) //DM0. Normal
-		{
-			DM = float2( 2.0 * Near * Far / (Far + Near - (2.0 * Z.x - 1.0) * (Far - Near)), 2.0 * NearLocked * Far / (Far + NearLocked - (2.0 * Z.x - 1.0) * (Far - NearLocked)) );
-		}		
-		else //DM1. Reverse
-		{
-			DM = float2( 2.0 * Near * Far / (Far + Near - Z.y * (Far - Near)) , 2.0 * NearLocked * Far / (Far + NearLocked - Z.y * (Far - NearLocked)) );
-		}
-		
-		R = saturate(DM.x);
-		G = saturate(NearestScaled(DM.y));
+	//Conversions to linear space.....
+	//Near & Far Adjustment
+	float Far = 1, Near = 0.125/Depth_Map_Adjust, NearLocked = 0.125/7.5; //Division Depth Map Adjust - Near
+	
+	float2 DM, Offsets = float2(1 + Offset,1 - Offset), Z = float2( zBuffer, 1 - zBuffer );
+	
+	if (Offset > 0)
+	Z = min( 1, float2( Z.x*Offsets.x , ( Z.y - 0.0 ) / ( Offsets.y - 0.0 ) ) );
+	
+	if (Depth_Map == 0) //DM0. Normal
+	{
+		DM = float2( 2.0 * Near * Far / (Far + Near - pow(abs(Z.x),2) * (Far - Near)), 2.0 * NearLocked * Far / (Far + NearLocked - pow(abs(Z.x),2) * (Far - NearLocked)) );
+	}		
+	else //DM1. Reverse
+	{
+		DM = float2( 2.0 * Near * Far / (Far + Near - pow(abs(Z.y),1.375) * (Far - Near)) , 2.0 * NearLocked * Far / (Far + NearLocked - pow(abs(Z.y),1.375) * (Far - NearLocked)) );
+	}
+	
+	R = saturate(DM.x);
+	G = saturate(NearestScaled(DM.y));
 	
 	Color = float4(R,G,B,A);
 }
@@ -330,61 +330,60 @@ float AutoDepthRange( float d, float2 texcoord )
 
 float Conv(float2 DM_IN,float2 texcoord)
 {
-	float DM, Convergence, Z = ZPD, ZP = 0.54875;
+	float DM, Convergence, Z = ZPD, ZP = 0.54875f;
 		
-		if (ZPD == 0)
-			ZP = 1.0;
-				
-		float Convergence_A = 1 - Z / DM_IN.x;		
-		float Convergence_B = 1 - Z / DM_IN.y;
-						
-		if (Auto_Depth_Range > 0)
-		{
-			DM_IN.x = AutoDepthRange(DM_IN.x,texcoord);
-		}
+	if (Auto_Depth_Range > 0)
+	{
+		DM_IN.x = AutoDepthRange(DM_IN.x,texcoord);
+		DM_IN.y = AutoDepthRange(DM_IN.y,texcoord);
+	}
+	
+	if (ZPD == 0)
+		ZP = 1.0;
 		
-		if (Weapon_Adjust.x > 0)
-			Convergence_A = Convergence_B;
+	// You need to readjust the Z-Buffer if your going to use use the Convergence equation.
+	float2 DMC = DM_IN.xy/(1-Z);		
+					
+	float Convergence_A = 1 - Z / DMC.x;		
+	float Convergence_B = 1 - Z / DMC.y;
+			  
+	if (Weapon_Adjust.x > 0)
+		Convergence_A = Convergence_B;
+	
+	DM = DM_IN.x;		
+	Convergence	= Convergence_A;
 		
-		DM = DM_IN.x;		
-		Convergence	= Convergence_A;
-			
-		Z = lerp(Convergence,DM, ZP);
+	Z = lerp(Convergence,DM, ZP);
 		
     return Z;
 }
 
 void  Disocclusion(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0)
 {
-float A, S, MS =  Divergence * pix.x, Div = 0.09090909;
+float A, S, MS =  Divergence * pix.x, Div = 1.0f / 7.0f;
 float2 DM, dir;
 	
 	A += 5.5; // Normal
 	dir = float2(0.5,0.0);	
 	
-	const float weight[11] = {0.0,0.010,-0.010,0.020,-0.020,0.030,-0.030,0.040,-0.040,0.050,-0.050}; //By 11
+	const float weight[7] = {0.0f,0.0125f,-0.0125f,0.0375f,-0.0375f,0.05f,-0.05f};
 				
 	[loop]
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < 7; i++)
 	{	
 		S = weight[i] * MS;
-		DM += tex2Dlod(SamplerDepth,float4(texcoord + dir * S * A,0,0)).xy*Div;
+		DM += tex2Dlod(SamplerDepth,float4(texcoord + dir * S * A,0,1)).xy*Div;
 	}
 	
 	color = float4(DM.x,DM.y,0,1.0);
 }
 
 /////////////////////////////////////////L/R//////////////////////////////////////////////////////////////////////
-float DecodeFloat(float color) //Byte Shift for Debanding depth buffer in final 3D image.
-{
-	const float3 byte_to_float = float3(1.0, 1.0 / 256, 1.0 / (256 * 256));
-	return dot(color.xxx, byte_to_float);
-}
 
 void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) //zBuffer Color Channel Encode
 {
 	float2 DepthL = 1.0, DepthR = 1.0;
-	float samples[3] = {0.5,0.75,1.0}, MSL = (Divergence * 0.25) * pix.x, S, MS = Divergence * pix.x;
+	float samples[3] = {0.5f,0.75f,1.0f}, MSL = (Divergence * 0.25f) * pix.x, S, MS = Divergence * pix.x;
 		[loop]
 	for ( int i = 0 ; i < 3; i++ ) 
 	{
@@ -393,28 +392,28 @@ void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, ou
 		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4(texcoord.x + S, texcoord.y,0,0)).xy);
 	}
 	
-	float DL = Conv(DepthL,texcoord);
-	float DR = Conv(DepthR,texcoord);
-	
 	// X Left & Y Right
-	float X = texcoord.x+MS*DL, Y = (1-texcoord.x)+MS*DR;
+	float X = texcoord.x + MS * Conv(DepthL,texcoord), Y = (1 - texcoord.x) + MS * Conv(DepthR,texcoord);
 
-	color = float4(DecodeFloat(X),DecodeFloat(Y),0.0,1.0);
+	color = float4(X,Y,0.0,1.0);
+}
+
+float2 Decode(in float2 texcoord : TEXCOORD0)
+{
+	float3 X = abs(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).xxx), Y = abs(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).yyy);
+	float ByteN = 640; //Byte Shift for Debanding depth buffer in final 3D image.
+	float A = dot(X, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float
+	float B = dot(Y, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float
+	return float2(A,B);
 }
 
 float4 PS_calcLR(float2 texcoord)
 {
-	float Znum = 0;
 	float2 TCL, TCR, TexCoords = texcoord;
 	float4 color, Right, Left;
 	
-	if(ZPD_GUIDE == 1)
-		Znum = 1;
-	
-	float DepthL = Znum, DepthR = Znum, N, S, j;
-	
-	//P is Perspective Adjustment.
-	float P = Perspective * pix.x;
+	//P is Perspective Adjustment.	
+	float P = Perspective * pix.x, N, S;
 						
 	if(Eye_Swap)
 	{
@@ -464,22 +463,29 @@ float4 PS_calcLR(float2 texcoord)
 		TCL.x = TCL.x + (0.25f * pix.x);
 		TCR.x = TCR.x - (0.25f * pix.x);
 	}
+	
+	if(ZPD_GUIDE == 1)
+	{
+		Left = 0.0f;
+		Right = 0.0f;
+	}
+	else
+	{
+		Left = tex2Dlod(BackBuffer, float4(TCL,0,0));
+		Right = tex2Dlod(BackBuffer, float4(TCR,0,0));
+	}	
 		
 		[loop]
-		for (int i = 0; i < Divergence + 10; i++) 
+		for (int i = 0; i < Divergence + 5; i++) 
 		{
-			j = i + (i * 0.125f);	
 			//L
-			[flatten] if(tex2Dlod(SamplerEncode,float4(TCL.x+i*pix.x,TCL.y,0,0)).y >= (1-TCL.x))
-						DepthL = j*pix.x;
+			[flatten] if( Decode(float2(TCL.x+i*pix.x,TCL.y)).y > (1-TCL.x)-pix.x * 5 )
+						Left = tex2Dlod(BackBuffer, float4(TCL.x + i * pix.x, TCL.y,0,0));
 			
 			//R
-			[flatten] if(tex2Dlod(SamplerEncode,float4(TCR.x-i*pix.x,TCR.y,0,0)).x >= TCR.x )
-						DepthR = j*pix.x;
-		}				
-
-		Left = tex2Dlod(BackBuffer, float4(TCL.x + DepthL, TCL.y,0,0));
-		Right = tex2Dlod(BackBuffer, float4(TCR.x - DepthR, TCR.y,0,0));
+			[flatten] if( Decode(float2(TCR.x-i*pix.x,TCR.y)).x > TCR.x-pix.x * 5 )
+						Right = tex2Dlod(BackBuffer, float4(TCR.x - i * pix.x, TCR.y,0,0));
+		}		
 	
 	float4 cL = Left,cR = Right; //Left Image & Right Image
 
