@@ -805,11 +805,13 @@ namespace CinematicDOF
 	void PS_AvgCoCValues(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
 		float4 offset = ReShade::PixelSize.xyxy * float2(-0.5, 0.5).xxyy;
+		float coc = tex2D(SamplerCDCoCTmp2, texcoord).r;
 		float coc0 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xy).r;
 		float coc1 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zy).r;
 		float coc2 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xw).r;
 		float coc3 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zw).r;
-		fragment = clamp(-1, 1, (coc0 + coc1 + coc2 + coc3)/4);
+		float avg = (abs(coc) + abs(coc0) + abs(coc1) + abs(coc2) + abs(coc3))/5;
+		fragment = clamp(-1, 1, coc < 0 ? -avg : avg);
 	}
 	
 	// Pixel shader which will perform a pre-blur on the frame buffer using a blur disc smaller than the original blur disc of the pixel. 
@@ -871,7 +873,8 @@ namespace CinematicDOF
 		float4 originalFragment = tex2D(ReShade::BackBuffer, texcoord);
 		float4 farFragment = tex2D(SamplerCDBuffer2, texcoord);
 		float4 nearFragment = tex2D(SamplerCDBuffer1, texcoord);
-		float realCoC = tex2D(SamplerCDCoC, texcoord).r;
+		// multiply with far plane max blur so if we need to have 0 blur we get full res 
+		float realCoC = tex2D(SamplerCDCoC, texcoord).r * clamp(0, 1, FarPlaneMaxBlur);
 		// all CoC's > 0.1 are full far fragment, below that, we're going to blend. This avoids shimmering far plane without the need of a 
 		// 'magic' number to boost up the alpha.
 		float blendFactor = (realCoC > 0.1) ? 1 : smoothstep(0, 1, (realCoC / 0.1));
