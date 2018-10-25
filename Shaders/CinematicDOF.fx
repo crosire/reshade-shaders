@@ -605,7 +605,7 @@ namespace CinematicDOF
 				float isSamePlaneAsFragment = ((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius <= 0 && isNearPlaneFragment));
 				float weight = saturate(1 - abs(absoluteFragmentRadius - signedSampleRadius)) * isSamePlaneAsFragment;
 				float3 tap = tex2Dlod(source, tapCoords).rgb;
-				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, float3(0.3, 0.59, 0.11)) * (abs(signedSampleRadius) < 0.01 ? 0 : 1));
+				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, float3(0.3, 0.59, 0.11)) * absoluteSampleRadius * (absoluteSampleRadius < 0.01 ? 0 : 1));
 				average.rgb += tap.rgb * weight;
 				average.w += weight;
 				angle+=anglePerPoint;
