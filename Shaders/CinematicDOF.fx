@@ -444,6 +444,7 @@ namespace CinematicDOF
 	// to blend with.
 	float4 PerformNearPlaneDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		// r contains blurred CoC, g contains original CoC. Original is negative.
 		float2 fragmentRadii = tex2Dlod(SamplerCDCoCBlurred, float4(blurInfo.texcoord, 0, 0)).rg;
@@ -467,7 +468,7 @@ namespace CinematicDOF
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadiusToUse) / (numberOfRings-1);
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
-		float maxLuma = saturate((dot(fragment.rgb, float3(0.3, 0.59, 0.11)) * fragmentRadii.g)-HighlightThresholdNearPlane);
+		float maxLuma = saturate((dot(fragment.rgb, lumaDotWeight) * fragmentRadii.g)-HighlightThresholdNearPlane);
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
@@ -486,7 +487,7 @@ namespace CinematicDOF
 				float3 weightedTap = (tap.rgb + lerp(0, tap.rgb, threshold * abs(sampleRadii.r)));
 				average.rgb += weightedTap * weight;
 				average.w += weight;
-				maxLuma = max(maxLuma, saturate(dot(weightedTap.rgb, float3(0.3, 0.59, 0.11)))-HighlightThresholdNearPlane);
+				maxLuma = max(maxLuma, saturate(dot(weightedTap.rgb, lumaDotWeight))-HighlightThresholdNearPlane);
 				angle+=anglePerPoint;
 			}
 			pointsOnRing+=pointsFirstRing;
@@ -502,7 +503,7 @@ namespace CinematicDOF
 			fragment.rgb = float3(alpha, alpha, alpha);
 		}
 #endif
-		float newLuma = dot(fragment.rgb, float3(0.3, 0.59, 0.11));
+		float newLuma = dot(fragment.rgb, lumaDotWeight);
 		// increase luma to the max luma found, if setting is enabled.
 		fragment.rgb *= 1+saturate(maxLuma-newLuma) * HighlightType;
 		fragment.a = alpha;
@@ -517,6 +518,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of pixel.
 	float4 PerformDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		float fragmentRadius = tex2Dlod(SamplerCDCoC, float4(blurInfo.texcoord, 0, 0)).r;
@@ -555,7 +557,7 @@ namespace CinematicDOF
 				float3 weightedTap = (tap.rgb + lerp(0, tap.rgb, threshold * absoluteSampleRadius));
 				average.rgb += weightedTap * weight;
 				average.w += weight;
-				maxLuma = max(maxLuma, (saturate(dot(weightedTap.rgb, float3(0.3, 0.59, 0.11)) * sampleRadius))-HighlightThresholdFarPlane);
+				maxLuma = max(maxLuma, (saturate(dot(weightedTap.rgb, lumaDotWeight) * sampleRadius))-HighlightThresholdFarPlane);
 				angle+=anglePerPoint;
 			}
 			pointsOnRing+=pointsFirstRing;
@@ -563,7 +565,7 @@ namespace CinematicDOF
 		}
 		fragment.rgb = average.rgb / (average.w + (average.w==0));
 		// increase luma to the max luma found, if setting is enabled.
-		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, float3(0.3, 0.59, 0.11))) * HighlightType;
+		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, lumaDotWeight)) * HighlightType;
 		return fragment;
 	}
 	
@@ -575,6 +577,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of RGB.
 	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float radiusFactor = 1.0/5.0;
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
@@ -591,7 +594,7 @@ namespace CinematicDOF
 												* rcp((numberOfRings-1) + (numberOfRings==1));
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
-		float maxLuma = dot(fragment.rgb, float3(0.3, 0.59, 0.11)) * (absoluteFragmentRadius < 0.01 ? 0 : 1);
+		float maxLuma = dot(fragment.rgb, lumaDotWeight) * (absoluteFragmentRadius < 0.01 ? 0 : 1);
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
@@ -603,9 +606,11 @@ namespace CinematicDOF
 				float signedSampleRadius = tex2Dlod(SamplerCDCoC, tapCoords).x * radiusFactor;
 				float absoluteSampleRadius = abs(signedSampleRadius);
 				float isSamePlaneAsFragment = ((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius <= 0 && isNearPlaneFragment));
-				float weight = saturate(1 - abs(absoluteFragmentRadius - signedSampleRadius)) * isSamePlaneAsFragment;
+				float lumaWeight = saturate(1 - abs(absoluteFragmentRadius - absoluteSampleRadius));
+				float weight = lumaWeight * isSamePlaneAsFragment;
 				float3 tap = tex2Dlod(source, tapCoords).rgb;
-				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, float3(0.3, 0.59, 0.11)) * absoluteSampleRadius * (absoluteSampleRadius < 0.01 ? 0 : 1));
+				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, lumaDotWeight) * lumaWeight * 
+									  (absoluteSampleRadius < 0.2 ? 0 : smoothstep(0, 1, saturate(absoluteSampleRadius-0.2)/0.8)));
 				average.rgb += tap.rgb * weight;
 				average.w += weight;
 				angle+=anglePerPoint;
@@ -614,9 +619,9 @@ namespace CinematicDOF
 			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
 		fragment.rgb = average.rgb/(average.w + (average.w==0));
-		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, float3(0.3, 0.59, 0.11)));
+		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, lumaDotWeight));
 		// store luma of new rgb in alpha so we don't need to calculate it again.
-		fragment.a = dot(fragment.rgb, float3(0.3, 0.59, 0.11));
+		fragment.a = dot(fragment.rgb, lumaDotWeight);
 		return fragment;
 	}
 
