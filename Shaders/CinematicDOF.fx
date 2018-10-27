@@ -606,11 +606,11 @@ namespace CinematicDOF
 				float signedSampleRadius = tex2Dlod(SamplerCDCoC, tapCoords).x * radiusFactor;
 				float absoluteSampleRadius = abs(signedSampleRadius);
 				float isSamePlaneAsFragment = ((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius <= 0 && isNearPlaneFragment));
-				float lumaWeight = saturate(1 - abs(absoluteFragmentRadius - absoluteSampleRadius));
-				float weight = lumaWeight * isSamePlaneAsFragment;
+				float lumaWeight = absoluteFragmentRadius - absoluteSampleRadius < 0.001;
+				float weight = saturate(1 - abs(absoluteFragmentRadius - absoluteSampleRadius)) * isSamePlaneAsFragment * lumaWeight;
 				float3 tap = tex2Dlod(source, tapCoords).rgb;
-				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, lumaDotWeight) * lumaWeight * 
-									  (absoluteSampleRadius < 0.2 ? 0 : smoothstep(0, 1, saturate(absoluteSampleRadius-0.2)/0.8)));
+				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, lumaDotWeight) * lumaWeight
+									* (absoluteSampleRadius < 0.2 ? 0 : smoothstep(0, 1, saturate(absoluteSampleRadius-0.2)/0.8)));
 				average.rgb += tap.rgb * weight;
 				average.w += weight;
 				angle+=anglePerPoint;

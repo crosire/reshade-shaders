@@ -17,8 +17,9 @@ uniform float3 FogColor <
 
 uniform float MaxFogFactor <
 	ui_type = "drag";
-	ui_min = 0.0; ui_max=1.0;
+	ui_min = 0.000; ui_max=1.000;
 	ui_tooltip = "The maximum fog factor. 1.0 makes distant objects completely fogged out, a lower factor will shimmer them through the fog.";
+	ui_step = 0.01;
 > = 0.8;
 
 uniform float FogCurve <
@@ -29,9 +30,10 @@ uniform float FogCurve <
 
 uniform float FogStart <
 	ui_type = "drag";
-	ui_min = 0.0; ui_max=1.0;
+	ui_min = 0.000; ui_max=1.000;
+	ui_step = 0.001;
 	ui_tooltip = "Start of the fog. 0.0 is at the camera, 1.0 is at the horizon, 0.5 is halfway towards the horizon. Before this point no fog will appear.";
-> = 0.05;
+> = 0.050;
 
 uniform float BloomThreshold <
 	ui_type = "drag";
