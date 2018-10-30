@@ -95,7 +95,7 @@ uniform float fBloom_Intensity <
     ui_tooltip = "Amount of bloom applied to the image.";
     ui_type = "drag";
     ui_min = 0.0;
-    ui_max = 1.0;
+    ui_max = 10.0;
     ui_step = 0.001;
 > = 1.0;
 

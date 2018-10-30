@@ -169,7 +169,7 @@
           float4(HUERed, 360.0),//red
       };
 
-      float base;
+      int base;
       for(int i=0; i<8; i++) if(node[i].a < hsl.r*360.0 )base = i;
 
       float w = saturate((hsl.r*360.0-node[base].a)/(node[base+1].a-node[base].a));

@@ -144,7 +144,7 @@ uniform float Ascii_dithering_intensity <
 uniform bool Ascii_dithering_debug_gradient <
 	ui_label = "Dither debug gradient";
 	ui_category = "Debugging";
-> = 1;
+> = 0;
 
 /*-------------------------.
 | :: Sampler and timers :: |

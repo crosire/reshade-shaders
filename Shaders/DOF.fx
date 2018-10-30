@@ -962,9 +962,9 @@ void PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 
 	float weights[3] = { 1.0,0.75,0.5 };
 	//Why not separable? For the glory of Satan, of course!
-	for (float x = -2; x <= 2; x++)
+	for (int x = -2; x <= 2; x++)
 	{
-		for (float y = -2; y <= 2; y++)
+		for (int y = -2; y <= 2; y++)
 		{
 			float2 offset = float2(x, y);
 			float offsetweight = weights[abs(x)] * weights[abs(y)];
