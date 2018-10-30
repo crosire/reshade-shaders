@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 30-oct-2018:		v1.1.1: Near plane bugfix for high resolutions: it's now blurring resolution independently. Highlight bleed fix in near focus. 
 // 21-oct-2018:		v1.1.0: Far plane weights adjustment, half-res with upscale combiner for performance, new highlights implementation, fixed 
 //							pre-blur highlight smoothing.
 // 10-oct-2018:		v1.0.8: Improved, tile-based near-plane bleed, optimizations, far-plane large CoC bleed limitation, Highlight dimming, fixed in-focus
@@ -273,6 +274,8 @@ namespace CinematicDOF
 	#define SENSOR_SIZE			0.024		// Height of the 35mm full-frame format (36mm x 24mm)
 	#define PI 					3.1415926535897932
 	#define TILE_SIZE			2			// amount of pixels left/right/up/down of the current pixel. So 4 is 9x9
+	#define GROUND_TRUTH_SCREEN_WIDTH	1920.0f
+	#define GROUND_TRUTH_SCREEN_HEIGHT	1200.0f
 	
 	texture texCDCurrentFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the current focus depth obtained from the focus point
 	texture texCDPreviousFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the previous frame's focus depth from texCDCurrentFocus.
@@ -337,10 +340,11 @@ namespace CinematicDOF
 	// returns minCoC
 	float PerformTileGatherHorizontal(sampler source, float2 texcoord)
 	{
+		float tileSize = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
 		float minCoC = 10;
 		float coc;
 		float2 coordOffset = float2(ReShade::PixelSize.x, 0);
-		for(float i = 0; i <= TILE_SIZE; ++i) 
+		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
@@ -355,10 +359,11 @@ namespace CinematicDOF
 	// returns min CoC
 	float PerformTileGatherVertical(sampler source, float2 texcoord)
 	{
+		float tileSize = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		float minCoC = 10;
 		float coc;
 		float2 coordOffset = float2(0, ReShade::PixelSize.y);
-		for(float i = 0; i <= TILE_SIZE; ++i) 
+		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
@@ -373,10 +378,11 @@ namespace CinematicDOF
 	float PerformNeighborTileGather(sampler source, float2 texcoord)
 	{
 		float avgCoC = 0;
-		
+		float tileSizeX = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
+		float tileSizeY = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		// tile is TILE_SIZE*2+1 wide. So add that and substract that to get to neighbor tile right/left.
 		// 3x3 around center.
-		float2 baseCoordOffset = float2(ReShade::PixelSize.x * (TILE_SIZE*2+1), ReShade::PixelSize.x * (TILE_SIZE*2+1));
+		float2 baseCoordOffset = float2(ReShade::PixelSize.x * (tileSizeX*2+1), ReShade::PixelSize.x * (tileSizeY*2+1));
 		for(float i=-1;i<2;i++)
 		{
 			for(float j=-1;j<2;j++)
@@ -861,14 +867,16 @@ namespace CinematicDOF
 	void PS_CoCGaussian1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
 		// from source CoC to tmp1
-		fragment = PerformSingleValueGaussianBlur(SamplerCDCoCTileNeighbor, texcoord, float2(ReShade::PixelSize.x, 0.0), true);
+		fragment = PerformSingleValueGaussianBlur(SamplerCDCoCTileNeighbor, texcoord, 
+												  float2(ReShade::PixelSize.x * (ReShade::ScreenSize.x/GROUND_TRUTH_SCREEN_WIDTH), 0.0), true);
 	}
 
 	// Pixel shader which performs the second part of the gaussian blur on the blur disc values
 	void PS_CoCGaussian2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 fragment : SV_Target0)
 	{
 		// from tmp1 to tmp2. Merge original CoC into g.
-		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, float2(0.0, ReShade::PixelSize.y), false), tex2D(SamplerCDCoC, texcoord).x);
+		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, 
+											float2(0.0, ReShade::PixelSize.y * (ReShade::ScreenSize.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), tex2D(SamplerCDCoC, texcoord).x);
 	}
 	
 	// pixel shader which combines 2 half-res sources to a full res output. From texCDBuffer1 & 2 to texCDBuffer3.
