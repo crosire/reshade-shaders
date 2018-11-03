@@ -4,10 +4,10 @@ uniform int iUIInfo <
 	ui_type = "combo";
 	ui_label = "Info";
 	ui_tooltip = "Pick the value from 'Depth Input Settings'\n"
-				 "that lets the scene look the most natural.\n"
-				 "Then put the values from the tooltip\n"
-				 "into the settings.\n"
-				 "(Settings Tab -> Preprocessor Definitions)";
+	             "that lets the scene look the most natural.\n"
+	             "Then put the values from the tooltip\n"
+	             "into the settings.\n"
+	             "(Settings Tab -> Preprocessor Definitions)";
 	ui_items = "Info\0";
 > = 0;
 
@@ -15,13 +15,13 @@ uniform int iUIDepthSetup <
 	ui_type = "drag";
 	ui_label = "Depth Input Settings";
 	ui_tooltip = "0: RESHADE_DEPTH_INPUT_IS_REVERSED=0\n"
-				 "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
-				 "1: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
-				 "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
-				 "2: RESHADE_DEPTH_INPUT_IS_REVERSED=0\n"
-				 "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n"
-				 "3: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
-				 "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n";
+	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
+	             "1: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
+	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
+	             "2: RESHADE_DEPTH_INPUT_IS_REVERSED=0\n"
+	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n"
+	             "3: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
+	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n";
 	ui_min = 0; ui_max = 3;
 	ui_step = 0.05;
 > = 0;
@@ -29,7 +29,7 @@ uniform int iUIDepthSetup <
 uniform bool bUIUpsideDown <
 	ui_label = "Depth Buffer is Upside Down";
 	ui_tooltip = "Unchecked: RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\n"
-				 "Checked:   RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1";
+	             "Checked:   RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1";
 > = false;
 
 uniform bool bUIShowNormals <
