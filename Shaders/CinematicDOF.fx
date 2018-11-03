@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 30-oct-2018:		v1.1.1: Near plane bugfix for high resolutions: it's now blurring resolution independently. Highlight bleed fix in near focus. 
 // 21-oct-2018:		v1.1.0: Far plane weights adjustment, half-res with upscale combiner for performance, new highlights implementation, fixed 
 //							pre-blur highlight smoothing.
 // 10-oct-2018:		v1.0.8: Improved, tile-based near-plane bleed, optimizations, far-plane large CoC bleed limitation, Highlight dimming, fixed in-focus
@@ -273,6 +274,8 @@ namespace CinematicDOF
 	#define SENSOR_SIZE			0.024		// Height of the 35mm full-frame format (36mm x 24mm)
 	#define PI 					3.1415926535897932
 	#define TILE_SIZE			2			// amount of pixels left/right/up/down of the current pixel. So 4 is 9x9
+	#define GROUND_TRUTH_SCREEN_WIDTH	1920.0f
+	#define GROUND_TRUTH_SCREEN_HEIGHT	1200.0f
 	
 	texture texCDCurrentFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the current focus depth obtained from the focus point
 	texture texCDPreviousFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the previous frame's focus depth from texCDCurrentFocus.
@@ -337,10 +340,11 @@ namespace CinematicDOF
 	// returns minCoC
 	float PerformTileGatherHorizontal(sampler source, float2 texcoord)
 	{
+		float tileSize = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
 		float minCoC = 10;
 		float coc;
 		float2 coordOffset = float2(ReShade::PixelSize.x, 0);
-		for(float i = 0; i <= TILE_SIZE; ++i) 
+		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
@@ -355,10 +359,11 @@ namespace CinematicDOF
 	// returns min CoC
 	float PerformTileGatherVertical(sampler source, float2 texcoord)
 	{
+		float tileSize = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		float minCoC = 10;
 		float coc;
 		float2 coordOffset = float2(0, ReShade::PixelSize.y);
-		for(float i = 0; i <= TILE_SIZE; ++i) 
+		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
@@ -373,10 +378,11 @@ namespace CinematicDOF
 	float PerformNeighborTileGather(sampler source, float2 texcoord)
 	{
 		float avgCoC = 0;
-		
+		float tileSizeX = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
+		float tileSizeY = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		// tile is TILE_SIZE*2+1 wide. So add that and substract that to get to neighbor tile right/left.
 		// 3x3 around center.
-		float2 baseCoordOffset = float2(ReShade::PixelSize.x * (TILE_SIZE*2+1), ReShade::PixelSize.x * (TILE_SIZE*2+1));
+		float2 baseCoordOffset = float2(ReShade::PixelSize.x * (tileSizeX*2+1), ReShade::PixelSize.x * (tileSizeY*2+1));
 		for(float i=-1;i<2;i++)
 		{
 			for(float j=-1;j<2;j++)
@@ -444,6 +450,7 @@ namespace CinematicDOF
 	// to blend with.
 	float4 PerformNearPlaneDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		// r contains blurred CoC, g contains original CoC. Original is negative.
 		float2 fragmentRadii = tex2Dlod(SamplerCDCoCBlurred, float4(blurInfo.texcoord, 0, 0)).rg;
@@ -467,7 +474,7 @@ namespace CinematicDOF
 		float2 ringRadiusDeltaCoords = ReShade::PixelSize * lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadiusToUse) / (numberOfRings-1);
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
-		float maxLuma = saturate((dot(fragment.rgb, float3(0.3, 0.59, 0.11)) * fragmentRadii.g)-HighlightThresholdNearPlane);
+		float maxLuma = saturate((dot(fragment.rgb, lumaDotWeight) * fragmentRadii.g)-HighlightThresholdNearPlane);
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
@@ -486,7 +493,7 @@ namespace CinematicDOF
 				float3 weightedTap = (tap.rgb + lerp(0, tap.rgb, threshold * abs(sampleRadii.r)));
 				average.rgb += weightedTap * weight;
 				average.w += weight;
-				maxLuma = max(maxLuma, saturate(dot(weightedTap.rgb, float3(0.3, 0.59, 0.11)))-HighlightThresholdNearPlane);
+				maxLuma = max(maxLuma, saturate(dot(weightedTap.rgb, lumaDotWeight))-HighlightThresholdNearPlane);
 				angle+=anglePerPoint;
 			}
 			pointsOnRing+=pointsFirstRing;
@@ -502,7 +509,7 @@ namespace CinematicDOF
 			fragment.rgb = float3(alpha, alpha, alpha);
 		}
 #endif
-		float newLuma = dot(fragment.rgb, float3(0.3, 0.59, 0.11));
+		float newLuma = dot(fragment.rgb, lumaDotWeight);
 		// increase luma to the max luma found, if setting is enabled.
 		fragment.rgb *= 1+saturate(maxLuma-newLuma) * HighlightType;
 		fragment.a = alpha;
@@ -517,6 +524,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of pixel.
 	float4 PerformDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		float fragmentRadius = tex2Dlod(SamplerCDCoC, float4(blurInfo.texcoord, 0, 0)).r;
@@ -555,7 +563,7 @@ namespace CinematicDOF
 				float3 weightedTap = (tap.rgb + lerp(0, tap.rgb, threshold * absoluteSampleRadius));
 				average.rgb += weightedTap * weight;
 				average.w += weight;
-				maxLuma = max(maxLuma, (saturate(dot(weightedTap.rgb, float3(0.3, 0.59, 0.11)) * sampleRadius))-HighlightThresholdFarPlane);
+				maxLuma = max(maxLuma, (saturate(dot(weightedTap.rgb, lumaDotWeight) * sampleRadius))-HighlightThresholdFarPlane);
 				angle+=anglePerPoint;
 			}
 			pointsOnRing+=pointsFirstRing;
@@ -563,7 +571,7 @@ namespace CinematicDOF
 		}
 		fragment.rgb = average.rgb / (average.w + (average.w==0));
 		// increase luma to the max luma found, if setting is enabled.
-		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, float3(0.3, 0.59, 0.11))) * HighlightType;
+		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, lumaDotWeight)) * HighlightType;
 		return fragment;
 	}
 	
@@ -575,6 +583,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of RGB.
 	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float radiusFactor = 1.0/5.0;
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
@@ -591,7 +600,7 @@ namespace CinematicDOF
 												* rcp((numberOfRings-1) + (numberOfRings==1));
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
-		float maxLuma = dot(fragment.rgb, float3(0.3, 0.59, 0.11)) * (absoluteFragmentRadius < 0.01 ? 0 : 1);
+		float maxLuma = dot(fragment.rgb, lumaDotWeight) * (absoluteFragmentRadius < 0.01 ? 0 : 1);
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
@@ -603,9 +612,11 @@ namespace CinematicDOF
 				float signedSampleRadius = tex2Dlod(SamplerCDCoC, tapCoords).x * radiusFactor;
 				float absoluteSampleRadius = abs(signedSampleRadius);
 				float isSamePlaneAsFragment = ((signedSampleRadius > 0 && !isNearPlaneFragment) || (signedSampleRadius <= 0 && isNearPlaneFragment));
-				float weight = saturate(1 - abs(absoluteFragmentRadius - signedSampleRadius)) * isSamePlaneAsFragment;
+				float lumaWeight = absoluteFragmentRadius - absoluteSampleRadius < 0.001;
+				float weight = saturate(1 - abs(absoluteFragmentRadius - absoluteSampleRadius)) * isSamePlaneAsFragment * lumaWeight;
 				float3 tap = tex2Dlod(source, tapCoords).rgb;
-				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, float3(0.3, 0.59, 0.11)) * (abs(signedSampleRadius) < 0.01 ? 0 : 1));
+				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, lumaDotWeight) * lumaWeight
+									* (absoluteSampleRadius < 0.2 ? 0 : smoothstep(0, 1, saturate(absoluteSampleRadius-0.2)/0.8)));
 				average.rgb += tap.rgb * weight;
 				average.w += weight;
 				angle+=anglePerPoint;
@@ -614,9 +625,9 @@ namespace CinematicDOF
 			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
 		fragment.rgb = average.rgb/(average.w + (average.w==0));
-		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, float3(0.3, 0.59, 0.11)));
+		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, lumaDotWeight));
 		// store luma of new rgb in alpha so we don't need to calculate it again.
-		fragment.a = dot(fragment.rgb, float3(0.3, 0.59, 0.11));
+		fragment.a = dot(fragment.rgb, lumaDotWeight);
 		return fragment;
 	}
 
@@ -805,11 +816,13 @@ namespace CinematicDOF
 	void PS_AvgCoCValues(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
 		float4 offset = ReShade::PixelSize.xyxy * float2(-0.5, 0.5).xxyy;
+		float coc = tex2D(SamplerCDCoCTmp2, texcoord).r;
 		float coc0 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xy).r;
 		float coc1 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zy).r;
 		float coc2 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xw).r;
 		float coc3 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zw).r;
-		fragment = clamp(-1, 1, (coc0 + coc1 + coc2 + coc3)/4);
+		float avg = (abs(coc) + abs(coc0) + abs(coc1) + abs(coc2) + abs(coc3))/5;
+		fragment = clamp(-1, 1, coc < 0 ? -avg : avg);
 	}
 	
 	// Pixel shader which will perform a pre-blur on the frame buffer using a blur disc smaller than the original blur disc of the pixel. 
@@ -854,14 +867,16 @@ namespace CinematicDOF
 	void PS_CoCGaussian1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
 		// from source CoC to tmp1
-		fragment = PerformSingleValueGaussianBlur(SamplerCDCoCTileNeighbor, texcoord, float2(ReShade::PixelSize.x, 0.0), true);
+		fragment = PerformSingleValueGaussianBlur(SamplerCDCoCTileNeighbor, texcoord, 
+												  float2(ReShade::PixelSize.x * (ReShade::ScreenSize.x/GROUND_TRUTH_SCREEN_WIDTH), 0.0), true);
 	}
 
 	// Pixel shader which performs the second part of the gaussian blur on the blur disc values
 	void PS_CoCGaussian2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float2 fragment : SV_Target0)
 	{
 		// from tmp1 to tmp2. Merge original CoC into g.
-		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, float2(0.0, ReShade::PixelSize.y), false), tex2D(SamplerCDCoC, texcoord).x);
+		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, 
+											float2(0.0, ReShade::PixelSize.y * (ReShade::ScreenSize.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), tex2D(SamplerCDCoC, texcoord).x);
 	}
 	
 	// pixel shader which combines 2 half-res sources to a full res output. From texCDBuffer1 & 2 to texCDBuffer3.
@@ -871,7 +886,8 @@ namespace CinematicDOF
 		float4 originalFragment = tex2D(ReShade::BackBuffer, texcoord);
 		float4 farFragment = tex2D(SamplerCDBuffer2, texcoord);
 		float4 nearFragment = tex2D(SamplerCDBuffer1, texcoord);
-		float realCoC = tex2D(SamplerCDCoC, texcoord).r;
+		// multiply with far plane max blur so if we need to have 0 blur we get full res 
+		float realCoC = tex2D(SamplerCDCoC, texcoord).r * clamp(0, 1, FarPlaneMaxBlur);
 		// all CoC's > 0.1 are full far fragment, below that, we're going to blend. This avoids shimmering far plane without the need of a 
 		// 'magic' number to boost up the alpha.
 		float blendFactor = (realCoC > 0.1) ? 1 : smoothstep(0, 1, (realCoC / 0.1));
