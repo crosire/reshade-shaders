@@ -450,7 +450,7 @@ namespace CinematicDOF
 	// to blend with.
 	float4 PerformNearPlaneDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
-		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		// r contains blurred CoC, g contains original CoC. Original is negative.
 		float2 fragmentRadii = tex2Dlod(SamplerCDCoCBlurred, float4(blurInfo.texcoord, 0, 0)).rg;
@@ -524,7 +524,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of pixel.
 	float4 PerformDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
-		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
 		float fragmentRadius = tex2Dlod(SamplerCDCoC, float4(blurInfo.texcoord, 0, 0)).r;
@@ -583,7 +583,7 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of RGB.
 	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
-		const float lumaDotWeight = float3(0.3, 0.59, 0.11);
+		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float radiusFactor = 1.0/5.0;
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
