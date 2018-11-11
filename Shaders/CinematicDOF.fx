@@ -32,6 +32,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 10-nov-2018:		v1.1.2: Near plane bugfix: tile gatherer should collect min CoC, not average of min CoC: now ends of narrow lines are properly handled too.
 // 30-oct-2018:		v1.1.1: Near plane bugfix for high resolutions: it's now blurring resolution independently. Highlight bleed fix in near focus. 
 // 21-oct-2018:		v1.1.0: Far plane weights adjustment, half-res with upscale combiner for performance, new highlights implementation, fixed 
 //							pre-blur highlight smoothing.
@@ -258,10 +259,16 @@ namespace CinematicDOF
 	uniform bool ShowNearCoCTiles <
 		ui_category = "Debugging";
 	> = false;
+	uniform bool ShowNearCoCTilesNeighbor <
+		ui_category = "Debugging";
+	> = false;
 	uniform bool ShowNearCoCTilesBlurred <
 		ui_category = "Debugging";
 	> = false;
 	uniform bool ShowNearPlaneAlpha <
+		ui_category = "Debugging";
+	> = false;
+	uniform bool DBVal1 <
 		ui_category = "Debugging";
 	> = false;
 #endif
@@ -297,13 +304,13 @@ namespace CinematicDOF
 	sampler SamplerCDBuffer2 			{ Texture = texCDBuffer2; };
 	sampler SamplerCDBuffer3 			{ Texture = texCDBuffer3; };
 	sampler SamplerCDBuffer4 			{ Texture = texCDBuffer4; };
-	sampler SamplerCDCoC				{ Texture = texCDCoC; };
-	sampler SamplerCDCoCTmp2			{ Texture = texCDCoCTmp2; };
-	sampler SamplerCDCoCTmp1			{ Texture = texCDCoCTmp1; };
-	sampler SamplerCDCoCBlurred			{ Texture = texCDCoCBlurred; };
+	sampler SamplerCDCoC				{ Texture = texCDCoC; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
+	sampler SamplerCDCoCTmp2			{ Texture = texCDCoCTmp2; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
+	sampler SamplerCDCoCTmp1			{ Texture = texCDCoCTmp1; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
+	sampler SamplerCDCoCBlurred			{ Texture = texCDCoCBlurred; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTileTmp			{ Texture = texCDCoCTileTmp; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTile			{ Texture = texCDCoCTile; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
-	sampler SamplerCDCoCTileNeighbor	{ Texture = texCDCoCTileNeighbor; };
+	sampler SamplerCDCoCTileNeighbor	{ Texture = texCDCoCTileNeighbor; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	
 	uniform float2 MouseCoords < source = "mousepoint"; >;
 	uniform bool LeftMouseDown < source = "mousebutton"; keycode = 0; toggle = false; >;
@@ -374,10 +381,10 @@ namespace CinematicDOF
 		return minCoC;
 	}
 	
-	// Gathers the average of the min CoC of the tile at texcoord and the 8 tiles around it. 
+	// Gathers the min CoC of the tile at texcoord and the 8 tiles around it. 
 	float PerformNeighborTileGather(sampler source, float2 texcoord)
 	{
-		float avgCoC = 0;
+		float minCoC = 10;
 		float tileSizeX = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
 		float tileSizeY = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		// tile is TILE_SIZE*2+1 wide. So add that and substract that to get to neighbor tile right/left.
@@ -389,10 +396,10 @@ namespace CinematicDOF
 			{
 				float2 coordOffset = float2(baseCoordOffset.x * i, baseCoordOffset.y * j);
 				float coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
-				avgCoC += coc;
+				minCoC = min(minCoC, coc);
 			}
 		}
-		return avgCoC/9.0;
+		return minCoC;
 	}
 
 	// Calculates an RGBA fragment based on the CoC radius specified, for debugging purposes.
@@ -664,7 +671,7 @@ namespace CinematicDOF
 		float coc = GetBlurDiscRadiusFromSource(source, texcoord, flattenToZero);
 		coc *= weight[0];
 		
-		float2 factorToUse = offsetWeight * NearPlaneMaxBlur;
+		float2 factorToUse = offsetWeight * NearPlaneMaxBlur * 0.8;
 		for(int i = 1; i < 18; ++i)
 		{
 			float2 coordOffset = factorToUse * offset[i];
@@ -921,12 +928,17 @@ namespace CinematicDOF
 		}
 		if(ShowNearCoCTiles)
 		{
-			fragment = GetDebugFragment(tex2D(SamplerCDCoCTileNeighbor, focusInfo.texcoord).r, true);
+			fragment = GetDebugFragment(tex2D(SamplerCDCoCTile, focusInfo.texcoord).r, true);
 			return;
 		}
 		if(ShowNearCoCTilesBlurred)
 		{
 			fragment = GetDebugFragment(tex2D(SamplerCDCoCBlurred, focusInfo.texcoord).r, true);
+			return;
+		}
+		if(ShowNearCoCTilesNeighbor)
+		{
+			fragment = GetDebugFragment(tex2D(SamplerCDCoCTileNeighbor, focusInfo.texcoord).r, true);
 			return;
 		}
 #endif
