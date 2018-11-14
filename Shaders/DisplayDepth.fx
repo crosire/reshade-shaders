@@ -7,6 +7,18 @@
 
 #include "Reshade.fxh"
 
+#if __RESHADE__ < 30101
+	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
+	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_REVERSED_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 0
+#else
+	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
+	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_REVERSED_DEFAULT__ 1
+	#define __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 0
+#endif
+
 uniform int iUIInfo <
 	ui_type = "combo";
 	ui_label = "How To Setting";
@@ -22,9 +34,9 @@ uniform bool bUIUsePreprocessorDefs <
 	ui_label = "Use Preprocessor Definitions";
 	ui_tooltip = "Enable this to override the values from\n"
 	             "'Depth Input Settings' with the\n"
-				 "preprocessor definitions. If all is set\n"
-				 "up correctly, no difference should be\n"
-				 "noticed.";
+	             "preprocessor definitions. If all is set\n"
+	             "up correctly, no difference should be\n"
+	             "noticed.";
 > = false;
 
 uniform float fUIFarPlane <
@@ -34,7 +46,7 @@ uniform float fUIFarPlane <
 	ui_tooltip = "*: RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=*";
 	ui_min = 0.0; ui_max = 1000.0;
 	ui_step = 0.1;
-> = __RESHADE_DEPTH_LINEARIZATION_FAR_PLANE_DEFAULT__;
+> = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;
 
 uniform int iUIUpsideDown <
 	ui_category = "Preprocessor";
@@ -43,7 +55,7 @@ uniform int iUIUpsideDown <
 	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\n"
 	             "Off: RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0";
 	ui_items = "Off\0On\0";
-> = __RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN_DEFAULT__;
+> = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
 
 uniform int iUIReversed <
 	ui_category = "Preprocessor";
@@ -52,7 +64,7 @@ uniform int iUIReversed <
 	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
 	             "Off: RESHADE_DEPTH_INPUT_IS_REVERSED=0";
 	ui_items = "Off\0On\0";
-> = __RESHADE_DEPTH_INPUT_IS_REVERSED_DEFAULT__;
+> = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
 
 uniform int iUILogArithmic <
 	ui_category = "Preprocessor";
@@ -61,7 +73,7 @@ uniform int iUILogArithmic <
 	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n"
 	             "Off: RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0";
 	ui_items = "Off\0On\0";
-> = __RESHADE_DEPTH_INPUT_IS_LOGARITHMIC_DEFAULT__;
+> = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
 
 uniform bool bUIShowNormals <
 	ui_category = "Debug";
@@ -136,7 +148,7 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 		| :: Ordered Dithering :: |
 		'------------------------*/
 		//Calculate grid position
-		float grid_position = frac( dot(texcoord, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0) ) + 0.25) );
+		float grid_position = frac( dot(texcoord, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)) + 0.25) );
 
 		//Calculate how big the shift should be
 		float dither_shift = 0.25 * (1.0 / (pow(2,dither_bit) - 1.0));
