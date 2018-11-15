@@ -7,95 +7,124 @@
 
 #include "Reshade.fxh"
 
+#if __RESHADE__ < 30101
+	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
+	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_REVERSED_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 0
+#else
+	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
+	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
+	#define __DISPLAYDEPTH_UI_REVERSED_DEFAULT__ 1
+	#define __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 0
+#endif
+
 uniform int iUIInfo <
 	ui_type = "combo";
-	ui_label = "Info";
+	ui_label = "How To Setting";
 	ui_tooltip = "Pick the value from 'Depth Input Settings'\n"
 	             "that lets the scene look the most natural.\n"
 	             "Then put the values from the tooltip into\n"
 	             "the settings.\n"
 	             "(Settings Tab -> Preprocessor Definitions)";
-	ui_items = "Info (tooltip)\0";
+	ui_items = "Pointer Here\0";
 > = 0;
-
-uniform int iUIDepthSetup <
-	ui_type = "drag";
-	ui_label = "Depth Input Settings";
-	ui_tooltip = "0: RESHADE_DEPTH_INPUT_IS_REVERSED=0\n"
-	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
-	             "1: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
-	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\n\n"
-	             "2: RESHADE_DEPTH_INPUT_IS_REVERSED=0\n"
-	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n"
-	             "3: RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
-	             "   RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n\n";
-	ui_min = 0; ui_max = 3;
-	ui_step = 0.05;
-> = 0;
-
-uniform bool bUIUpsideDown <
-	ui_label = "Depth Buffer is Upside Down";
-	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\n"
-	             "Off: RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0";
-> = false;
-
-uniform bool bUIShowNormals <
-	ui_label = "Show Normals";
-	ui_tooltip = "On:  Show Normals\n"
-	             "Off: Show Depth";
-> = true;
 
 uniform bool bUIUsePreprocessorDefs <
-	ui_label = "Check Preprocessor Definitions";
+	ui_label = "Use Preprocessor Definitions";
 	ui_tooltip = "Enable this to override the values from\n"
 	             "'Depth Input Settings' with the\n"
-				 "preprocessor definitions. If all is set\n"
-				 "up correctly, no difference should be\n"
-				 "noticed.";
+	             "preprocessor definitions. If all is set\n"
+	             "up correctly, no difference should be\n"
+	             "noticed.";
 > = false;
 
-float GetDepth(float2 texcoord, bool upside_down, int depth_setup, bool use_preprocessor)
+uniform float fUIFarPlane <
+	ui_category = "Preprocessor";
+	ui_type = "drag";
+	ui_label = "Far Plane";
+	ui_tooltip = "*: RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=*";
+	ui_min = 0.0; ui_max = 1000.0;
+	ui_step = 0.1;
+> = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;
+
+uniform int iUIUpsideDown <
+	ui_category = "Preprocessor";
+	ui_type = "combo";
+	ui_label = "Upside Down";
+	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\n"
+	             "Off: RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0";
+	ui_items = "Off\0On\0";
+> = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
+
+uniform int iUIReversed <
+	ui_category = "Preprocessor";
+	ui_type = "combo";
+	ui_label = "Reversed";
+	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
+	             "Off: RESHADE_DEPTH_INPUT_IS_REVERSED=0";
+	ui_items = "Off\0On\0";
+> = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
+
+uniform int iUILogArithmic <
+	ui_category = "Preprocessor";
+	ui_type = "combo";
+	ui_label = "Logarithmic";
+	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n"
+	             "Off: RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0";
+	ui_items = "Off\0On\0";
+> = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
+
+uniform bool bUIShowNormals <
+	ui_category = "Debug";
+	ui_type = "combo";
+	ui_label = "Show Normals";
+	ui_tooltip = "On:  Show normals\n"
+	             "Off: Show depth";
+> = true;
+
+float GetDepth(float2 texcoord)
 {
 	//Return the depth value as defined in the preprocessor definitions
-	if(use_preprocessor)
+	if(bUIUsePreprocessorDefs)
 	{
 		return ReShade::GetLinearizedDepth(texcoord);
 	}
 	
 	//Calculate the depth value as defined by the user
 	//RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
-	if(upside_down)
+	if(iUIUpsideDown)
 	{
 		texcoord.y = 1.0 - texcoord.y;
 	}
 
 	float depth = tex2Dlod(ReShade::DepthBuffer, float4(texcoord, 0, 0)).x;
 	//RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
-	if(depth_setup & 0x02)
+	if(iUILogArithmic)
 	{
 		const float C = 0.01;
 		depth = (exp(depth * log(C + 1.0)) - 1.0) / C;
 	}
 	//RESHADE_DEPTH_INPUT_IS_REVERSED
-	if(depth_setup & 0x01)
+	if(iUIReversed)
 	{
 		depth = 1.0 - depth;
 	}
 
 	const float N = 1.0;
-	return depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * (RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - N);
+	return depth /= fUIFarPlane - depth * (fUIFarPlane - N);
 }
 
-float3 NormalVector(float2 texcoord, bool upside_down, int depth_setup, bool use_preprocessor)
+float3 NormalVector(float2 texcoord)
 {
 	float3 offset = float3(ReShade::PixelSize.xy, 0.0);
 	float2 posCenter = texcoord.xy;
 	float2 posNorth = posCenter - offset.zy;
 	float2 posEast = posCenter + offset.xz;
 
-	float3 vertCenter = float3(posCenter, GetDepth(posCenter, upside_down, depth_setup, use_preprocessor));
-	float3 vertNorth = float3(posNorth, GetDepth(posNorth, upside_down, depth_setup, use_preprocessor));
-	float3 vertEast = float3(posEast, GetDepth(posEast, upside_down, depth_setup, use_preprocessor));
+	float3 vertCenter = float3(posCenter, GetDepth(posCenter));
+	float3 vertNorth = float3(posNorth, GetDepth(posNorth));
+	float3 vertEast = float3(posEast, GetDepth(posEast));
 	
 	return normalize(cross(vertCenter - vertNorth, vertCenter - vertEast)) * 0.5 + 0.5;
 }
@@ -104,11 +133,11 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 {
 	if(bUIShowNormals)
 	{
-		color = NormalVector(texcoord, bUIUpsideDown, iUIDepthSetup, bUIUsePreprocessorDefs);
+		color = NormalVector(texcoord);
 	}
 	else
 	{
-		color.rgb = GetDepth(texcoord, bUIUpsideDown, iUIDepthSetup, bUIUsePreprocessorDefs).rrr;
+		color.rgb = GetDepth(texcoord).rrr;
 
 		float dither_bit  = 8.0;  //Number of bits per channel. Should be 8 for most monitors.
 	
@@ -119,10 +148,10 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 		| :: Ordered Dithering :: |
 		'------------------------*/
 		//Calculate grid position
-		float grid_position = frac( dot(texcoord, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)  )+(0.25) ) );
+		float grid_position = frac( dot(texcoord, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)) + 0.25) );
 
 		//Calculate how big the shift should be
-		float dither_shift = (0.25) * (1.0 / (pow(2,dither_bit) - 1.0));
+		float dither_shift = 0.25 * (1.0 / (pow(2,dither_bit) - 1.0));
 
 		//Shift the individual colors differently, thus making it even harder to see the dithering pattern
 		float3 dither_shift_RGB = float3(dither_shift, -dither_shift, dither_shift); //subpixel dithering
