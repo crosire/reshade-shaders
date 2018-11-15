@@ -66,7 +66,7 @@ uniform int iUIReversed <
 	ui_items = "Off\0On\0";
 > = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
 
-uniform int iUILogArithmic <
+uniform int iUILogarithmic <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "Logarithmic";
@@ -90,7 +90,7 @@ float GetDepth(float2 texcoord)
 	{
 		return ReShade::GetLinearizedDepth(texcoord);
 	}
-	
+
 	//Calculate the depth value as defined by the user
 	//RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 	if(iUIUpsideDown)
@@ -100,7 +100,7 @@ float GetDepth(float2 texcoord)
 
 	float depth = tex2Dlod(ReShade::DepthBuffer, float4(texcoord, 0, 0)).x;
 	//RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
-	if(iUILogArithmic)
+	if(iUILogarithmic)
 	{
 		const float C = 0.01;
 		depth = (exp(depth * log(C + 1.0)) - 1.0) / C;
@@ -125,7 +125,7 @@ float3 NormalVector(float2 texcoord)
 	float3 vertCenter = float3(posCenter, GetDepth(posCenter));
 	float3 vertNorth = float3(posNorth, GetDepth(posNorth));
 	float3 vertEast = float3(posEast, GetDepth(posEast));
-	
+
 	return normalize(cross(vertCenter - vertNorth, vertCenter - vertEast)) * 0.5 + 0.5;
 }
 
@@ -139,8 +139,8 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 	{
 		color.rgb = GetDepth(texcoord).rrr;
 
-		float dither_bit  = 8.0;  //Number of bits per channel. Should be 8 for most monitors.
-	
+		const float dither_bit = 8.0; //Number of bits per channel. Should be 8 for most monitors.
+
 		//color = (tex.x*0.3+0.1); //draw a gradient for testing.
 		//#define dither_method 2 //override method for testing purposes
 
@@ -148,10 +148,10 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 		| :: Ordered Dithering :: |
 		'------------------------*/
 		//Calculate grid position
-		float grid_position = frac( dot(texcoord, (ReShade::ScreenSize * float2(1.0/16.0,10.0/36.0)) + 0.25) );
+		float grid_position = frac(dot(texcoord, (ReShade::ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
 		//Calculate how big the shift should be
-		float dither_shift = 0.25 * (1.0 / (pow(2,dither_bit) - 1.0));
+		float dither_shift = 0.25 * (1.0 / (pow(2, dither_bit) - 1.0));
 
 		//Shift the individual colors differently, thus making it even harder to see the dithering pattern
 		float3 dither_shift_RGB = float3(dither_shift, -dither_shift, dither_shift); //subpixel dithering
