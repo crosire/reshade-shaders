@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.3.4
+// Perfect Perspective PS ver. 2.4.0
 
   ////////////////////
  /////// MENU ///////
@@ -19,7 +19,7 @@ uniform int FOV <
 	ui_tooltip = "This setting should match \n
 		"your in-game Field of View";
 	ui_type = "drag";
-	ui_min = 45; ui_max = 120;
+	ui_min = 45; ui_max = 120; ui_step = 0.2;
 	ui_category = "Distortion Correction";
 > = 90;
 
@@ -74,15 +74,18 @@ uniform bool Debug <
 	ui_category = "Debug Tools";
 > = false;
 
-uniform float ResScale <
+uniform int2 ResScale <
 	ui_label = "D.S.R. Scale Factor";
 	ui_tooltip = "Dynamic Super Resolution (DSR), \n"
-		"simulates application running beyond\n
-		"native screen resolution";
+		"simulates application running beyond\n"
+		"native screen resolution\n"
+		"\n"
+		"First Value - Native Screen Resolution\n"
+		"Second Value - D.S.R. Scaled Resolution";
 	ui_type = "drag";
-	ui_min = 1.0; ui_max = 8.0; ui_step = 0.02;
+	ui_min = 16; ui_max = 16384; ui_step = 0.2;
 	ui_category = "Debug Tools";
-> = 1.0;
+> = int2(1920, 1920);
 #endif
 
   //////////////////////
@@ -174,7 +177,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 		// Calculate Pixel Size difference...
 		float PixelScale = fwidth( length(RadialCoord.xy) );
 		// ...and simulate Dynamic Super Resolution (DSR) scalar
-		PixelScale /= ResScale * fwidth( length(RadialCoord.zw) );
+		PixelScale /= float(ResScale.y) / float(ResScale.x) * fwidth( length(RadialCoord.zw) );
 		PixelScale -= 1;
 
 		// Generate supersampled-undersampled color map
