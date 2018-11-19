@@ -83,9 +83,11 @@
 static const int iBlurSamples = 4;
 static const int iAdaptResolution = MAGICBLOOM_ADAPT_RESOLUTION;
 
+#define CONST_LOG2(v) (((v) & 0xAAAAAAAA) != 0) | ((((v) & 0xFFFF0000) != 0) << 4) | ((((v) & 0xFF00FF00) != 0) << 3) | ((((v) & 0xF0F0F0F0) != 0) << 2) | ((((v) & 0xCCCCCCCC) != 0) << 1)
+
 static const float sigma = float(iBlurSamples) / 2.0;
 static const float double_pi = 6.283185307179586476925286766559;
-static const int lowest_mip = int(log(iAdaptResolution) / log(2)) + 1;
+static const int lowest_mip = CONST_LOG2(iAdaptResolution) + 1;
 static const float3 luma_value = float3(0.2126, 0.7152, 0.0722);
 
 //Uniforms
