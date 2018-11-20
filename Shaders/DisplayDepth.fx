@@ -23,20 +23,20 @@ uniform int iUIInfo <
 	ui_type = "combo";
 	ui_label = "How To Setting";
 	ui_tooltip = "This shader helps finding the right\n"
-	             "preprocessor settings for the depth\n"
-				 "input. By default the calculated normals\n"
-				 "are shown and the goal is to make the\n"
-				 "surfaces look smooth.\n"
-				 "Change the options for 'Reversed' and\n"
-				 "'Logarithmic' until this happens.\n"
-				 "\n"
-				 "When the right settings are found click\n"
-				 "'Edit global preprocessor definitions'\n"
-				 "(Variable editor in the 'Home' tab)\n"
-				 "and put them in there.\n"
-				 "\n"
-				 "In order to see the actual depth values\n"
-				 "change 'Show normals' to 'Show depth'";
+                 "preprocessor settings for the depth\n"
+                 "input. By default the calculated normals\n"
+                 "are shown and the goal is to make the\n"
+                 "surfaces look smooth.\n"
+                 "Change the options for 'Reversed' and\n"
+                 "'Logarithmic' until this happens.\n"
+                 "\n"
+                 "When the right settings are found click\n"
+                 "'Edit global preprocessor definitions'\n"
+                 "(Variable editor in the 'Home' tab)\n"
+                 "and put them in there.\n"
+                 "\n"
+                 "In order to see the actual depth values\n"
+                 "change 'Show normals' to 'Show depth'";
 	ui_items = "Pointer Here\0";
 > = 0;
 
