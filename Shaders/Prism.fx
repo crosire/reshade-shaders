@@ -18,7 +18,7 @@ http://creativecommons.org/licenses/by-nc-sa/4.0/.
 
 uniform int Aberration <
 	ui_label = "Aberration scale in pixels";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -48; ui_max = 48;
 > = 6;
 
@@ -37,7 +37,7 @@ uniform bool Automatic <
 uniform int SampleCount <
 	ui_label = "Samples";
 	ui_tooltip = "Amount of samples (only even numbers are accepted, odd numbers will be clamped)";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 6; ui_max = 32;
 	ui_category = "Performance";
 > = 8;

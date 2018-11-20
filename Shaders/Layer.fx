@@ -36,7 +36,7 @@
 uniform float Layer_Blend <
     ui_label = "Layer Blend";
     ui_tooltip = "How much to blend layer with the original image.";
-    ui_type = "drag";
+    ui_type = "slider";
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.002;

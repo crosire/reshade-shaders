@@ -6,7 +6,7 @@
 uniform float  Timer < source = "timer"; >;
 
 uniform float Amount <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 10.0;
 	ui_tooltip = "Glitch Amount [Glitch B]";

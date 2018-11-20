@@ -124,9 +124,9 @@ sampler samplerTarget
 
 Annotations to customize UI appearance:
 
- * ui_type - Can be `input`, `drag`, `drag2`, `combo` `radio` or `color`
- * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"`)
- * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"`)
+ * ui_type - Can be `input`, `drag`, `slider`, `combo` `radio` or `color`
+ * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
+ * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
  * ui_step - The value added/subtracted when clicking the button next to the slider
  * ui_items - A list of items for the combo box or radio buttons, each item is terminated with a `\0` character (required when `ui_type = "combo"` or `ui_type = "radio"`)
  * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.

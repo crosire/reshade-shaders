@@ -78,7 +78,7 @@ uniform bool Normalize <
 
 uniform float Monochrome_color_saturation <
 	ui_label = "Saturation";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.0;
 

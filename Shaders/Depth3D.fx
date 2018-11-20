@@ -47,7 +47,7 @@ uniform bool ZPD_GUIDE <
 > = false;
 
 uniform float ZPD <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.125;
 	ui_label = " Convergence";
 	ui_tooltip = "Convergence controls the focus distance for the screen Pop-out effect also known as ZPD.\n"
@@ -59,7 +59,7 @@ uniform float ZPD <
 > = 0.010;
 
 uniform float Auto_Depth_Range <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.625;
 	ui_label = " Auto Depth Range";
 	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n" 
@@ -77,7 +77,7 @@ uniform int Depth_Map <
 > = 0;
 
 uniform float Depth_Map_Adjust <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1.0; ui_max = 250.0;
 	ui_label = " Z-Buffer Adjustment";
 	ui_tooltip = "This allows for you to adjust Depth Buffer Precision.\n"
@@ -88,7 +88,7 @@ uniform float Depth_Map_Adjust <
 > = 7.5;
 
 uniform float Offset <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 1.0;
 	ui_label = " Z-Buffer Offset";
 	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
@@ -112,7 +112,7 @@ uniform bool Depth_Map_Flip <
 
 //Weapon Hand Scale Options//
 uniform int Weapon_Scale <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 2;
 	ui_label = " Weapon Scale";
 	ui_tooltip = "Use this to set the proper weapon hand scale.";
@@ -141,7 +141,7 @@ uniform int Stereoscopic_Mode <
 > = 0;
 
 uniform float Anaglyph_Desaturation <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = " Anaglyph Desaturation";
 	ui_tooltip = "Adjust anaglyph desaturation, Zero is Black & White, One is full color.";
@@ -149,7 +149,7 @@ uniform float Anaglyph_Desaturation <
 > = 1.0;
 
 uniform float Perspective <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -100; ui_max = 100;
 	ui_label = " Perspective Slider";
 	ui_tooltip = "Determines the perspective point of your stereo pair.\n"
@@ -165,7 +165,7 @@ uniform bool Eye_Swap <
 
 //Cursor Adjustments//
 uniform float4 Cross_Cursor_Adjust <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 255.0;
 	ui_label = "·Cross Cursor Adjust·";
 	ui_tooltip = "Pick your own cross cursor color & Size.\n" 

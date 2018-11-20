@@ -62,7 +62,7 @@
 */
 
 uniform int Ascii_spacing <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0;
 	ui_max = 5;
 	ui_label = "Character Spacing";
@@ -94,7 +94,7 @@ uniform int Ascii_font <
 
 
 uniform int Ascii_font_color_mode < 
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0;
 	ui_max = 2;
 	ui_label = "Font Color Mode";
@@ -133,7 +133,7 @@ uniform bool Ascii_dithering <
 > = 1;
 
 uniform float Ascii_dithering_intensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 4.0;
 	ui_label = "Dither shift intensity";

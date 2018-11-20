@@ -13,7 +13,7 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 
 uniform float Threshold <
 	ui_label = "Threshold";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.999; ui_step = 0.001;
 > = 0.1;
 

@@ -32,12 +32,12 @@ uniform bool alDebug <
 	ui_tooltip = "Activates debug mode of AL, upper bar shows detected light, lower bar shows adaptation";
 > = false;
 uniform float alInt <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Base intensity of AL";
 > = 10.15;
 uniform float alThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 100.0;
 	ui_tooltip = "Reduces intensity for not bright light";
 > = 15.00;
@@ -46,17 +46,17 @@ uniform bool AL_Adaptation <
 	ui_tooltip = "Activates adaptation algorithm";
 > = true;
 uniform float alAdapt <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Intensity of AL correction for bright light";
 > = 0.70;
 uniform float alAdaptBaseMult <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Multiplier for adaption applied to the original image";
 > = 1.00;
 uniform int alAdaptBaseBlackLvL <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "Distinction level of black and white (lower => less distinct)";
 > = 2;
@@ -75,12 +75,12 @@ uniform int AL_Adaptive <
 	ui_items = "Warm\0Cold\0Light Dependent\0";
 > = 0;
 uniform float alDirtInt <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of dirt effect";
 > = 1.0;
 uniform float alDirtOVInt <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of colored dirt effect";
 > = 1.0;
@@ -88,12 +88,12 @@ uniform bool AL_Lens <
 	ui_tooltip = "Lens effect based on AL";
 > = false;
 uniform float alLensThresh <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Reduces intensity of lens effect for not bright light";
 > = 0.5;
 uniform float alLensInt <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 10.0;
 	ui_tooltip = "Intensity of lens effect";
 > = 2.0;

@@ -26,14 +26,14 @@
 // EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float colourfulness <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -1.0; ui_max = 2.0;
 	ui_tooltip = "Degree of colourfulness, 0 = neutral";
 	ui_step = 0.01;
 > = 0.4;
 
 uniform float lim_luma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Lower values allows for more change near clipping";
 	ui_step = 0.01;

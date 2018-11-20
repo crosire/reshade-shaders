@@ -33,14 +33,14 @@ uniform int fLUT_LutSelector <
 > = 0;
 
 uniform float fLUT_AmountChroma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT chroma amount";
 	ui_tooltip = "Intensity of color/chroma change of the LUT.";
 > = 1.00;
 
 uniform float fLUT_AmountLuma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";

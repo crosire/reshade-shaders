@@ -4,13 +4,13 @@
 
 //Settings
 uniform int HighPassSharpRadius <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1; ui_max = 3;
 	ui_tooltip = "1 = 3x3 mask, 2 = 5x5 mask, 3 = 7x7 mask.";
 > = 1;
 
 uniform float HighPassSharpOffset <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius limiting the sharpening to finer details.";
 > = 1.00;
@@ -22,13 +22,13 @@ uniform int HighPassBlendMode <
 > = 1;
 
 uniform int HighPassBlendIfDark <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels below this value will be excluded from the effect. Set to 50 to target mid-tones.";
 > = 0;
 
 uniform int HighPassBlendIfLight <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels above this value will be excluded from the effect. Set to 205 to target mid-tones.";
 > = 255;
@@ -38,19 +38,19 @@ uniform bool HighPassViewBlendIfMask <
 > = false;
 
 uniform float HighPassSharpStrength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 0.400;
 
 uniform float HighPassDarkIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 > = 1.0;
 
 uniform float HighPassLightIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 > = 1.0;

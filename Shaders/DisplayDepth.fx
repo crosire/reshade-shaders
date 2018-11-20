@@ -37,7 +37,7 @@ uniform bool bUIUsePreprocessorDefs <
 	             "preprocessor definitions. If all is set\n"
 	             "up correctly, no difference should be\n"
 	             "noticed.";
-> = false;
+> = true;
 
 uniform float fUIFarPlane <
 	ui_category = "Preprocessor";

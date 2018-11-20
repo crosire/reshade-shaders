@@ -1,33 +1,33 @@
 // hq4x filter from https://www.shadertoy.com/view/MslGRS
 
 uniform float s <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 10.0;
 	ui_label = "Strength";
 	ui_tooltip = "Strength of the effect";
 > = 1.5;
 uniform float mx <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Smoothing";
 > = 1.0;
 uniform float k <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -2.0; ui_max = 0.0;
 	ui_label = "Weight Decrease Factor";
 > = -1.10;
 uniform float max_w <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Max Filter Weight";
 > = 0.75;
 uniform float min_w <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Min Filter Weight";
 > = 0.03;
 uniform float lum_add <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Effects Smoothing";
 > = 0.33;

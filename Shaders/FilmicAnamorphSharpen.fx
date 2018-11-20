@@ -13,7 +13,7 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 
 uniform float Strength <
 	ui_label = "Sharpen strength";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 3.0; ui_step = 0.005;
 > = 1.0;
 
@@ -26,14 +26,14 @@ uniform int Coefficient <
 
 uniform float Clamp <
 	ui_label = "Sharpen clamping";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.5; ui_max = 1.0; ui_step = 0.001;
 > = 1.0;
 
 uniform int Offset <
 	ui_label = "High-pass offset";
 	ui_tooltip = "High-pass cross offset in pixels";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 2;
 > = 1;
 
