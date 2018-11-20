@@ -22,11 +22,21 @@
 uniform int iUIInfo <
 	ui_type = "combo";
 	ui_label = "How To Setting";
-	ui_tooltip = "Pick the value from 'Depth Input Settings'\n"
-	             "that lets the scene look the most natural.\n"
-	             "Then put the values from the tooltip into\n"
-	             "the settings.\n"
-	             "(Settings Tab -> Preprocessor Definitions)";
+	ui_tooltip = "This shader helps finding the right\n"
+	             "preprocessor settings for the depth\n"
+				 "input. By default the calculated normals\n"
+				 "are shown and the goal is to make the\n"
+				 "surfaces look smooth.\n"
+				 "Change the options for 'Reversed' and\n"
+				 "'Logarithmic' until this happens.\n"
+				 "\n"
+				 "When the right settings are found click\n"
+				 "'Edit global preprocessor definitions'\n"
+				 "(Variable editor in the 'Home' tab)\n"
+				 "and put them in there.\n"
+				 "\n"
+				 "In order to see the actual depth values\n"
+				 "change 'Show normals' to 'Show depth'";
 	ui_items = "Pointer Here\0";
 > = 0;
 
@@ -43,7 +53,8 @@ uniform float fUIFarPlane <
 	ui_category = "Preprocessor";
 	ui_type = "drag";
 	ui_label = "Far Plane";
-	ui_tooltip = "*: RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=*";
+	ui_tooltip = "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
+	             "Changing this value is not necessary in most cases.";
 	ui_min = 0.0; ui_max = 1000.0;
 	ui_step = 0.1;
 > = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;
@@ -52,36 +63,30 @@ uniform int iUIUpsideDown <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "Upside Down";
-	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\n"
-	             "Off: RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0";
-	ui_items = "Off\0On\0";
+	ui_items = "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
 > = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
 
 uniform int iUIReversed <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "Reversed";
-	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_REVERSED=1\n"
-	             "Off: RESHADE_DEPTH_INPUT_IS_REVERSED=0";
-	ui_items = "Off\0On\0";
+	ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
 > = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
 
 uniform int iUILogarithmic <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "Logarithmic";
-	ui_tooltip = "On:  RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\n"
-	             "Off: RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0";
-	ui_items = "Off\0On\0";
+	ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
+	ui_tooltip = "Change this setting if far away objects have stripes in them";
 > = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
 
-uniform bool bUIShowNormals <
+uniform int iUIShowNormals <
 	ui_category = "Debug";
 	ui_type = "combo";
-	ui_label = "Show Normals";
-	ui_tooltip = "On:  Show normals\n"
-	             "Off: Show depth";
-> = true;
+	ui_label = "Debug";
+	ui_items = "Show depth\0Show normals\0";
+> = 1;
 
 float GetDepth(float2 texcoord)
 {
@@ -131,7 +136,7 @@ float3 NormalVector(float2 texcoord)
 
 void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
 {
-	if(bUIShowNormals)
+	if(iUIShowNormals)
 	{
 		color = NormalVector(texcoord);
 	}
