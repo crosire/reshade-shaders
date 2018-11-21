@@ -41,30 +41,30 @@ uniform float fUIFarPlane <
 uniform int iUIUpsideDown <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
-	ui_label = "Upside Down";
+	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
 > = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
 
 uniform int iUIReversed <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
-	ui_label = "Reversed";
+	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
 > = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
 
 uniform int iUILogarithmic <
 	ui_category = "Preprocessor";
 	ui_type = "combo";
-	ui_label = "Logarithmic";
+	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
-	ui_tooltip = "Change this setting if far away objects have stripes in them";
+	ui_tooltip = "Change this setting if the displayed surface normals have stripes in them";
 > = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
 
-uniform int iUIShowNormals <
-	ui_category = "Debug";
+uniform int iUIPresentType <
+	ui_category = "Options";
 	ui_type = "combo";
-	ui_label = "Debug";
-	ui_items = "Show depth\0Show normals\0";
+	ui_label = "Present type";
+	ui_items = "Depth map\0Normal map\0";
 > = 1;
 
 float GetDepth(float2 texcoord)
@@ -103,19 +103,19 @@ float3 NormalVector(float2 texcoord)
 {
 	float3 offset = float3(ReShade::PixelSize.xy, 0.0);
 	float2 posCenter = texcoord.xy;
-	float2 posNorth = posCenter - offset.zy;
-	float2 posEast = posCenter + offset.xz;
+	float2 posNorth  = posCenter - offset.zy;
+	float2 posEast   = posCenter + offset.xz;
 
 	float3 vertCenter = float3(posCenter, 1) * GetDepth(posCenter);
-	float3 vertNorth = float3(posNorth, 1) * GetDepth(posNorth);
-	float3 vertEast = float3(posEast, 1) * GetDepth(posEast);
+	float3 vertNorth  = float3(posNorth,  1) * GetDepth(posNorth);
+	float3 vertEast   = float3(posEast,   1) * GetDepth(posEast);
 
 	return normalize(cross(vertCenter - vertNorth, vertCenter - vertEast)) * 0.5 + 0.5;
 }
 
 void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
 {
-	if(iUIShowNormals)
+	if(iUIPresentType == 1)
 	{
 		color = NormalVector(texcoord);
 	}
@@ -151,19 +151,26 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 technique DisplayDepth <
 	ui_tooltip = "This shader helps finding the right\n"
                  "preprocessor settings for the depth\n"
-                 "input. By default the calculated normals\n"
+                 "input.\n"
+                 "By default the calculated normals\n"
                  "are shown and the goal is to make the\n"
-                 "surfaces look smooth.\n"
-                 "Change the options for 'Reversed' and\n"
-                 "'Logarithmic' until this happens.\n"
+                 "displayed surface normals look smooth.\n"
+                 "Change the options for *_IS_REVERSED\n"
+                 "and *_IS_LOGARITHMIC in the variable editor\n"
+                 "until this happens.\n"
+                 "\n"
+                 "Change the 'Present type' to 'Depth map'\n"
+                 "and check whether close objects are dark\n"
+                 "and far away objects are white.\n"
                  "\n"
                  "When the right settings are found click\n"
                  "'Edit global preprocessor definitions'\n"
                  "(Variable editor in the 'Home' tab)\n"
                  "and put them in there.\n"
                  "\n"
-                 "In order to see the actual depth values\n"
-                 "change 'Show normals' to 'Show depth'";
+                 "Switching between normal map and\n"
+                 "depth map is possible via 'Present type'\n"
+                 "in the Options category.";
 >
 {
 	pass
