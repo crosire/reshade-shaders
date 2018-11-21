@@ -115,7 +115,7 @@ float3 NormalVector(float2 texcoord)
 
 void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
 {
-	if(iUIPresentType)
+	if(iUIPresentType == 1)
 	{
 		color = NormalVector(texcoord);
 	}
