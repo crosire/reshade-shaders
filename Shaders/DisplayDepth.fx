@@ -152,12 +152,12 @@ technique DisplayDepth <
 	ui_tooltip = "This shader helps finding the right\n"
                  "preprocessor settings for the depth\n"
                  "input.\n"
-				 "By default the calculated normals\n"
+                 "By default the calculated normals\n"
                  "are shown and the goal is to make the\n"
                  "displayed surface normals look smooth.\n"
                  "Change the options for *_IS_REVERSED\n"
                  "and *_IS_LOGARITHMIC in the variable editor\n"
-				 "until this happens.\n"
+                 "until this happens.\n"
                  "\n"
                  "Change the 'Present type' to 'Depth map'\n"
                  "and check whether close objects are dark\n"
@@ -170,7 +170,7 @@ technique DisplayDepth <
                  "\n"
                  "Switching between normal map and\n"
                  "depth map is possible via 'Present type'\n"
-				 "in the Options category.";
+                 "in the Options category.";
 >
 {
 	pass
