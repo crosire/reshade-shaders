@@ -26,10 +26,9 @@ uniform bool bUIUsePreprocessorDefs <
 	             "preprocessor definitions. If all is set\n"
 	             "up correctly, no difference should be\n"
 	             "noticed.";
-> = true;
+> = false;
 
 uniform float fUIFarPlane <
-	ui_category = "Preprocessor";
 	ui_type = "drag";
 	ui_label = "Far Plane";
 	ui_tooltip = "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
@@ -39,21 +38,18 @@ uniform float fUIFarPlane <
 > = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;
 
 uniform int iUIUpsideDown <
-	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
 > = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
 
 uniform int iUIReversed <
-	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
 > = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
 
 uniform int iUILogarithmic <
-	ui_category = "Preprocessor";
 	ui_type = "combo";
 	ui_label = "";
 	ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
