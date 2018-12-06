@@ -40,14 +40,11 @@ uniform float Timer < source = "timer"; >;
         float3 hi = saturate(remap(color.xyz, 1.0, hibit));
         float3 uni = noise1 - 0.5;
         float3 tri = noise1 - noise2;
-        return float3(
-            lerp(uni.x, tri.x, min(lo.x, hi.x)),
-            lerp(uni.y, tri.y, min(lo.y, hi.y)),
-            lerp(uni.z, tri.z, min(lo.z, hi.z))) * lsb;
+   	 return lerp(uni, tri, min(lo, hi)) * lsb;
     }
 
 // SHADER ////////////////////////////////////////
-    float3 PS_TriDither(float2 texcoord : TEXCOORD) : SV_Target
+    float3 PS_TriDither(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
     {
         float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 
