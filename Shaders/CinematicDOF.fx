@@ -32,6 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 10-dec-2018:		v1.1.3: Removed averaging pass for CoC values as it resulted in noticeable wrong CoC values around edges in some TAA using games. The net result
+//							was minimal anyway. 
 // 10-nov-2018:		v1.1.2: Near plane bugfix: tile gatherer should collect min CoC, not average of min CoC: now ends of narrow lines are properly handled too.
 // 30-oct-2018:		v1.1.1: Near plane bugfix for high resolutions: it's now blurring resolution independently. Highlight bleed fix in near focus. 
 // 21-oct-2018:		v1.1.0: Far plane weights adjustment, half-res with upscale combiner for performance, new highlights implementation, fixed 
@@ -287,7 +289,6 @@ namespace CinematicDOF
 	texture texCDCurrentFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the current focus depth obtained from the focus point
 	texture texCDPreviousFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the previous frame's focus depth from texCDCurrentFocus.
 	texture texCDCoC				{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
-	texture texCDCoCTmp2			{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };		// Used for CoC averaging to mitigate staircases due to half res.
 	texture texCDCoCTileTmp			{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
 	texture texCDCoCTile			{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
 	texture texCDCoCTileNeighbor	{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
@@ -305,7 +306,6 @@ namespace CinematicDOF
 	sampler SamplerCDBuffer3 			{ Texture = texCDBuffer3; };
 	sampler SamplerCDBuffer4 			{ Texture = texCDBuffer4; };
 	sampler SamplerCDCoC				{ Texture = texCDCoC; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
-	sampler SamplerCDCoCTmp2			{ Texture = texCDCoCTmp2; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTmp1			{ Texture = texCDCoCTmp1; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCBlurred			{ Texture = texCDCoCBlurred; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTileTmp			{ Texture = texCDCoCTileTmp; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
@@ -817,20 +817,6 @@ namespace CinematicDOF
 #endif
 		fragment = CalculateBlurDiscSize(focusInfo);
 	}
-
-	// Pixel shader which averages the CoC around a pixel, which helps with dealing with staircases around slightly out of focus areas, and
-	// with jittered depth buffers in the situation of TAA being used in-game. Not entirely sufficient, but it's better than nothing.
-	void PS_AvgCoCValues(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
-	{
-		float4 offset = ReShade::PixelSize.xyxy * float2(-0.5, 0.5).xxyy;
-		float coc = tex2D(SamplerCDCoCTmp2, texcoord).r;
-		float coc0 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xy).r;
-		float coc1 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zy).r;
-		float coc2 = tex2D(SamplerCDCoCTmp2, texcoord + offset.xw).r;
-		float coc3 = tex2D(SamplerCDCoCTmp2, texcoord + offset.zw).r;
-		float avg = (abs(coc) + abs(coc0) + abs(coc1) + abs(coc2) + abs(coc3))/5;
-		fragment = clamp(-1, 1, coc < 0 ? -avg : avg);
-	}
 	
 	// Pixel shader which will perform a pre-blur on the frame buffer using a blur disc smaller than the original blur disc of the pixel. 
 	// This is done to overcome the undersampling gaps we have in the main blur disc sampler [Jimenez2014].
@@ -987,8 +973,7 @@ namespace CinematicDOF
 	{
 		pass DetermineCurrentFocus { VertexShader = PostProcessVS; PixelShader = PS_DetermineCurrentFocus; RenderTarget = texCDCurrentFocus; }
 		pass CopyCurrentFocus { VertexShader = PostProcessVS; PixelShader = PS_CopyCurrentFocus; RenderTarget = texCDPreviousFocus; }
-		pass CalculateCoC { VertexShader = VS_Focus; PixelShader = PS_CalculateCoCValues; RenderTarget = texCDCoCTmp2; }
-		pass AvgCoCValues { VertexShader = PostProcessVS; PixelShader = PS_AvgCoCValues; RenderTarget = texCDCoC; }
+		pass CalculateCoC { VertexShader = VS_Focus; PixelShader = PS_CalculateCoCValues; RenderTarget = texCDCoC; }
 		pass CoCTile1 { VertexShader = PostProcessVS; PixelShader = PS_CoCTile1; RenderTarget = texCDCoCTileTmp; }
 		pass CoCTile2 { VertexShader = PostProcessVS; PixelShader = PS_CoCTile2; RenderTarget = texCDCoCTile; }
 		pass CoCTileNeighbor { VertexShader = PostProcessVS; PixelShader = PS_CoCTileNeighbor; RenderTarget = texCDCoCTileNeighbor; }
