@@ -17,7 +17,7 @@
 	#define fLUT_TileAmount 32
 #endif
 #ifndef fLUT_LutAmount
-	#define fLUT_LutAmount 12
+	#define fLUT_LutAmount 17
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -26,21 +26,20 @@
 
 uniform int fLUT_LutSelector < 
 	ui_type = "combo";
-	ui_min= 0; ui_max=11;
-	ui_items="Neutral\0Color1\0Color2\0Color3 (Blue oriented)\0Color4 (Hollywood)\0Color5\0Color6\0Color7\0Color8\0Sepia\0\B&W mid constrast\0\B&W high contrast\0";
+	ui_items="Neutral\0Color1\0Color2\0Color3 (Blue oriented)\0Color4 (Hollywood)\0Color5\0Color6\0Color7\0Color8\0Cool light\0Flat & green\0Red lift matte\0Cross process\0Azure Red Dual Tone\0Sepia\0\B&W mid constrast\0\B&W high contrast\0";
 	ui_label = "The LUT to use";
 	ui_tooltip = "The LUT to use for color transformation. 'Neutral' doesn't do any color transformation.";
 > = 0;
 
 uniform float fLUT_AmountChroma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT chroma amount";
 	ui_tooltip = "Intensity of color/chroma change of the LUT.";
 > = 1.00;
 
 uniform float fLUT_AmountLuma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";

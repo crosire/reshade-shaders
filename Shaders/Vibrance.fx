@@ -1,22 +1,40 @@
 /**
- * Vibrance
- * by Christian Cann Schuldt Jensen ~ CeeJay.dk
- *
- * Vibrance intelligently boosts the saturation of pixels so pixels that had little color get a larger boost than pixels that had a lot.
- * This avoids oversaturation of pixels that were already very saturated.
+  Vibrance
+  by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ 
+  Vibrance intelligently boosts the saturation of pixels so pixels that had little color get a larger boost than pixels that had a lot.
+  This avoids oversaturation of pixels that were already very saturated.
+
+  History:
+
+  Version 1.0 by Ceejay.dk
+  - Original 
+  Version 1.1 by CeeJay.dk
+  - Introduced RBG balance to help colorblind users
+  Version 1.1.1
+  - Minor UI improvements for Reshade 3.x
  */
 
 uniform float Vibrance <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Intelligently saturates (or desaturates if you use negative values) the pixels depending on their original saturation.";
 > = 0.15;
+
 uniform float3 VibranceRGBBalance <
 	ui_type = "drag";
-	ui_min = -10; ui_max = 10;
+	ui_min = 0.0; ui_max = 10.0;
 	ui_label = "RGB Balance";
-	ui_tooltip = "A per channel multiplier to the Vibrance strength so you can give more boost to certain colors over others.";
+	ui_tooltip = "A per channel multiplier to the Vibrance strength so you can give more boost to certain colors over others.\nThis is handy if you are colorblind and less sensitive to a specific color.\nYou can then boost that color more than the others.";
 > = float3(1.0, 1.0, 1.0);
+
+/*
+uniform int Vibrance_Luma <
+	ui_type = "combo";
+	ui_label = "Luma type";
+	ui_items = "Perceptual\0Even\0";
+> = 0;
+*/
 
 #include "ReShade.fxh"
 
@@ -24,7 +42,13 @@ float3 VibrancePass(float4 position : SV_Position, float2 texcoord : TexCoord) :
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
   
-	const float3 coefLuma = float3(0.212656, 0.715158, 0.072186);
+	float3 coefLuma = float3(0.212656, 0.715158, 0.072186);
+	
+	/*
+	if (Vibrance_Luma)
+		coefLuma = float3(0.333333, 0.333334, 0.333333);
+	*/
+	
 	float luma = dot(coefLuma, color);
 
 
@@ -32,34 +56,6 @@ float3 VibrancePass(float4 position : SV_Position, float2 texcoord : TexCoord) :
 	float min_color = min(color.r, min(color.g, color.b)); // Find the weakest color
 
 	float color_saturation = max_color - min_color; // The difference between the two is the saturation
-
-/*
-	float3 sort = color;
-	float2 sort1 = (sort.r > sort.g) ? sort.gr : sort.rg;
-	float2 sort2 = (sort.g > sort.b) ? sort.bg : sort.gb;
-
-	sort.gb = (sort1.g > sort2.g) ? float2(sort2.g, sort1.g) : float2(sort1.g, sort2.g); // max is now stored in .b
-	sort.r = (sort1.r < sort2.r) ? sort1.r : sort2.r; // sorted : min is .r , med is .g and max is .b
-	
-	float color_saturation = sort.b - sort.r; // The difference between the two is the saturation
-*/
-
-/*	
-	float3 sort = color;
-	sort.rg = (sort.r > sort.g) ? sort.gr : sort.rg;
-	sort.gb = (sort.g > sort.b) ? sort.bg : sort.gb; // max is now stored in .b
-	sort.rg = (sort.r > sort.g) ? sort.gr : sort.rg; // sorted : min is .r , med is .g and max is .b
-	
-	float color_saturation = sort.b - sort.r; // The difference between the two is the saturation
-*/
-
-/*
-	float3 sort = color;
-	sort.rg = (sort.r > sort.g) ? sort.gr : sort.rg;
-	sort.gb = (sort.g > sort.b) ? sort.bg : sort.gb; // max is now stored in .b
-	
-	float color_saturation = sort.b - min(sort.r,sort.g); // The difference between the two is the saturation
-*/
 
 	// Extrapolate between luma and original by 1 + (1-saturation) - current
 	float3 coeffVibrance = float3(VibranceRGBBalance * Vibrance);

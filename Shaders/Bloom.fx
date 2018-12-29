@@ -5,17 +5,17 @@ uniform int iBloomMixmode <
 	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 2;
 uniform float fBloomThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Every pixel brighter than this value triggers bloom.";
 > = 0.8;
 uniform float fBloomAmount <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Intensity of bloom.";
 > = 0.8;
 uniform float fBloomSaturation <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Bloom saturation. 0.0 means white bloom, 2.0 means very, very colorful bloom.";
 > = 0.8;
@@ -31,12 +31,12 @@ uniform int iLensdirtMixmode <
 	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 1;
 uniform float fLensdirtIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of lensdirt.";
 > = 0.4;
 uniform float fLensdirtSaturation <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Color saturation of lensdirt.";
 > = 2.0;
@@ -48,22 +48,22 @@ uniform float3 fLensdirtTint <
 uniform bool bAnamFlareEnable <
 > = false;
 uniform float fAnamFlareThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Every pixel brighter than this value gets a flare.";
 > = 0.9;
 uniform float fAnamFlareWideness <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1.0; ui_max = 2.5;
 	ui_tooltip = "Horizontal wideness of flare. Don't set too high, otherwise the single samples are visible.";
 > = 2.4;
 uniform float fAnamFlareAmount <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1.0; ui_max = 20.0;
 	ui_tooltip = "Intensity of anamorphic flare.";
 > = 14.5;
 uniform float fAnamFlareCurve <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1.0; ui_max = 2.0;
 	ui_tooltip = "Intensity curve of flare with distance from source.";
 > = 1.2;
@@ -75,12 +75,12 @@ uniform float3 fAnamFlareColor <
 uniform bool bLenzEnable <
 > = false;
 uniform float fLenzIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.2; ui_max = 3.0;
 	ui_tooltip = "Power of lens flare effect";
 > = 1.0;
 uniform float fLenzThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.6; ui_max = 1.0;
 	ui_tooltip = "Minimum brightness an object must have to cast lensflare.";
 > = 0.8;
@@ -88,32 +88,32 @@ uniform float fLenzThreshold <
 uniform bool bChapFlareEnable <
 > = false;
 uniform float fChapFlareTreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.70; ui_max = 0.99;
 	ui_tooltip = "Brightness threshold for lensflare generation. Everything brighter than this value gets a flare.";
 > = 0.90;
 uniform int iChapFlareCount <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1; ui_max = 20;
 	ui_tooltip = "Number of single halos to be generated. If set to 0, only the curved halo around is visible.";
 > = 15;
 uniform float fChapFlareDispersal <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.25; ui_max = 1.00;
 	ui_tooltip = "Distance from screen center (and from themselves) the flares are generated. ";
 > = 0.25;
 uniform float fChapFlareSize <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.20; ui_max = 0.80;
 	ui_tooltip = "Distance (from screen center) the halo and flares are generated.";
 > = 0.45;
 uniform float3 fChapFlareCA <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -0.5; ui_max = 0.5;
 	ui_tooltip = "Offset of RGB components of flares as modifier for Chromatic abberation. Same 3 values means no CA.";
 > = float3(0.00, 0.01, 0.02);
 uniform float fChapFlareIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 5.0; ui_max = 200.0;
 	ui_tooltip = "Intensity of flares and halo, remember that higher threshold lowers intensity, you might play with both values to get desired result.";
 > = 100.0;
@@ -126,22 +126,22 @@ uniform float fGodrayDecay <
 	ui_tooltip = "How fast they decay. It's logarithmic, 1.0 means infinite long rays which will cover whole screen";
 > = 0.9900;
 uniform float fGodrayExposure <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.7; ui_max = 1.5;
 	ui_tooltip = "Upscales the godray's brightness";
 > = 1.0;
 uniform float fGodrayWeight <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.80; ui_max = 1.70;
 	ui_tooltip = "weighting";
 > = 1.25;
 uniform float fGodrayDensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.2; ui_max = 2.0;
 	ui_tooltip = "Density of rays, higher means more and brighter rays";
 > = 1.0;
 uniform float fGodrayThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.6; ui_max = 1.0;
 	ui_tooltip = "Minimum brightness an object must have to cast godrays";
 > = 0.9;
@@ -150,17 +150,17 @@ uniform int iGodraySamples <
 > = 128;
 
 uniform float fFlareLuminance <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.000; ui_max = 1.000;
 	ui_tooltip = "bright pass luminance value ";
 > = 0.095;
 uniform float fFlareBlur <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 1.0; ui_max = 10000.0;
 	ui_tooltip = "manages the size of the flare";
 > = 200.0;
 uniform float fFlareIntensity <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.20; ui_max = 5.00;
 	ui_tooltip = "effect intensity";
 > = 2.07;

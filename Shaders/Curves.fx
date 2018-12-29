@@ -17,7 +17,7 @@ uniform int Formula <
 > = 4;
 
 uniform float Contrast <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "The amount of contrast you want.";
 > = 0.65;

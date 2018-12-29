@@ -1,34 +1,50 @@
 /**
- * LumaSharpen version 1.5.0
- * by Christian Cann Schuldt Jensen ~ CeeJay.dk
- *
- * It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
- * It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
- * This is similar to using Unsharp Mask in Photoshop.
+   LumaSharpen version 1.5.0
+   by Christian Cann Schuldt Jensen ~ CeeJay.dk
+  
+   It blurs the original pixel with the surrounding pixels and then subtracts this blur to sharpen the image.
+   It does this in luma to avoid color artifacts and allows limiting the maximum sharpning to avoid or lessen halo artifacts.
+   This is similar to using Unsharp Mask in Photoshop.
+
+   Version 1.5.1
+  - UI improvements for Reshade 3.x
  */
 
 uniform float sharp_strength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 3.0;
+	ui_label = "Shapening strength";
 	ui_tooltip = "Strength of the sharpening";
+
 > = 0.65;
 uniform float sharp_clamp <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0; ui_step = 0.005;
-	ui_tooltip = "Limits maximum amount of sharpening a pixel receives";
+	ui_label = "Sharpening limit";
+	ui_tooltip = "Limits maximum amount of sharpening a pixel receives\nThis helps avoid \"haloing\" artifacts which would otherwise occur when you raised the strength too much.";
 > = 0.035;
 uniform int pattern <
 	ui_type = "combo";
-	ui_items = "Fast\0Normal\0Wider\0Pyramid shaped\0";
-	ui_tooltip = "Choose a sample pattern";
+	ui_items =	"Fast" "\0"
+				"Normal" "\0"
+				"Wider"	"\0"
+				"Pyramid shaped" "\0";
+	ui_label = "Sample pattern";
+	ui_tooltip = "Choose a sample pattern.\n"
+	"Fast is faster but slightly lower quality.\n"
+	"Normal is normal.\n"
+	"Wider is less sensitive to noise but also to fine details.\n"
+	"Pyramid has a slightly more aggresive look.";
 > = 1;
 uniform float offset_bias <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 6.0;
+	ui_label = "Offset bias";
 	ui_tooltip = "Offset bias adjusts the radius of the sampling pattern. I designed the pattern for offset_bias 1.0, but feel free to experiment.";
 > = 1.0;
 uniform bool show_sharpen <
-	ui_tooltip = "Visualize the strength of the sharpen (multiplied by 4 to see it better)";
+	ui_label = "Show sharpening pattern";
+	ui_tooltip = "Visualize the strength of the sharpen\nThis is useful for seeing what areas the sharpning affects the most";
 > = false;
 
 #include "ReShade.fxh"
@@ -136,7 +152,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		sharp_strength_luma *= 0.666; // Adjust strength to aproximate the strength of pattern 2
 	}
 
-	/*-----------------------------------------------------------.
+	 /*-----------------------------------------------------------.
 	/                            Sharpen                          /
 	'-----------------------------------------------------------*/
 
@@ -162,7 +178,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// -- Combining the values to get the final sharpened pixel	--
 	float3 outputcolor = ori + sharp_luma;    // Add the sharpening to the the original.
 
-	/*-----------------------------------------------------------.
+	 /*-----------------------------------------------------------.
 	/                     Returning the output                    /
 	'-----------------------------------------------------------*/
 

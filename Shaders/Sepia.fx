@@ -3,7 +3,7 @@ uniform float3 Tint <
 > = float3(0.55, 0.43, 0.42);
 
 uniform float Strength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.58;
 

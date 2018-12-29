@@ -4,29 +4,29 @@
  */
 
 uniform float Gamma <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Adjust midtones. 1.000 is neutral. This setting does exactly the same as the one in Lift Gamma Gain, only with less control.";
 > = 1.0;
 uniform float Exposure <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Adjust exposure";
 > = 0.0;
 uniform float Saturation <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Adjust saturation";
 > = 0.0;
 
 uniform float Bleach <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Brightens the shadows and fades the colors";
 > = 0.0;
 
 uniform float Defog <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "How much of the color tint to remove";
 > = 0.0;

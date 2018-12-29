@@ -1,27 +1,27 @@
- ////-----------//
- ///**Depth3D**///
- //-----------////
+////-----------//
+///**Depth3D**///
+//-----------////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //* Depth Map Based 3D post-process shader Depth3D v1.0 																															*//
- //* For Reshade 3.0																																								*//
- //* --------------------------																																						*//
- //* This work is licensed under a Creative Commons Attribution 3.0 Unported License.																								*//
- //* So you are free to share, modify and adapt it for your needs, and even use it for commercial use.																				*//
- //* I would also love to hear about a project you are using it with.																												*//
- //* https://creativecommons.org/licenses/by/3.0/us/																																*//
- //*																																												*//
- //* Have fun,																																										*//
- //* Jose Negrete AKA BlueSkyDefender																																				*//
- //*																																												*//
- //* http://reshade.me/forum/shader-presentation/2128-sidebyside-3d-depth-map-based-stereoscopic-shader																				*//	
- //* ---------------------------------																																				*//
- //* 																																												*//
- //* This Shader is an simplified version of SuperDepth3D_FlashBack.fx a shader I made for ReShade's collection standard effects. For the use with stereo 3D screen					*//
- //* The main shader this Depth3D shader is based on is located here. https://github.com/BlueSkyDefender/Depth3D/blob/master/Shaders/SuperDepth3D_FB.fx								*//
- //* Original work was based on Shader Based on forum user 04348 and be located here. http://reshade.me/forum/shader-presentation/1594-3d-anaglyph-red-cyan-shader-wip#15236		*//
- //*																																												*//
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//* Depth Map Based 3D post-process shader Depth3D v1.0                                                                                                                            *//
+//* For Reshade 3.0                                                                                                                                                                *//
+//* ---------------------------------------------------------------------------------------------------                                                                            *//
+//* This work is licensed under a Creative Commons Attribution 3.0 Unported License.                                                                                               *//
+//* So you are free to share, modify and adapt it for your needs, and even use it for commercial use.                                                                              *//
+//* I would also love to hear about a project you are using it with.                                                                                                               *//
+//* https://creativecommons.org/licenses/by/3.0/us/                                                                                                                                *//
+//*                                                                                                                                                                                *//
+//* Have fun,                                                                                                                                                                      *//
+//* Jose Negrete AKA BlueSkyDefender                                                                                                                                               *//
+//*                                                                                                                                                                                *//
+//* http://reshade.me/forum/shader-presentation/2128-sidebyside-3d-depth-map-based-stereoscopic-shader                                                                             *//
+//* ---------------------------------------------------------------------------------------------------                                                                            *//
+//*                                                                                                                                                                                *//
+//* This Shader is an simplified version of SuperDepth3D_FlashBack.fx a shader I made for ReShade's collection standard effects. For the use with stereo 3D screen                 *//
+//* The main shader this Depth3D shader is based on is located here. https://github.com/BlueSkyDefender/Depth3D/blob/master/Shaders/SuperDepth3D_FB.fx                             *//
+//* Original work was based on Shader Based on forum user 04348 and be located here. http://reshade.me/forum/shader-presentation/1594-3d-anaglyph-red-cyan-shader-wip#15236        *//
+//*                                                                                                                                                                                *//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS START//
 
@@ -51,7 +51,7 @@ uniform float Divergence <
 > = 25.0;
 
 uniform float ZPD <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.125;
 	ui_label = " Convergence";
 	ui_tooltip = "Convergence controls the focus distance for the screen Pop-out effect also known as ZPD.\n"
@@ -63,7 +63,7 @@ uniform float ZPD <
 > = 0.010;
 
 uniform float Auto_Depth_Range <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.625;
 	ui_label = " Auto Depth Range";
 	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n" 
@@ -92,7 +92,7 @@ uniform float Depth_Map_Adjust <
 > = 7.5;
 
 uniform float Offset <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 1.0;
 	ui_label = " Z-Buffer Offset";
 	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
@@ -164,7 +164,7 @@ uniform int Stereoscopic_Mode <
 > = 0;
 
 uniform float Anaglyph_Desaturation <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = " Anaglyph Desaturation";
 	ui_tooltip = "Adjust anaglyph desaturation, Zero is Black & White, One is full color.";

@@ -4,19 +4,19 @@
 
 //Settings
 uniform int GaussianBlurRadius <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "[0|1|2|3|4] Adjusts the blur radius. Higher values increase the radius";
 > = 1;
 
 uniform float GaussianBlurOffset <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius.";
 > = 1.00;
 
 uniform float GaussianBlurStrength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect.";
 > = 0.300;

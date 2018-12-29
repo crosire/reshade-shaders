@@ -1,5 +1,5 @@
 /**
- * Border version 1.4
+ * Border version 1.4.1
  *
  * -- Version 1.0 by Oomek --
  * Fixes light, one pixel thick border in some games when forcing MSAA like i.e. Dishonored
@@ -11,25 +11,38 @@
  * Optimized the performance further
  * -- Version 1.4 by CeeJay.dk --
  * Added the border_ratio feature
+ * -- Version 1.4.1 by CeeJay.dk --
+ * Cleaned up setting for Reshade 3.x
  */
 
+#include "ReShade.fxh"
+
+/*
 uniform float2 border_width <
 	ui_type = "input";
 	ui_label = "Size";
 	ui_tooltip = "Measured in pixels. If this is set to zero then the ratio will be used instead.";
-> = float2(0, 1);
+> = float2(0.0, 0.0);
+*/
+
+uniform float2 border_width <
+	ui_type = "drag";
+	ui_label = "Size";
+	ui_tooltip = "Measured in pixels. If this is set to zero then the ratio will be used instead.";
+	ui_min = 0.0; ui_max = (BUFFER_WIDTH * 0.5);
+	ui_step = 1.0;
+	> = float2(0.0, 0.0);
+
 uniform float border_ratio <
 	ui_type = "input";
 	ui_label = "Size Ratio";
-	ui_tooltip = "Set the desired ratio for the visible area. You MUST use floating point. Integers do not work right.\nExamples that work: (1680.0 / 1050.0), (16.0 / 10.0), (1.6)\nExamples that does NOT work right: (1680 / 1050), (16 / 10)";
+	ui_tooltip = "Set the desired ratio for the visible area.";
 > = 2.35;
 
 uniform float3 border_color <
 	ui_type = "color";
 	ui_label = "Border Color";
-> = float3(0.7, 0.0, 0.0);
-
-#include "ReShade.fxh"
+> = float3(0.0, 0.0, 0.0);
 
 float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
