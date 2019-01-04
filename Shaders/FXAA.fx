@@ -38,7 +38,7 @@ uniform float EdgeThresholdMin <
 #endif
 
 #ifndef FXAA_LINEAR_LIGHT
-	#define FXAA_LINEAR_LIGHT 1
+	#define FXAA_LINEAR_LIGHT 0
 #endif
 
 //-------------------------------------------------------------------------------------------------
@@ -53,6 +53,11 @@ uniform float EdgeThresholdMin <
 
 #define FXAA_PC 1
 #define FXAA_HLSL_3 1
+
+// Green as luma requires non-linear colorspace
+#if FXAA_GREEN_AS_LUMA
+	#undef FXAA_LINEAR_LIGHT
+#endif
 
 #include "FXAA.fxh"
 #include "ReShade.fxh"
