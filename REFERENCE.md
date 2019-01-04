@@ -124,7 +124,7 @@ sampler samplerTarget
 
 Annotations to customize UI appearance:
 
- * ui_type - Can be `input`, `drag`, `slider`, `combo` `radio` or `color`
+ * ui_type - Can be `input`, `drag`, `slider`, `combo`, `radio` or `color`
  * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
  * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
  * ui_step - The value added/subtracted when clicking the button next to the slider
