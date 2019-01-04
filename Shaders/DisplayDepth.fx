@@ -60,7 +60,7 @@ uniform int iUIPresentType <
 	ui_category = "Options";
 	ui_type = "combo";
 	ui_label = "Present type";
-	ui_items = "Depth map\0Normal map\0Show both(Vertical 50/50)\0";
+	ui_items = "Depth map\0Normal map\0Show both (Vertical 50/50)\0";
 > = 2;
 
 float GetDepth(float2 texcoord)
