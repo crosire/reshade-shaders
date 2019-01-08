@@ -213,6 +213,12 @@ uniform bool SCSC <
 
 #define pix ReShade::PixelSize
 
+float fmod(float a, float b) 
+{
+	float c = frac(abs(a / b)) * abs(b);
+	return a < 0 ? -c : c;
+}	
+
 sampler DepthBuffer
 {
 	Texture = ReShade::DepthBufferTex;
@@ -480,13 +486,13 @@ void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, ou
 {
 	float N = 3, samples[3] = {0.5f,0.75f,1.0f};
 	
-	float DepthR = 1.0f, DepthL = 1.0f, MSL = Divergence * 0.2f;
-	
+	float DepthR = 1.0f, DepthL = 1.0f, MS = (-Divergence * pix.x) * 0.1f, MSL = Divergence * 0.3f;
+
 	[loop]
 	for ( int i = 0 ; i < N; i++ ) 
 	{
-		DepthL = min(DepthL,tex2Dlod(SamplerDiso, float4(texcoord.x - (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
-		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4(texcoord.x + (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
+		DepthL = min(DepthL,tex2Dlod(SamplerDiso, float4((texcoord.x - MS) - (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
+		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4((texcoord.x + MS) + (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
 	}	
 
 	// X Right & Y Left
@@ -577,7 +583,7 @@ float4 PS_calcLR(float2 texcoord)
 		
 	if(!Depth_Map_View)
 	{	
-	float gridy = floor(TexCoords.y*BUFFER_HEIGHT);
+		float gridy = floor(TexCoords.y*BUFFER_HEIGHT);
 		
 		if(Stereoscopic_Mode == 0)
 		{	
@@ -589,7 +595,7 @@ float4 PS_calcLR(float2 texcoord)
 		}
 		else if(Stereoscopic_Mode == 2)
 		{
-			color = int(gridy) & 1 ? cR : cL;	
+			color = fmod(gridy,2.0) ? cR : cL;	
 		}
 		else if(Stereoscopic_Mode >= 3)
 		{													
