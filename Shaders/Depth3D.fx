@@ -3,8 +3,8 @@
 //-----------////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Depth Map Based 3D post-process shader Depth3D v1.0                                                                                                                            *//
-//* For Reshade 3.0                                                                                                                                                                *//
+//* Depth Map Based 3D post-process shader Depth3D v1.2.0                                                                                                                          *//
+//* For Reshade 3.0 & 4.0                                                                                                                                                          *//
 //* ---------------------------------------------------------------------------------------------------                                                                            *//
 //* This work is licensed under a Creative Commons Attribution 3.0 Unported License.                                                                                               *//
 //* So you are free to share, modify and adapt it for your needs, and even use it for commercial use.                                                                              *//
@@ -51,7 +51,7 @@ uniform float Divergence <
 > = 25.0;
 
 uniform float ZPD <
-	ui_type = "slider";
+	ui_type = "drag";
 	ui_min = 0.0; ui_max = 0.125;
 	ui_label = " Convergence";
 	ui_tooltip = "Convergence controls the focus distance for the screen Pop-out effect also known as ZPD.\n"
@@ -63,7 +63,7 @@ uniform float ZPD <
 > = 0.010;
 
 uniform float Auto_Depth_Range <
-	ui_type = "slider";
+	ui_type = "drag";
 	ui_min = 0.0; ui_max = 0.625;
 	ui_label = " Auto Depth Range";
 	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n" 
@@ -92,7 +92,7 @@ uniform float Depth_Map_Adjust <
 > = 7.5;
 
 uniform float Offset <
-	ui_type = "slider";
+	ui_type = "drag";
 	ui_min = 0; ui_max = 1.0;
 	ui_label = " Z-Buffer Offset";
 	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
@@ -164,7 +164,7 @@ uniform int Stereoscopic_Mode <
 > = 0;
 
 uniform float Anaglyph_Desaturation <
-	ui_type = "slider";
+	ui_type = "drag";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = " Anaglyph Desaturation";
 	ui_tooltip = "Adjust anaglyph desaturation, Zero is Black & White, One is full color.";
@@ -478,30 +478,29 @@ void  Disocclusion(in float4 position : SV_Position, in float2 texcoord : TEXCOO
 
 void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) //zBuffer Color Channel Encode
 {
-	float MSL, N = 3, samples[3] = {0.5f,0.75f,1.0f};
+	float N = 3, samples[3] = {0.5f,0.75f,1.0f};
 	
-	float DepthR = 1.0f, DepthL = 1.0f, MS = Divergence * pix.x;
+	float DepthR = 1.0f, DepthL = 1.0f, MSL = Divergence * 0.2f;
 	
 	[loop]
 	for ( int i = 0 ; i < N; i++ ) 
 	{
-		MSL = Divergence * 0.1875f;
 		DepthL = min(DepthL,tex2Dlod(SamplerDiso, float4(texcoord.x - (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
 		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4(texcoord.x + (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
 	}	
 
 	// X Right & Y Left
-	float X = Conv(DepthL,texcoord), Y = Conv(DepthR,texcoord), Z = Conv(tex2Dlod(SamplerDiso,float4(texcoord,0,0)).x,texcoord);
+	float X = DepthL, Y = DepthR, Z = tex2Dlod(SamplerDiso,float4(texcoord,0,0)).x;
 	color = float4(X,Y,Z,1.0);
 }
 
 float3 Decode(in float2 texcoord : TEXCOORD0)
 {
-	float MS = Divergence * pix.x, ByteN = 384; //Byte Shift for Debanding depth buffer in final 3D image.
-	float3 ZB = tex2Dlod(SamplerEncode,float4(texcoord,0,0)).xyz, X = texcoord.x + MS * ZB.xxx, Y = (1 - texcoord.x) + MS * ZB.yyy, Z = ZB.zzz;
-	float A = dot(X, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float
-	float B = dot(Y, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float
-	float C = dot(Z, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float
+	//Byte Shift for Debanding depth buffer in final 3D image & Disocclusion Decoding.
+	float ByteN = 384, MS = Divergence * pix.x, X = texcoord.x + MS * Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).x,texcoord), Y = (1 - texcoord.x) + MS * Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).y,texcoord), Z = Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).z,texcoord);
+	float A = dot(X.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float Left
+	float B = dot(Y.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float Right
+	float C = dot(Z.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float ZPD L & R
 	return float3(A,B,C);
 }
 
@@ -550,8 +549,8 @@ float4 PS_calcLR(float2 texcoord)
 		}
 	}
 	
-		float CCL = -MS * Decode(float2(TCL.x + (Divergence * 0.1875) * pix.x, TCL.y)).z;
-		float CCR = -MS * Decode(float2(TCR.x - (Divergence * 0.1875) * pix.x, TCR.y)).z;
+		float CCL = MS * Decode(float2(TCL.x + (Divergence * 0.1875) * pix.x, TCL.y)).z;
+		float CCR = MS * Decode(float2(TCR.x - (Divergence * 0.1875) * pix.x, TCR.y)).z;
 		
 		Left = tex2Dlod(BackBuffer, float4(TCL.x + CCL, TCL.y,0,0));
 		Right = tex2Dlod(BackBuffer, float4(TCR.x - CCR, TCR.y,0,0));
@@ -560,11 +559,11 @@ float4 PS_calcLR(float2 texcoord)
 		for (int i = 0; i < Divergence + 5; i++) 
 		{
 			//L
-			if( Decode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x)-pix.x )
+			if( Decode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x)-pix.x && Decode(float2(TCL.x+i*pix.x,TCL.y)).y <= (1-TCL.x)+pix.x * 7.5 )
 						Left = tex2Dlod(BackBuffer, float4(TCL.x + i * pix.x, TCL.y,0,0));
 			
 			//R
-			if( Decode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x-pix.x )
+			if( Decode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x-pix.x && Decode(float2(TCR.x-i*pix.x,TCR.y)).x <= TCR.x+pix.x * 7.5 )
 						Right = tex2Dlod(BackBuffer, float4(TCR.x - i * pix.x, TCR.y,0,0));
 		}		
 	
