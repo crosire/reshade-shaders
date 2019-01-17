@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-// Perfect Perspective PS ver. 2.4.0
+// Perfect Perspective PS ver. 2.4.1
 
   ////////////////////
  /////// MENU ///////
@@ -16,7 +16,7 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 #ifndef ShaderAnalyzer
 uniform int FOV <
 	ui_label = "Corrected Field of View";
-	ui_tooltip = "This setting should match \n
+	ui_tooltip = "This setting should match \n"
 		"your in-game Field of View";
 	ui_type = "drag";
 	ui_min = 45; ui_max = 120; ui_step = 0.2;
@@ -34,9 +34,9 @@ uniform float Vertical <
 
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
-	ui_tooltip = "If the image bulges in movement (too high FOV), \n
+	ui_tooltip = "If the image bulges in movement (too high FOV), \n"
 		"change it to 'Diagonal'.\n"
-		"When proportions are distorted at the periphery \n
+		"When proportions are distorted at the periphery \n"
 		"(too low FOV), choose 'Vertical'";
 	ui_type = "combo";
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
@@ -123,7 +123,12 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float2 ScrPixelSize = ReShade::PixelSize;
 
 	// Convert FOV type..
-	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
+	float FovType; switch(Type)
+	{
+		case 0:{ FovType = 1.0; break; } // Horizontal
+		case 1:{ FovType = sqrt(AspectR * AspectR + 1.0); break; } // Diagonal
+		case 2:{ FovType = AspectR; break; } // Vertical
+	}
 
 	// Convert UV to Radial Coordinates
 	float2 SphCoord = texcoord * 2.0 - 1.0;
