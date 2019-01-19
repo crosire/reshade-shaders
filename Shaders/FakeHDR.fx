@@ -6,17 +6,17 @@
  */
 
 uniform float HDRPower <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Power";
 > = 1.30;
 uniform float radius1 <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Radius 1";
 > = 0.793;
 uniform float radius2 <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Radius 2";
 	ui_tooltip = "Raising this seems to make the effect stronger and also brighter.";

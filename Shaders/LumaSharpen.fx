@@ -11,26 +11,33 @@
  */
 
 uniform float sharp_strength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.1; ui_max = 3.0;
 	ui_label = "Shapening strength";
 	ui_tooltip = "Strength of the sharpening";
 
 > = 0.65;
 uniform float sharp_clamp <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0; ui_step = 0.005;
 	ui_label = "Sharpening limit";
 	ui_tooltip = "Limits maximum amount of sharpening a pixel receives\nThis helps avoid \"haloing\" artifacts which would otherwise occur when you raised the strength too much.";
 > = 0.035;
 uniform int pattern <
 	ui_type = "combo";
-	ui_items = "Fast\0Normal\0Wider\0Pyramid shaped\0";
+	ui_items =	"Fast" "\0"
+				"Normal" "\0"
+				"Wider"	"\0"
+				"Pyramid shaped" "\0";
 	ui_label = "Sample pattern";
-	ui_tooltip = "Choose a sample pattern.\n* Fast is faster but slightly lower quality.\n* Normal is normal.\n* Wider is less sensitive to noise but also to fine details.\n* Pyramid has a slightly more aggresive look.";
+	ui_tooltip = "Choose a sample pattern.\n"
+	"Fast is faster but slightly lower quality.\n"
+	"Normal is normal.\n"
+	"Wider is less sensitive to noise but also to fine details.\n"
+	"Pyramid has a slightly more aggresive look.";
 > = 1;
 uniform float offset_bias <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 6.0;
 	ui_label = "Offset bias";
 	ui_tooltip = "Offset bias adjusts the radius of the sampling pattern. I designed the pattern for offset_bias 1.0, but feel free to experiment.";

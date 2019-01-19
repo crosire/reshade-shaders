@@ -42,28 +42,28 @@ uniform int MXAO_GLOBAL_SAMPLE_QUALITY_PRESET <
 > = 2;
 
 uniform float MXAO_SAMPLE_RADIUS <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.5; ui_max = 20.0;
         ui_label = "Sample Radius";
 	ui_tooltip = "Sample radius of MXAO, higher means more large-scale occlusion with less fine-scale details.";
 > = 2.5;
 
 uniform float MXAO_SAMPLE_NORMAL_BIAS <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 0.8;
         ui_label = "Normal Bias";
 	ui_tooltip = "Occlusion Cone bias to reduce self-occlusion of surfaces that have a low angle to each other.";
 > = 0.2;
 
 uniform float MXAO_GLOBAL_RENDER_SCALE <
-	ui_type = "drag";
+	ui_type = "slider";
         ui_label = "Render Size Scale";
 	ui_min = 0.50; ui_max = 1.00;
         ui_tooltip = "Factor of MXAO resolution, lower values greatly reduce performance overhead but decrease quality.\n1.0 = MXAO is computed in original resolution\n0.5 = MXAO is computed in 1/2 width 1/2 height of original resolution\n...";
 > = 1.0;
 
 uniform float MXAO_SSAO_AMOUNT <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 4.00;
         ui_label = "Ambient Occlusion Amount";
 	ui_tooltip = "Intensity of AO effect. Can cause pitch black clipping if set too high.";
@@ -71,14 +71,14 @@ uniform float MXAO_SSAO_AMOUNT <
 
 #if(MXAO_ENABLE_IL != 0)
         uniform float MXAO_SSIL_AMOUNT <
-        	ui_type = "drag";
+        	ui_type = "slider";
         	ui_min = 0.00; ui_max = 12.00;
                 ui_label = "Indirect Lighting Amount";
         	ui_tooltip = "Intensity of IL effect. Can cause overexposured white spots if set too high.";
         > = 4.00;
 
         uniform float MXAO_SSIL_SATURATION <
-        	ui_type = "drag";
+        	ui_type = "slider";
         	ui_min = 0.00; ui_max = 3.00;
                 ui_label = "Indirect Lighting Saturation";
         	ui_tooltip = "Controls color saturation of IL effect.";
@@ -87,21 +87,21 @@ uniform float MXAO_SSAO_AMOUNT <
 
 #if (MXAO_TWO_LAYER != 0)
         uniform float MXAO_SAMPLE_RADIUS_SECONDARY <
-           	ui_type = "drag";
+           	ui_type = "slider";
            	ui_min = 0.1; ui_max = 1.00;
                    ui_label = "Fine AO Scale";
            	ui_tooltip = "Multiplier of Sample Radius for fine geometry. A setting of 0.5 scans the geometry at half the radius of the main AO.";
         > = 0.2;
 
         uniform float MXAO_AMOUNT_FINE <
-             ui_type = "drag";
+             ui_type = "slider";
              ui_min = 0.00; ui_max = 1.00;
              ui_label = "Fine AO intensity multiplier";
              ui_tooltip = "Intensity of small scale AO / IL.";
         > = 1.0;
 
         uniform float MXAO_AMOUNT_COARSE <
-             ui_type = "drag";
+             ui_type = "slider";
              ui_min = 0.00; ui_max = 1.00;
              ui_label = "Coarse AO intensity multiplier";
              ui_tooltip = "Intensity of large scale AO / IL.";
@@ -116,21 +116,21 @@ uniform int MXAO_DEBUG_VIEW_ENABLE <
 > = 0;
 
 uniform int MXAO_BLEND_TYPE <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0; ui_max = 2;
         ui_label = "Blending Mode";
 	ui_tooltip = "Different blending modes for merging AO/IL with original color.\0Blending mode 0 matches formula of MXAO 2.0 and older.";
 > = 0;
 
 uniform float MXAO_FADE_DEPTH_START <
-	ui_type = "drag";
+	ui_type = "slider";
         ui_label = "Fade Out Start";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Distance where MXAO starts to fade out. 0.0 = camera, 1.0 = sky. Must be less than Fade Out End.";
 > = 0.05;
 
 uniform float MXAO_FADE_DEPTH_END <
-	ui_type = "drag";
+	ui_type = "slider";
         ui_label = "Fade Out End";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Distance where MXAO completely fades out. 0.0 = camera, 1.0 = sky. Must be greater than Fade Out Start.";

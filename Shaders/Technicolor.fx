@@ -5,7 +5,7 @@
  */
 
 uniform float Power <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 8.0;
 > = 4.0;
 uniform float3 RGBNegativeAmount <
@@ -13,7 +13,7 @@ uniform float3 RGBNegativeAmount <
 > = float3(0.88, 0.88, 0.88);
 
 uniform float Strength <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.4;
 

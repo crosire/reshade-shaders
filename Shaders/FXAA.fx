@@ -5,19 +5,19 @@
  */
 
 uniform float Subpix <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of sub-pixel aliasing removal. Higher values makes the image softer/blurrier.";
 > = 0.25;
 
 uniform float EdgeThreshold <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Edge Detection Threshold";
 	ui_tooltip = "The minimum amount of local contrast required to apply algorithm.";
 > = 0.125;
 uniform float EdgeThresholdMin <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Darkness Threshold";
 	ui_tooltip = "Pixels darker than this are not processed in order to increase performance.";
@@ -38,7 +38,7 @@ uniform float EdgeThresholdMin <
 #endif
 
 #ifndef FXAA_LINEAR_LIGHT
-	#define FXAA_LINEAR_LIGHT 1
+	#define FXAA_LINEAR_LIGHT 0
 #endif
 
 //-------------------------------------------------------------------------------------------------
@@ -53,6 +53,11 @@ uniform float EdgeThresholdMin <
 
 #define FXAA_PC 1
 #define FXAA_HLSL_3 1
+
+// Green as luma requires non-linear colorspace
+#if FXAA_GREEN_AS_LUMA
+	#undef FXAA_LINEAR_LIGHT
+#endif
 
 #include "FXAA.fxh"
 #include "ReShade.fxh"

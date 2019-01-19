@@ -18,7 +18,7 @@ uniform int FOV <
 	ui_label = "Corrected Field of View";
 	ui_tooltip = "This setting should match \n"
 		"your in-game Field of View";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 45; ui_max = 120; ui_step = 0.2;
 	ui_category = "Distortion Correction";
 > = 90;
@@ -27,8 +27,8 @@ uniform float Vertical <
 	ui_label = "Vertical Curviness Amount";
 	ui_tooltip = "1  -  Spherical projection \n"
 		"0  -  Cylindrical projection";
-	ui_type = "drag";
-	ui_min = 0.0; ui_max = 1.0;
+	ui_type = "slider";
+	ui_min = 0.0; ui_max = 1.0; ui_step = 0.1;
 	ui_category = "Distortion Correction";
 > = 0.5;
 
@@ -46,7 +46,7 @@ uniform int Type <
 uniform float Zooming <
 	ui_label = "Borders Scale";
 	ui_tooltip = "Adjust image scale to see cropped areas";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
 	ui_category = "Borders Settings";
 > = 1.0;
@@ -82,7 +82,7 @@ uniform int2 ResScale <
 		"\n"
 		"First Value - Native Screen Resolution\n"
 		"Second Value - D.S.R. Scaled Resolution";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 16; ui_max = 16384; ui_step = 0.2;
 	ui_category = "Debug Tools";
 > = int2(1920, 1920);

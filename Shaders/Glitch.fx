@@ -6,7 +6,7 @@
 uniform float  Timer < source = "timer"; >;
 
 uniform float Amount <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 10.0;
 	ui_tooltip = "Glitch Amount [Glitch B]";
@@ -19,6 +19,10 @@ uniform bool bUseUV <
 
 float fmod(float a, float b) {
 	float c = frac(abs(a / b)) * abs(b);
+	return a < 0 ? -c : c;
+}
+float2 fmod(float2 a, float2 b) {
+	float2 c = frac(abs(a / b)) * abs(b);
 	return a < 0 ? -c : c;
 }
 

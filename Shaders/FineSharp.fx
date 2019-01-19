@@ -1,5 +1,5 @@
 /**
- * FineSharp by Didée
+ * FineSharp by Didï¿½e
  * http://avisynth.nl/images/FineSharp.avsi
  *
  * Initial HLSL port by -Vit-
@@ -13,7 +13,7 @@
  */
 
 uniform float sstr <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 8.00;
 	ui_label = "Sharpening Strength";
 > = 2.00;
@@ -26,13 +26,13 @@ uniform float cstr <
 > = 0.90;
 
 uniform float xstr <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Strength of XSharpen-style final sharpening.";
 > = 0.19;
 
 uniform float xrep <
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Repair artefacts from final sharpening. (-Vit- addition to original script)";
 > = 0.25;

@@ -26,7 +26,7 @@ uniform int Coefficient <
 
 uniform float Clamp <
 	ui_label = "Sharpen clamping";
-	ui_type = "drag";
+	ui_type = "slider";
 	ui_min = 0.5; ui_max = 1.0; ui_step = 0.001;
 > = 0.65;
 

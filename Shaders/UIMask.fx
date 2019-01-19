@@ -123,7 +123,7 @@
 uniform float fMask_Intensity <
     ui_label = "Mask Intensity";
     ui_tooltip = "How much to mask effects to the original image.";
-    ui_type = "drag";
+    ui_type = "slider";
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
