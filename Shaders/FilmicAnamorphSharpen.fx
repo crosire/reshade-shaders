@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.7 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.8 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -13,9 +13,9 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 
 uniform float Strength <
 	ui_label = "Sharpen strength";
-	ui_type = "slider";
-	ui_min = 0.0; ui_max = 3.0; ui_step = 0.005;
-> = 1.0;
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 100.0; ui_step = 0.01;
+> = 60.0;
 
 uniform int Coefficient <
 	ui_label = "Luma coefficient";
@@ -28,14 +28,14 @@ uniform float Clamp <
 	ui_label = "Sharpen clamping";
 	ui_type = "slider";
 	ui_min = 0.5; ui_max = 1.0; ui_step = 0.001;
-> = 1.0;
+> = 0.65;
 
-uniform int Offset <
+uniform float Offset <
 	ui_label = "High-pass offset";
 	ui_tooltip = "High-pass cross offset in pixels";
-	ui_type = "slider";
-	ui_min = 0; ui_max = 2;
-> = 1;
+	ui_type = "drag";
+	ui_min = 0.0; ui_max = 2.0;
+> = 0.1;
 
 uniform int Contrast <
 	ui_label = "Edges mask";
@@ -71,8 +71,8 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 {
 	float2 Pixel = ReShade::PixelSize;
 
-	float2 DepthPixel = Pixel * float(Offset + 1);
-	Pixel *= float(Offset);
+	float2 DepthPixel = Pixel * Offset + Pixel;
+	Pixel *= Offset;
 	// Sample display image
 	float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 	// Sample display depth image
