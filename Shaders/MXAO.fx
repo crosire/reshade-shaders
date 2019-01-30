@@ -508,7 +508,7 @@ void PS_BlurYandCombine(MXAO_VSOUT MXAO, out float4 color : SV_Target0)
                 aoil.xyz = 0.0;
         #endif
 
-	aoil.w  = 1.0-pow(1.0-aoil.w, MXAO_SSAO_AMOUNT*4.0);
+	aoil.w  = 1.0-pow(abs(1.0-aoil.w), MXAO_SSAO_AMOUNT*4.0);
         aoil    = lerp(aoil,0.0,smoothstep(MXAO_FADE_DEPTH_START, MXAO_FADE_DEPTH_END, scenedepth * float4(2.0,2.0,2.0,1.0)));
 
         if(MXAO_BLEND_TYPE == 0)
@@ -527,9 +527,9 @@ void PS_BlurYandCombine(MXAO_VSOUT MXAO, out float4 color : SV_Target0)
         }
 	else if(MXAO_BLEND_TYPE == 3)
         {
-                color.rgb = pow(color.rgb,2.2);
+                color.rgb = pow(abs(color.rgb),2.2);
 		color.rgb -= (aoil.www - aoil.xyz) * color.rgb;
-		color.rgb = pow(color.rgb,1.0/2.2);
+		color.rgb = pow(abs(color.rgb),1.0/2.2);
         }
 
         color.rgb = saturate(color.rgb);
