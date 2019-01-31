@@ -535,7 +535,7 @@ void PS_MagicDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 		float4 tap1 = tex2Dlod(SamplerHDR2, float4(texcoord + tapoffset1 * discRadius * ReShade::PixelSize / iMagicDOFBlurQuality, 0, 0));
 		float4 tap2 = tex2Dlod(SamplerHDR2, float4(texcoord + tapoffset2 * discRadius * ReShade::PixelSize / iMagicDOFBlurQuality, 0, 0));
 
-		blurcolor.xyz += pow(min(tap1.xyz, tap2.xyz), fMagicDOFColorCurve);
+		blurcolor.xyz += pow(abs(min(tap1.xyz, tap2.xyz)), fMagicDOFColorCurve);
 		blurcolor.w += 1.0;
 	}
 
@@ -663,7 +663,7 @@ void PS_GPDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 		tap.xyz *= 1.0 + brightMultipiler * abs(tap.w * 2.0 - 1.0);
 
 		tap.w = (tap.w >= centerDepth * 0.99) ? 1.0 : pow(abs(tap.w * 2.0 - 1.0), 4.0);
-		float BiasCurve = 1.0 + fGPDOFBias * pow((float)sampleCycleCounter / iGPDOFQuality, fGPDOFBiasCurve);
+		float BiasCurve = 1.0 + fGPDOFBias * pow(abs((float)sampleCycleCounter / iGPDOFQuality), fGPDOFBiasCurve);
 
 		blurcolor.xyz += tap.xyz * tap.w * BiasCurve;
 		blurcolor.w += tap.w * BiasCurve;
@@ -719,7 +719,7 @@ float4 GetMatsoDOFBlur(int axis, float2 coord, sampler SamplerHDRX)
 
 		// my own pseudo-bokeh weighting
 		float b = dot(ct.rgb, 0.333) + length(ct.rgb) + 0.1;
-		float w = pow(b, fMatsoDOFBokehCurve) + abs((float)i);
+		float w = pow(abs(b), fMatsoDOFBokehCurve) + abs((float)i);
 
 		blurcolor.xyz += ct.xyz * w;
 		blurcolor.w += w;
@@ -814,7 +814,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 	if (bADOF_ShapeWeightEnable)
 		res.w = (1.0 - fADOF_ShapeWeightAmount);
 
-	res.xyz = pow(res.xyz, fADOF_BokehCurve)*res.w;
+	res.xyz = pow(abs(res.xyz), fADOF_BokehCurve)*res.w;
 
 	if (bADOF_ShapeAnamorphEnable)
 		discRadius.x *= fADOF_ShapeAnamorphRatio;
@@ -875,7 +875,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 				tap.w *= tex2Dlod(SamplerMask, float4((sampleOffset + 0.707) * 0.707, 0, 0)).x;
 #endif
 
-				res.xyz += pow(tap.xyz, fADOF_BokehCurve) * tap.w;
+				res.xyz += pow(abs(tap.xyz), fADOF_BokehCurve) * tap.w;
 				res.w += tap.w;
 			}
 		}
