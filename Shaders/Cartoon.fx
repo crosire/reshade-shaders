@@ -29,7 +29,7 @@ float3 CartoonPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) :
 
 	float edge = dot(float2(diff1, diff2), float2(diff1, diff2));
 
-	return saturate(pow(edge, EdgeSlope) * -Power + color);
+	return saturate(pow(abs(edge), EdgeSlope) * -Power + color);
 }
 
 technique Cartoon
