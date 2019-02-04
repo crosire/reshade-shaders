@@ -224,9 +224,9 @@ float4 PS_3DFX2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 	// the Voodoo drivers usually supply a 1.3 gamma setting whether people liked it or not
 	// but it was enough to brainwash the competition for looking 'too dark'
 
-	colorInput.r = pow(colorInput.r, 1.0 / GAMMA_LEVEL);
-	colorInput.g = pow(colorInput.g, 1.0 / GAMMA_LEVEL);
-	colorInput.b = pow(colorInput.b, 1.0 / GAMMA_LEVEL);
+	colorInput.r = pow(abs(colorInput.r), 1.0 / GAMMA_LEVEL);
+	colorInput.g = pow(abs(colorInput.g), 1.0 / GAMMA_LEVEL);
+	colorInput.b = pow(abs(colorInput.b), 1.0 / GAMMA_LEVEL);
 
    return colorInput;
 }
