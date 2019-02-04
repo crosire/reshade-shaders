@@ -177,7 +177,7 @@ float4 PS_Adaption(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 
     [branch]
     if(bAdp_BrightenEnable == true && avglum < fAdp_BrightenThreshold) {
-        adpcurve = (-fAdp_BrightenMax / pow(fAdp_BrightenThreshold, fAdp_BrightenCurve)) * pow(avglum, fAdp_BrightenCurve) + fAdp_BrightenMax;
+        adpcurve = (-fAdp_BrightenMax / pow(abs(fAdp_BrightenThreshold), fAdp_BrightenCurve)) * pow(avglum, fAdp_BrightenCurve) + fAdp_BrightenMax;
         adpdelta = lerp(adpcurve, adpcurve - adpcurve * colorluma, fAdp_BrightenDynamic);
         adpdelta = lerp(adpdelta, min(colorluma, adpdelta), fAdp_BrightenBlack);
         colorluma += adpdelta;
@@ -186,7 +186,7 @@ float4 PS_Adaption(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
     }
     [branch]
     if(bAdp_DarkenEnable == true && avglum > fAdp_DarkenThreshold) {
-        adpcurve = (fAdp_DarkenMax / pow(1.0 - fAdp_DarkenThreshold, 1.0 / fAdp_DarkenCurve)) * pow(avglum - fAdp_DarkenThreshold, 1.0 / fAdp_DarkenCurve);
+        adpcurve = (fAdp_DarkenMax / pow(abs(1.0 - fAdp_DarkenThreshold), 1.0 / fAdp_DarkenCurve)) * pow(abs(avglum - fAdp_DarkenThreshold), 1.0 / fAdp_DarkenCurve);
         adpdelta = lerp(adpcurve, adpcurve * colorluma, fAdp_DarkenDynamic);
         adpdelta = lerp(adpdelta, min(1.0 - colorluma, adpdelta), fAdp_DarkenWhite);
         colorluma -= adpdelta;
