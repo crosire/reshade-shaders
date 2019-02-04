@@ -90,7 +90,7 @@ float3 FilmPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Targ
 	float A = dot(B.rgb, LumCoeff);
 	float3 D = A;
  
-	B = pow(B, 1.0 / BaseGamma);
+	B = pow(abs(B), 1.0 / BaseGamma);
  
 	float a = RedCurve;
 	float b = GreenCurve;
@@ -108,7 +108,7 @@ float3 FilmPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Targ
 	D.g = (1.0 / (1.0 + exp(-b * (D.g - 0.5))) - z) / (1.0 - 2.0 * z);
 	D.b = (1.0 / (1.0 + exp(-c * (D.b - 0.5))) - w) / (1.0 - 2.0 * w);
  
-	D = pow(D, 1.0 / EffectGamma);
+	D = pow(abs(D), 1.0 / EffectGamma);
  
 	float3 Di = 1.0 - D;
  
