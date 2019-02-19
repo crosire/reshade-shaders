@@ -1,5 +1,5 @@
 /* 
-Tilt-Shift PS v1.0.5 (c) 2018 Jacob Maximilian Fober, 
+Tilt-Shift PS v1.1.1 (c) 2018 Jacob Maximilian Fober, 
 (based on TiltShift effect (c) 2016 kingeric1992)
 
 This work is licensed under the Creative Commons 
@@ -14,29 +14,50 @@ uniform bool Line <
 
 uniform int Axis <
 	ui_label = "Angle";
-	ui_type = "slider";
-	ui_min = -89; ui_max = 90; ui_step = 1;
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+		ui_step = 1;
+	#else
+		ui_type = "slider";
+	#endif
+	ui_min = -89; ui_max = 90;
 > = 0;
 
 uniform float Offset <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -1.41; ui_max = 1.41; ui_step = 0.01;
 > = 0.05;
 
 uniform float BlurCurve <
 	ui_label = "Blur Curve";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.0; ui_max = 5.0; ui_step = 0.01;
 	ui_label = "Blur Curve";
 > = 1.0;
 uniform float BlurMultiplier <
 	ui_label = "Blur Multiplier";
-	ui_type = "drag";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.2;
 > = 6.0;
 
 // First pass render target, to make sure Alpha channel exists
-texture TiltShiftTarget { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+#if !defined(ResolutionX) || !defined(ResolutionY)
+	texture TiltShiftTarget { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+#else
+	texture TiltShiftTarget { Width = ResolutionX; Height = ResolutionY; Format = RGBA8; };
+#endif
 sampler TiltShiftSampler { Texture = TiltShiftTarget; };
 
 #include "ReShade.fxh"
@@ -109,7 +130,7 @@ void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	// Grab second pass screen texture
 	Image = tex2D(TiltShiftSampler, UvCoord);
 	// Blur mask
-	float BlurMask = pow(abs(Image.a), BlurCurve);
+	float BlurMask = pow(Image.a, BlurCurve);
 	// Vertical gaussian blur
 	if (BlurMask > 0)
 	{

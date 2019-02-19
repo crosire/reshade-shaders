@@ -58,9 +58,9 @@ uniform float Vertical <
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
 	ui_tooltip = "In stereographic mode:\n\n"
-		"If image bulges in movement (too high FOV), \n"
+		"If image bulges in movement (too high FOV),\n"
 		"change it to 'Diagonal'.\n"
-		"When proportions are distorted at the periphery \n"
+		"When proportions are distorted at the periphery\n"
 		"(too low FOV), choose 'Vertical'.";
 	ui_type = "combo";
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
