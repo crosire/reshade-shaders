@@ -425,7 +425,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 #endif
 	if (AL_Adaptation)
 	{
-		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow((1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
+		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow(abs(1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
 		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither;
 		float4 baseSample = lerp(base, highSampleMix, max(0.0f, alInt - adapt));
 		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;

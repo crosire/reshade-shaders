@@ -37,7 +37,7 @@ float3 LiftGammaGainPass(float4 position : SV_Position, float2 texcoord : TexCoo
 	color *= RGB_Gain; 
 	
 	// -- Gamma --
-	color = pow(color, 1.0 / RGB_Gamma);
+	color = pow(abs(color), 1.0 / RGB_Gamma);
 	
 	return saturate(color);
 }

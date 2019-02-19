@@ -51,7 +51,7 @@ float3 FilmGrainPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV
 	float uniform_noise2 = frac(cosine * 53758.5453 - t); // and it doesn't cost any extra ASM
 
 	//Get settings
-	float stn = SignalToNoiseRatio != 0 ? pow(inv_luma, (float)SignalToNoiseRatio) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
+	float stn = SignalToNoiseRatio != 0 ? pow(abs(inv_luma), (float)SignalToNoiseRatio) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
 	float variance = (Variance*Variance) * stn;
 	float mean = Mean;
 

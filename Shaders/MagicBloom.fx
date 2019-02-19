@@ -333,7 +333,7 @@ float3 blend_screen(float3 a, float3 b) {
 */
 float4 PS_Blur1(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
     float3 col = blur(ReShade::BackBuffer, uv, 2.0);
-    col = pow(col, fBloom_Threshold);
+    col = pow(abs(col), fBloom_Threshold);
     col *= fBloom_Intensity;
     return float4(col, 1.0);
 }
