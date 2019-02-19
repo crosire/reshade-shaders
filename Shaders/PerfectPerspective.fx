@@ -100,8 +100,7 @@ uniform bool DebugPreview <
 uniform int2 ResScale <
 	ui_label = "Super Resolution Scale";
 	ui_tooltip = "Simulates application running beyond\n"
-		"native screen resolution (using VSR or DSR)\n"
-		"\n"
+		"native screen resolution (using VSR or DSR)\n\n"
 		" First value  - screen resolution\n"
 		" Second value - virtual super resolution";
 	ui_type = "drag";
