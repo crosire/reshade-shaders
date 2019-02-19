@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.5.0
+// Perfect Perspective PS ver. 2.5.1
 
 
   ////////////////////
@@ -32,8 +32,13 @@ uniform int Projection <
 uniform int FOV <
 	ui_label = "Corrected Field of View";
 	ui_tooltip = "This setting should match your in-game Field of View";
-	ui_type = "drag";
-	ui_min = 45; ui_max = 120; ui_step = 0.2;
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+		ui_step = 0.2;
+	#else
+		ui_type = "slider";
+	#endif
+	ui_min = 0; ui_max = 170;
 	ui_category = "Distortion Correction";
 > = 90;
 
@@ -41,7 +46,11 @@ uniform float Vertical <
 	ui_label = "Vertical Curviness Amount";
 	ui_tooltip = "0.0 - cylindrical projection\n"
 		"1.0 - spherical projection";
-	ui_type = "drag";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_category = "Distortion Correction";
 > = 0.5;
@@ -62,7 +71,7 @@ uniform float Zooming <
 	ui_label = "Borders Scale";
 	ui_tooltip = "Adjust image scale and cropped area";
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
+	ui_min = 0.5; ui_max = 2.0; ui_step = 0.001;
 	ui_category = "Borders Settings";
 > = 1.0;
 
