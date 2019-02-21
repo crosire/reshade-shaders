@@ -14,18 +14,30 @@ uniform bool Line <
 
 uniform int Axis <
 	ui_label = "Angle";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -89; ui_max = 90; ui_step = 1;
 > = 0;
 
 uniform float Offset <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -1.41; ui_max = 1.41; ui_step = 0.01;
 > = 0.05;
 
 uniform float BlurCurve <
 	ui_label = "Blur Curve";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.0; ui_max = 5.0; ui_step = 0.01;
 	ui_label = "Blur Curve";
 > = 1.0;

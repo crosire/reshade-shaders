@@ -32,14 +32,22 @@ uniform int fLUT_LutSelector <
 > = 0;
 
 uniform float fLUT_AmountChroma <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT chroma amount";
 	ui_tooltip = "Intensity of color/chroma change of the LUT.";
 > = 1.00;
 
 uniform float fLUT_AmountLuma <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";

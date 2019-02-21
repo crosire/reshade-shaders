@@ -5,35 +5,55 @@
 #include "ReShade.fxh"
 
 uniform float DITHERAMOUNT <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 1.0;
 	ui_label = "Dither Amount [3DFX]";
 > = 0.5;
 
 uniform int DITHERBIAS <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -16;
 	ui_max = 16;
 	ui_label = "Dither Bias [3DFX]";
 > = -1;
 
 uniform float LEIFX_LINES <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 2.0;
 	ui_label = "Lines Intensity [3DFX]";
 > = 1.0;
 
 uniform float LEIFX_PIXELWIDTH <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 100.0;
 	ui_label = "Pixel Width [3DFX]";
 > = 1.5;
 
 uniform float GAMMA_LEVEL <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 3.0;
 	ui_label = "Gamma Level [3DFX]";

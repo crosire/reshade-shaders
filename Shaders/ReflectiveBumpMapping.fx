@@ -15,79 +15,131 @@ uniform float fRBM_BlurWidthPixels <
 > = 100.0;
 
 uniform int iRBM_SampleCount <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 16; ui_max = 128;
 	ui_tooltip = "Controls how many glossy reflection samples are taken. Raise this if you get repeating artifacts. Performance hit.";
 > = 32;
 
 uniform float fRBM_ReliefHeight <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.00;
 	ui_tooltip = "Controls how intensive the relief on surfaces is. 0.0 means mirror-like reflections.";
 > = 0.3;
 
 uniform float fRBM_FresnelReflectance <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "The lower this value, the lower the view to surface angle has to be to get significant reflection. 1.0 means every surface has 100% gloss.";
 > = 0.3;
 
 uniform float fRBM_FresnelMult <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Not physically accurate at all: multiplier of reflection intensity at lowest view-surface angle.";
 > = 0.5;
 
 uniform float  fRBM_LowerThreshold <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Anything darker than this does not get reflected at all. Reflection power increases linearly from lower to upper threshold. ";
 > = 0.1;
 
 uniform float  fRBM_UpperThreshold <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Anything brighter than this contributes fully to reflection. Reflection power increases linearly from lower to upper threshold. ";
 > = 0.2;
 
 uniform float  fRBM_ColorMask_Red <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on red surfaces.Lower this to remove reflections from red surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Orange <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on orange surfaces. Lower this to remove reflections from orange surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Yellow <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on yellow surfaces. Lower this to remove reflections from yellow surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Green <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on green surfaces. Lower this to remove reflections from green surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Cyan <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on cyan surfaces. Lower this to remove reflections from cyan surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Blue <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on blue surfaces. Lower this to remove reflections from blue surfaces.";
 > = 1.0;
 
 uniform float  fRBM_ColorMask_Magenta <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.00;
 	ui_tooltip = "Reflection mult on magenta surfaces. Lower this to remove reflections from magenta surfaces.";
 > = 1.0;

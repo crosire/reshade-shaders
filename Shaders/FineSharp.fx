@@ -13,7 +13,11 @@
  */
 
 uniform float sstr <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 8.00;
 	ui_label = "Sharpening Strength";
 > = 2.00;
@@ -26,13 +30,21 @@ uniform float cstr <
 > = 0.90;
 
 uniform float xstr <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Strength of XSharpen-style final sharpening.";
 > = 0.19;
 
 uniform float xrep <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Repair artefacts from final sharpening. (-Vit- addition to original script)";
 > = 0.25;

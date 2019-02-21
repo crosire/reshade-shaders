@@ -36,7 +36,11 @@
 uniform float Layer_Blend <
     ui_label = "Layer Blend";
     ui_tooltip = "How much to blend layer with the original image.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.002;

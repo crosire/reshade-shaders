@@ -16,7 +16,11 @@
  */
 
 uniform float Vibrance <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Intelligently saturates (or desaturates if you use negative values) the pixels depending on their original saturation.";
 > = 0.15;

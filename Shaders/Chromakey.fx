@@ -12,8 +12,11 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 ////////////////////
 
 uniform float Threshold <
-	ui_label = "Threshold";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 0.999; ui_step = 0.001;
 > = 0.1;
 

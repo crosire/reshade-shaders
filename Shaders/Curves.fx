@@ -17,7 +17,11 @@ uniform int Formula <
 > = 4;
 
 uniform float Contrast <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "The amount of contrast you want.";
 > = 0.65;

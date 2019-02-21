@@ -1,23 +1,35 @@
 /**
  *                                  FXAA 3.11
  *
- *                               for ReShade 3.0
+ *                               for ReShade 3.0+
  */
 
 uniform float Subpix <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of sub-pixel aliasing removal. Higher values makes the image softer/blurrier.";
 > = 0.25;
 
 uniform float EdgeThreshold <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Edge Detection Threshold";
 	ui_tooltip = "The minimum amount of local contrast required to apply algorithm.";
 > = 0.125;
 uniform float EdgeThresholdMin <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Darkness Threshold";
 	ui_tooltip = "Pixels darker than this are not processed in order to increase performance.";

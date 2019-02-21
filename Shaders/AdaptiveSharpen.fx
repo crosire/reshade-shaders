@@ -26,7 +26,11 @@
 // EXPECTS FULL RANGE GAMMA LIGHT
 
 uniform float curve_height <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.01; ui_max = 2.0;
 	ui_label = "Sharpening strength";
 	ui_tooltip = "Main control of sharpening strength";
