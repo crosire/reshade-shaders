@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.8 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.1.10 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -13,7 +13,11 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 
 uniform float Strength <
 	ui_label = "Sharpen strength";
-	ui_type = "drag";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.01;
 > = 60.0;
 
@@ -37,8 +41,12 @@ uniform float Clamp <
 uniform float Offset <
 	ui_label = "High-pass offset";
 	ui_tooltip = "High-pass cross offset in pixels";
-	ui_type = "drag";
-	ui_min = 0.0; ui_max = 2.0;
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
+	ui_min = 0.0; ui_max = 2.0; ui_step = 0.01;
 > = 0.1;
 
 uniform int Contrast <

@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.0
+// Chromatic Aberration PS (Prism) v1.2.1
 // inspired by Marty McFly YACA shader
 
   ////////////////////
@@ -28,7 +28,11 @@ uniform int Aberration <
 
 uniform float Curve <
 	ui_label = "Aberration curve";
-	ui_type = "drag";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 4.0; ui_step = 0.01;
 > = 1.0;
 
