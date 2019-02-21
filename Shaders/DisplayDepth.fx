@@ -20,7 +20,7 @@
 #endif
 
 uniform bool bUIUsePreprocessorDefs <
-	ui_label = "Use Preprocessor Definitions";
+	ui_label = "Use global preprocessor definitions";
 	ui_tooltip = "Enable this to override the values from\n"
 	             "'Depth Input Settings' with the\n"
 	             "preprocessor definitions. If all is set\n"
