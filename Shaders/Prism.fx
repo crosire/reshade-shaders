@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.1
+// Chromatic Aberration PS (Prism) v1.2.2
 // inspired by Marty McFly YACA shader
 
   ////////////////////
@@ -81,8 +81,7 @@ sampler SamplerColor
 	AddressV = MIRROR;
 };
 
-void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord,
-out float3 BluredImage : SV_Target)
+void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord, out float3 BluredImage : SV_Target)
 {
 	// Grab Aspect Ratio
 	float Aspect = ReShade::AspectRatio;
@@ -91,7 +90,7 @@ out float3 BluredImage : SV_Target)
 
 	// Adjust number of samples
 	// IF Automatic IS True Ceil odd numbers to even with minimum 6, else Clamp odd numbers to even
-	int Samples = Automatic ? max(6, 2 * ceil(abs(Aberration) * 0.5) + 2) : floor(SampleCount * 0.5) * 2;
+	float Samples = Automatic ? max(6.0, 2.0 * ceil(abs(Aberration) * 0.5) + 2.0) : floor(SampleCount * 0.5) * 2.0;
 	// Clamp maximum sample count
 	Samples = min(Samples, 48);
 
@@ -105,30 +104,29 @@ out float3 BluredImage : SV_Target)
 	float OffsetBase = Mask * Aberration * Pixel * 2.0;
 	
 	// Each loop represents one pass
-	if (abs(OffsetBase) < Pixel)
-	{
-		BluredImage = tex2D(SamplerColor, texcoord).rgb;
-	}
+	if(abs(OffsetBase) < Pixel) BluredImage = tex2D(SamplerColor, texcoord).rgb;
 	else
 	{
-		for (int P = 0; P < Samples && P <= 48; P++)
+		BluredImage = 0.0;
+		[unroll]
+		for (float P = 0.0; P < Samples && P <= 48.0; P++)
 		{
 			// Calculate current sample
-			float CurrentProgress = float(P) / float(Samples);
-
+			float CurrentProgress = P / Samples;
+	
 			float Offset = OffsetBase * (CurrentProgress - 0.5) + 1.0;
-
+	
 			// Scale UVs at center
 			float2 Position = RadialCoord / Offset;
 			// Convert aspect ratio back to square
 			Position.x /= Aspect;
 			// Convert radial coordinates to UV
 			Position = Position * 0.5 + 0.5;
-
+	
 			// Multiply texture sample by HUE color
-			BluredImage += Spectrum(CurrentProgress) * tex2Dlod(SamplerColor, float4(Position, 0, 0)).rgb;
+			BluredImage += Spectrum(CurrentProgress) * tex2Dlod(SamplerColor, float4(Position, 0.0, 0.0)).rgb;
 		}
-		BluredImage = BluredImage / Samples * 2.0;
+		BluredImage *= 2.0 / Samples;
 	}
 }
 
