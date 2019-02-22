@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.5.1
+// Perfect Perspective PS ver. 2.5.2
 
 
   ////////////////////
@@ -21,7 +21,7 @@ uniform int Projection <
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (size) preserves surface relations,\n"
-		"Best for open areas.\n\n"
+		"Best for flying in open areas.\n\n"
 		"Equidistant maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
 	ui_type = "combo";
@@ -58,9 +58,9 @@ uniform float Vertical <
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
 	ui_tooltip = "In stereographic mode:\n\n"
-		"If image bulges in movement (too high FOV), \n"
+		"If image bulges in movement (too high FOV),\n"
 		"change it to 'Diagonal'.\n"
-		"When proportions are distorted at the periphery \n"
+		"When proportions are distorted at the periphery\n"
 		"(too low FOV), choose 'Vertical'.";
 	ui_type = "combo";
 	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
@@ -134,6 +134,7 @@ float Grayscale(float3 Color)
 // Stereographic
 float Stereographic(float2 Coordinates)
 {
+	if(FOV==0.0) return 1.0; // Bypass
 	// Convert 1/4 FOV to radians and calc tangent squared
 	float SqrTanFOVq = pow(tan(radians(FOV * 0.25)),2);
 	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * dot(Coordinates, Coordinates));
@@ -141,6 +142,7 @@ float Stereographic(float2 Coordinates)
 // Equisolid
 float Equisolid(float2 Coordinates)
 {
+	if(FOV==0.0) return 1.0; // Bypass
 	float rFOV = radians(FOV);
 	float R = length(Coordinates);
 	return tan(asin(sin(rFOV*0.25)*R)*2)/(tan(rFOV*0.5)*R);
@@ -148,6 +150,7 @@ float Equisolid(float2 Coordinates)
 // Equidistant
 float Equidistant(float2 Coordinates)
 {
+	if(FOV==0.0) return 1.0; // Bypass
 	float rFOVh = radians(FOV*0.5);
 	float R = length(Coordinates);
 	return tan(R*rFOVh)/(tan(rFOVh)*R);
