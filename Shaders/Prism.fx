@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.2
+// Chromatic Aberration PS (Prism) v1.2.3
 // inspired by Marty McFly YACA shader
 
   ////////////////////
@@ -110,8 +110,9 @@ void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord
 	else
 	{
 		BluredImage = 0.0;
-		for (float Progress = 0.0; Progress < 1.0; Progress += Sample)
+		for (float P = 0.0; P < Samples; P++)
 		{
+			float Progress = P / Samples;
 			float Offset = OffsetBase * (Progress - 0.5) + 1.0;
 	
 			// Scale UVs at center
