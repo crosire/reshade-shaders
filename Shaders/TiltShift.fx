@@ -130,7 +130,7 @@ void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	// Grab second pass screen texture
 	Image = tex2D(TiltShiftSampler, UvCoord);
 	// Blur mask
-	float BlurMask = pow(Image.a, BlurCurve);
+	float BlurMask = pow(abs(Image.a), BlurCurve);
 	// Vertical gaussian blur
 	if (BlurMask > 0)
 	{

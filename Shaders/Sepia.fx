@@ -3,7 +3,11 @@ uniform float3 Tint <
 > = float3(0.55, 0.43, 0.42);
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.58;
 

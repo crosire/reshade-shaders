@@ -5,7 +5,11 @@
  */
 
 uniform float Power <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 8.0;
 > = 4.0;
 uniform float3 RGBNegativeAmount <
@@ -13,7 +17,11 @@ uniform float3 RGBNegativeAmount <
 > = float3(0.88, 0.88, 0.88);
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.4;
 

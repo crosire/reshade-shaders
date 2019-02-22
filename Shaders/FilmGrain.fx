@@ -6,18 +6,30 @@
  */
 
 uniform float Intensity <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "How visible the grain is. Higher is more visible.";
 > = 0.50;
 uniform float Variance <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Controls the variance of the Gaussian noise. Lower values look smoother.";
 > = 0.40;
 uniform float Mean = 0.5;
 uniform int SignalToNoiseRatio <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 16;
 	ui_label = "Signal-to-Noise Ratio";
 	ui_tooltip = "Higher Signal-to-Noise Ratio values give less grain to brighter pixels. 0 disables this feature.";

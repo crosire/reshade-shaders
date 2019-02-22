@@ -11,14 +11,22 @@
  */
 
 uniform float sharp_strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.1; ui_max = 3.0;
 	ui_label = "Shapening strength";
 	ui_tooltip = "Strength of the sharpening";
 
 > = 0.65;
 uniform float sharp_clamp <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0; ui_step = 0.005;
 	ui_label = "Sharpening limit";
 	ui_tooltip = "Limits maximum amount of sharpening a pixel receives\nThis helps avoid \"haloing\" artifacts which would otherwise occur when you raised the strength too much.";
@@ -37,7 +45,11 @@ uniform int pattern <
 	"Pyramid has a slightly more aggresive look.";
 > = 1;
 uniform float offset_bias <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 6.0;
 	ui_label = "Offset bias";
 	ui_tooltip = "Offset bias adjusts the radius of the sampling pattern. I designed the pattern for offset_bias 1.0, but feel free to experiment.";

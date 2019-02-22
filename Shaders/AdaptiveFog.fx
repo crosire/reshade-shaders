@@ -16,42 +16,66 @@ uniform float3 FogColor <
 > = float3(0.9,0.9,0.9);
 
 uniform float MaxFogFactor <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.000; ui_max=1.000;
 	ui_tooltip = "The maximum fog factor. 1.0 makes distant objects completely fogged out, a lower factor will shimmer them through the fog.";
 	ui_step = 0.001;
 > = 0.8;
 
 uniform float FogCurve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max=175.00;
 	ui_step = 0.01;
 	ui_tooltip = "The curve how quickly distant objects get fogged. A low value will make the fog appear just slightly. A high value will make the fog kick in rather quickly. The max value in the rage makes it very hard in general to view any objects outside fog.";
 > = 1.5;
 
 uniform float FogStart <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.000; ui_max=1.000;
 	ui_step = 0.001;
 	ui_tooltip = "Start of the fog. 0.0 is at the camera, 1.0 is at the horizon, 0.5 is halfway towards the horizon. Before this point no fog will appear.";
 > = 0.050;
 
 uniform float BloomThreshold <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max=50.00;
 	ui_step = 0.1;
 	ui_tooltip = "Threshold for what is a bright light (that causes bloom) and what isn't.";
 > = 10.25;
 
 uniform float BloomPower <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.000; ui_max=100.000;
 	ui_step = 0.1;
 	ui_tooltip = "Strength of the bloom";
 > = 10.0;
 
 uniform float BloomWidth <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0000; ui_max=1.0000;
 	ui_tooltip = "Width of the bloom";
 > = 0.2;

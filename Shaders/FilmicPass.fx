@@ -5,70 +5,130 @@
  */
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.05; ui_max = 1.5;
 	ui_toolip = "Strength of the color curve altering";
 > = 0.85;
 
 uniform float Fade <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 0.6;
 	ui_tooltip = "Decreases contrast to imitate faded image";
 > = 0.4;
 uniform float Contrast <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.5; ui_max = 2.0;
 > = 1.0;
 uniform float Linearization <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.5; ui_max = 2.0;
 > = 0.5;
 uniform float Bleach <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -0.5; ui_max = 1.0;
 	ui_tooltip = "More bleach means more contrasted and less colorful image";
 > = 0.0;
 uniform float Saturation <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = -1.0; ui_max = 1.0;
 > = -0.15;
 
 uniform float RedCurve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 uniform float GreenCurve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 uniform float BlueCurve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 uniform float BaseCurve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.5;
 
 uniform float BaseGamma <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.7; ui_max = 2.0;
 	ui_tooltip = "Gamma Curve";
 > = 1.0;
 uniform float EffectGamma <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 0.65;
 uniform float EffectGammaR <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 uniform float EffectGammaG <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 uniform float EffectGammaB <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 

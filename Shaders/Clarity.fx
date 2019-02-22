@@ -5,7 +5,11 @@
 //>Clarity Settings<\\
 uniform int ClarityRadius
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "[0|1|2|3|4] Higher values will increase the radius of the effect.";
 	ui_step = 1.00;
@@ -13,7 +17,11 @@ uniform int ClarityRadius
 
 uniform float ClarityOffset
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.00; ui_max = 5.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Increasing the value will increase the radius.";
 	ui_step = 1.00;
@@ -28,7 +36,11 @@ uniform int ClarityBlendMode
 
 uniform int ClarityBlendIfDark
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels below this value will be excluded from the effect. Set to 50 to target mid-tones.";
 	ui_step = 5;
@@ -36,7 +48,11 @@ uniform int ClarityBlendIfDark
 
 uniform int ClarityBlendIfLight
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels above this value will be excluded from the effect. Set to 205 to target mid-tones.";
 	ui_step = 5;
@@ -49,21 +65,33 @@ uniform bool ClarityViewBlendIfMask
 
 uniform float ClarityStrength
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 0.400;
 
 uniform float ClarityDarkIntensity
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 > = 0.400;
 
 uniform float ClarityLightIntensity
 <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 > = 0.000;
