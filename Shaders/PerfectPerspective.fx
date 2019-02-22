@@ -21,7 +21,7 @@ uniform int Projection <
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (size) preserves surface relations,\n"
-		"Best for open areas.\n\n"
+		"Best for flying in open areas.\n\n"
 		"Equidistant maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
 	ui_type = "combo";
