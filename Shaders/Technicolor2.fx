@@ -10,18 +10,30 @@ uniform float3 ColorStrength <
 > = float3(0.2, 0.2, 0.2);
 
 uniform float Brightness <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.5; ui_max = 1.5;
 	ui_tooltip = "Higher means brighter image.";
 > = 1.0;
 uniform float Saturation <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.5;
 	ui_tooltip = "Additional saturation control since this effect tends to oversaturate the image.";
 > = 1.0;
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 1.0;
 

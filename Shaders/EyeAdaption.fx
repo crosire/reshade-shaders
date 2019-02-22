@@ -12,7 +12,11 @@
 uniform float fAdp_Speed <
     ui_label = "AdaptionSpeed";
     ui_tooltip = "Speed of adaption. The higher the faster";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -26,7 +30,11 @@ uniform bool bAdp_BrightenEnable <
 uniform float fAdp_BrightenThreshold <
     ui_label = "BrightenThreshold";
     ui_tooltip = "A lower average screen luminance brightens the image";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -35,7 +43,11 @@ uniform float fAdp_BrightenThreshold <
 uniform float fAdp_BrightenMax <
     ui_label = "BrightenMax";
     ui_tooltip = "Brightens the image by maximum value";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -44,7 +56,11 @@ uniform float fAdp_BrightenMax <
 uniform float fAdp_BrightenCurve <
     ui_label = "BrightenCurve";
     ui_tooltip = "Brightening increase depending on average screen luminance. 1=linear growth, 0.5=quadratic, 2=sq. root";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.2;
     ui_max = 5.0;
     ui_step = 0.001;
@@ -53,7 +69,11 @@ uniform float fAdp_BrightenCurve <
 uniform float fAdp_BrightenDynamic <
     ui_label = "BrightenDynamic";
     ui_tooltip = "Amount of pixel dependent brightening (less brightening of already bright pixels)";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -62,7 +82,11 @@ uniform float fAdp_BrightenDynamic <
 uniform float fAdp_BrightenBlack <
     ui_label = "BrightenBlack";
     ui_tooltip = "Amount of lows preservation. 1=no black brightening";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -71,7 +95,11 @@ uniform float fAdp_BrightenBlack <
 uniform float fAdp_BrightenSaturation <
     ui_label = "BrightenSaturation";
     ui_tooltip = "Color saturation change while brightening.";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = -1.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -85,7 +113,11 @@ uniform bool bAdp_DarkenEnable <
 uniform float fAdp_DarkenThreshold <
     ui_label = "DarkenThreshold";
     ui_tooltip = "A higher average screen luminance darkens the image";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -94,7 +126,11 @@ uniform float fAdp_DarkenThreshold <
 uniform float fAdp_DarkenMax <
     ui_label = "DarkenMax";
     ui_tooltip = "Darkens the image by maximum value";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -103,7 +139,11 @@ uniform float fAdp_DarkenMax <
 uniform float fAdp_DarkenCurve <
     ui_label = "DarkenCurve";
     ui_tooltip = "Darkening increase depending on average screen luminance. 1=linear growth, 0.5=quadratic, 2=sq. root";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.2;
     ui_max = 5.0;
     ui_step = 0.001;
@@ -112,7 +152,11 @@ uniform float fAdp_DarkenCurve <
 uniform float fAdp_DarkenDynamic <
     ui_label = "DarkenDynamic";
     ui_tooltip = "Amount of pixel dependent darkening (less darkening of already dark pixels)";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -121,7 +165,11 @@ uniform float fAdp_DarkenDynamic <
 uniform float fAdp_DarkenWhite <
     ui_label = "DarkenWhite";
     ui_tooltip = "Amount of highs preservation. 1=no white darkening";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -130,7 +178,11 @@ uniform float fAdp_DarkenWhite <
 uniform float fAdp_DarkenSaturation <
     ui_label = "DarkenSaturation";
     ui_tooltip = "Color saturation change while darkening.";
-    ui_type = "slider";
+    #if __RESHADE__ < 40000
+        ui_type = "drag";
+    #else
+        ui_type = "slider";
+    #endif
     ui_min = -1.0;
     ui_max = 1.0;
     ui_step = 0.001;

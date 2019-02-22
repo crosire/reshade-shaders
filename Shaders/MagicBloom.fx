@@ -95,7 +95,11 @@ static const float3 luma_value = float3(0.2126, 0.7152, 0.0722);
 uniform float fBloom_Intensity <
     ui_label = "Bloom Intensity";
     ui_tooltip = "Amount of bloom applied to the image.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 10.0;
     ui_step = 0.001;
@@ -120,7 +124,11 @@ uniform float fDirt_Intensity <
     ui_tooltip = 
     "Amount of lens dirt applied to bloom.\n"
     "Uses a texture called \"MagicBloom_Dirt.png\" from your textures directory(ies).";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -133,7 +141,11 @@ uniform float fExposure <
     ui_tooltip = 
     "The target exposure that bloom adapts to.\n"
     "It is recommended to just leave it at 0.5, unless you wish for a brighter (1.0) or darker (0.0) image.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -161,7 +173,11 @@ uniform float fAdapt_Sensitivity <
     "At lower values bloom will require a lot of image brightness before it's fully darkened."
     "1.0 will not modify the amount of brightness that is accounted for adaptation.\n"
     "0.5 is a good value, but may miss certain bright spots.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 3.0;
     ui_step = 0.001;
@@ -174,7 +190,11 @@ uniform float2 f2Adapt_Clip <
     "Reducing the maximum would cause bloom to be brighter (as it is less adapted).\n"
     "Increasing the minimum would cause bloom to be darker (as it is more adapted).\n"
     "Keep the maximum above or equal to the minium and vice-versa.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -187,7 +207,11 @@ uniform int iAdapt_Precision <
     "At 0 the adaptation is calculated from the average of the whole image.\n"
     "At the highest value (which may vary) adaptation focuses solely on the center pixel(s) of the screen.\n"
     "Values closer to 0 are recommended.";
-    ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
     ui_min = 0;
     ui_max = lowest_mip;
     ui_step = 0.1;

@@ -33,21 +33,33 @@ uniform float EdgeDetectionThreshold <
 > = 0.10;
 
 uniform int MaxSearchSteps <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 112;
 	ui_label = "Max Search Steps";
 	ui_tooltip = "Determines the radius SMAA will search for aliased edges.";
 > = 98;
 
 uniform int MaxSearchStepsDiagonal <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 20;
 	ui_label = "Max Search Steps Diagonal";
 	ui_tooltip = "Determines the radius SMAA will search for diagonal aliased edges";
 > = 16;
 
 uniform int CornerRounding <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 100;
 	ui_label = "Corner Rounding";
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
@@ -62,14 +74,22 @@ uniform float PredicationThreshold <
 > = 0.01;
 
 uniform float PredicationScale <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 8;
 	ui_tooltip = "How much to scale the global threshold used for luma or color edge.";
 	ui_label = "Predication Scale";
 > = 0.2;
 
 uniform float PredicationStrength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "How much to locally decrease the threshold.";
 	ui_label = "Predication Strength";

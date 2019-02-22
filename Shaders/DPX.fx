@@ -3,31 +3,55 @@
  */
 
 uniform float3 RGB_Curve <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.0; ui_max = 15.0;
 	ui_label = "RGB Curve";
 > = float3(8.0, 8.0, 8.0);
 uniform float3 RGB_C <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.2; ui_max = 0.5;
 	ui_label = "RGB C";
 > = float3(0.36, 0.36, 0.34);
 
 uniform float Contrast <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.1;
 uniform float Saturation <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 8.0;
 > = 3.0;
 uniform float Colorfulness <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.1; ui_max = 2.5;
 > = 2.5;
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.20;
 

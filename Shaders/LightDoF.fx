@@ -37,14 +37,22 @@
 
 uniform float fLightDoF_Width <
 	ui_label = "Bokeh Width [Light DoF]";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.0;
 	ui_max = 25.0;
 > = 5.0;
 
 uniform float fLightDoF_Amount <
 	ui_label = "DoF Amount [Light DoF]";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 10.0;
 > = 10.0;
@@ -57,7 +65,11 @@ uniform bool bLightDoF_UseCA <
 uniform float2 f2LightDoF_CA <
 	ui_label = "Chromatic Aberration [Light DoF]";
 	ui_tooltip = "Shifts color channels.\nFirst value controls far CA, second controls near CA.";
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 1.0;
 > = float2(0.0, 1.0);

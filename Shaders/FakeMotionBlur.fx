@@ -29,12 +29,20 @@
  */
 
 uniform float mbRecall <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Motion blur intensity";
 > = 0.40;
 uniform float mbSoftness <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Blur strength of consequential streaks";
 > = 1.00;

@@ -12,7 +12,6 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 ////////////////////
 
 uniform float Threshold <
-	ui_label = "Threshold";
 	#if __RESHADE__ < 40000
 		ui_type = "drag";
 	#else

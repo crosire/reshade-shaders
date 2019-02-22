@@ -19,13 +19,21 @@
  */
 
 uniform int BlackPoint <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The black point is the new black - literally. Everything darker than this will become completely black.";
 > = 16;
 
 uniform int WhitePoint <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The new white point. Everything brighter than this becomes completely white";
 > = 235;

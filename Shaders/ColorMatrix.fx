@@ -6,26 +6,42 @@
  */
 
 uniform float3 ColorMatrix_Red <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Red";
 	ui_tooltip = "How much of Red, Green and Blue the new red value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.817, 0.183, 0.000);
 uniform float3 ColorMatrix_Green <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Green";
 	ui_tooltip = "How much of Red, Green and Blue the new green value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.333, 0.667, 0.000);
 uniform float3 ColorMatrix_Blue <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Blue";
 	ui_tooltip = "How much of Red, Green and Blue the new blue value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.000, 0.125, 0.875);
 
 uniform float Strength <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 1.0;
 

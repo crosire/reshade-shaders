@@ -6,7 +6,11 @@
 uniform float  Timer < source = "timer"; >;
 
 uniform float Amount <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0;
 	ui_max = 10.0;
 	ui_tooltip = "Glitch Amount [Glitch B]";

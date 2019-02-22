@@ -9,23 +9,39 @@
  */
 
 uniform float grainamount <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 0.2;
 	ui_label = "Amount";
 > = 0.05;
 uniform float coloramount <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Color Amount";
 > = 0.6;
 uniform float lumamount <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_type = "Luminance Amount";
 > = 1.0;
 
 uniform float grainsize <
-	ui_type = "slider";
+	#if __RESHADE__ < 40000
+		ui_type = "drag";
+	#else
+		ui_type = "slider";
+	#endif
 	ui_min = 1.5; ui_max = 2.5;
 	ui_label = "Grain Particle Size";
 > = 1.6;
