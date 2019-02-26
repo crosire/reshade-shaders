@@ -102,9 +102,9 @@ float3 NormalVector(float2 texcoord)
 	float2 posNorth  = posCenter - offset.zy;
 	float2 posEast   = posCenter + offset.xz;
 
-	float3 vertCenter = float3(posCenter, 1) * GetDepth(posCenter);
-	float3 vertNorth  = float3(posNorth,  1) * GetDepth(posNorth);
-	float3 vertEast   = float3(posEast,   1) * GetDepth(posEast);
+	float3 vertCenter = float3(posCenter - 0.5, 1) * GetDepth(posCenter);
+	float3 vertNorth  = float3(posNorth - 0.5,  1) * GetDepth(posNorth);
+	float3 vertEast   = float3(posEast - 0.5,   1) * GetDepth(posEast);
 
 	return normalize(cross(vertCenter - vertNorth, vertCenter - vertEast)) * 0.5 + 0.5;
 }
