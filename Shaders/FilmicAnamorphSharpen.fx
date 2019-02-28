@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.1.10 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.2.0 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -25,7 +25,7 @@ uniform int Coefficient <
 	ui_label = "Luma coefficient";
 	ui_tooltip = "Change if objects with relatively same brightness but different color get sharpened";
 	ui_type = "combo";
-	ui_items = "BT.709\0BT.601\0";
+	ui_items = "BT.709 (digital connection)\0BT.601 (analog connection)\0";
 > = 0;
 
 uniform float Clamp <
@@ -49,16 +49,23 @@ uniform float Offset <
 	ui_min = 0.0; ui_max = 2.0; ui_step = 0.01;
 > = 0.1;
 
-uniform int Contrast <
-	ui_label = "Edges mask";
+uniform bool DepthMask <
+	ui_label = "Enable edges masking";
+	ui_tooltip = "Depth high-pass mask switch";
+> = true;
+
+uniform int DepthMaskContrast <
+	ui_label = "Edges mask strength";
 	ui_tooltip = "Depth high-pass mask amount";
 	ui_type = "drag";
 	ui_min = 0; ui_max = 2000; ui_step = 1;
 > = 128;
 
 uniform bool Preview <
-	ui_label = "Preview";
-	ui_tooltip = "Preview sharpen layer and mask for adjustment. If you don't see red strokes, try changing Preprocessor Definitions in the Settings tab.";
+	ui_label = "Preview sharpen layer";
+	ui_tooltip = "Preview sharpen layer and mask for adjustment.\n"
+		"If you don't see red strokes,\n"
+		"try changing Preprocessor Definitions in the Settings tab.";
 	ui_category = "Debug View";
 > = false;
 
@@ -68,6 +75,11 @@ uniform bool Preview <
 
 #include "ReShade.fxh"
 
+// RGB to YUV709 Luma
+static const float3 Luma709 = float3(0.2126, 0.7152, 0.0722);
+// RGB to YUV601 Luma
+static const float3 Luma601 = float3(0.299, 0.587, 0.114);
+
 // Overlay blending mode
 float Overlay(float LayerA, float LayerB)
 {
@@ -75,7 +87,7 @@ float Overlay(float LayerA, float LayerB)
 	float MinB = min(LayerB, 0.5);
 	float MaxA = max(LayerA, 0.5);
 	float MaxB = max(LayerB, 0.5);
-	return 2 * (MinA * MinB + MaxA + MaxB - MaxA * MaxB) - 1.5;
+	return 2.0 * (MinA * MinB + MaxA + MaxB - MaxA * MaxB) - 1.5;
 }
 
 // Sharpen pass
@@ -83,73 +95,107 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 {
 	float2 Pixel = ReShade::PixelSize;
 
-	float2 DepthPixel = Pixel * Offset + Pixel;
-	Pixel *= Offset;
-	// Sample display image
-	float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
-	// Sample display depth image
-	float SourceDepth = ReShade::GetLinearizedDepth(UvCoord);
+	// Choose luma coefficient, if False BT.709 luma, else BT.601 luma
+	float3 LumaCoefficient = bool(Coefficient) ? Luma601 : Luma709;
 
-	float2 NorSouWesEst[4] = {
-		float2(UvCoord.x, UvCoord.y + Pixel.y),
-		float2(UvCoord.x, UvCoord.y - Pixel.y),
-		float2(UvCoord.x + Pixel.x, UvCoord.y),
-		float2(UvCoord.x - Pixel.x, UvCoord.y)
-	};
-
-	float2 DepthNorSouWesEst[4] = {
-		float2(UvCoord.x, UvCoord.y + DepthPixel.y),
-		float2(UvCoord.x, UvCoord.y - DepthPixel.y),
-		float2(UvCoord.x + DepthPixel.x, UvCoord.y),
-		float2(UvCoord.x - DepthPixel.x, UvCoord.y)
-	};
-
-	// Choose luma coefficient, if True BT.709 Luma, else BT.601 Luma
-	float3 LumaCoefficient = (Coefficient == 0) ?
-	float3( 0.2126,  0.7152,  0.0722) : float3( 0.299,  0.587,  0.114);
-
-	// Luma high-pass color
-	// Luma high-pass depth
-	float HighPassColor;
-	float DepthMask;
-
-	for (int s = 0; s < 4; s++)
+	if(DepthMask)
 	{
-		HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
-		DepthMask += ReShade::GetLinearizedDepth(NorSouWesEst[s])
-		+ ReShade::GetLinearizedDepth(DepthNorSouWesEst[s]);
-	}
+		float2 DepthPixel = Pixel * Offset + Pixel;
+		Pixel *= Offset;
+		// Sample display image
+		float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
+		// Sample display depth image
+		float SourceDepth = ReShade::GetLinearizedDepth(UvCoord);
 
-	HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
+		float2 NorSouWesEst[4] = {
+			float2(UvCoord.x, UvCoord.y + Pixel.y),
+			float2(UvCoord.x, UvCoord.y - Pixel.y),
+			float2(UvCoord.x + Pixel.x, UvCoord.y),
+			float2(UvCoord.x - Pixel.x, UvCoord.y)
+		};
 
-	DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
-	DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
-	DepthMask = saturate(Contrast * DepthMask + 1.0 - Contrast);
+		float2 DepthNorSouWesEst[4] = {
+			float2(UvCoord.x, UvCoord.y + DepthPixel.y),
+			float2(UvCoord.x, UvCoord.y - DepthPixel.y),
+			float2(UvCoord.x + DepthPixel.x, UvCoord.y),
+			float2(UvCoord.x - DepthPixel.x, UvCoord.y)
+		};
 
-	// Sharpen strength
-	HighPassColor = lerp(0.5, HighPassColor, Strength * DepthMask);
+		// Luma high-pass color
+		// Luma high-pass depth
+		float HighPassColor = 0.0, DepthMask = 0.0;
+	
+		[unroll]for(int s = 0; s < 4; s++)
+		{
+			HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
+			DepthMask += ReShade::GetLinearizedDepth(NorSouWesEst[s])
+			+ ReShade::GetLinearizedDepth(DepthNorSouWesEst[s]);
+		}
 
-	// Clamping sharpen
-	HighPassColor = max(min(HighPassColor, Clamp), 1 - Clamp);
+		HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
 
-	float3 Sharpen = float3(
-		Overlay(Source.r, HighPassColor),
-		Overlay(Source.g, HighPassColor),
-		Overlay(Source.b, HighPassColor)
-	);
+		DepthMask = 1.0 - DepthMask * 0.125 + SourceDepth;
+		DepthMask = min(1.0, DepthMask) + 1.0 - max(1.0, DepthMask);
+		DepthMask = saturate(DepthMaskContrast * DepthMask + 1.0 - DepthMaskContrast);
 
-	if (Preview) // Preview mode ON
-	{
-		float PreviewChannel = lerp(HighPassColor, HighPassColor * DepthMask, 0.5);
-		return float3(
-			1.0 - DepthMask * (1.0 - HighPassColor), 
-			PreviewChannel, 
-			PreviewChannel
+		// Sharpen strength
+		HighPassColor = lerp(0.5, HighPassColor, Strength * DepthMask);
+
+		// Clamping sharpen
+		HighPassColor = (Clamp != 1.0) ? max(min(HighPassColor, Clamp), 1.0 - Clamp) : HighPassColor;
+
+		float3 Sharpen = float3(
+			Overlay(Source.r, HighPassColor),
+			Overlay(Source.g, HighPassColor),
+			Overlay(Source.b, HighPassColor)
 		);
+
+		if(Preview) // Preview mode ON
+		{
+			float PreviewChannel = lerp(HighPassColor, HighPassColor * DepthMask, 0.5);
+			return float3(
+				1.0 - DepthMask * (1.0 - HighPassColor), 
+				PreviewChannel, 
+				PreviewChannel
+			);
+		}
+
+		return Sharpen;
 	}
 	else
 	{
-		return Sharpen;
+		Pixel *= Offset;
+
+		// Sample display image
+		float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
+	
+		float2 NorSouWesEst[4] = {
+			float2(UvCoord.x, UvCoord.y + Pixel.y),
+			float2(UvCoord.x, UvCoord.y - Pixel.y),
+			float2(UvCoord.x + Pixel.x, UvCoord.y),
+			float2(UvCoord.x - Pixel.x, UvCoord.y)
+		};
+
+		// Luma high-pass color
+		float HighPassColor = 0.0;
+		[unroll]
+		for(int s = 0; s < 4; s++) HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
+		HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
+
+		// Sharpen strength
+		HighPassColor = lerp(0.5, HighPassColor, Strength);
+
+		// Clamping sharpen
+		HighPassColor = (Clamp != 1.0) ? max(min(HighPassColor, Clamp), 1.0 - Clamp) : HighPassColor;
+
+		float3 Sharpen = float3(
+			Overlay(Source.r, HighPassColor),
+			Overlay(Source.g, HighPassColor),
+			Overlay(Source.b, HighPassColor)
+		);
+
+		// Preview mode ON
+		return Preview ? HighPassColor : Sharpen;
 	}
 }
 
