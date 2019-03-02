@@ -531,7 +531,7 @@ float GetCoC(float2 coords)
 		float2 focusPoint = DOF_MOUSEDRIVEN_AF ? MouseCoords * ReShade::PixelSize : DOF_FOCUSPOINT;
 
 		[loop]
-		for (int r = 0; r < DOF_FOCUSSAMPLES; r++)
+		for (int r = DOF_FOCUSSAMPLES; 0 < r; r--)
 		{
 			sincos((6.2831853 / DOF_FOCUSSAMPLES) * r, coords.y, coords.x);
 			coords.y *= ReShade::AspectRatio;
