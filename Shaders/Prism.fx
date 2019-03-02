@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.3
+// Chromatic Aberration PS (Prism) v1.2.4
 // inspired by Marty McFly YACA shader
 
   ////////////////////
@@ -129,7 +129,7 @@ void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord
 	}
 }
 
-technique ChromaticAberration
+technique ChromaticAberration < ui_label = "Chromatic Aberration"; >
 {
 	pass
 	{

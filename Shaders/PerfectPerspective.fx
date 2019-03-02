@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.5.2
+// Perfect Perspective PS ver. 2.5.3
 
 
   ////////////////////
@@ -254,7 +254,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	return Display;
 }
 
-technique PerfectPerspective
+technique PerfectPerspective < ui_label = "Perfect Perspective"; >
 {
 	pass
 	{

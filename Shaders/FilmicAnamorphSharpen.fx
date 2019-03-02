@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.2.0 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.2.1 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -199,7 +199,7 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	}
 }
 
-technique FilmicAnamorphSharpen
+technique FilmicAnamorphSharpen < ui_label = "Filmic Anamorphic Sharpen"; >
 {
 	pass
 	{
