@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.6.0
+// Perfect Perspective PS ver. 2.6.1
 
 
   ////////////////////
@@ -17,7 +17,6 @@ For inquiries please contact jakubfober@gmail.com
 ////////////////////
 
 uniform int Projection <
-	ui_label = "Type of projection";
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (size) preserves surface relations,\n"
@@ -25,6 +24,7 @@ uniform int Projection <
 		"Equidistant maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
 	#if __RESHADE__ < 40000
+		ui_label = "Type of projection";
 		ui_type = "combo";
 		ui_items = "Stereographic (shapes)\0Equisolid (size)\0Equidistant (speed)\0";
 	#else
