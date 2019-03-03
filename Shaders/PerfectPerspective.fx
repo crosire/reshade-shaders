@@ -12,9 +12,9 @@ For inquiries please contact jakubfober@gmail.com
 // Perfect Perspective PS ver. 2.6.1
 
 
-  ////////////////////
- /////// MENU ///////
-////////////////////
+	  ////////////
+	 /// MENU ///
+	////////////
 
 uniform int Projection <
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
@@ -114,9 +114,9 @@ uniform int2 ResScale <
 > = int2(1920, 1920);
 
 
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+	  //////////////
+	 /// SHADER ///
+	//////////////
 
 #include "ReShade.fxh"
 
