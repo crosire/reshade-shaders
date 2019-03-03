@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.5.3
+// Perfect Perspective PS ver. 2.6.0
 
 
   ////////////////////
@@ -24,8 +24,13 @@ uniform int Projection <
 		"Best for flying in open areas.\n\n"
 		"Equidistant maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
-	ui_type = "combo";
-	ui_items = "Stereographic (shapes)\0Equisolid (size)\0Equidistant (speed)\0";
+	#if __RESHADE__ < 40000
+		ui_type = "combo";
+		ui_items = "Stereographic (shapes)\0Equisolid (size)\0Equidistant (speed)\0";
+	#else
+		ui_type = "radio";
+		ui_items = "Stereographic projection (shapes)\0Equisolid projection (size)\0Equidistant projection (speed)\0";
+	#endif
 	ui_category = "Distortion Correction";
 > = 0;
 
@@ -57,7 +62,7 @@ uniform float Vertical <
 
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
-	ui_tooltip = "In stereographic mode:\n\n"
+	ui_tooltip = "...in stereographic mode\n\n"
 		"If image bulges in movement (too high FOV),\n"
 		"change it to 'Diagonal'.\n"
 		"When proportions are distorted at the periphery\n"
@@ -254,7 +259,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	return Display;
 }
 
-technique PerfectPerspective < ui_label = "Perfect Perspective"; >
+technique PerfectPerspective < ui_label = "Perfect Perspective"; ui_tooltip = "Correct fisheye distortion"; >
 {
 	pass
 	{
