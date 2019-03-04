@@ -7,12 +7,13 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.3
+// Chromatic Aberration PS (Prism) v1.2.4
 // inspired by Marty McFly YACA shader
 
-  ////////////////////
- /////// MENU ///////
-////////////////////
+
+	  ////////////
+	 /// MENU ///
+	////////////
 
 #ifndef PrismLimit
 	#define PrismLimit 48 // Maximum sample count
@@ -56,9 +57,10 @@ uniform int SampleCount <
 	ui_category = "Performance";
 > = 8;
 
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+
+	  //////////////
+	 /// SHADER ///
+	//////////////
 
 #include "ReShade.fxh"
 
@@ -129,7 +131,7 @@ void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord
 	}
 }
 
-technique ChromaticAberration
+technique ChromaticAberration < ui_label = "Chromatic Aberration"; >
 {
 	pass
 	{

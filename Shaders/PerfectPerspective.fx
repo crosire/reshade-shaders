@@ -9,23 +9,28 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.5.2
+// Perfect Perspective PS ver. 2.6.1
 
 
-  ////////////////////
- /////// MENU ///////
-////////////////////
+	  ////////////
+	 /// MENU ///
+	////////////
 
 uniform int Projection <
-	ui_label = "Type of projection";
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (size) preserves surface relations,\n"
 		"Best for flying in open areas.\n\n"
 		"Equidistant maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
-	ui_type = "combo";
-	ui_items = "Stereographic (shapes)\0Equisolid (size)\0Equidistant (speed)\0";
+	#if __RESHADE__ < 40000
+		ui_label = "Type of projection";
+		ui_type = "combo";
+		ui_items = "Stereographic (shapes)\0Equisolid (size)\0Equidistant (speed)\0";
+	#else
+		ui_type = "radio";
+		ui_items = "Stereographic projection (shapes)\0Equisolid projection (size)\0Equidistant projection (speed)\0";
+	#endif
 	ui_category = "Distortion Correction";
 > = 0;
 
@@ -57,7 +62,7 @@ uniform float Vertical <
 
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
-	ui_tooltip = "In stereographic mode:\n\n"
+	ui_tooltip = "...in stereographic mode\n\n"
 		"If image bulges in movement (too high FOV),\n"
 		"change it to 'Diagonal'.\n"
 		"When proportions are distorted at the periphery\n"
@@ -109,9 +114,9 @@ uniform int2 ResScale <
 > = int2(1920, 1920);
 
 
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+	  //////////////
+	 /// SHADER ///
+	//////////////
 
 #include "ReShade.fxh"
 
@@ -254,7 +259,7 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	return Display;
 }
 
-technique PerfectPerspective
+technique PerfectPerspective < ui_label = "Perfect Perspective"; ui_tooltip = "Correct fisheye distortion"; >
 {
 	pass
 	{
