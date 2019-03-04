@@ -8,7 +8,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform bool Line <
 	ui_label = "Show Center Line";

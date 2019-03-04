@@ -11,7 +11,7 @@ http://creativecommons.org/licenses/by-sa/4.0/.
  /////// MENU ///////
 ////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Threshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.999; ui_step = 0.001;

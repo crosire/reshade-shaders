@@ -8,7 +8,7 @@
 	#define SurfaceBlurIterations 1
 #endif
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int BlurRadius
 < __UNIFORM_SLIDER_INT1

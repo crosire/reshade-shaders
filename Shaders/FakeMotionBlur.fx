@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float mbRecall < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;

@@ -32,7 +32,7 @@
 | :: UI Settings :: |
 '------------------*/
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int splitscreen_mode <
     ui_type = "combo";

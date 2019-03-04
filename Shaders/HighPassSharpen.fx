@@ -4,7 +4,7 @@
 
 //Settings
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int HighPassSharpRadius < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 3;

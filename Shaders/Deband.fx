@@ -33,7 +33,7 @@
  *        Removed unnecessary lines and replaced them with ReShadeFX intrinsic counterparts
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Threshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.25;

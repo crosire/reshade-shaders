@@ -10,7 +10,7 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Amount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;

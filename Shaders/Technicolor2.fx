@@ -4,7 +4,7 @@
  * Optimized by CeeJay.dk
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 ColorStrength < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "Higher means darker and more intense colors.";

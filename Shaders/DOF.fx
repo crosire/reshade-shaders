@@ -20,7 +20,7 @@
 // Credits :: Matso (Matso DOF), PetkaGtA, gp65cj042
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform bool DOF_AUTOFOCUS <
 	ui_tooltip = "Enables automated focus recognition based on samples around autofocus center.";

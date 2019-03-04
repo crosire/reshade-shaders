@@ -1,6 +1,6 @@
 // hq4x filter from https://www.shadertoy.com/view/MslGRS
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float s < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 10.0;

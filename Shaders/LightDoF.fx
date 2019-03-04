@@ -35,7 +35,7 @@
 
 //user variables//////////////////////////////////////////////////////////////////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fLightDoF_Width < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Bokeh Width [Light DoF]";

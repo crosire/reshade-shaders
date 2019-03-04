@@ -5,7 +5,7 @@
  * Computes a noise pattern and blends it with the image to create a film grain look.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Intensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;

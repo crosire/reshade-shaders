@@ -11,7 +11,7 @@ http://creativecommons.org/licenses/by-sa/4.0/.
  /////// MENU ///////
 ////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Sharpen strength";

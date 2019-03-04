@@ -20,7 +20,7 @@
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fLUT_AmountChroma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;

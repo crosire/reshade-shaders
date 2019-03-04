@@ -5,7 +5,7 @@
  * ColorMatrix allow the user to transform the colors using a color matrix
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 ColorMatrix_Red < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 1.0;

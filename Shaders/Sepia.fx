@@ -1,4 +1,4 @@
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 Tint < __UNIFORM_COLOR_FLOAT3
 > = float3(0.55, 0.43, 0.42);

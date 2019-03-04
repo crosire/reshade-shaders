@@ -15,7 +15,7 @@
   - Minor UI improvements for Reshade 3.x
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Vibrance < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;

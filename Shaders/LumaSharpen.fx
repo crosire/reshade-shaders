@@ -10,7 +10,7 @@
   - UI improvements for Reshade 3.x
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float sharp_strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 3.0;

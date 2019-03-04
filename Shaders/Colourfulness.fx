@@ -25,7 +25,7 @@
 // Colourfulness - version 2018-11-12
 // EXPECTS FULL RANGE GAMMA LIGHT
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float colourfulness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 2.0;

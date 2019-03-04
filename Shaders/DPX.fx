@@ -2,7 +2,7 @@
  * DPX/Cineon shader by Loadus
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 RGB_Curve < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 1.0; ui_max = 15.0;

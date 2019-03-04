@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform bool alDebug <
 	ui_tooltip = "Activates debug mode of AL, upper bar shows detected light, lower bar shows adaptation";

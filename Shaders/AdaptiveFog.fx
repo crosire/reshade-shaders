@@ -10,7 +10,7 @@
 // By Otis / Infuse Project
 ///////////////////////////////////////////////////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 FogColor < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "Color of the fog, in (red , green, blue)";

@@ -4,7 +4,7 @@
  *                               for ReShade 3.0+
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Subpix < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;

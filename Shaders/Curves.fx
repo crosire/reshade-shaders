@@ -5,7 +5,7 @@
  * Curves, uses S-curves to increase contrast, without clipping highlights and shadows.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Mode <
 	ui_type = "combo";

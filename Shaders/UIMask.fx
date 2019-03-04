@@ -120,7 +120,7 @@
     #define TEXFORMAT RGBA8
 #endif
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fMask_Intensity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Mask Intensity";

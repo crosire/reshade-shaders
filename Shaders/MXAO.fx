@@ -34,7 +34,7 @@
 // UI variables
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int MXAO_GLOBAL_SAMPLE_QUALITY_PRESET <
         ui_type = "combo";

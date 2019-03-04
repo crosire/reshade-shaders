@@ -92,7 +92,7 @@ static const float3 luma_value = float3(0.2126, 0.7152, 0.0722);
 
 //Uniforms
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fBloom_Intensity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Bloom Intensity";

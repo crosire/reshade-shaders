@@ -6,7 +6,7 @@
  * May cause banding artifacts.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Type <
 	ui_type = "combo";

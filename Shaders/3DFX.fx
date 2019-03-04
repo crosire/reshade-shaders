@@ -3,8 +3,7 @@
 //----------////
 
 #include "ReShade.fxh"
-
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float DITHERAMOUNT < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;

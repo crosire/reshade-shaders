@@ -4,7 +4,7 @@
 
 //>Clarity Settings<\\
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int ClarityRadius
 < __UNIFORM_SLIDER_INT1

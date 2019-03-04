@@ -8,7 +8,7 @@
 // 3D emphasis code by SirCobra. 
 ///////////////////////////////////////////////////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float FocusDepth < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.000; ui_max = 1.000;

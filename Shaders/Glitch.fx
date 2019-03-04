@@ -5,7 +5,7 @@
 
 uniform float  Timer < source = "timer"; >;
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Amount < __UNIFORM_SLIDER_FLOAT1
     ui_min = 0.0;

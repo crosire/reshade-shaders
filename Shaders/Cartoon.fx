@@ -3,7 +3,7 @@
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Power < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 10.0;

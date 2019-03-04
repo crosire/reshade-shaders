@@ -92,7 +92,7 @@
  1.0  - Initial release
 */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float NoiseLevel < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.01; ui_max = 1.00;

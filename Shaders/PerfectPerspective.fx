@@ -16,7 +16,7 @@ For inquiries please contact jakubfober@gmail.com
  /////// MENU ///////
 ////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Projection <
 	ui_label = "Type of projection";

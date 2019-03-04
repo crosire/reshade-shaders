@@ -35,7 +35,7 @@
 
 //Divergence & Convergence//
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 uniform float Divergence <
 	ui_type = "drag";
 	ui_min = 1; ui_max = Depth_Max; ui_step = 0.5;

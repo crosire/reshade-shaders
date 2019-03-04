@@ -5,7 +5,7 @@
  * Not actual HDR - It just tries to mimic an HDR look (relatively high performance cost)
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float HDRPower < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;

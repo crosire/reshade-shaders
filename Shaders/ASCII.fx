@@ -49,7 +49,7 @@
 | :: UI Settings :: |
 '------------------*/
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 /*
   uniform float Version <

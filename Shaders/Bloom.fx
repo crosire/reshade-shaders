@@ -1,5 +1,7 @@
 // Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 
+#include "ReShadeUI.fxh"
+
 uniform int iBloomMixmode <
 	ui_type = "combo";
 	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";

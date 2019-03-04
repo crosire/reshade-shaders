@@ -10,7 +10,7 @@
 
 //effect parameters
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fAdp_Speed < __UNIFORM_SLIDER_FLOAT1
     ui_label = "AdaptionSpeed";

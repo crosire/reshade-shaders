@@ -3,7 +3,7 @@
  * by 3an and CeeJay.dk
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float3 RGB_Lift < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 2.0;

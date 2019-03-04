@@ -4,7 +4,7 @@
 
 //Settings
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int GaussianBlurRadius < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 4;

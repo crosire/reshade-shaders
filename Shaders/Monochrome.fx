@@ -38,8 +38,7 @@
 '---------------*/
 
 #include "ReShade.fxh"
-
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Monochrome_preset <
 	ui_type = "combo";

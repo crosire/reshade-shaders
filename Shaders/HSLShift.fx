@@ -8,7 +8,7 @@
 // UI ELEMENTS /////////////////////////////////////
 ////////////////////////////////////////////////////
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
   uniform float3 HUERed < __UNIFORM_COLOR_FLOAT3
       ui_label="Red";

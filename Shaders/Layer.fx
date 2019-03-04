@@ -32,7 +32,7 @@
     #define TEXFORMAT RGBA8
 #endif
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 //TODO blend by alpha
 uniform float Layer_Blend < __UNIFORM_SLIDER_FLOAT1

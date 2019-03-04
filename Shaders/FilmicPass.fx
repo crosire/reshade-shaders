@@ -4,7 +4,7 @@
  * Applies some common color adjustments to mimic a more cinema-like look.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.05; ui_max = 1.5;

@@ -1,10 +1,5 @@
 #pragma once
 
-// -------------------------------------
-// UI.fxh
-// Author: seri14
-// -------------------------------------
-
 #if !defined(__RESHADE__) || __RESHADE__ < 30000
 #error "ReShade 3.0+ is required to use this header file"
 #endif
@@ -12,10 +7,6 @@
 #define RESHADE_VERSION(major,minor,build) (10000 * (major) + 100 * (minor) + (build))
 #define SUPPORTED_VERSION(major,minor,build) (__RESHADE__ >= RESHADE_VERSION(major,minor,build))
 
-// -------------------------------------
-// __UNIFORM_INPUT
-
-// No information
 #define __UNIFORM_INPUT_ANY    ui_type = "input";
 
 #define __UNIFORM_INPUT_BOOL1  __UNIFORM_INPUT_ANY // It is unsupported on all version
@@ -31,9 +22,6 @@
 #define __UNIFORM_INPUT_FLOAT3 __UNIFORM_INPUT_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_INPUT_FLOAT4 __UNIFORM_INPUT_ANY // If it was not supported in someday or now, please add information
 
-// -------------------------------------
-// __UNIFORM_DRAG
-
 // Change slider widget to be used with new "slider" instead of a "drag" type annotation
 // https://github.com/crosire/reshade/commit/746229f31cd6f311a3e72a543e4f1f23faa23f11#diff-59405a313bd8cbfb0ca6dd633230e504R1701
 // Changed slider widget to be used with < ui_type = "slider"; > instead of < ui_type = "drag"; >
@@ -47,8 +35,6 @@
 // https://reshade.me/forum/releases/4772-4-0
 #elif SUPPORTED_VERSION(4,0,0)
 #define __UNIFORM_DRAG_ANY    ui_type = "drag2";
-
-// No information
 #else
 #define __UNIFORM_DRAG_ANY    ui_type = "drag";
 #endif
@@ -66,9 +52,6 @@
 #define __UNIFORM_DRAG_FLOAT3 __UNIFORM_DRAG_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_DRAG_FLOAT4 __UNIFORM_DRAG_ANY // If it was not supported in someday or now, please add information
 
-// -------------------------------------
-// __UNIFORM_SLIDER (Since 4.0.0)
-
 // Change slider widget to be used with new "slider" instead of a "drag" type annotation
 // https://github.com/crosire/reshade/commit/746229f31cd6f311a3e72a543e4f1f23faa23f11#diff-59405a313bd8cbfb0ca6dd633230e504R1699
 // Changed slider widget to be used with < ui_type = "slider"; > instead of < ui_type = "drag"; >
@@ -82,8 +65,6 @@
 // https://reshade.me/forum/releases/4772-4-0
 #elif SUPPORTED_VERSION(4,0,0)
 #define __UNIFORM_SLIDER_ANY    ui_type = "drag";
-
-// No information
 #else
 #define __UNIFORM_SLIDER_ANY    __UNIFORM_DRAG_ANY
 #endif
@@ -100,9 +81,6 @@
 #define __UNIFORM_SLIDER_FLOAT2 __UNIFORM_SLIDER_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_SLIDER_FLOAT3 __UNIFORM_SLIDER_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_SLIDER_FLOAT4 __UNIFORM_SLIDER_ANY // If it was not supported in someday or now, please add information
-
-// -------------------------------------
-// __UNIFORM_COMBO (Since 3.0.0)
 
 // Add combo box display type for uniform variables and fix displaying of integer variable under Direct3D 9
 // https://github.com/crosire/reshade/commit/b025bfae5f7343509ec0cacf6df0cff537c499f2#diff-82cf230afdb2a0d5174111e6f17548a5R1631
@@ -131,9 +109,6 @@
 // https://reshade.me/forum/releases/4772-4-0
 #define __UNIFORM_COMBO_BOOL1  __UNIFORM_COMBO_ANY
 
-// -------------------------------------
-// __UNIFORM_RADIO (Since 4.0.0)
-
 // Cleanup GUI code and rearrange some widgets
 // https://github.com/crosire/reshade/commit/6751f7bd50ea7c0556cf0670f10a4b4ba912ee7d#diff-59405a313bd8cbfb0ca6dd633230e504R1711
 // Added radio button widget (via < ui_type = "radio"; ui_items = "Button 1\0Button 2\0...\0"; >)
@@ -156,9 +131,6 @@
 #define __UNIFORM_RADIO_FLOAT2 __UNIFORM_RADIO_ANY // It is unsupported on all version
 #define __UNIFORM_RADIO_FLOAT3 __UNIFORM_RADIO_ANY // It is unsupported on all version
 #define __UNIFORM_RADIO_FLOAT4 __UNIFORM_RADIO_ANY // It is unsupported on all version
-
-// -------------------------------------
-// __UNIFORM_COLOR (Since 4.0.0)
 
 #define __UNIFORM_COLOR_ANY    ui_type = "color";
 

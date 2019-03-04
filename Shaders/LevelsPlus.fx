@@ -70,7 +70,7 @@ static const float PI = 3.141592653589793238462643383279f;
 
 // Settings
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform bool EnableLevels <
 	ui_tooltip = "Enable or Disable Levels for TV <> PC or custome color range";

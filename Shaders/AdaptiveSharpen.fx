@@ -25,7 +25,7 @@
 // Adaptive sharpen - version 2018-04-14
 // EXPECTS FULL RANGE GAMMA LIGHT
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float curve_height < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.01; ui_max = 2.0;

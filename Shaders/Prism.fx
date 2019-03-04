@@ -18,7 +18,7 @@ http://creativecommons.org/licenses/by-nc-sa/4.0/.
 	#define PrismLimit 48 // Maximum sample count
 #endif
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Aberration < __UNIFORM_SLIDER_INT1
 	ui_label = "Aberration scale in pixels";

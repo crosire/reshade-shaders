@@ -38,7 +38,7 @@
 
 #define TEXFORMAT RGBA8
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Stage_Opacity < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Opacity";

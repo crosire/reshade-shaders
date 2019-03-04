@@ -5,7 +5,7 @@
  * Distorts the image by shifting each color component, which creates color artifacts similar to those in a very cheap lens or a cheap sensor.
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float2 Shift < __UNIFORM_SLIDER_FLOAT2
 	ui_min = -10; ui_max = 10;

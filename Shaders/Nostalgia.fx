@@ -50,7 +50,7 @@
 | :: UI Settings :: |
 '------------------*/
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Nostalgia_palette <
 	ui_type = "combo";

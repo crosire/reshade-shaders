@@ -18,7 +18,7 @@
  * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int BlackPoint < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;

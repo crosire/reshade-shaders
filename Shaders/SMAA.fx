@@ -19,6 +19,9 @@
 #endif
 
 //----------------------- UI Variables ------------------------
+
+#include "ReShadeUI.fxh"
+
 uniform int EdgeDetectionType <
 	ui_type = "combo";
 	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";

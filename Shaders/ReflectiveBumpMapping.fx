@@ -7,7 +7,7 @@
 // Copyright © 2008-2016 Marty McFly
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float fRBM_BlurWidthPixels <
 	ui_type = "drag";

@@ -24,7 +24,7 @@
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int fLUT_LutSelector < 
 	ui_type = "combo";

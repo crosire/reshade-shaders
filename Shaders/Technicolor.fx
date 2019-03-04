@@ -4,7 +4,7 @@
  * Optimized by CeeJay.dk
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float Power < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;

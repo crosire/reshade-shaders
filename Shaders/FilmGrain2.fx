@@ -8,7 +8,7 @@
  * Uses perlin noise shader by toneburst from http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float grainamount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.2;

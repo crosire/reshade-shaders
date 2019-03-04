@@ -12,7 +12,7 @@
  * 1.0  - Initial release
  */
 
-#include "UIType.fxh"
+#include "ReShadeUI.fxh"
 
 uniform float sstr < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 8.00;
