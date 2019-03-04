@@ -11,12 +11,9 @@ http://creativecommons.org/licenses/by-sa/4.0/.
  /////// MENU ///////
 ////////////////////
 
-uniform float Threshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "UIType.fxh"
+
+uniform float Threshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.999; ui_step = 0.001;
 > = 0.1;
 
@@ -33,8 +30,7 @@ uniform int Color <
 	ui_items = "Super Blue Ultimatte(tm)\0Green Ultimatte(tm)\0Custom\0";
 > = 0;
 
-uniform float3 CustomColor <
-	ui_type = "color";
+uniform float3 CustomColor < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Custom color";
 > = float3(1.0, 0.0, 0.0);
 

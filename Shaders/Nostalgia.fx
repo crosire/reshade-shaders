@@ -50,6 +50,8 @@
 | :: UI Settings :: |
 '------------------*/
 
+#include "UIType.fxh"
+
 uniform int Nostalgia_palette <
 	ui_type = "combo";
 	ui_label = "Palette";
@@ -72,98 +74,82 @@ uniform int Nostalgia_palette <
 	"Gameboy\0";
 > = 0;
 
-uniform float3 Nostalgia_color_0 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_0 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 0";
 	ui_category = "Custom palette";
 > = float3(  0. ,   0. ,   0. ); //Black;
 
-uniform float3 Nostalgia_color_1 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_1 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 1";
 	ui_category = "Custom palette";
 > = float3(255. , 255. , 255. ) / 255.; //White
 
-uniform float3 Nostalgia_color_2 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_2 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 2";
 	ui_category = "Custom palette";
 > = float3(136. ,   0. ,   0. ) / 255.; //Red;
 
-uniform float3 Nostalgia_color_3 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_3 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 3";
 	ui_category = "Custom palette";
 > = float3(170. , 255. , 238. ) / 255.; //Cyan
 
-uniform float3 Nostalgia_color_4 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_4 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 4";
 	ui_category = "Custom palette";
 > = float3(204. ,  68. , 204. ) / 255.; //Violet
 
-uniform float3 Nostalgia_color_5 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_5 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 5";
 	ui_category = "Custom palette";
 > = float3(  0. , 204. ,  85. ) / 255.; //Green
 
-uniform float3 Nostalgia_color_6 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_6 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 6";
 	ui_category = "Custom palette";
 > = float3(  0. ,   0. , 170. ) / 255.; //Blue
 
-uniform float3 Nostalgia_color_7 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_7 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 7";
 	ui_category = "Custom palette";
 > = float3(238. , 238. , 119. ) / 255.; //Yellow 1
 
-uniform float3 Nostalgia_color_8 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_8 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 8";
 	ui_category = "Custom palette";
 > = float3(221. , 136. ,  85. ) / 255.; //Orange
 
-uniform float3 Nostalgia_color_9 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_9 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 9";
 	ui_category = "Custom palette";
 > = float3(102. ,  68. ,   0. ) / 255.; //Brown
 
-uniform float3 Nostalgia_color_10 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_10 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 10";
 	ui_category = "Custom palette";
 > = float3(255. , 119. , 119. ) / 255.; //Yellow 2
 
-uniform float3 Nostalgia_color_11 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_11 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 11";
 	ui_category = "Custom palette";
 > =float3( 51. ,  51. ,  51. ) / 255.; //Grey 1
 
-uniform float3 Nostalgia_color_12 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_12 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 12";
 	ui_category = "Custom palette";
 > = float3(119. , 119. , 119. ) / 255.; //Grey 2
 
-uniform float3 Nostalgia_color_13 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_13 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 13";
 	ui_category = "Custom palette";
 > = float3(170. , 255. , 102. ) / 255.; //Lightgreen
 
-uniform float3 Nostalgia_color_14 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_14 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 14";
 	ui_category = "Custom palette";
 > = float3(  0. , 136. , 255. ) / 255.; //Lightblue
 
-uniform float3 Nostalgia_color_15 <
-	ui_type = "color";
+uniform float3 Nostalgia_color_15 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 15";
 	ui_category = "Custom palette";
 > = float3(187. , 187. , 187. ) / 255.;  //Grey 3
