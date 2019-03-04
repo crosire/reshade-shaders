@@ -12,13 +12,10 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 	 /// MENU ///
 	////////////
 
-uniform float Strength <
+#include "ReShadeUI.fxh"
+
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Sharpen strength";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.01;
 > = 60.0;
 
@@ -34,24 +31,14 @@ uniform int Coefficient <
 	#endif
 > = 0;
 
-uniform float Clamp <
+uniform float Clamp < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Sharpen clamping";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.5; ui_max = 1.0; ui_step = 0.001;
 > = 0.65;
 
-uniform float Offset <
+uniform float Offset < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "High-pass offset";
 	ui_tooltip = "High-pass cross offset in pixels";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.0; ui_max = 2.0; ui_step = 0.01;
 > = 0.1;
 

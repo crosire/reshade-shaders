@@ -38,6 +38,7 @@
 '---------------*/
 
 #include "ReShade.fxh"
+#include "ReShadeUI.fxh"
 
 uniform int Monochrome_preset <
 	ui_type = "combo";
@@ -64,8 +65,7 @@ uniform int Monochrome_preset <
 	"Kodak Tri-X\0";
 > = 0;
 
-uniform float3 Monochrome_conversion_values <
-	ui_type = "color";
+uniform float3 Monochrome_conversion_values < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Custom Conversion values";
 > = float3(0.21, 0.72, 0.07);
 
@@ -76,13 +76,8 @@ uniform bool Normalize <
 > = false;
 */
 
-uniform float Monochrome_color_saturation <
+uniform float Monochrome_color_saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Saturation";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.0;
 

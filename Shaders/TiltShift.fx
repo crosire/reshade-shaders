@@ -8,48 +8,32 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
+#include "ReShadeUI.fxh"
+
 uniform bool Line <
 	ui_label = "Show Center Line";
 > = false;
 
-uniform int Axis <
+uniform int Axis < __UNIFORM_SLIDER_INT1
 	ui_label = "Angle";
 	#if __RESHADE__ < 40000
-		ui_type = "drag";
 		ui_step = 1;
-	#else
-		ui_type = "slider";
 	#endif
 	ui_min = -89; ui_max = 90;
 > = 0;
 
-uniform float Offset <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Offset < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.41; ui_max = 1.41; ui_step = 0.01;
 > = 0.05;
 
-uniform float BlurCurve <
+uniform float BlurCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Blur Curve";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 1.0; ui_max = 5.0; ui_step = 0.01;
 	ui_label = "Blur Curve";
 > = 1.0;
 
-uniform float BlurMultiplier <
+uniform float BlurMultiplier < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Blur Multiplier";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.0; ui_max = 100.0; ui_step = 0.2;
 > = 6.0;
 

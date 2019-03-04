@@ -92,14 +92,11 @@ static const float3 luma_value = float3(0.2126, 0.7152, 0.0722);
 
 //Uniforms
 
-uniform float fBloom_Intensity <
+#include "ReShadeUI.fxh"
+
+uniform float fBloom_Intensity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Bloom Intensity";
     ui_tooltip = "Amount of bloom applied to the image.";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0.0;
     ui_max = 10.0;
     ui_step = 0.001;
@@ -119,16 +116,11 @@ uniform float fBloom_Threshold <
 > = 2.0;
 
 #if !MAGICBLOOM_NODIRT
-uniform float fDirt_Intensity <
+uniform float fDirt_Intensity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Dirt Intensity";
     ui_tooltip = 
     "Amount of lens dirt applied to bloom.\n"
     "Uses a texture called \"MagicBloom_Dirt.png\" from your textures directory(ies).";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -136,16 +128,11 @@ uniform float fDirt_Intensity <
 #endif
 
 #if !MAGICBLOOM_NOADAPT
-uniform float fExposure <
+uniform float fExposure < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Exposure";
     ui_tooltip = 
     "The target exposure that bloom adapts to.\n"
     "It is recommended to just leave it at 0.5, unless you wish for a brighter (1.0) or darker (0.0) image.";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
@@ -165,7 +152,7 @@ uniform float fAdapt_Speed <
     ui_step = 0.001;
 > = 0.1;
 
-uniform float fAdapt_Sensitivity <
+uniform float fAdapt_Sensitivity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Adapt Sensitivity";
     ui_tooltip = 
     "How sensitive adaptation is towards brightness.\n"
@@ -173,45 +160,30 @@ uniform float fAdapt_Sensitivity <
     "At lower values bloom will require a lot of image brightness before it's fully darkened."
     "1.0 will not modify the amount of brightness that is accounted for adaptation.\n"
     "0.5 is a good value, but may miss certain bright spots.";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0.0;
     ui_max = 3.0;
     ui_step = 0.001;
 > = 1.0;
 
-uniform float2 f2Adapt_Clip <
+uniform float2 f2Adapt_Clip < __UNIFORM_SLIDER_FLOAT2
     ui_label = "Adaptation Min/Max";
     ui_tooltip = 
     "Determines the minimum and maximum values that adaptation can determine to ajust bloom.\n"
     "Reducing the maximum would cause bloom to be brighter (as it is less adapted).\n"
     "Increasing the minimum would cause bloom to be darker (as it is more adapted).\n"
     "Keep the maximum above or equal to the minium and vice-versa.";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;
 > = float2(0.0, 1.0);
 
-uniform int iAdapt_Precision <
+uniform int iAdapt_Precision < __UNIFORM_SLIDER_INT1
     ui_label = "Adaptation Precision";
     ui_tooltip = 
     "Determins how accurately bloom adapts to the center of image.\n"
     "At 0 the adaptation is calculated from the average of the whole image.\n"
     "At the highest value (which may vary) adaptation focuses solely on the center pixel(s) of the screen.\n"
     "Values closer to 0 are recommended.";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
     ui_min = 0;
     ui_max = lowest_mip;
     ui_step = 0.1;

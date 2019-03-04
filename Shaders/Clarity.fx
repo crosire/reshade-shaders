@@ -3,25 +3,18 @@
 //Version 1.5 for ReShade 3.0
 
 //>Clarity Settings<\\
+
+#include "ReShadeUI.fxh"
+
 uniform int ClarityRadius
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "[0|1|2|3|4] Higher values will increase the radius of the effect.";
 	ui_step = 1.00;
 > = 3;
 
 uniform float ClarityOffset
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.00; ui_max = 5.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Increasing the value will increase the radius.";
 	ui_step = 1.00;
@@ -35,24 +28,14 @@ uniform int ClarityBlendMode
 > = 2;
 
 uniform int ClarityBlendIfDark
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels below this value will be excluded from the effect. Set to 50 to target mid-tones.";
 	ui_step = 5;
 > = 50;
 
 uniform int ClarityBlendIfLight
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels above this value will be excluded from the effect. Set to 205 to target mid-tones.";
 	ui_step = 5;
@@ -64,34 +47,19 @@ uniform bool ClarityViewBlendIfMask
 > = false;
 
 uniform float ClarityStrength
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 0.400;
 
 uniform float ClarityDarkIntensity
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 > = 0.400;
 
 uniform float ClarityLightIntensity
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 > = 0.000;

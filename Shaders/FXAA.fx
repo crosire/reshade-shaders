@@ -4,32 +4,19 @@
  *                               for ReShade 3.0+
  */
 
-uniform float Subpix <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Subpix < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of sub-pixel aliasing removal. Higher values makes the image softer/blurrier.";
 > = 0.25;
 
-uniform float EdgeThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EdgeThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Edge Detection Threshold";
 	ui_tooltip = "The minimum amount of local contrast required to apply algorithm.";
 > = 0.125;
-uniform float EdgeThresholdMin <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EdgeThresholdMin < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Darkness Threshold";
 	ui_tooltip = "Pixels darker than this are not processed in order to increase performance.";

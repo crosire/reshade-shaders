@@ -120,14 +120,11 @@
     #define TEXFORMAT RGBA8
 #endif
 
-uniform float fMask_Intensity <
+#include "ReShadeUI.fxh"
+
+uniform float fMask_Intensity < __UNIFORM_SLIDER_FLOAT1
     ui_label = "Mask Intensity";
     ui_tooltip = "How much to mask effects to the original image.";
-    #if __RESHADE__ < 40000
-      ui_type = "drag";
-    #else
-      ui_type = "slider";
-    #endif
     ui_min = 0.0;
     ui_max = 1.0;
     ui_step = 0.001;

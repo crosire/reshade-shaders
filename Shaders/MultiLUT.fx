@@ -24,6 +24,8 @@
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include "ReShadeUI.fxh"
+
 uniform int fLUT_LutSelector < 
 	ui_type = "combo";
 	ui_items="Neutral\0Color1\0Color2\0Color3 (Blue oriented)\0Color4 (Hollywood)\0Color5\0Color6\0Color7\0Color8\0Cool light\0Flat & green\0Red lift matte\0Cross process\0Azure Red Dual Tone\0Sepia\0\B&W mid constrast\0\B&W high contrast\0";
@@ -31,23 +33,13 @@ uniform int fLUT_LutSelector <
 	ui_tooltip = "The LUT to use for color transformation. 'Neutral' doesn't do any color transformation.";
 > = 0;
 
-uniform float fLUT_AmountChroma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLUT_AmountChroma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT chroma amount";
 	ui_tooltip = "Intensity of color/chroma change of the LUT.";
 > = 1.00;
 
-uniform float fLUT_AmountLuma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLUT_AmountLuma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";

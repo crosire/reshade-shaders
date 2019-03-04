@@ -18,22 +18,14 @@
  * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
  */
 
-uniform int BlackPoint <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform int BlackPoint < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The black point is the new black - literally. Everything darker than this will become completely black.";
 > = 16;
 
-uniform int WhitePoint <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int WhitePoint < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "The new white point. Everything brighter than this becomes completely white";
 > = 235;

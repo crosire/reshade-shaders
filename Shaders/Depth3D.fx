@@ -33,20 +33,16 @@
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
 
-#if !defined(__RESHADE__) || __RESHADE__ < 40000
-	#define Compatibility 1
-#else
-	#define Compatibility 0
-#endif
-
 //Divergence & Convergence//
+
+#include "ReShadeUI.fxh"
 uniform float Divergence <
 	ui_type = "drag";
 	ui_min = 1; ui_max = Depth_Max; ui_step = 0.5;
 	ui_label = "·Divergence·";
-	ui_tooltip = "Divergence increases differences between the left and right images, allows you to experience depth.\n" 
-				 "The process of deriving binocular depth information is called stereopsis.\n"
-				 "You can override this value, at an peformance cost.";
+	ui_tooltip = "Divergence increases differences between the left and right images, allows you to experience depth.\n"
+	             "The process of deriving binocular depth information is called stereopsis.\n"
+	             "You can override this value, at an peformance cost.";
 	ui_category = "Divergence & Convergence";
 > = 25.0;
 
@@ -55,10 +51,10 @@ uniform float ZPD <
 	ui_min = 0.0; ui_max = 0.125;
 	ui_label = " Convergence";
 	ui_tooltip = "Convergence controls the focus distance for the screen Pop-out effect also known as ZPD.\n"
-				 "For FPS Games keeps this low Since you don't want your gun to pop out of screen.\n"
-				 "If you want to push this higher you need to adjust your Weapon Hand below.\n"
-				 "It helps to keep this around 0.03 when adjusting the DM or Weapon Hand.\n"
-				 "Default is 0.010, Zero is off.";
+	             "For FPS Games keeps this low Since you don't want your gun to pop out of screen.\n"
+	             "If you want to push this higher you need to adjust your Weapon Hand below.\n"
+	             "It helps to keep this around 0.03 when adjusting the DM or Weapon Hand.\n"
+	             "Default is 0.010, Zero is off.";
 	ui_category = "Divergence & Convergence";
 > = 0.010;
 
@@ -66,8 +62,8 @@ uniform float Auto_Depth_Range <
 	ui_type = "drag";
 	ui_min = 0.0; ui_max = 0.625;
 	ui_label = " Auto Depth Range";
-	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n" 
-				 "Default is 0.1f, Zero is off.";
+	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n"
+	             "Default is 0.1f, Zero is off.";
 	ui_category = "Divergence & Convergence";
 > = 0.1;
 
@@ -85,9 +81,9 @@ uniform float Depth_Map_Adjust <
 	ui_min = 1.0; ui_max = 250.0; ui_step = 0.125;
 	ui_label = " Z-Buffer Adjustment";
 	ui_tooltip = "This allows for you to adjust Depth Buffer Precision.\n"
-				 "Try to adjust this to keep it as low as possible.\n"
-				 "Don't go too high with this adjustment.\n"
-				 "Default is 7.5";
+	             "Try to adjust this to keep it as low as possible.\n"
+	             "Don't go too high with this adjustment.\n"
+	             "Default is 7.5";
 	ui_category = "Depth Buffer Adjust";
 > = 7.5;
 
@@ -96,9 +92,9 @@ uniform float Offset <
 	ui_min = 0; ui_max = 1.0;
 	ui_label = " Z-Buffer Offset";
 	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
-				 "It's rare if you need to use this in any game.\n"
-				 "This makes adjustments to Normal and Reversed.\n"
-				 "Default is Zero & Zero is Off.";
+	             "It's rare if you need to use this in any game.\n"
+	             "This makes adjustments to Normal and Reversed.\n"
+	             "Default is Zero & Zero is Off.";
 	ui_category = "Depth Buffer Adjust";
 > = 0.0;
 
@@ -121,12 +117,7 @@ uniform bool WP <
 	ui_category = "Weapon Hand Adjust";
 > = false;
 
-uniform int Weapon_Scale <
-	#if Compatibility
-	ui_type = "drag";
-	#else
-	ui_type = "slider";
-	#endif
+uniform int Weapon_Scale < __UNIFORM_SLIDER_INT1
 	ui_min = -3; ui_max = 3;
 	ui_label = " Weapon Scale";
 	ui_tooltip = "Use this to set the proper weapon hand scale.";
@@ -138,8 +129,8 @@ uniform float2 Weapon_Adjust <
 	ui_min = 0.0; ui_max = 25.0;
 	ui_label = " Weapon Hand Adjust";
 	ui_tooltip = "Adjust Weapon depth map for your games.\n"
-				 "X, CutOff Point used to set a diffrent scale for first person hand apart from world scale.\n"
-				 "Y, Precision is used to adjust the first person hand in world scale.\n"
+	             "X, CutOff Point used to set a diffrent scale for first person hand apart from world scale.\n"
+	             "Y, Precision is used to adjust the first person hand in world scale.\n"
 	             "Default is float2(X 0.0, Y 0.0)";
 	ui_category = "Weapon Hand Adjust";
 > = float2(0.0,0.0);
@@ -149,8 +140,8 @@ uniform float Weapon_Depth_Adjust <
 	ui_min = -50.0; ui_max = 50.0; ui_step = 0.25;
 	ui_label = " Weapon Depth Adjustment";
 	ui_tooltip = "Pushes or Pulls the FPS Hand in or out of the screen if a weapon profile is selected.\n"
-				 "This also used to fine tune the Weapon Hand if creating a weapon profile.\n" 
-				 "Default is Zero.";
+	             "This also used to fine tune the Weapon Hand if creating a weapon profile.\n"
+	             "Default is Zero.";
 	ui_category = "Weapon Hand Adjust";
 > = 0;
 
@@ -176,7 +167,7 @@ uniform int Perspective <
 	ui_min = -100; ui_max = 100;
 	ui_label = " Perspective Slider";
 	ui_tooltip = "Determines the perspective point of your stereo pair.\n"
-				 "Default is 0.0";
+	             "Default is 0.0";
 	ui_category = "Stereoscopic Options";
 > = 0;
 
@@ -191,13 +182,12 @@ uniform float3 Cursor_STT <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 1;
 	ui_label = " Crosshair Adjustments";
-	ui_tooltip = "This controlls the Size, Thickness, & Transparency.\n" 
-				 "Defaults are ( X 0.125, Y 0.5, Z 0.75 ).";
+	ui_tooltip = "This controlls the Size, Thickness, & Transparency.\n"
+	             "Defaults are ( X 0.125, Y 0.5, Z 0.75 ).";
 	ui_category = "Cursor Adjustments";
 > = float3(0.125,0.5,0.75);
 
-uniform float3 Cursor_Color <
-	ui_type = "color";
+uniform float3 Cursor_Color < __UNIFORM_COLOR_FLOAT3
 	ui_label = " Crosshair Color";
 	ui_category = "Cursor Adjustments";
 > = float3(1.0,1.0,1.0);

@@ -11,34 +11,20 @@
 // By Otis / Infuse Project
 ///////////////////////////////////////////////////////////////////
 
-uniform float EffectStrength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float EffectStrength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max=1.0;
 	ui_tooltip = "The strength of the effect. Range from 0.0, which means no effect, till 1.0 which means pixels are 100% blurred based on depth.";
 > = 0.9;
-uniform float3 FogColor <
-	ui_type= "color";
+uniform float3 FogColor < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "Color of the fog, in (red , green, blue)";
 > = float3(0.8,0.8,0.8);
-uniform float FogStart <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float FogStart < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max=1.0;
 	ui_tooltip = "Start of the fog. 0.0 is at the camera, 1.0 is at the horizon, 0.5 is halfway towards the horizon. Before this point no fog will appear.";
 > = 0.2;
-uniform float FogFactor <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float FogFactor < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max=1.0;
 	ui_tooltip = "The amount of fog added to the scene. 0.0 is no fog, 1.0 is the strongest fog possible.";
 > = 0.2;

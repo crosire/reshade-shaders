@@ -5,6 +5,8 @@
  * Curves, uses S-curves to increase contrast, without clipping highlights and shadows.
  */
 
+#include "ReShadeUI.fxh"
+
 uniform int Mode <
 	ui_type = "combo";
 	ui_items = "Luma\0Chroma\0Both Luma and Chroma\0";
@@ -16,12 +18,7 @@ uniform int Formula <
 	ui_tooltip = "The contrast s-curve you want to use. Note that Technicolor Cinestyle is practically identical to Sine, but runs slower. In fact I think the difference might only be due to rounding errors. I prefer 2 myself, but 3 is a nice alternative with a little more effect (but harsher on the highlight and shadows) and it's the fastest formula.";
 > = 4;
 
-uniform float Contrast <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Contrast < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "The amount of contrast you want.";
 > = 0.65;

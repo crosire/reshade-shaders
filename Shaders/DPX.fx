@@ -2,56 +2,28 @@
  * DPX/Cineon shader by Loadus
  */
 
-uniform float3 RGB_Curve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float3 RGB_Curve < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 1.0; ui_max = 15.0;
 	ui_label = "RGB Curve";
 > = float3(8.0, 8.0, 8.0);
-uniform float3 RGB_C <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float3 RGB_C < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.2; ui_max = 0.5;
 	ui_label = "RGB C";
 > = float3(0.36, 0.36, 0.34);
 
-uniform float Contrast <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Contrast < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.1;
-uniform float Saturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;
 > = 3.0;
-uniform float Colorfulness <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Colorfulness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 2.5;
 > = 2.5;
 
-uniform float Strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.20;
 

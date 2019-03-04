@@ -78,6 +78,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ReShade.fxh"
+#include "ReShadeUI.fxh"
 
 namespace CinematicDOF
 {
@@ -147,10 +148,9 @@ namespace CinematicDOF
 		ui_label = "Show out-of-focus plane overlay on mouse down";
 		ui_tooltip = "Enables the out-of-focus plane overlay when the left mouse button is pressed down,\nwhich helps with fine-tuning the focusing.";
 	> = true;
-	uniform float3 OutOfFocusPlaneColor <
+	uniform float3 OutOfFocusPlaneColor < __UNIFORM_COLOR_FLOAT3
 		ui_category = "Focusing, overlay";
 		ui_label = "Out-of-focus plane overlay color";
-		ui_type= "color";
 		ui_tooltip = "Specifies the color of the out-of-focus planes rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.8,0.8,0.8);
 	uniform float OutOfFocusPlaneColorTransparency <
@@ -160,16 +160,14 @@ namespace CinematicDOF
 		ui_min = 0.01; ui_max = 1.0;
 		ui_tooltip = "Amount of transparency of the out-of-focus planes. 0.0 is transparent, 1.0 is opaque.";
 	> = 0.7;
-	uniform float3 FocusPlaneColor <
+	uniform float3 FocusPlaneColor < __UNIFORM_COLOR_FLOAT3
 		ui_category = "Focusing, overlay";
 		ui_label = "Focus plane overlay color";
-		ui_type= "color";
 		ui_tooltip = "Specifies the color of the focus plane rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.0, 0.0, 1.0);
-	uniform float4 FocusCrosshairColor<
+	uniform float4 FocusCrosshairColor< __UNIFORM_COLOR_FLOAT4
 		ui_category = "Focusing, overlay";
 		ui_label = "Focus crosshair color";
-		ui_type = "color";
 		ui_tooltip = "Specifies the color of the crosshair for the auto-focus.\nAuto-focus must be enabled";
 	> = float4(1.0, 0.0, 1.0, 1.0);
 	

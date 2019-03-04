@@ -12,12 +12,9 @@
  * 1.0  - Initial release
  */
 
-uniform float sstr <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float sstr < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 8.00;
 	ui_label = "Sharpening Strength";
 > = 2.00;
@@ -29,22 +26,12 @@ uniform float cstr <
 	ui_tooltip = "Suggested settings for cstr based on sstr value: sstr=0->cstr=0, sstr=0.5->cstr=0.1, 1.0->0.6, 2.0->0.9, 2.5->1.00, 3.0->1.09, 3.5->1.15, 4.0->1.19, 8.0->1.249";
 > = 0.90;
 
-uniform float xstr <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float xstr < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Strength of XSharpen-style final sharpening.";
 > = 0.19;
 
-uniform float xrep <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float xrep < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Repair artefacts from final sharpening. (-Vit- addition to original script)";
 > = 0.25;
