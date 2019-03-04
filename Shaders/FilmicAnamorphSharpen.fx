@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.2.0 (c) 2018 Jacob Maximilian Fober
+Filmic Anamorph Sharpen PS v1.3.0 (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -7,9 +7,10 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-sa/4.0/.
 */
 
-  ////////////////////
- /////// MENU ///////
-////////////////////
+
+	  ////////////
+	 /// MENU ///
+	////////////
 
 #include "ReShadeUI.fxh"
 
@@ -19,10 +20,15 @@ uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 > = 60.0;
 
 uniform int Coefficient <
-	ui_label = "Luma coefficient";
-	ui_tooltip = "Change if objects with relatively same brightness but different color get sharpened";
-	ui_type = "combo";
-	ui_items = "BT.709 (digital connection)\0BT.601 (analog connection)\0";
+	ui_tooltip = "For digital video signal use BT.709, for analog (like VGA) use BT.601";
+	#if __RESHADE__ < 40000
+		ui_label = "YUV coefficients";
+		ui_type = "combo";
+		ui_items = "BT.709 (digital signal)\0BT.601 (analog signal))\0";
+	#else
+		ui_type = "radio";
+		ui_items = "BT.709 - digital\0BT.601 - analog\0";
+	#endif
 > = 0;
 
 uniform float Clamp < __UNIFORM_SLIDER_FLOAT1
@@ -56,9 +62,10 @@ uniform bool Preview <
 	ui_category = "Debug View";
 > = false;
 
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+
+	  //////////////
+	 /// SHADER ///
+	//////////////
 
 #include "ReShade.fxh"
 
@@ -186,7 +193,7 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	}
 }
 
-technique FilmicAnamorphSharpen
+technique FilmicAnamorphSharpen < ui_label = "Filmic Anamorphic Sharpen"; >
 {
 	pass
 	{
