@@ -7,6 +7,11 @@
 #define RESHADE_VERSION(major,minor,build) (10000 * (major) + 100 * (minor) + (build))
 #define SUPPORTED_VERSION(major,minor,build) (__RESHADE__ >= RESHADE_VERSION(major,minor,build))
 
+// Since 3.0.0
+// Commit current in-game user interface status
+// https://github.com/crosire/reshade/commit/302bacc49ae394faedc2e29a296c1cebf6da6bb2#diff-82cf230afdb2a0d5174111e6f17548a5R1183
+// Added various GUI related uniform variable annotations
+// https://reshade.me/forum/releases/2341-3-0
 #define __UNIFORM_INPUT_ANY    ui_type = "input";
 
 #define __UNIFORM_INPUT_BOOL1  __UNIFORM_INPUT_ANY // It is unsupported on all version
@@ -22,6 +27,7 @@
 #define __UNIFORM_INPUT_FLOAT3 __UNIFORM_INPUT_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_INPUT_FLOAT4 __UNIFORM_INPUT_ANY // If it was not supported in someday or now, please add information
 
+// Since 4.0.1
 // Change slider widget to be used with new "slider" instead of a "drag" type annotation
 // https://github.com/crosire/reshade/commit/746229f31cd6f311a3e72a543e4f1f23faa23f11#diff-59405a313bd8cbfb0ca6dd633230e504R1701
 // Changed slider widget to be used with < ui_type = "slider"; > instead of < ui_type = "drag"; >
@@ -29,12 +35,19 @@
 #if SUPPORTED_VERSION(4,0,1)
 #define __UNIFORM_DRAG_ANY    ui_type = "drag";
 
+// Since 4.0.0
 // Rework statistics tab and add drag widgets back
 // https://github.com/crosire/reshade/commit/1b2c38795f00efd66c007da1f483f1441b230309
 // Changed drag widget to a slider widget (old one is still available via < ui_type = "drag2"; >)
 // https://reshade.me/forum/releases/4772-4-0
 #elif SUPPORTED_VERSION(4,0,0)
 #define __UNIFORM_DRAG_ANY    ui_type = "drag2";
+
+// Since 3.0.0
+// Commit current in-game user interface status
+// https://github.com/crosire/reshade/commit/302bacc49ae394faedc2e29a296c1cebf6da6bb2#diff-82cf230afdb2a0d5174111e6f17548a5R1187
+// Added various GUI related uniform variable annotations
+// https://reshade.me/forum/releases/2341-3-0
 #else
 #define __UNIFORM_DRAG_ANY    ui_type = "drag";
 #endif
@@ -52,6 +65,7 @@
 #define __UNIFORM_DRAG_FLOAT3 __UNIFORM_DRAG_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_DRAG_FLOAT4 __UNIFORM_DRAG_ANY // If it was not supported in someday or now, please add information
 
+// Since 4.0.1
 // Change slider widget to be used with new "slider" instead of a "drag" type annotation
 // https://github.com/crosire/reshade/commit/746229f31cd6f311a3e72a543e4f1f23faa23f11#diff-59405a313bd8cbfb0ca6dd633230e504R1699
 // Changed slider widget to be used with < ui_type = "slider"; > instead of < ui_type = "drag"; >
@@ -59,6 +73,7 @@
 #if SUPPORTED_VERSION(4,0,1)
 #define __UNIFORM_SLIDER_ANY    ui_type = "slider";
 
+// Since 4.0.0
 // Rework statistics tab and add drag widgets back
 // https://github.com/crosire/reshade/commit/1b2c38795f00efd66c007da1f483f1441b230309
 // Changed drag widget to a slider widget (old one is still available via < ui_type = "drag2"; >)
@@ -82,6 +97,7 @@
 #define __UNIFORM_SLIDER_FLOAT3 __UNIFORM_SLIDER_ANY // If it was not supported in someday or now, please add information
 #define __UNIFORM_SLIDER_FLOAT4 __UNIFORM_SLIDER_ANY // If it was not supported in someday or now, please add information
 
+// Since 3.0.0
 // Add combo box display type for uniform variables and fix displaying of integer variable under Direct3D 9
 // https://github.com/crosire/reshade/commit/b025bfae5f7343509ec0cacf6df0cff537c499f2#diff-82cf230afdb2a0d5174111e6f17548a5R1631
 // Added various GUI related uniform variable annotations
@@ -109,6 +125,7 @@
 // https://reshade.me/forum/releases/4772-4-0
 #define __UNIFORM_COMBO_BOOL1  __UNIFORM_COMBO_ANY
 
+// Since 4.0.0
 // Cleanup GUI code and rearrange some widgets
 // https://github.com/crosire/reshade/commit/6751f7bd50ea7c0556cf0670f10a4b4ba912ee7d#diff-59405a313bd8cbfb0ca6dd633230e504R1711
 // Added radio button widget (via < ui_type = "radio"; ui_items = "Button 1\0Button 2\0...\0"; >)
@@ -132,7 +149,20 @@
 #define __UNIFORM_RADIO_FLOAT3 __UNIFORM_RADIO_ANY // It is unsupported on all version
 #define __UNIFORM_RADIO_FLOAT4 __UNIFORM_RADIO_ANY // It is unsupported on all version
 
+// Since 4.1.0
+// Fix floating point uniforms with unknown "ui_type" not showing up in UI
+// https://github.com/crosire/reshade/commit/50e5bf44dfc84bc4220c2b9f19d5f50c7a0fda66#diff-59405a313bd8cbfb0ca6dd633230e504R1788
+// Fixed floating point uniforms with unknown "ui_type" not showing up in UI
+// https://reshade.me/forum/releases/5021-4-1
 #define __UNIFORM_COLOR_ANY    ui_type = "color";
+
+// Since 3.0.0
+// Move technique list to preset configuration file
+// https://github.com/crosire/reshade/blob/84bba3aa934c1ebe4c6419b69dfe1690d9ab9d34/source/runtime.cpp#L1328
+// Added various GUI related uniform variable annotations
+// https://reshade.me/forum/releases/2341-3-0
+
+// If empty, these versions before 4.1.0 are decide that the type is color from the number of components
 
 #define __UNIFORM_COLOR_BOOL1  __UNIFORM_COLOR_ANY // It is unsupported on all version
 #define __UNIFORM_COLOR_BOOL2  __UNIFORM_COLOR_ANY // It is unsupported on all version
