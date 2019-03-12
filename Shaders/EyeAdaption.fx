@@ -1,219 +1,194 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ReShade effect file
 // Eye Adaption by brussell
-//
+// v. 2.2
+// 
 // Credits:
 // luluco250 - luminance get/store code from Magic Bloom
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "ReShade.fxh"
-
-//effect parameters
-
 #include "ReShadeUI.fxh"
 
-uniform float fAdp_Speed < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "AdaptionSpeed";
-    ui_tooltip = "Speed of adaption. The higher the faster";
+//effect parameters
+uniform float fAdp_Delay <
+    ui_label = "Adaption Delay";
+    ui_tooltip = "How fast the image adapts to brightness changes. 0 = instantanous adaption";
+    ui_category = "General settings";
+    ui_type = "drag";
     ui_min = 0.0;
-    ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.1;
+    ui_max = 2.0;
+> = 1.9;
 
-uniform bool bAdp_BrightenEnable <
-    ui_label = "BrightenEnable";
-    ui_tooltip = "Enable Brightening";
-> = true;
+uniform float fAdp_TriggerRadius <
+    ui_label = "Adaption TriggerRadius";
+    ui_tooltip = "Area that is used for calculation of the average image brighness. 1 = only the center of the image is used, 7 = the whole image is used";
+    ui_category = "General settings";
+    ui_type = "drag";
+    ui_min = 1.0;
+    ui_max = 7.0;
+    ui_step = 1.0;
+> = 6.0;
 
-uniform float fAdp_BrightenThreshold < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenThreshold";
-    ui_tooltip = "A lower average screen luminance brightens the image";
+uniform float fAdp_Strength <
+    ui_label = "Adaption Strength";
+    ui_tooltip = "Base strength  of brightness adaption. Also affects how early adaption occurs";
+    ui_category = "General settings";
+    ui_type = "drag";
     ui_min = 0.0;
-    ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.2;
-
-uniform float fAdp_BrightenMax < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenMax";
-    ui_tooltip = "Brightens the image by maximum value";
-    ui_min = 0.0;
-    ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.1;
-
-uniform float fAdp_BrightenCurve < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenCurve";
-    ui_tooltip = "Brightening increase depending on average screen luminance. 1=linear growth, 0.5=quadratic, 2=sq. root";
-    ui_min = 0.2;
-    ui_max = 5.0;
-    ui_step = 0.001;
+    ui_max = 2.0;
 > = 1.0;
 
-uniform float fAdp_BrightenDynamic < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenDynamic";
-    ui_tooltip = "Amount of pixel dependent brightening (less brightening of already bright pixels)";
+uniform float fAdp_BrightenHighlights <
+    ui_label = "Brighten Highlights";
+    ui_tooltip = "Brightening strength for highlights";
+    ui_category = "Brightening";
+    ui_type = "drag";
     ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.5;
+> = 0.1;
 
-uniform float fAdp_BrightenBlack < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenBlack";
-    ui_tooltip = "Amount of lows preservation. 1=no black brightening";
+uniform float fAdp_BrightenMidtones <
+    ui_label = "Brighten Midtones";
+    ui_tooltip = "Brightening strength for midtones";
+    ui_category = "Brightening";
+    ui_type = "drag";
     ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.5;
+> = 0.2;
 
-uniform float fAdp_BrightenSaturation < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "BrightenSaturation";
-    ui_tooltip = "Color saturation change while brightening.";
-    ui_min = -1.0;
+uniform float fAdp_BrightenShadows <
+    ui_label = "Brighten Shadows";
+    ui_tooltip = "Brightening strength for shadows. Set this to 0 to preserve pure black";
+    ui_category = "Brightening";
+    ui_type = "drag";
+    ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
 > = 0.0;
 
-uniform bool bAdp_DarkenEnable <
-    ui_label = "DarkenEnable";
-    ui_tooltip = "Enable Darkening";
-> = true;
-
-uniform float fAdp_DarkenThreshold < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenThreshold";
-    ui_tooltip = "A higher average screen luminance darkens the image";
+uniform float fAdp_DarkenHighlights <
+    ui_label = "Darken Highlights";
+    ui_tooltip = "Darkening strength for highlights. Set this to 0 to preserve pure white";
+    ui_category = "Darkening";
+    ui_type = "drag";
     ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.3;
+> = 0.05;
 
-uniform float fAdp_DarkenMax < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenMax";
-    ui_tooltip = "Darkens the image by maximum value";
+uniform float fAdp_DarkenMidtones <
+    ui_label = "Darken Midtones";
+    ui_tooltip = "Darkening strength for midtones";
+    ui_category = "Darkening";
+    ui_type = "drag";
     ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.4;
+> = 0.2;
 
-uniform float fAdp_DarkenCurve < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenCurve";
-    ui_tooltip = "Darkening increase depending on average screen luminance. 1=linear growth, 0.5=quadratic, 2=sq. root";
-    ui_min = 0.2;
-    ui_max = 5.0;
-    ui_step = 0.001;
-> = 0.5;
-
-uniform float fAdp_DarkenDynamic < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenDynamic";
-    ui_tooltip = "Amount of pixel dependent darkening (less darkening of already dark pixels)";
+uniform float fAdp_DarkenShadows <
+    ui_label = "Darken Shadows";
+    ui_tooltip = "Darkening strength for shadows";
+    ui_category = "Darkening";
+    ui_type = "drag";
     ui_min = 0.0;
     ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.5;
-
-uniform float fAdp_DarkenWhite < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenWhite";
-    ui_tooltip = "Amount of highs preservation. 1=no white darkening";
-    ui_min = 0.0;
-    ui_max = 1.0;
-    ui_step = 0.001;
-> = 0.5;
-
-uniform float fAdp_DarkenSaturation < __UNIFORM_SLIDER_FLOAT1
-    ui_label = "DarkenSaturation";
-    ui_tooltip = "Color saturation change while darkening.";
-    ui_min = -1.0;
-    ui_max = 1.0;
-    ui_step = 0.001;
 > = 0.0;
+
 
 //global vars
 #define LumCoeff float3(0.212656, 0.715158, 0.072186)
 uniform float Frametime < source = "frametime";>;
 
 //textures and samplers
-texture2D texLuminance { Width = 256; Height = 256; Format = R8; MipLevels = 7; };
-texture2D texAvgLuminance { Format = R16F; };
-texture2D texAvgLuminanceLast { Format = R16F; };
+texture2D TexLuma { Width = 256; Height = 256; Format = R8; MipLevels = 7; };
+texture2D TexAvgLuma { Format = R16F; };
+texture2D TexAvgLumaLast { Format = R16F; };
 
-sampler SamplerLuminance { Texture = texLuminance; };
-sampler SamplerAvgLuminance { Texture = texAvgLuminance; };
-sampler SamplerAvgLuminanceLast { Texture = texAvgLuminanceLast; };
+sampler SamplerLuma { Texture = TexLuma; };
+sampler SamplerAvgLuma { Texture = TexAvgLuma; };
+sampler SamplerAvgLumaLast { Texture = TexAvgLumaLast; };
 
 //pixel shaders
-float PS_Luminance(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float PS_Luma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-    return dot(tex2D(ReShade::BackBuffer, texcoord.xy).xyz, LumCoeff);
+    float4 color = tex2Dlod(ReShade::BackBuffer, float4(texcoord, 0, 0));
+    float luma = dot(color.xyz, LumCoeff);
+    luma = saturate(luma * 1.5);
+    return luma;
 }
 
-float PS_AvgLuminance(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-    float lum = tex2Dlod(SamplerLuminance, float4(0.5.xx, 0, 7)).x;
-    float lumlast = tex2D(SamplerAvgLuminanceLast, 0.0).x;
-    return lerp(lumlast, lum, fAdp_Speed * 10.0/Frametime);
+    float avgLumaCurrFrame = tex2Dlod(SamplerLuma, float4(0.5.xx, 0, fAdp_TriggerRadius)).x;
+    float avgLumaLastFrame = tex2Dlod(SamplerAvgLumaLast, float4(0.0.xx, 0, 0)).x;
+    float delay = sign(fAdp_Delay) * saturate(0.81 + fAdp_Delay / 10 - Frametime / 1000);
+    float avgLuma = lerp(avgLumaCurrFrame, avgLumaLastFrame, delay);
+    return avgLuma;
+}
+    
+float AdaptionDelta(float luma, float strengthMidtones, float strengthShadows, float strengthHighlights)
+{
+    float midtones = (4.0 * strengthMidtones - strengthHighlights - strengthShadows) * luma * (1.0 - luma);
+    float shadows = strengthShadows * (1.0 - luma);
+    float highlights = strengthHighlights * luma;
+    float delta = midtones + shadows + highlights;
+    return delta;
 }
 
-float PS_StoreAvgLuminance(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+float4 PS_EyeAdaption(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-    return tex2D(SamplerAvgLuminance, 0.0).x;
-}
+    float4 color = tex2Dlod(ReShade::BackBuffer, float4(texcoord, 0, 0));
+    float avgLuma = tex2Dlod(SamplerAvgLuma, float4(0.0.xx, 0, 0)).x;
+    
+    color.xyz = pow(abs(color.xyz), 1/2.2);
+    float luma = dot(color.xyz, LumCoeff);
+    float3 chroma = color.xyz - luma;
+   
+    float delta = 0;
 
-float4 PS_Adaption(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
-{
-    float4 color = tex2Dlod(ReShade::BackBuffer, float4 (texcoord.xy, 0, 0));
-    static const float avglum = saturate(tex2D(SamplerAvgLuminance, 0.0).x);
-    float adpcurve, adpdelta;
-    float colorluma = dot(color.xyz, LumCoeff);
-    float3 colorchroma = color.xyz - colorluma;
-
-    [branch]
-    if(bAdp_BrightenEnable == true && avglum < fAdp_BrightenThreshold) {
-        adpcurve = (-fAdp_BrightenMax / pow(abs(fAdp_BrightenThreshold), fAdp_BrightenCurve)) * pow(avglum, fAdp_BrightenCurve) + fAdp_BrightenMax;
-        adpdelta = lerp(adpcurve, adpcurve - adpcurve * colorluma, fAdp_BrightenDynamic);
-        adpdelta = lerp(adpdelta, min(colorluma, adpdelta), fAdp_BrightenBlack);
-        colorluma += adpdelta;
-        colorchroma = colorchroma * saturate(1.0 + (adpcurve / fAdp_BrightenMax) * fAdp_BrightenSaturation);
-        color.xyz = colorluma + colorchroma;
-    }
-    [branch]
-    if(bAdp_DarkenEnable == true && avglum > fAdp_DarkenThreshold) {
-        adpcurve = (fAdp_DarkenMax / pow(abs(1.0 - fAdp_DarkenThreshold), 1.0 / fAdp_DarkenCurve)) * pow(abs(avglum - fAdp_DarkenThreshold), 1.0 / fAdp_DarkenCurve);
-        adpdelta = lerp(adpcurve, adpcurve * colorluma, fAdp_DarkenDynamic);
-        adpdelta = lerp(adpdelta, min(1.0 - colorluma, adpdelta), fAdp_DarkenWhite);
-        colorluma -= adpdelta;
-        colorchroma = colorchroma * saturate(1.0 + (adpcurve / fAdp_DarkenMax) * fAdp_DarkenSaturation);
-        color.xyz = colorluma + colorchroma;
-    }
-
+    float curve = fAdp_Strength * 10.0 * pow(abs(avgLuma - 0.5), 4.0);
+    delta = (avgLuma < 0.5) ? AdaptionDelta(luma, fAdp_BrightenMidtones, fAdp_BrightenShadows, fAdp_BrightenHighlights) : -AdaptionDelta(luma, fAdp_DarkenMidtones, fAdp_DarkenShadows, fAdp_DarkenHighlights);
+    delta *= curve;
+    
+    luma = saturate(luma + delta);
+    color.xyz = luma + chroma;
+    color.xyz = pow(abs(color.xyz), 2.2);
+    
     return color;
+}
+
+float PS_StoreAvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+{
+    float avgLuma = tex2Dlod(SamplerAvgLuma, float4(0.0.xx, 0, 0)).x;
+    return avgLuma;
 }
 
 //techniques
 technique EyeAdaption {
 
-    pass Luminance
+    pass Luma
     {
         VertexShader = PostProcessVS;
-        PixelShader = PS_Luminance;
-        RenderTarget = texLuminance;
+        PixelShader = PS_Luma;
+        RenderTarget = TexLuma;
     }
 
-    pass AvgLuminance
+    pass AvgLuma
     {
         VertexShader = PostProcessVS;
-        PixelShader = PS_AvgLuminance;
-        RenderTarget = texAvgLuminance;
+        PixelShader = PS_AvgLuma;
+        RenderTarget = TexAvgLuma;
     }
 
     pass Adaption
     {
         VertexShader = PostProcessVS;
-        PixelShader = PS_Adaption;
+        PixelShader = PS_EyeAdaption;
     }
 
-    pass StoreAvgLuminance
+    pass StoreAvgLuma
     {
         VertexShader = PostProcessVS;
-        PixelShader = PS_StoreAvgLuminance;
-        RenderTarget = texAvgLuminanceLast;
+        PixelShader = PS_StoreAvgLuma;
+        RenderTarget = TexAvgLumaLast;
     }
 }
