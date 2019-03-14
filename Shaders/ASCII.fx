@@ -49,6 +49,8 @@
 | :: UI Settings :: |
 '------------------*/
 
+#include "ReShadeUI.fxh"
+
 /*
   uniform float Version <
 	ui_label = "Version";
@@ -61,8 +63,7 @@
 > = float(0.8);
 */
 
-uniform int Ascii_spacing <
-	ui_type = "slider";
+uniform int Ascii_spacing < __UNIFORM_SLIDER_INT1
 	ui_min = 0;
 	ui_max = 5;
 	ui_label = "Character Spacing";
@@ -93,8 +94,7 @@ uniform int Ascii_font <
 > = 1;
 
 
-uniform int Ascii_font_color_mode < 
-	ui_type = "slider";
+uniform int Ascii_font_color_mode < __UNIFORM_SLIDER_INT1
 	ui_min = 0;
 	ui_max = 2;
 	ui_label = "Font Color Mode";
@@ -102,15 +102,13 @@ uniform int Ascii_font_color_mode <
 	ui_category = "Color options";
 > = 1;
 
-uniform float3 Ascii_font_color <
-	ui_type = "color";
+uniform float3 Ascii_font_color < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Font Color";
 	ui_tooltip = "Choose a font color";
 	ui_category = "Color options";
 > = float3(1.0, 1.0, 1.0);
 
-uniform float3 Ascii_background_color <
-	ui_type = "color";
+uniform float3 Ascii_background_color < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Background Color";
 	ui_tooltip = "Choose a background color";
 	ui_category = "Color options";
@@ -132,8 +130,7 @@ uniform bool Ascii_dithering <
 	ui_category = "Dithering";
 > = 1;
 
-uniform float Ascii_dithering_intensity <
-	ui_type = "slider";
+uniform float Ascii_dithering_intensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 4.0;
 	ui_label = "Dither shift intensity";

@@ -7,8 +7,10 @@
 
 // UI ELEMENTS /////////////////////////////////////
 ////////////////////////////////////////////////////
-  uniform float3 HUERed <
-      ui_type = "color";
+
+#include "ReShadeUI.fxh"
+
+  uniform float3 HUERed < __UNIFORM_COLOR_FLOAT3
       ui_label="Red";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -21,8 +23,7 @@
       "0.00: R:0.750, G:0.250, B:0.250";
   > = float3(0.75, 0.25, 0.25);
 
-  uniform float3 HUEOrange <
-      ui_type = "color";
+  uniform float3 HUEOrange < __UNIFORM_COLOR_FLOAT3
       ui_label = "Orange";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -35,8 +36,7 @@
       "0.00: R:0.750, G:0.500, B:0.250";
   > = float3(0.75, 0.50, 0.25);
 
-  uniform float3 HUEYellow <
-      ui_type = "color";
+  uniform float3 HUEYellow < __UNIFORM_COLOR_FLOAT3
       ui_label = "Yellow";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -49,8 +49,7 @@
       "0.00: R:0.750, G:0.750, B:0.250";
   > = float3(0.75, 0.75, 0.25);
 
-  uniform float3 HUEGreen <
-      ui_type = "color";
+  uniform float3 HUEGreen < __UNIFORM_COLOR_FLOAT3
       ui_label = "Green";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -63,8 +62,7 @@
       "0.00: R:0.250, G:0.750, B:0.250";
   > = float3(0.25, 0.75, 0.25);
 
-  uniform float3 HUECyan <
-      ui_type = "color";
+  uniform float3 HUECyan < __UNIFORM_COLOR_FLOAT3
       ui_label = "Cyan";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -77,8 +75,7 @@
       "0.00: R:0.250, G:0.750, B:0.750";
   > = float3(0.25, 0.75, 0.75);
 
-  uniform float3 HUEBlue <
-      ui_type = "color";
+  uniform float3 HUEBlue < __UNIFORM_COLOR_FLOAT3
       ui_label="Blue";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -91,8 +88,7 @@
       "0.00: R:0.250, G:0.250, B:0.750";
   > = float3(0.25, 0.25, 0.75);
 
-  uniform float3 HUEPurple <
-      ui_type = "color";
+  uniform float3 HUEPurple < __UNIFORM_COLOR_FLOAT3
       ui_label="Purple";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"
@@ -105,8 +101,7 @@
       "0.00: R:0.500, G:0.250, B:0.750";
   > = float3(0.50, 0.25, 0.75);
 
-  uniform float3 HUEMagenta <
-      ui_type = "color";
+  uniform float3 HUEMagenta < __UNIFORM_COLOR_FLOAT3
       ui_label="Magenta";
       ui_tooltip =
       "Be careful. Do not to push too far!\n"

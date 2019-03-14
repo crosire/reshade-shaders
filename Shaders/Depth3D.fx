@@ -29,16 +29,16 @@
 #define DAR float2(1.77, 1.0)
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
+#include "ReShadeUI.fxh"
 
 //Divergence & Convergence//
-#include "ReShadeUI.fxh"
 uniform float Divergence <
 	ui_type = "drag";
 	ui_min = 1; ui_max = 50; ui_step = 0.5;
 	ui_label = "·Divergence·";
 	ui_tooltip = "Divergence increases differences between the left and right images, allows you to experience depth.\n"
 	             "The process of deriving binocular depth information is called stereopsis.\n"
-	             "You can override this value. This also peformance cost";
+	             "You can override this value, at an peformance cost.";
 	ui_category = "Divergence & Convergence";
 > = 25.0;
 

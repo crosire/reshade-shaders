@@ -28,13 +28,13 @@
  * SOFTWARE.
  */
 
-uniform float mbRecall <
-	ui_type = "slider";
+#include "ReShadeUI.fxh"
+
+uniform float mbRecall < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Motion blur intensity";
 > = 0.40;
-uniform float mbSoftness <
-	ui_type = "slider";
+uniform float mbSoftness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Blur strength of consequential streaks";
 > = 1.00;

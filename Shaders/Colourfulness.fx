@@ -25,15 +25,15 @@
 // Colourfulness - version 2018-11-12
 // EXPECTS FULL RANGE GAMMA LIGHT
 
-uniform float colourfulness <
-	ui_type = "slider";
+#include "ReShadeUI.fxh"
+
+uniform float colourfulness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 2.0;
 	ui_tooltip = "Degree of colourfulness, 0 = neutral";
 	ui_step = 0.01;
 > = 0.4;
 
-uniform float lim_luma <
-	ui_type = "slider";
+uniform float lim_luma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Lower values allows for more change near clipping";
 	ui_step = 0.01;

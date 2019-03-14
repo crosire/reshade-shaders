@@ -25,8 +25,9 @@
 // Adaptive sharpen - version 2018-04-14
 // EXPECTS FULL RANGE GAMMA LIGHT
 
-uniform float curve_height <
-	ui_type = "slider";
+#include "ReShadeUI.fxh"
+
+uniform float curve_height < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.01; ui_max = 2.0;
 	ui_label = "Sharpening strength";
 	ui_tooltip = "Main control of sharpening strength";

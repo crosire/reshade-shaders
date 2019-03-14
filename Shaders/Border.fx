@@ -16,6 +16,7 @@
  */
 
 #include "ReShade.fxh"
+#include "ReShadeUI.fxh"
 
 /*
 uniform float2 border_width <

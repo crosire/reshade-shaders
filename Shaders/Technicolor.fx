@@ -4,16 +4,15 @@
  * Optimized by CeeJay.dk
  */
 
-uniform float Power <
-	ui_type = "slider";
+#include "ReShadeUI.fxh"
+
+uniform float Power < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;
 > = 4.0;
-uniform float3 RGBNegativeAmount <
-	ui_type = "color";
+uniform float3 RGBNegativeAmount < __UNIFORM_COLOR_FLOAT3
 > = float3(0.88, 0.88, 0.88);
 
-uniform float Strength <
-	ui_type = "slider";
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.4;
 
