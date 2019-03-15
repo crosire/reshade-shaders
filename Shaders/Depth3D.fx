@@ -455,7 +455,7 @@ float2 Parallax( float Diverge, float2 Coordinates)
     {
 		// Doing it this way should stop crashes in older version of reshade, I hope.
         if (CurrentLayerDepth > CurrentDepthMapValue)
-           break; // We have hit the limit so we dont need to loop anymore
+           continue; // Once we hit the limit skip the rest of the loop and go back to thes start of the loop.
         // Get depth of next layer
         CurrentLayerDepth += LayerDepth;
         // Shift coordinates horizontally in linear fasion
