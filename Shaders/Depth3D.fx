@@ -17,28 +17,24 @@
 //* http://reshade.me/forum/shader-presentation/2128-sidebyside-3d-depth-map-based-stereoscopic-shader                                                                             *//
 //* ---------------------------------------------------------------------------------------------------                                                                            *//
 //*                                                                                                                                                                                *//
-//* This Shader is an simplified version of SuperDepth3D_FlashBack.fx a shader I made for ReShade's collection standard effects. For the use with stereo 3D screen                 *//
-//* The main shader this Depth3D shader is based on is located here. https://github.com/BlueSkyDefender/Depth3D/blob/master/Shaders/SuperDepth3D_FB.fx                             *//
-//* Original work was based on Shader Based on forum user 04348 and be located here. http://reshade.me/forum/shader-presentation/1594-3d-anaglyph-red-cyan-shader-wip#15236        *//
-//*                                                                                                                                                                                *//
+//* This Shader is an simplified version of SuperDepth3D_Next.fx a shader I made for ReShade's collection standard effects. For the use with stereo 3D screens.                    *//
+//* Also had to rework Philippe David http://graphics.cs.brown.edu/games/SteepParallax/index.html code to work with reshade. This is used for the parallax effect.                 *//
+//* This idea was taken from this shader here located at https://github.com/Fubaxiusz/fubax-shaders/blob/596d06958e156d59ab6cd8717db5f442e95b2e6b/Shaders/VR.fx#L395               *//
+//* It's also based on Philippe David Steep Parallax mapping code. If I missed any information please contact me so I can make corrections.                                        *//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS START//
-
-// Determines the Max Depth amount, in ReShades GUI.
-#define Depth_Max 50
 
 //Define Display aspect ratio for screen cursor. A 16:9 aspect ratio will equal (1.77:1)
 #define DAR float2(1.77, 1.0)
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
+#include "ReShadeUI.fxh"
 
 //Divergence & Convergence//
-
-#include "ReShadeUI.fxh"
 uniform float Divergence <
 	ui_type = "drag";
-	ui_min = 1; ui_max = Depth_Max; ui_step = 0.5;
+	ui_min = 1; ui_max = 50; ui_step = 0.5;
 	ui_label = "·Divergence·";
 	ui_tooltip = "Divergence increases differences between the left and right images, allows you to experience depth.\n"
 	             "The process of deriving binocular depth information is called stereopsis.\n"
@@ -48,7 +44,7 @@ uniform float Divergence <
 
 uniform float ZPD <
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 0.125;
+	ui_min = 0.0; ui_max = 0.1;
 	ui_label = " Convergence";
 	ui_tooltip = "Convergence controls the focus distance for the screen Pop-out effect also known as ZPD.\n"
 	             "For FPS Games keeps this low Since you don't want your gun to pop out of screen.\n"
@@ -63,9 +59,9 @@ uniform float Auto_Depth_Range <
 	ui_min = 0.0; ui_max = 0.625;
 	ui_label = " Auto Depth Range";
 	ui_tooltip = "The Map Automaticly scales to outdoor and indoor areas.\n"
-	             "Default is 0.1f, Zero is off.";
+	             "Default is 0.125f, Zero is off.";
 	ui_category = "Divergence & Convergence";
-> = 0.1;
+> = 0.125;
 
 //Depth Buffer Adjust//
 uniform int Depth_Map <
@@ -177,6 +173,12 @@ uniform bool Eye_Swap <
 	ui_category = "Stereoscopic Options";
 > = false;
 
+uniform bool Side_Bars <
+	ui_label = " Side Bars";
+	ui_tooltip = "Adds Side Bar to the Left and Right Edges";
+	ui_category = "Stereoscopic Options";
+> = true;
+
 //Crosshair Adjustments//
 uniform float3 Cursor_STT <
 	ui_type = "drag";
@@ -222,7 +224,7 @@ sampler BackBuffer
 	AddressW = BORDER;
 };	
 	
-texture texDepth  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT ; Format = RGBA16F;}; 
+texture texDepth  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT * 0.75 ; Format = RGBA16F;}; 
 
 sampler SamplerDepth
 	{
@@ -231,28 +233,6 @@ sampler SamplerDepth
 		MagFilter = LINEAR;
 		MipFilter = LINEAR;
 	};
-	
-texture texDiso  { Width = BUFFER_WIDTH ; Height = BUFFER_HEIGHT ; Format = RGBA16F; MipLevels = 1;}; 
-
-sampler SamplerDiso
-	{
-		Texture = texDiso;
-		MipLODBias = 1.0f;
-		MinFilter = LINEAR;
-		MagFilter = LINEAR;
-		MipFilter = LINEAR;
-	};
-
-texture texEncode  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; MipLevels = 1;};
-
-sampler SamplerEncode
-	{
-		Texture = texEncode;
-		MipLODBias = 1.0f;
-		MinFilter = LINEAR;
-		MagFilter = LINEAR;
-		MipFilter = LINEAR;
-	};			
 
 uniform float2 Mousecoords < source = "mousepoint"; > ;	
 ////////////////////////////////////////////////////////////////////////////////////Cross Cursor////////////////////////////////////////////////////////////////////////////////////	
@@ -296,7 +276,7 @@ float Lumi(in float2 texcoord : TEXCOORD0)
 /////////////////////////////////////////////////////////////////////////////////Depth Map Information/////////////////////////////////////////////////////////////////////////////////
 
 float Depth(in float2 texcoord : TEXCOORD0)
-{	
+{		
 	if (Depth_Map_Flip)
 		texcoord.y =  1 - texcoord.y;
 		
@@ -449,55 +429,69 @@ float Conv(float DM,float2 texcoord)
     return Z;
 }
 
-void  Disocclusion(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0)
-{
-	float DM, A, S, MS =  (Divergence * 0.875f) * pix.x, Div = 1.0f / 7.0f, MA = 2.0 , M = distance(1.0f , tex2Dlod(SamplerDepth,float4(texcoord,0,0)).w), Mask = saturate(M * MA - 1.0f) > 0.0f;
-	
-	A += 5.5; // Normal
-	float2 dir = float2(0.5,0.0);	
-	
-	const float weight[7] = {0.0f,0.0125f,-0.0125f,0.0375f,-0.0375f,0.05f,-0.05f};
-				
-	[loop]
-	for (int i = 0; i < 7; i++)
-	{	
-		S = weight[i] * MS;
-		DM += tex2Dlod(SamplerDepth,float4(texcoord + dir * S * A,0,0)).x*Div;
-	}
-	
-	DM = lerp(lerp(tex2Dlod(SamplerDepth,float4(texcoord,0,0)).w, DM, abs(Mask)), DM, 0.625f );
-	
-	color = float4(DM,0,0,1.0);
-}
-
 /////////////////////////////////////////L/R//////////////////////////////////////////////////////////////////////
 
-void Encode(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) //zBuffer Color Channel Encode
+float ZBuffer(in float2 texcoord : TEXCOORD0)
 {
-	float N = 3, samples[3] = {0.5f,0.75f,1.0f};
-	
-	float DepthR = 1.0f, DepthL = 1.0f, MS = (-Divergence * pix.x) * 0.1f, MSL = Divergence * 0.3f;
-
-	[loop]
-	for ( int i = 0 ; i < N; i++ ) 
-	{
-		DepthL = min(DepthL,tex2Dlod(SamplerDiso, float4((texcoord.x - MS) - (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
-		DepthR = min(DepthR,tex2Dlod(SamplerDiso, float4((texcoord.x + MS) + (samples[i] * MSL) * pix.x, texcoord.y,0,0)).x);
-	}	
-
-	// X Right & Y Left
-	float X = DepthL, Y = DepthR, Z = tex2Dlod(SamplerDiso,float4(texcoord,0,0)).x;
-	color = float4(X,Y,Z,1.0);
+	return Conv(tex2Dlod(SamplerDepth,float4(texcoord,0,0)).x,texcoord);
 }
 
-float3 Decode(in float2 texcoord : TEXCOORD0)
+// Horizontal parallax offset & Hole filling effect reworked from here http://graphics.cs.brown.edu/games/SteepParallax/index.html
+float2 Parallax( float Diverge, float2 Coordinates)
 {
-	//Byte Shift for Debanding depth buffer in final 3D image & Disocclusion Decoding.
-	float ByteN = 384, MS = Divergence * pix.x, X = texcoord.x + MS * Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).x,texcoord), Y = (1 - texcoord.x) + MS * Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).y,texcoord), Z = Conv(tex2Dlod(SamplerEncode,float4(texcoord,0,0)).z,texcoord);
-	float A = dot(X.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float Left
-	float B = dot(Y.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float Right
-	float C = dot(Z.xxx, float3(1.0f, 1.0f / ByteN, 1.0f / (ByteN * ByteN)) ); //byte_to_float ZPD L & R
-	return float3(A,B,C);
+	//ParallaxSteps
+	float Steps = Divergence * 6.0f;
+	
+	// Offset per step progress & Limit
+	float LayerDepth = 1.0 / clamp(Steps,25,255);
+
+	//Offsets listed here Max Seperation is 3% - 6% of screen space with Depth Offsets & Netto layer offset change based on MS.
+	float MS = Diverge * pix.x, deltaCoordinates = MS * LayerDepth;
+	float2 ParallaxCoord = Coordinates, DB_Offset = float2((Diverge * 0.06f) * pix.x, 0);
+	float CurrentDepthMapValue = ZBuffer(ParallaxCoord), CurrentLayerDepth = 0, DepthDifference;
+
+	[loop] //Steep parallax mapping
+    for ( int i = 0 ; i < Steps; i++ )
+    {
+		// Doing it this way should stop crashes in older version of reshade, I hope.
+        if (CurrentLayerDepth > CurrentDepthMapValue)
+           continue; // Once we hit the limit skip the rest of the loop and go back to thes start of the loop.
+        // Get depth of next layer
+        CurrentLayerDepth += LayerDepth;
+        // Shift coordinates horizontally in linear fasion
+        ParallaxCoord.x -= deltaCoordinates;
+        // Get depth value at current coordinates
+        CurrentDepthMapValue = ZBuffer( ParallaxCoord - DB_Offset);
+    }
+
+	// Parallax Occlusion Mapping
+	float2 PrevParallaxCoord = float2(ParallaxCoord.x + deltaCoordinates, ParallaxCoord.y);
+	float afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
+	float beforeDepthValue = ZBuffer(PrevParallaxCoord + DB_Offset) - CurrentLayerDepth + LayerDepth;
+	
+	// Interpolate coordinates
+	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
+	ParallaxCoord = PrevParallaxCoord * max(0,weight) + ParallaxCoord * min(1,1.0f - weight);
+	
+	return ParallaxCoord;
+};
+
+float4 EdgeMask( float Diverge, float4 Image, float2 texcoords)
+{
+	
+	float Side_A = 0, Side_B = -1;
+	
+	if(Diverge > 0)
+		{
+			Side_A = -1;	 
+			Side_B = 0;
+		}
+		
+	float PA = Side_A+(BUFFER_WIDTH*pix.x), PB = Side_B+(BUFFER_WIDTH*pix.x), Y = BUFFER_HEIGHT*pix.y;
+	float4 Bar_A = all( abs(float2( texcoords.x-PA, texcoords.y-Y)) < float2(Divergence * pix.x,1.0f));
+	float4 Bar_B = all( abs(float2( texcoords.x-PB, texcoords.y-Y)) < float2(Divergence * pix.x,1.0f));
+		
+	return Bar_A + Bar_B ? float4(0,0,0,1) : Image;
 }
 
 float4 PS_calcLR(float2 texcoord)
@@ -545,23 +539,24 @@ float4 PS_calcLR(float2 texcoord)
 		}
 	}
 	
-		float CCL = MS * Decode(float2(TCL.x + (Divergence * 0.1875) * pix.x, TCL.y)).z;
-		float CCR = MS * Decode(float2(TCR.x - (Divergence * 0.1875) * pix.x, TCR.y)).z;
-		
-		Left = tex2Dlod(BackBuffer, float4(TCL.x + CCL, TCL.y,0,0));
-		Right = tex2Dlod(BackBuffer, float4(TCR.x - CCR, TCR.y,0,0));
-		
-		[loop]
-		for (int i = 0; i < Divergence + 5; i++) 
-		{
-			//L
-			if( Decode(float2(TCL.x+i*pix.x,TCL.y)).y >= (1-TCL.x)-pix.x && Decode(float2(TCL.x+i*pix.x,TCL.y)).y <= (1-TCL.x)+pix.x * 7.5 )
-						Left = tex2Dlod(BackBuffer, float4(TCL.x + i * pix.x, TCL.y,0,0));
-			
-			//R
-			if( Decode(float2(TCR.x-i*pix.x,TCR.y)).x >= TCR.x-pix.x && Decode(float2(TCR.x-i*pix.x,TCR.y)).x <= TCR.x+pix.x * 7.5 )
-						Right = tex2Dlod(BackBuffer, float4(TCR.x - i * pix.x, TCR.y,0,0));
-		}		
+	if (Stereoscopic_Mode == 2)
+	{
+		TCL.y += 0.5 * pix.y;
+		TCR.y -= 0.5 * pix.y;
+	}
+	
+	//Left & Right Parallax for Stereo Vision
+	float2 TL = Parallax(-Divergence, TCL); //Stereoscopic 3D using Reprojection Left					
+	float2 TR = Parallax( Divergence, TCR); //Stereoscopic 3D using Reprojection Right	
+
+	Left = tex2Dlod(BackBuffer, float4(TL.x, TCL.y,0,0));
+	Right = tex2Dlod(BackBuffer, float4(TR.x, TCR.y,0,0));
+	
+	if(Side_Bars)
+	{
+		Left = EdgeMask(-Divergence,Left,TCL);
+		Right = EdgeMask(Divergence,Right,TCR);
+	}
 	
 	float4 cL = Left,cR = Right; //Left Image & Right Image
 
@@ -654,7 +649,7 @@ float4 PS_calcLR(float2 texcoord)
 	}
 		else
 	{		
-			float3 RGB = tex2Dlod(SamplerDiso,float4(TexCoords.x, TexCoords.y,0,0)).xxx;
+			float3 RGB = tex2Dlod(SamplerDepth,float4(TexCoords.x, TexCoords.y,0,0)).xxx;
 			color = float4(RGB.r,AutoDepthRange(RGB.g,TexCoords),RGB.b,1.0);
 	}
 
@@ -794,18 +789,6 @@ technique Depth3D
 		VertexShader = PostProcessVS;
 		PixelShader = DepthMap;
 		RenderTarget = texDepth;
-	}
-		pass Disocclusion
-	{
-		VertexShader = PostProcessVS;
-		PixelShader = Disocclusion;
-		RenderTarget = texDiso;
-	}
-		pass Encoding
-	{
-		VertexShader = PostProcessVS;
-		PixelShader = Encode;
-		RenderTarget = texEncode;
 	}
 		pass StereoOut
 	{
