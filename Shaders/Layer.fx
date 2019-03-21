@@ -21,7 +21,7 @@
     (*) Feature (+) Improvement (x) Bugfix (-) Information (!) Compatibility
 
     Version 0.2 by seri14 & Marot Satil
-    * Added the ability to scale and move the layer around on an x, y axis.
+    * Added the ability to scale and move the layer around on XY axis
 */
 
 #include "ReShade.fxh"
@@ -47,7 +47,7 @@
 uniform float2 Layer_Pos < __UNIFORM_DRAG_FLOAT2
     ui_label = "Layer Position";
     ui_min = 0.0; ui_max = 1.0;
-	ui_step = (1.0 / 200.0);
+    ui_step = (1.0 / 200.0);
 > = float2(0.5, 0.5);
 
 uniform float Layer_Scale < __UNIFORM_DRAG_FLOAT1
