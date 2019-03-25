@@ -121,6 +121,13 @@ uniform int DebugOutput <
 
 // Textures
 
+texture depthTex 	
+{ 
+	Width = BUFFER_WIDTH;   
+	Height = BUFFER_HEIGHT;   
+	Format = R16F;  
+};
+
 texture edgesTex
 {
 	Width = BUFFER_WIDTH;
@@ -148,6 +155,11 @@ texture searchTex < source = "SearchTex.dds"; >
 };
 
 // Samplers
+
+sampler depthLinearSampler
+{
+	Texture = depthTex;
+};
 
 sampler colorGammaSampler
 {
@@ -225,6 +237,13 @@ void SMAANeighborhoodBlendingWrapVS(
 
 // Pixel shaders
 
+float SMAADepthLinearizationPS(
+	float4 position : SV_Position,
+	float2 texcoord : TEXCOORD0) : SV_Target
+{
+	return ReShade::GetLinearizedDepth(texcoord);
+}
+
 float2 SMAAEdgeDetectionWrapPS(
 	float4 position : SV_Position,
 	float2 texcoord : TEXCOORD0,
@@ -233,15 +252,15 @@ float2 SMAAEdgeDetectionWrapPS(
 	if (EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler
 	#if SMAA_PREDICATION
-		, ReShade::DepthBuffer
+		, depthLinearSampler
 	#endif
 		);
 	if (EdgeDetectionType == 2)
-		return SMAADepthEdgeDetectionPS(texcoord, offset, ReShade::DepthBuffer);
+		return SMAADepthEdgeDetectionPS(texcoord, offset, depthLinearSampler);
 
 	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler
 	#if SMAA_PREDICATION
-		, ReShade::DepthBuffer
+		, depthLinearSampler
 	#endif
 		);
 }
@@ -271,6 +290,12 @@ float3 SMAANeighborhoodBlendingWrapPS(
 
 technique SMAA
 {
+	pass LinearizeDepthPass
+	{
+		VertexShader = PostProcessVS;
+		PixelShader = SMAADepthLinearizationPS;
+		RenderTarget = depthTex;
+	}
 	pass EdgeDetectionPass
 	{
 		VertexShader = SMAAEdgeDetectionWrapVS;
