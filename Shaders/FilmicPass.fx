@@ -4,131 +4,58 @@
  * Applies some common color adjustments to mimic a more cinema-like look.
  */
 
-uniform float Strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.05; ui_max = 1.5;
 	ui_toolip = "Strength of the color curve altering";
 > = 0.85;
 
-uniform float Fade <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Fade < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.6;
 	ui_tooltip = "Decreases contrast to imitate faded image";
 > = 0.4;
-uniform float Contrast <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Contrast < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 > = 1.0;
-uniform float Linearization <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Linearization < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 > = 0.5;
-uniform float Bleach <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Bleach < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -0.5; ui_max = 1.0;
 	ui_tooltip = "More bleach means more contrasted and less colorful image";
 > = 0.0;
-uniform float Saturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;
 > = -0.15;
 
-uniform float RedCurve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float RedCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float GreenCurve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float GreenCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float BlueCurve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float BlueCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float BaseCurve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float BaseCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.5;
 
-uniform float BaseGamma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float BaseGamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.7; ui_max = 2.0;
 	ui_tooltip = "Gamma Curve";
 > = 1.0;
-uniform float EffectGamma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EffectGamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 0.65;
-uniform float EffectGammaR <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EffectGammaR < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float EffectGammaG <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EffectGammaG < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float EffectGammaB <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EffectGammaB < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 

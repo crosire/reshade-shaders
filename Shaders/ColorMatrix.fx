@@ -5,43 +5,25 @@
  * ColorMatrix allow the user to transform the colors using a color matrix
  */
 
-uniform float3 ColorMatrix_Red <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float3 ColorMatrix_Red < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Red";
 	ui_tooltip = "How much of Red, Green and Blue the new red value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.817, 0.183, 0.000);
-uniform float3 ColorMatrix_Green <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float3 ColorMatrix_Green < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Green";
 	ui_tooltip = "How much of Red, Green and Blue the new green value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.333, 0.667, 0.000);
-uniform float3 ColorMatrix_Blue <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float3 ColorMatrix_Blue < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Matrix Blue";
 	ui_tooltip = "How much of Red, Green and Blue the new blue value should contain. Should sum to 1.0 if you don't wish to change the brightness.";
 > = float3(0.000, 0.125, 0.875);
 
-uniform float Strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 1.0;
 

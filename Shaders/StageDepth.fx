@@ -38,17 +38,17 @@
 
 #define TEXFORMAT RGBA8
 
-uniform float Stage_Opacity <
-    ui_label = "Opacity";
-    ui_tooltip = "Set the transparency of the image.";
-    ui_type = "slider";
-    ui_min = 0.0;
-    ui_max = 1.0;
-    ui_step = 0.002;
+#include "ReShadeUI.fxh"
+
+uniform float Stage_Opacity < __UNIFORM_SLIDER_FLOAT1
+	ui_label = "Opacity";
+	ui_tooltip = "Set the transparency of the image.";
+	ui_min = 0.0;
+	ui_max = 1.0;
+	ui_step = 0.002;
 > = 1.0;
 
-uniform float Stage_depth <
-	ui_type = "slider";
+uniform float Stage_depth < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = .987;
 	ui_label = "Depth Slider";
@@ -60,7 +60,7 @@ sampler Stage_sampler { Texture = Stage_texture; };
 
 void PS_StageDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
 {
-  float4 stage = tex2D(Stage_sampler, texcoord).rgba;
+	float4 stage = tex2D(Stage_sampler, texcoord).rgba;
 	color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 
 	float depth = 1 - ReShade::GetLinearizedDepth(texcoord).r;

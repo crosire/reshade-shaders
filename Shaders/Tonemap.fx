@@ -3,55 +3,31 @@
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-uniform float Gamma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Gamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Adjust midtones. 1.000 is neutral. This setting does exactly the same as the one in Lift Gamma Gain, only with less control.";
 > = 1.0;
-uniform float Exposure <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Exposure < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Adjust exposure";
 > = 0.0;
-uniform float Saturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;
 	ui_tooltip = "Adjust saturation";
 > = 0.0;
 
-uniform float Bleach <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Bleach < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Brightens the shadows and fades the colors";
 > = 0.0;
 
-uniform float Defog <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Defog < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "How much of the color tint to remove";
 > = 0.0;
-uniform float3 FogColor <
-	ui_type = "color";
+uniform float3 FogColor < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Defog Color";
 	ui_tooltip = "Which color tint to remove";
 > = float3(0.0, 0.0, 1.0);

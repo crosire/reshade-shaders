@@ -10,58 +10,30 @@
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
 //#define LINEAR_PROCESSING
 
-uniform float Amount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Amount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of CRT effect you want";
 > = 1.00;
-uniform float Resolution <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Resolution < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 8.0;
 	ui_tooltip = "Input size coefficient (low values gives the 'low - res retro look').";
 > = 1.15;
-uniform float Gamma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Gamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of simulated CRT";
 > = 2.4;
-uniform float MonitorGamma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float MonitorGamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Gamma of display monitor";
 > = 2.2;
-uniform float Brightness <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Brightness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 3.0;
 	ui_tooltip = "Used to boost brightness a little.";
 > = 0.9;
 
-uniform int ScanlineIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int ScanlineIntensity < __UNIFORM_SLIDER_INT1
 	ui_min = 2; ui_max = 4;
 	ui_label = "Scanline Intensity";
 > = 2;
@@ -73,51 +45,26 @@ uniform bool ScanlineGaussian <
 uniform bool Curvature <
 	ui_tooltip = "Barrel effect";
 > = false;
-uniform float CurvatureRadius <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float CurvatureRadius < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_label = "Curvature Radius";
 > = 1.5;
-uniform float CornerSize <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float CornerSize < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 0.02; ui_step = 0.001;
 	ui_label = "Corner Size";
 	ui_tooltip = "Higher values => more rounded corner";
 > = 0.0100;
-uniform float ViewerDistance <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float ViewerDistance < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_Label = "Viewer Distance";
 	ui_tooltip = "Simulated distance from viewer to monitor";
 > = 2.00;
-uniform float2 Angle <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float2 Angle < __UNIFORM_SLIDER_FLOAT2
 	ui_min = -0.2; ui_max = 0.2;
 	ui_tooltip = "Tilt angle in radians";
 > = 0.00;
 
-uniform float Overscan <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Overscan < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 1.10; ui_step = 0.01;
 	ui_tooltip = "Overscan (e.g. 1.02 for 2% overscan).";
 > = 1.01;

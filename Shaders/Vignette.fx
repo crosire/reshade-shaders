@@ -6,52 +6,29 @@
  * May cause banding artifacts.
  */
 
+#include "ReShadeUI.fxh"
+
 uniform int Type <
 	ui_type = "combo";
 	ui_items = "Original\0New\0TV style\0Untitled 1\0Untitled 2\0Untitled 3\0Untitled 4\0";
 > = 0;
-uniform float Ratio <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Ratio < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.15; ui_max = 6.0;
 	ui_tooltip = "Sets a width to height ratio. 1.00 (1/1) is perfectly round, while 1.60 (16/10) is 60 % wider than it's high.";
 > = 1.0;
-uniform float Radius <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Radius < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 3.0;
 	ui_tooltip = "lower values = stronger radial effect from center";
 > = 2.0;
-uniform float Amount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Amount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -2.0; ui_max = 1.0;
 	ui_tooltip = "Strength of black. -2.00 = Max Black, 1.00 = Max White.";
 > = -1.0;
-uniform int Slope <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int Slope < __UNIFORM_SLIDER_INT1
 	ui_min = 2; ui_max = 16;
 	ui_tooltip = "How far away from the center the change should start to really grow strong (odd numbers cause a larger fps drop than even numbers).";
 > = 2;
-uniform float2 Center <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float2 Center < __UNIFORM_SLIDER_FLOAT2
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Center of effect for 'Original' vignette type. 'New' and 'TV style' do not obey this setting.";
 > = float2(0.5, 0.5);

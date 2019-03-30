@@ -20,23 +20,15 @@
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uniform float fLUT_AmountChroma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float fLUT_AmountChroma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT chroma amount";
 	ui_tooltip = "Intensity of color/chroma change of the LUT.";
 > = 1.00;
 
-uniform float fLUT_AmountLuma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLUT_AmountLuma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";

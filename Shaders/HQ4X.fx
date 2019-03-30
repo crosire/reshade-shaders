@@ -1,57 +1,29 @@
 // hq4x filter from https://www.shadertoy.com/view/MslGRS
 
-uniform float s <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float s < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 10.0;
 	ui_label = "Strength";
 	ui_tooltip = "Strength of the effect";
 > = 1.5;
-uniform float mx <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float mx < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Smoothing";
 > = 1.0;
-uniform float k <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float k < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -2.0; ui_max = 0.0;
 	ui_label = "Weight Decrease Factor";
 > = -1.10;
-uniform float max_w <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float max_w < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Max Filter Weight";
 > = 0.75;
-uniform float min_w <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float min_w < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Min Filter Weight";
 > = 0.03;
-uniform float lum_add <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float lum_add < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Effects Smoothing";
 > = 0.33;

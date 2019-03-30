@@ -1,13 +1,9 @@
-uniform float3 Tint <
-	ui_type = "color";
+#include "ReShadeUI.fxh"
+
+uniform float3 Tint < __UNIFORM_COLOR_FLOAT3
 > = float3(0.55, 0.43, 0.42);
 
-uniform float Strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 0.58;
 

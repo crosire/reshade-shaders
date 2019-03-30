@@ -70,39 +70,31 @@ static const float PI = 3.141592653589793238462643383279f;
 
 // Settings
 
+#include "ReShadeUI.fxh"
 
 uniform bool EnableLevels <
 	ui_tooltip = "Enable or Disable Levels for TV <> PC or custome color range";
 > = true;
 
-uniform float3 InputBlackPoint <
-	ui_type = "color";
+uniform float3 InputBlackPoint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "The black point is the new black - literally.\n0 Everything darker than this will become completely black.";
 > = float3(16/255.0f, 18/255.0f, 20/255.0f);
 
-uniform float3 InputWhitePoint <
-	ui_type = "color";
+uniform float3 InputWhitePoint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "The new white point.\n0 Everything brighter than this becomes completely white";
 > = float3(233/255.0f, 222/255.0f, 211/255.0f);
 
-uniform float3 InputGamma <
-#if __RESHADE__ < 40000
-	ui_type = "drag";
-#else
-	ui_type = "slider";
-#endif
+uniform float3 InputGamma < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.01f; ui_max = 10.00f; step = 0.01f;
 	ui_label = "RGB Gamma";
 	ui_tooltip = "Adjust midtones for Red, Green and Blue.";
 > = float3(1.00f,1.00f,1.00f);
 
-uniform float3 OutputBlackPoint <
-	ui_type = "color";
+uniform float3 OutputBlackPoint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "The black point is the new black - literally.\n0 Everything darker than this will become completely black.";
 > = float3(0/255.0f, 0/255.0f, 0/255.0f);
 
-uniform float3 OutputWhitePoint <
-	ui_type = "color";
+uniform float3 OutputWhitePoint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "The new white point.\n0 Everything brighter than this becomes completely white";
 > = float3(255/255.0f, 255/255.0f, 255/255.0f);
 
@@ -122,17 +114,11 @@ uniform float3 MinWhitePoint <
 > = float3(233/255.0f/1.1f, 222/255.0f/1.1f, 211/255.0f/1.1f);
 */
 
-uniform float3 ColorRangeShift <
-	ui_type = "color";
+uniform float3 ColorRangeShift < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "Some games like Watch Dogs 2 has color range 16-235 downshifted to 0-219,\n0 so this option was added to upshift color range before expanding it.\n0 RGB value entered here will be just added to default color value.\n0 Negative values impossible at the moment in game, but can be added,\n0 in shader if downshifting needed.\n0 0 disables shifting.";
 > = float3(0/255.0f, 0/255.0f, 0/255.0f);
 
-uniform int ColorRangeShiftSwitch <
-#if __RESHADE__ < 40000
-	ui_type = "drag";
-#else
-	ui_type = "slider";
-#endif
+uniform int ColorRangeShiftSwitch < __UNIFORM_SLIDER_INT1
 	ui_min = -1; ui_max = 1;
 	ui_tooltip = "Workaround for lack of negative color values in Reshade UI:\n0 -1 to downshift,\n0 1 to upshift,\n0 0 to disable";
 > = 0;
@@ -175,12 +161,7 @@ uniform bool enableACESFitted <
 	ui_tooltip = "Enable or Disable ALT ACES for improved contrast and luminance";
 > = false;
 
-uniform int3 ACESLuminancePercentage <
-#if __RESHADE__ < 40000
-	ui_type = "drag";
-#else
-	ui_type = "slider";
-#endif
+uniform int3 ACESLuminancePercentage < __UNIFORM_SLIDER_INT3
 	ui_min = 0; ui_max = 200; step = 1;
 	ui_tooltip = "Percentage of ACES Luminance.\n0 Can be used to avoid some color clipping.";
 > = int3(100,100,100);

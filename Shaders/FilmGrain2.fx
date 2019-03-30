@@ -8,40 +8,22 @@
  * Uses perlin noise shader by toneburst from http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
  */
 
-uniform float grainamount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float grainamount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.2;
 	ui_label = "Amount";
 > = 0.05;
-uniform float coloramount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float coloramount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Color Amount";
 > = 0.6;
-uniform float lumamount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float lumamount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_type = "Luminance Amount";
 > = 1.0;
 
-uniform float grainsize <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float grainsize < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.5; ui_max = 2.5;
 	ui_label = "Grain Particle Size";
 > = 1.6;

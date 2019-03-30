@@ -1,38 +1,24 @@
 // Copyright (c) 2009-2015 Gilcher Pascal aka Marty McFly
 
+#include "ReShadeUI.fxh"
+
 uniform int iBloomMixmode <
 	ui_type = "combo";
 	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 2;
-uniform float fBloomThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fBloomThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Every pixel brighter than this value triggers bloom.";
 > = 0.8;
-uniform float fBloomAmount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fBloomAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Intensity of bloom.";
 > = 0.8;
-uniform float fBloomSaturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fBloomSaturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Bloom saturation. 0.0 means white bloom, 2.0 means very, very colorful bloom.";
 > = 0.8;
-uniform float3 fBloomTint <
-	ui_type = "color";
+uniform float3 fBloomTint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "R, G and B components of bloom tint the bloom color gets shifted to.";
 > = float3(0.7, 0.8, 1.0);
 
@@ -42,146 +28,74 @@ uniform int iLensdirtMixmode <
 	ui_type = "combo";
 	ui_items = "Linear add\0Screen add\0Screen/Lighten/Opacity\0Lighten\0";
 > = 1;
-uniform float fLensdirtIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLensdirtIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of lensdirt.";
 > = 0.4;
-uniform float fLensdirtSaturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLensdirtSaturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Color saturation of lensdirt.";
 > = 2.0;
-uniform float3 fLensdirtTint <
-	ui_type = "color";
+uniform float3 fLensdirtTint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "R, G and B components of lensdirt tint the lensdirt color gets shifted to.";
 > = float3(1.0, 1.0, 1.0);
 
 uniform bool bAnamFlareEnable <
 > = false;
-uniform float fAnamFlareThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fAnamFlareThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 1.0;
 	ui_tooltip = "Every pixel brighter than this value gets a flare.";
 > = 0.9;
-uniform float fAnamFlareWideness <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fAnamFlareWideness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 2.5;
 	ui_tooltip = "Horizontal wideness of flare. Don't set too high, otherwise the single samples are visible.";
 > = 2.4;
-uniform float fAnamFlareAmount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fAnamFlareAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 20.0;
 	ui_tooltip = "Intensity of anamorphic flare.";
 > = 14.5;
-uniform float fAnamFlareCurve <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fAnamFlareCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 2.0;
 	ui_tooltip = "Intensity curve of flare with distance from source.";
 > = 1.2;
-uniform float3 fAnamFlareColor <
-	ui_type = "color";
+uniform float3 fAnamFlareColor < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "R, G and B components of anamorphic flare. Flare is always same color.";
 > = float3(0.012, 0.313, 0.588);
 
 uniform bool bLenzEnable <
 > = false;
-uniform float fLenzIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLenzIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.2; ui_max = 3.0;
 	ui_tooltip = "Power of lens flare effect";
 > = 1.0;
-uniform float fLenzThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fLenzThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.6; ui_max = 1.0;
 	ui_tooltip = "Minimum brightness an object must have to cast lensflare.";
 > = 0.8;
 
 uniform bool bChapFlareEnable <
 > = false;
-uniform float fChapFlareTreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fChapFlareTreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.70; ui_max = 0.99;
 	ui_tooltip = "Brightness threshold for lensflare generation. Everything brighter than this value gets a flare.";
 > = 0.90;
-uniform int iChapFlareCount <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int iChapFlareCount < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 20;
 	ui_tooltip = "Number of single halos to be generated. If set to 0, only the curved halo around is visible.";
 > = 15;
-uniform float fChapFlareDispersal <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fChapFlareDispersal < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.25; ui_max = 1.00;
 	ui_tooltip = "Distance from screen center (and from themselves) the flares are generated. ";
 > = 0.25;
-uniform float fChapFlareSize <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fChapFlareSize < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.20; ui_max = 0.80;
 	ui_tooltip = "Distance (from screen center) the halo and flares are generated.";
 > = 0.45;
-uniform float3 fChapFlareCA <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float3 fChapFlareCA < __UNIFORM_SLIDER_FLOAT3
 	ui_min = -0.5; ui_max = 0.5;
 	ui_tooltip = "Offset of RGB components of flares as modifier for Chromatic abberation. Same 3 values means no CA.";
 > = float3(0.00, 0.01, 0.02);
-uniform float fChapFlareIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fChapFlareIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 5.0; ui_max = 200.0;
 	ui_tooltip = "Intensity of flares and halo, remember that higher threshold lowers intensity, you might play with both values to get desired result.";
 > = 100.0;
@@ -193,39 +107,19 @@ uniform float fGodrayDecay <
 	ui_min = 0.5000; ui_max = 0.9999;
 	ui_tooltip = "How fast they decay. It's logarithmic, 1.0 means infinite long rays which will cover whole screen";
 > = 0.9900;
-uniform float fGodrayExposure <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fGodrayExposure < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.7; ui_max = 1.5;
 	ui_tooltip = "Upscales the godray's brightness";
 > = 1.0;
-uniform float fGodrayWeight <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fGodrayWeight < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.80; ui_max = 1.70;
 	ui_tooltip = "weighting";
 > = 1.25;
-uniform float fGodrayDensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fGodrayDensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.2; ui_max = 2.0;
 	ui_tooltip = "Density of rays, higher means more and brighter rays";
 > = 1.0;
-uniform float fGodrayThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fGodrayThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.6; ui_max = 1.0;
 	ui_tooltip = "Minimum brightness an object must have to cast godrays";
 > = 0.9;
@@ -233,35 +127,19 @@ uniform int iGodraySamples <
 	ui_tooltip = "2^x format values; How many samples the godrays get";
 > = 128;
 
-uniform float fFlareLuminance <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fFlareLuminance < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.000; ui_max = 1.000;
 	ui_tooltip = "bright pass luminance value ";
 > = 0.095;
-uniform float fFlareBlur <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fFlareBlur < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 10000.0;
 	ui_tooltip = "manages the size of the flare";
 > = 200.0;
-uniform float fFlareIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float fFlareIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.20; ui_max = 5.00;
 	ui_tooltip = "effect intensity";
 > = 2.07;
-uniform float3 fFlareTint <
-	ui_type = "color";
+uniform float3 fFlareTint < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "effect tint RGB";
 > = float3(0.137, 0.216, 1.0);
 

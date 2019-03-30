@@ -28,24 +28,16 @@
  * SOFTWARE.
  */
 
+#include "ReShadeUI.fxh"
+
 uniform bool alDebug <
 	ui_tooltip = "Activates debug mode of AL, upper bar shows detected light, lower bar shows adaptation";
 > = false;
-uniform float alInt <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Base intensity of AL";
 > = 10.15;
-uniform float alThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 100.0;
 	ui_tooltip = "Reduces intensity for not bright light";
 > = 15.00;
@@ -53,30 +45,15 @@ uniform float alThreshold <
 uniform bool AL_Adaptation <
 	ui_tooltip = "Activates adaptation algorithm";
 > = true;
-uniform float alAdapt <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alAdapt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Intensity of AL correction for bright light";
 > = 0.70;
-uniform float alAdaptBaseMult <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alAdaptBaseMult < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Multiplier for adaption applied to the original image";
 > = 1.00;
-uniform int alAdaptBaseBlackLvL <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int alAdaptBaseBlackLvL < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "Distinction level of black and white (lower => less distinct)";
 > = 2;
@@ -94,42 +71,22 @@ uniform int AL_Adaptive <
 	ui_min = 0; ui_max = 2;
 	ui_items = "Warm\0Cold\0Light Dependent\0";
 > = 0;
-uniform float alDirtInt <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alDirtInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of dirt effect";
 > = 1.0;
-uniform float alDirtOVInt <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alDirtOVInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of colored dirt effect";
 > = 1.0;
 uniform bool AL_Lens <
 	ui_tooltip = "Lens effect based on AL";
 > = false;
-uniform float alLensThresh <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alLensThresh < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Reduces intensity of lens effect for not bright light";
 > = 0.5;
-uniform float alLensInt <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float alLensInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 10.0;
 	ui_tooltip = "Intensity of lens effect";
 > = 2.0;

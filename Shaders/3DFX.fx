@@ -3,57 +3,33 @@
 //----------////
 
 #include "ReShade.fxh"
+#include "ReShadeUI.fxh"
 
-uniform float DITHERAMOUNT <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float DITHERAMOUNT < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 1.0;
 	ui_label = "Dither Amount [3DFX]";
 > = 0.5;
 
-uniform int DITHERBIAS <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int DITHERBIAS < __UNIFORM_SLIDER_INT1
 	ui_min = -16;
 	ui_max = 16;
 	ui_label = "Dither Bias [3DFX]";
 > = -1;
 
-uniform float LEIFX_LINES <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float LEIFX_LINES < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 2.0;
 	ui_label = "Lines Intensity [3DFX]";
 > = 1.0;
 
-uniform float LEIFX_PIXELWIDTH <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float LEIFX_PIXELWIDTH < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 100.0;
 	ui_label = "Pixel Width [3DFX]";
 > = 1.5;
 
-uniform float GAMMA_LEVEL <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float GAMMA_LEVEL < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 3.0;
 	ui_label = "Gamma Level [3DFX]";

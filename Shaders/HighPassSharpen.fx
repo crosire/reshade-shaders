@@ -3,22 +3,15 @@
 //Version 1.5 for ReShade 3.0
 
 //Settings
-uniform int HighPassSharpRadius <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+
+#include "ReShadeUI.fxh"
+
+uniform int HighPassSharpRadius < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 3;
 	ui_tooltip = "1 = 3x3 mask, 2 = 5x5 mask, 3 = 7x7 mask.";
 > = 1;
 
-uniform float HighPassSharpOffset <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float HighPassSharpOffset < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius limiting the sharpening to finer details.";
 > = 1.00;
@@ -29,22 +22,12 @@ uniform int HighPassBlendMode <
 	ui_tooltip = "Blend modes determine how the sharp mask is applied to the original image";
 > = 1;
 
-uniform int HighPassBlendIfDark <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int HighPassBlendIfDark < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels below this value will be excluded from the effect. Set to 50 to target mid-tones.";
 > = 0;
 
-uniform int HighPassBlendIfLight <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform int HighPassBlendIfLight < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
 	ui_tooltip = "Any pixels above this value will be excluded from the effect. Set to 205 to target mid-tones.";
 > = 255;
@@ -53,32 +36,17 @@ uniform bool HighPassViewBlendIfMask <
 	ui_tooltip = "Displays the BlendIfMask. The effect will not be applied to areas covered in black";
 > = false;
 
-uniform float HighPassSharpStrength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float HighPassSharpStrength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 0.400;
 
-uniform float HighPassDarkIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float HighPassDarkIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of dark halos.";
 > = 1.0;
 
-uniform float HighPassLightIntensity <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float HighPassLightIntensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 5.00;
 	ui_tooltip = "Adjusts the strength of light halos.";
 > = 1.0;

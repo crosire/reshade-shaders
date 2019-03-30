@@ -3,21 +3,13 @@
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-uniform float Power <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Power < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 10.0;
 	ui_tooltip = "Amount of effect you want.";
 > = 1.5;
-uniform float EdgeSlope <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float EdgeSlope < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 6.0;
 	ui_label = "Edge Slope";
 	ui_tooltip = "Raise this to filter out fainter edges. You might need to increase the power to compensate. Whole numbers are faster.";

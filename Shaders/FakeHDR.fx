@@ -5,30 +5,17 @@
  * Not actual HDR - It just tries to mimic an HDR look (relatively high performance cost)
  */
 
-uniform float HDRPower <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float HDRPower < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Power";
 > = 1.30;
-uniform float radius1 <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float radius1 < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Radius 1";
 > = 0.793;
-uniform float radius2 <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float radius2 < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 8.0;
 	ui_label = "Radius 2";
 	ui_tooltip = "Raising this seems to make the effect stronger and also brighter.";

@@ -3,32 +3,20 @@
 //Version 1.1 for ReShade 3.0
 
 //Settings
-uniform int GaussianBlurRadius <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+
+#include "ReShadeUI.fxh"
+
+uniform int GaussianBlurRadius < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "[0|1|2|3|4] Adjusts the blur radius. Higher values increase the radius";
 > = 1;
 
-uniform float GaussianBlurOffset <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float GaussianBlurOffset < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the radius.";
 > = 1.00;
 
-uniform float GaussianBlurStrength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float GaussianBlurStrength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect.";
 > = 0.300;

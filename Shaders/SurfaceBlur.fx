@@ -8,46 +8,28 @@
 	#define SurfaceBlurIterations 1
 #endif
 
+#include "ReShadeUI.fxh"
+
 uniform int BlurRadius
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 4;
 	ui_tooltip = "1 = 3x3 mask, 2 = 5x5 mask, 3 = 7x7 mask, 4 = 9x9 mask. For more blurring add SurfaceBlurIterations=2 or SurfaceBlurIterations=3 to Preprocessor Definitions";
 > = 1;
 
 uniform float BlurOffset
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Additional adjustment for the blur radius. Values less than 1.00 will reduce the blur radius.";
 > = 1.000;
 
 uniform float BlurEdge
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.000; ui_max = 10.000;
 	ui_tooltip = "Adjusts the strength of edge detection. Lower values will exclude finer edges from blurring";
 > = 0.500;
 
 uniform float BlurStrength
-<
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+< __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.00; ui_max = 1.00;
 	ui_tooltip = "Adjusts the strength of the effect";
 > = 1.00;

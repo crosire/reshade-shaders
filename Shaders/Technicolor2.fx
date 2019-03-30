@@ -4,36 +4,22 @@
  * Optimized by CeeJay.dk
  */
 
-uniform float3 ColorStrength <
-	ui_type = "color";
+#include "ReShadeUI.fxh"
+
+uniform float3 ColorStrength < __UNIFORM_COLOR_FLOAT3
 	ui_tooltip = "Higher means darker and more intense colors.";
 > = float3(0.2, 0.2, 0.2);
 
-uniform float Brightness <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Brightness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 1.5;
 	ui_tooltip = "Higher means brighter image.";
 > = 1.0;
-uniform float Saturation <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.5;
 	ui_tooltip = "Additional saturation control since this effect tends to oversaturate the image.";
 > = 1.0;
 
-uniform float Strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 > = 1.0;
 

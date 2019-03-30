@@ -16,13 +16,15 @@ For inquiries please contact jakubfober@gmail.com
 	 /// MENU ///
 	////////////
 
+#include "ReShadeUI.fxh"
+
 uniform int Projection <
 	ui_tooltip = "Stereographic projection (shapes) preserves angles and proportions,\n"
-		"best for navigation through tight space.\n\n"
-		"Equisolid projection (size) preserves surface relations,\n"
-		"Best for flying in open areas.\n\n"
-		"Equidistant maintains angular speed of motion,\n"
-		"best for chasing fast targets.";
+	             "best for navigation through tight space.\n\n"
+	             "Equisolid projection (size) preserves surface relations,\n"
+	             "Best for flying in open areas.\n\n"
+	             "Equidistant maintains angular speed of motion,\n"
+	             "best for chasing fast targets.";
 	#if __RESHADE__ < 40000
 		ui_label = "Type of projection";
 		ui_type = "combo";
@@ -34,28 +36,20 @@ uniform int Projection <
 	ui_category = "Distortion Correction";
 > = 0;
 
-uniform int FOV <
+uniform int FOV < __UNIFORM_SLIDER_INT1
 	ui_label = "Corrected Field of View";
 	ui_tooltip = "This setting should match your in-game Field of View";
 	#if __RESHADE__ < 40000
-		ui_type = "drag";
 		ui_step = 0.2;
-	#else
-		ui_type = "slider";
 	#endif
 	ui_min = 0; ui_max = 170;
 	ui_category = "Distortion Correction";
 > = 90;
 
-uniform float Vertical <
+uniform float Vertical < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Vertical Curviness Amount";
 	ui_tooltip = "0.0 - cylindrical projection\n"
 		"1.0 - spherical projection";
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
 	ui_min = 0.0; ui_max = 1.0;
 	ui_category = "Distortion Correction";
 > = 0.5;
@@ -80,10 +74,9 @@ uniform float Zooming <
 	ui_category = "Borders Settings";
 > = 1.0;
 
-uniform float4 BorderColor <
+uniform float4 BorderColor < __UNIFORM_COLOR_FLOAT4
 	ui_label = "Color of Borders";
 	ui_tooltip = "Use Alpha to change transparency";
-	ui_type = "color";
 	ui_category = "Borders Settings";
 > = float4(0.027, 0.027, 0.027, 0.0);
 

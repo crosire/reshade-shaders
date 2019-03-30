@@ -92,54 +92,31 @@
  1.0  - Initial release
 */
 
-uniform float NoiseLevel <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float NoiseLevel < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.01; ui_max = 1.00;
 	ui_label = "Noise Level";
 	ui_tooltip = "Approximate level of noise in the image.";
 > = 0.15;
 
-uniform float LerpCoefficeint <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float LerpCoefficeint < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.00;
 	ui_label = "Lerp Coefficient";
 	ui_tooltip = "Amount of blending between the original and the processed image.";
 > = 0.8;
 
-uniform float WeightThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float WeightThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Weight Threshold";
 > = 0.03;
 
-uniform float CounterThreshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float CounterThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_label = "Counter Threshold";
 > = 0.05;
 
-uniform float GaussianSigma <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float GaussianSigma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 100.0;
 	ui_label = "Gaussian Sigma";
 	ui_tooltip = "Controls the additional amount of gaussian blur on the image.";

@@ -32,15 +32,17 @@
 | :: UI Settings :: |
 '------------------*/
 
+#include "ReShadeUI.fxh"
+
 uniform int splitscreen_mode <
-	ui_type = "combo";
-	ui_label = "Mode";
-	ui_tooltip = "Choose a mode";
-	//ui_category = "";
-	ui_items = 
-	"Vertical 50/50 split\0"
-	"Vertical 25/50/25 split\0"
-	"Angled 50/50 split\0"
+    ui_type = "combo";
+    ui_label = "Mode";
+    ui_tooltip = "Choose a mode";
+    //ui_category = "";
+    ui_items = 
+    "Vertical 50/50 split\0"
+    "Vertical 25/50/25 split\0"
+    "Angled 50/50 split\0"
     "Angled 25/50/25 split\0"
     "Horizontal 50/50 split\0"
     "Horizontal 25/50/25 split\0"

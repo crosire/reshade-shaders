@@ -12,12 +12,9 @@ http://creativecommons.org/licenses/by-sa/4.0/.
 	 /// MENU ///
 	////////////
 
-uniform float Threshold <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float Threshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.999; ui_step = 0.001;
 	ui_category = "Distance adjustment";
 > = 0.1;
@@ -31,14 +28,11 @@ uniform bool RadialY <
 	ui_category = "Radial distance";
 > = false;
 
-uniform int FOV <
+uniform int FOV < __UNIFORM_SLIDER_INT1
 	ui_label = "FOV (horizontal)";
 	ui_tooltip = "Field of view in degrees";
 	#if __RESHADE__ < 40000
-		ui_type = "drag";
 		ui_step = 1;
-	#else
-		ui_type = "slider";
 	#endif
 	ui_min = 0; ui_max = 170;
 	ui_category = "Radial distance";
@@ -59,8 +53,7 @@ uniform int Color <
 	ui_category = "Color settings";
 > = 0;
 
-uniform float3 CustomColor <
-	ui_type = "color";
+uniform float3 CustomColor < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Custom color";
 	ui_category = "Color settings";
 > = float3(1.0, 0.0, 0.0);

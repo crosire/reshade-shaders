@@ -10,23 +10,15 @@
   - UI improvements for Reshade 3.x
  */
 
-uniform float sharp_strength <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+#include "ReShadeUI.fxh"
+
+uniform float sharp_strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 3.0;
 	ui_label = "Shapening strength";
 	ui_tooltip = "Strength of the sharpening";
 
 > = 0.65;
-uniform float sharp_clamp <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float sharp_clamp < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0; ui_step = 0.005;
 	ui_label = "Sharpening limit";
 	ui_tooltip = "Limits maximum amount of sharpening a pixel receives\nThis helps avoid \"haloing\" artifacts which would otherwise occur when you raised the strength too much.";
@@ -44,12 +36,7 @@ uniform int pattern <
 	"Wider is less sensitive to noise but also to fine details.\n"
 	"Pyramid has a slightly more aggresive look.";
 > = 1;
-uniform float offset_bias <
-	#if __RESHADE__ < 40000
-		ui_type = "drag";
-	#else
-		ui_type = "slider";
-	#endif
+uniform float offset_bias < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 6.0;
 	ui_label = "Offset bias";
 	ui_tooltip = "Offset bias adjusts the radius of the sampling pattern. I designed the pattern for offset_bias 1.0, but feel free to experiment.";
