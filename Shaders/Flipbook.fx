@@ -14,6 +14,8 @@ http://creativecommons.org/licenses/by-sa/4.0/
 	 /// MENU ///
 	////////////
 
+#include ReShadeUI.fxh
+
 #ifndef flipbook
 	#define flipbook "waow.png" // Texture file name
 #endif
@@ -24,7 +26,7 @@ http://creativecommons.org/licenses/by-sa/4.0/
 	#define flipbookY 1710 // Texture vertical resolution
 #endif
 
-uniform int3 Size <
+uniform int3 Size < __UNIFORM_SLIDER_INT3
 	ui_label = "X frames, Y frames, FPS";
 	ui_tooltip = "Adjust flipbook texture dimensions and framerate\n"
 		"To change texture resolution and name,\n"
@@ -33,23 +35,17 @@ uniform int3 Size <
 		"  flipbookX [ResolutionX]\n"
 		"  flipbookY [ResolutionY]";
 	#if __RESHADE__ < 40000
-		ui_type = "drag";
 		ui_step = 0.2;
-	#else
-		ui_type = "slider";
 	#endif
 	ui_min = 1; ui_max = 30;
 	ui_category = "Texture dimensions";
 > = int3(10, 9, 30);
 
-uniform float3 Position <
+uniform float3 Position < __UNIFORM_SLIDER_FLOAT3
 	ui_label = "X position, Y position, Scale";
 	ui_tooltip = "Adjust flipbook texture size and position";
 	#if __RESHADE__ < 40000
-		ui_type = "drag";
 		ui_step = 0.002;
-	#else
-		ui_type = "slider";
 	#endif
 	ui_min = float3(0.0, 0.0, 0.1); ui_max = float3(1.0, 1.0, 1.0);
 	ui_category = "Position on screen";
