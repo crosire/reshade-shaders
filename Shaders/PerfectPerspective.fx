@@ -23,7 +23,7 @@ uniform int Projection <
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (distance) preserves size relations,\n"
 		"Best for navigation in open areas.\n\n"
-		"Equidistant maintains angular speed of motion,\n"
+		"Equidistant (speed) maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
 	#if __RESHADE__ < 40000
 		ui_label = "Type of projection";
