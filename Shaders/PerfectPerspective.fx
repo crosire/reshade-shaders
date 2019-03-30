@@ -22,7 +22,7 @@ uniform int Projection <
 	ui_tooltip = "Stereographic projection (shape) preserves angles and proportions,\n"
 		"best for navigation through tight space.\n\n"
 		"Equisolid projection (distance) preserves size relations,\n"
-		"Best for navigation in open areas.\n\n"
+		"best for navigation in open areas.\n\n"
 		"Equidistant (speed) maintains angular speed of motion,\n"
 		"best for chasing fast targets.";
 	#if __RESHADE__ < 40000
