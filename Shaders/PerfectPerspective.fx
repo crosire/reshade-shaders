@@ -252,6 +252,11 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	return Display;
 }
 
+
+	  //////////////
+	 /// OUTPUT ///
+	//////////////
+
 technique PerfectPerspective < ui_label = "Perfect Perspective"; ui_tooltip = "Correct fisheye distortion"; >
 {
 	pass
