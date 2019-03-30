@@ -193,6 +193,11 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 	}
 }
 
+
+	  //////////////
+	 /// OUTPUT ///
+	//////////////
+
 technique FilmicAnamorphSharpen < ui_label = "Filmic Anamorphic Sharpen"; >
 {
 	pass

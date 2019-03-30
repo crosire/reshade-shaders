@@ -94,6 +94,11 @@ float3 ChromakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_T
 	tex2D(ReShade::BackBuffer, texcoord).rgb;
 }
 
+
+	  //////////////
+	 /// OUTPUT ///
+	//////////////
+
 technique Chromakey < ui_tooltip = "Generate green-screen wall based of depth"; >
 {
 	pass

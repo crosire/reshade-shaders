@@ -14,7 +14,7 @@ http://creativecommons.org/licenses/by-sa/4.0/
 	 /// MENU ///
 	////////////
 
-#include ReShadeUI.fxh
+#include "ReShadeUI.fxh"
 
 #ifndef flipbook
 	#define flipbook "waow.png" // Texture file name
@@ -113,6 +113,10 @@ float3 FlipbookPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Ta
 	return lerp(Display, AnimationTexture.rgb, AnimationTexture.a * BorderMask);
 }
 
+
+	  //////////////
+	 /// OUTPUT ///
+	//////////////
 
 technique Flipbook < ui_tooltip = "Flipbook animation FX:\n"
 	"======================\n"
