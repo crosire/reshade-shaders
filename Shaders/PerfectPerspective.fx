@@ -135,7 +135,8 @@ float Stereographic(float2 Coordinates)
 	if(FOV==0.0) return 1.0; // Bypass
 	// Convert 1/4 FOV to radians and calc tangent squared
 	float SqrTanFOVq = pow(tan(radians(FOV * 0.25)),2.0);
-	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * dot(Coordinates, Coordinates));
+	float R2 = dot(Coordinates, Coordinates);
+	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * R2);
 }
 // Equisolid
 float Equisolid(float2 Coordinates)
