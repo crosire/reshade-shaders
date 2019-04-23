@@ -9,7 +9,7 @@ http://creativecommons.org/licenses/by-nc-nd/4.0/
 For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.6.2
+// Perfect Perspective PS ver. 2.7.0
 
 
 	  ////////////
@@ -53,6 +53,13 @@ uniform float Vertical < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_category = "Distortion Correction";
 > = 0.5;
+
+uniform float VerticalScale < __UNIFORM_SLIDER_FLOAT1
+	ui_label = "Vertical Proportions Scale";
+	ui_tooltip = "Adjust proportions for cylindrical Panini projection";
+	ui_min = 0.8; ui_max = 1.0;
+	ui_category = "Distortion Correction";
+> = 0.95;
 
 uniform int Type <
 	ui_label = "Type of FOV (Field of View)";
@@ -189,6 +196,9 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
+
+	// vertical proportions adjust
+	if(VerticalScale != 1.0) SphCoord.y /= lerp(VerticalScale, 1.0, Vertical);
 
 	// Get Pixel Size in stereographic coordinates
 	float2 PixelSize = fwidth(SphCoord);
