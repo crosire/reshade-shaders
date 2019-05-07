@@ -3,7 +3,7 @@
 //-----------////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//* Depth Map Based 3D post-process shader Depth3D v1.2.0                                                                                                                          *//
+//* Depth Map Based 3D post-process shader Depth3D v1.3.0                                                                                                                          *//
 //* For Reshade 3.0 & 4.0                                                                                                                                                          *//
 //* ---------------------------------------------------------------------------------------------------                                                                            *//
 //* This work is licensed under a Creative Commons Attribution 3.0 Unported License.                                                                                               *//
@@ -14,6 +14,7 @@
 //* Have fun,                                                                                                                                                                      *//
 //* Jose Negrete AKA BlueSkyDefender                                                                                                                                               *//
 //*                                                                                                                                                                                *//
+//* https://github.com/BlueSkyDefender/Depth3D                                                                                                                                     *//
 //* http://reshade.me/forum/shader-presentation/2128-sidebyside-3d-depth-map-based-stereoscopic-shader                                                                             *//
 //* ---------------------------------------------------------------------------------------------------                                                                            *//
 //*                                                                                                                                                                                *//
@@ -30,6 +31,7 @@
 
 //USER EDITABLE PREPROCESSOR FUNCTIONS END//
 #include "ReShadeUI.fxh"
+#include "ReShade.fxh"
 
 //Divergence & Convergence//
 uniform float Divergence <
@@ -63,6 +65,27 @@ uniform float Auto_Depth_Range <
 	ui_category = "Divergence & Convergence";
 > = 0.125;
 
+uniform int View_Mode <
+	ui_type = "combo";
+	ui_items = "View Mode Normal\0View Mode Alpha\0";
+	ui_label = " View Mode";
+	ui_tooltip = "Change the way the shader warps the output to the screen.\n"
+				 "Default is Normal";
+	ui_category = "Occlusion Masking";
+> = 0;
+
+uniform bool Performance_Mode <
+	ui_label = "Performance Mode";
+	ui_tooltip = "Occlusion Quality Processing.\n"
+				 "Default is True.";
+	ui_category = "Occlusion Masking";
+> = true;
+
+uniform bool Side_Bars <
+	ui_label = " Side Bars";
+	ui_tooltip = "Adds Side Bar to the Left and Right Edges";
+	ui_category = "Occlusion Masking";
+> = true;
 //Depth Buffer Adjust//
 uniform int Depth_Map <
 	ui_type = "combo";
@@ -83,17 +106,6 @@ uniform float Depth_Map_Adjust <
 	ui_category = "Depth Buffer Adjust";
 > = 7.5;
 
-uniform float Offset <
-	ui_type = "drag";
-	ui_min = 0; ui_max = 1.0;
-	ui_label = " Z-Buffer Offset";
-	ui_tooltip = "Depth Buffer Offset is for non conforming Z-Buffer.\n"
-	             "It's rare if you need to use this in any game.\n"
-	             "This makes adjustments to Normal and Reversed.\n"
-	             "Default is Zero & Zero is Off.";
-	ui_category = "Depth Buffer Adjust";
-> = 0.0;
-
 uniform bool Depth_Map_View <
 	ui_label = " Display Depth";
 	ui_tooltip = "Display the Depth Buffer.";
@@ -105,7 +117,6 @@ uniform bool Depth_Map_Flip <
 	ui_tooltip = "Flip the Depth Buffer if it is upside down.";
 	ui_category = "Depth Buffer Adjust";
 > = false;
-
 //Weapon Hand Adjust//
 uniform bool WP <
 	ui_label = "·Weapon Hand Adjust·";
@@ -173,26 +184,28 @@ uniform bool Eye_Swap <
 	ui_category = "Stereoscopic Options";
 > = false;
 
-uniform bool Side_Bars <
-	ui_label = " Side Bars";
-	ui_tooltip = "Adds Side Bar to the Left and Right Edges";
-	ui_category = "Stereoscopic Options";
-> = true;
+//Cursor Adjustments//
+uniform int Cursor_Type <
+	#if Compatibility
+	ui_type = "drag";
+	#else
+	ui_type = "slider";
+	#endif
+	ui_min = 0; ui_max = 6;
+	ui_label = "·Cursor Selection·";
+	ui_tooltip = "Choose the cursor type you like to use.\n" 
+				 "Default is Zero.";
+	ui_category = "Cursor Adjustments";
+> = 0;
 
-//Crosshair Adjustments//
 uniform float3 Cursor_STT <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 1;
-	ui_label = " Crosshair Adjustments";
-	ui_tooltip = "This controlls the Size, Thickness, & Transparency.\n"
-	             "Defaults are ( X 0.125, Y 0.5, Z 0.75 ).";
+	ui_label = " Cursor Adjustments";
+	ui_tooltip = "This controlls the Size, Thickness, & Color.\n" 
+				 "Defaults are ( X 0.125, Y 0.5, Z 1.0).";
 	ui_category = "Cursor Adjustments";
-> = float3(0.125,0.5,0.75);
-
-uniform float3 Cursor_Color < __UNIFORM_COLOR_FLOAT3
-	ui_label = " Crosshair Color";
-	ui_category = "Cursor Adjustments";
-> = float3(1.0,1.0,1.0);
+> = float3(0.125,0.5,1.0);
 
 uniform bool SCSC <
 	ui_label = " Cursor Lock";
@@ -201,8 +214,6 @@ uniform bool SCSC <
 > = false;
 
 /////////////////////////////////////////////D3D Starts Here/////////////////////////////////////////////////////////////////
-#include "ReShade.fxh"
-
 #define pix ReShade::PixelSize
 
 float fmod(float a, float b) 
@@ -238,6 +249,7 @@ uniform float2 Mousecoords < source = "mousepoint"; > ;
 ////////////////////////////////////////////////////////////////////////////////////Cross Cursor////////////////////////////////////////////////////////////////////////////////////	
 float4 MCursor(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
+	float4 Out = tex2D(BackBuffer, texcoord),Color; 
 	float CCA = 0.1,CCB = 0.0025, CCC = 0.025, CCD = 0.05;
 	float2 MousecoordsXY = Mousecoords * pix, center = texcoord, Screen_Ratio = float2(DAR.x,DAR.y), Size_Thickness = float2(Cursor_STT.x,Cursor_STT.y + 0.00000001);
 	
@@ -251,8 +263,55 @@ float4 MCursor(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float B = min(max(THICC_H - dist_fromHorizontal,0)/THICC_H,max(Size_H-dist_fromVertical,0));
 	float A = min(max(THICC_V - dist_fromVertical,0)/THICC_V,max(Size_V-dist_fromHorizontal,0));
 	float CC = A+B; //Cross Cursor
+	
+	//Ring Cursor
+	float dist_fromCenter = distance(texcoord * Screen_Ratio , MousecoordsXY * Screen_Ratio ), Size_Ring = Size_Thickness.x * CCA, THICC_Ring = Size_Thickness.y * CCB;
+	float dist_fromIdeal = abs(dist_fromCenter - Size_Ring);
+	float RC = max(THICC_Ring - dist_fromIdeal,0) / THICC_Ring; //Ring Cursor
+	
+	//Solid Square Cursor
+	float Solid_Square_Size = Size_Thickness.x * CCC;
+	float SSC = min(max(Solid_Square_Size - dist_fromHorizontal,0)/Solid_Square_Size,max(Solid_Square_Size-dist_fromVertical,0)); //Solid Square Cursor
+	
+	float Cursor = CC;
+	
+	if(Cursor_Type == 1)
+		Cursor = RC;
+	else if(Cursor_Type == 2)
+		Cursor = SSC;
+	else if(Cursor_Type == 3)
+		Cursor = SSC + CC;
+	else if(Cursor_Type == 4)
+		Cursor = SSC + RC;
+	else if(Cursor_Type == 5)
+		Cursor = CC + RC;
+	else if(Cursor_Type == 6)
+		Cursor = CC + RC + SSC;
+	
+	if (Cursor_STT.z == 1 )
+		Color.rgb = float3(1,1,1);
+	else if (Cursor_STT.z >= 0.9 )
+		Color.rgb = float3(0,0,1);
+	else if (Cursor_STT.z >= 0.8 )
+		Color.rgb = float3(0,1,0);
+	else if (Cursor_STT.z >= 0.7 )
+		Color.rgb = float3(1,0,0);	
+	else if (Cursor_STT.z >= 0.6 )
+		Color.rgb = float3(0,1,1);
+	else if (Cursor_STT.z >= 0.5 )
+		Color.rgb = float3(1,0,1);
+	else if (Cursor_STT.z >= 0.4 )
+		Color.rgb = float3(1,1,0);
+	else if (Cursor_STT.z >= 0.3 )
+		Color.rgb = float3(1,0.4,0.7);
+	else if (Cursor_STT.z >= 0.2 )
+		Color.rgb = float3(1,0.64,0);
+	else if (Cursor_STT.z >= 0.1 )
+		Color.rgb = float3(0.5,0,0.5);
 		
-	return lerp( CC  ? float4(Cursor_Color.rgb, 1.0) : tex2D(BackBuffer, texcoord),tex2D(BackBuffer, texcoord),1-Cursor_STT.z);
+	Out = Cursor  ? Color : Out;
+	
+	return Out;
 }
 /////////////////////////////////////////////////////////////////////////////////Adapted Luminance/////////////////////////////////////////////////////////////////////////////////
 texture texLumi {Width = 256*0.5; Height = 256*0.5; Format = RGBA8; MipLevels = 8;}; //Sample at 256x256/2 and a mip bias of 8 should be 1x1 
@@ -281,17 +340,13 @@ float Depth(in float2 texcoord : TEXCOORD0)
 		texcoord.y =  1 - texcoord.y;
 		
 	float zBuffer = tex2D(DepthBuffer, texcoord).x, DMA = Depth_Map_Adjust; //Depth Buffer
-
 	
 	//Conversions to linear space.....
 	//Near & Far Adjustment
 	float Far = 1.0, Near = 0.125/DMA; //Division Depth Map Adjust - Near
 	
-	float2 Offsets = float2(1 + Offset,1 - Offset), Z = float2( zBuffer, 1-zBuffer );
-	
-	if (Offset > 0)
-	Z = min( 1, float2( Z.x*Offsets.x , Z.y /  Offsets.y  ));
-		
+	float2 Z = float2( zBuffer, 1-zBuffer );
+
 	if (Depth_Map == 0)//DM0. Normal
 		zBuffer = Far * Near / (Far + Z.x * (Near - Far));		
 	else if (Depth_Map == 1)//DM1. Reverse
@@ -431,54 +486,70 @@ float Conv(float DM,float2 texcoord)
 
 /////////////////////////////////////////L/R//////////////////////////////////////////////////////////////////////
 
-float ZBuffer(in float2 texcoord : TEXCOORD0)
+float zBuffer(in float2 texcoord : TEXCOORD0)
 {
 	return Conv(tex2Dlod(SamplerDepth,float4(texcoord,0,0)).x,texcoord);
 }
 
 // Horizontal parallax offset & Hole filling effect reworked from here http://graphics.cs.brown.edu/games/SteepParallax/index.html
-float2 Parallax( float Diverge, float2 Coordinates)
+float2 Parallax( float Diverg, float2 Coordinates)
 {
+	float Cal_Steps = (Divergence * 0.5) + (Divergence * 0.04);
+	
+	if(!Performance_Mode)
+	Cal_Steps = Divergence + (Divergence * 0.04);
+	
 	//ParallaxSteps
-	float Steps = Divergence * 6.0f;
+	float Steps = clamp(Cal_Steps,0,255);
 	
 	// Offset per step progress & Limit
-	float LayerDepth = 1.0 / clamp(Steps,25,255);
+	float LayerDepth = 1.0 / Steps;
 
-	//Offsets listed here Max Seperation is 3% - 6% of screen space with Depth Offsets & Netto layer offset change based on MS.
-	float MS = Diverge * pix.x, deltaCoordinates = MS * LayerDepth;
-	float2 ParallaxCoord = Coordinates, DB_Offset = float2((Diverge * 0.06f) * pix.x, 0);
-	float CurrentDepthMapValue = ZBuffer(ParallaxCoord), CurrentLayerDepth = 0, DepthDifference;
+	//Offsets listed here Max Seperation is 3% - 8% of screen space with Depth Offsets & Netto layer offset change based on MS.
+	float MS = Diverg * pix.x, deltaCoordinates = MS * LayerDepth;
+	float2 ParallaxCoord = Coordinates,DB_Offset = float2((Diverg * 0.075f) * pix.x, 0), DB_OffsetA = float2((Diverg * 0.03f) * pix.x, 0);
+	float CurrentDepthMapValue = zBuffer(ParallaxCoord), CurrentLayerDepth = 0, DepthDifference;
 
 	[loop] //Steep parallax mapping
     for ( int i = 0 ; i < Steps; i++ )
     {
 		// Doing it this way should stop crashes in older version of reshade, I hope.
-        if (CurrentLayerDepth > CurrentDepthMapValue)
-           continue; // Once we hit the limit skip the rest of the loop and go back to thes start of the loop.
+        if (CurrentDepthMapValue <= CurrentLayerDepth)
+			break; // Once we hit the limit Stop Exit Loop.
         // Get depth of next layer
         CurrentLayerDepth += LayerDepth;
         // Shift coordinates horizontally in linear fasion
         ParallaxCoord.x -= deltaCoordinates;
         // Get depth value at current coordinates
-        CurrentDepthMapValue = ZBuffer( ParallaxCoord - DB_Offset);
+        if(View_Mode == 1)
+        	CurrentDepthMapValue = zBuffer( ParallaxCoord - DB_OffsetA);
+        else
+        	CurrentDepthMapValue = zBuffer( ParallaxCoord - DB_Offset);
     }
 
 	// Parallax Occlusion Mapping
 	float2 PrevParallaxCoord = float2(ParallaxCoord.x + deltaCoordinates, ParallaxCoord.y);
-	float afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
-	float beforeDepthValue = ZBuffer(PrevParallaxCoord + DB_Offset) - CurrentLayerDepth + LayerDepth;
+	float afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth, beforeDepthValue;
 	
+	if(View_Mode == 1)
+		beforeDepthValue = zBuffer(PrevParallaxCoord - DB_OffsetA) - CurrentLayerDepth + LayerDepth;
+	else
+		beforeDepthValue = zBuffer(PrevParallaxCoord - DB_Offset) - CurrentLayerDepth + LayerDepth;
+		
 	// Interpolate coordinates
 	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
 	ParallaxCoord = PrevParallaxCoord * max(0,weight) + ParallaxCoord * min(1,1.0f - weight);
+
+	// Apply gap masking
+	DepthDifference = (afterDepthValue-beforeDepthValue) * MS;
+	if(View_Mode == 1)
+		ParallaxCoord.x = lerp(ParallaxCoord.x - DepthDifference,ParallaxCoord.x,0.5f);
 	
 	return ParallaxCoord;
-};
+}
 
 float4 EdgeMask( float Diverge, float4 Image, float2 texcoords)
 {
-	
 	float Side_A = 0, Side_B = -1;
 	
 	if(Diverge > 0)
@@ -498,59 +569,65 @@ float4 PS_calcLR(float2 texcoord)
 {
 	float2 TCL, TCR, TexCoords = texcoord;
 	float4 color, Right, Left;
-	
-	//MS is Max Seperation and P is Perspective Adjustment.	
-	float MS = Divergence * pix.x, P = Perspective * pix.x, N, S;
-						
+							
 	if(Eye_Swap)
 	{
 		if ( Stereoscopic_Mode == 0 )
 		{
-			TCL = float2((texcoord.x*2-1) - P,texcoord.y);
-			TCR = float2((texcoord.x*2) + P,texcoord.y);
+			TCL = float2(texcoord.x*2-1,texcoord.y);
+			TCR = float2(texcoord.x*2,texcoord.y);
 		}
 		else if( Stereoscopic_Mode == 1 )
 		{
-			TCL = float2(texcoord.x - P,texcoord.y*2-1);
-			TCR = float2(texcoord.x + P,texcoord.y*2);
+			TCL = float2(texcoord.x,texcoord.y*2-1);
+			TCR = float2(texcoord.x,texcoord.y*2);
 		}
 		else
 		{
-			TCL = float2(texcoord.x - P,texcoord.y);
-			TCR = float2(texcoord.x + P,texcoord.y);
+			TCL = float2(texcoord.x,texcoord.y);
+			TCR = float2(texcoord.x,texcoord.y);
 		}
 	}	
 	else
 	{
 		if (Stereoscopic_Mode == 0)
 		{
-			TCL = float2((texcoord.x*2) + P,texcoord.y);
-			TCR = float2((texcoord.x*2-1) - P,texcoord.y);
+			TCL = float2(texcoord.x*2,texcoord.y);
+			TCR = float2(texcoord.x*2-1,texcoord.y);
 		}
 		else if(Stereoscopic_Mode == 1)
 		{
-			TCL = float2(texcoord.x + P,texcoord.y*2);
-			TCR = float2(texcoord.x - P,texcoord.y*2-1);
+			TCL = float2(texcoord.x,texcoord.y*2);
+			TCR = float2(texcoord.x,texcoord.y*2-1);
 		}
 		else
 		{
-			TCL = float2(texcoord.x + P,texcoord.y);
-			TCR = float2(texcoord.x - P,texcoord.y);
+			TCL = float2(texcoord.x,texcoord.y);
+			TCR = float2(texcoord.x,texcoord.y);
 		}
 	}
 	
-	if (Stereoscopic_Mode == 2)
-	{
-		TCL.y += 0.5 * pix.y;
-		TCR.y -= 0.5 * pix.y;
-	}
+	//P is Perspective Adjustment.	
+	float P = Perspective * pix.x;
+	TCL.x += P;
+	TCR.x -= P;
 	
 	//Left & Right Parallax for Stereo Vision
-	float2 TL = Parallax(-Divergence, TCL); //Stereoscopic 3D using Reprojection Left					
-	float2 TR = Parallax( Divergence, TCR); //Stereoscopic 3D using Reprojection Right	
-
-	Left = tex2Dlod(BackBuffer, float4(TL.x, TCL.y,0,0));
-	Right = tex2Dlod(BackBuffer, float4(TR.x, TCR.y,0,0));
+	float2 TL, TR; //Stereoscopic 3D using Reprojection Left & Right	
+	if(Stereoscopic_Mode == 2)// Work around for DX9
+	{
+		//Optimization for line interlaced.
+		TL = Parallax(-Divergence, float2(TCL.x,TCL.y + 0.5f * pix.y));					
+		TR = Parallax( Divergence, float2(TCR.x,TCR.y - 0.5f * pix.y));	
+	}
+	else
+	{
+		TL = Parallax(-Divergence, TCL);					
+		TR = Parallax( Divergence, TCR);
+	}
+	
+	Left = tex2Dlod(BackBuffer, float4(TL,0,0));
+	Right = tex2Dlod(BackBuffer, float4(TR,0,0));
 	
 	if(Side_Bars)
 	{
@@ -666,108 +743,102 @@ float4 Average_Luminance(float4 position : SV_Position, float2 texcoord : TEXCOO
 uniform float timer < source = "timer"; >;
 float4 Out(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-	float PosX = 0.5*BUFFER_WIDTH*pix.x,PosY = 0.5*BUFFER_HEIGHT*pix.y;	
-	float4 Color = float4(PS_calcLR(texcoord).rgb,1.0),Done,Website,D,E,P,T,H,Three,DD,Dot,I,N,F,O;
+	float PosX = 0.9525f*BUFFER_WIDTH*pix.x,PosY = 0.975f*BUFFER_HEIGHT*pix.y;	
+	float4 Color = float4(PS_calcLR(texcoord).rgb,1.0),D,E,P,T,H,Three,DD,Dot,I,N,F,O;
 	
-	if(timer <= 10000)
+	if(timer <= 12500)
 	{
-	//DEPTH
-	//D
-	float PosXD = -0.035+PosX, offsetD = 0.001;
-	float4 OneD = all( abs(float2( texcoord.x -PosXD, texcoord.y-PosY)) < float2(0.0025,0.009));
-	float4 TwoD = all( abs(float2( texcoord.x -PosXD-offsetD, texcoord.y-PosY)) < float2(0.0025,0.007));
-	D = OneD-TwoD;
-	
-	//E
-	float PosXE = -0.028+PosX, offsetE = 0.0005;
-	float4 OneE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.009));
-	float4 TwoE = all( abs(float2( texcoord.x -PosXE-offsetE, texcoord.y-PosY)) < float2(0.0025,0.007));
-	float4 ThreeE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.001));
-	E = (OneE-TwoE)+ThreeE;
-	
-	//P
-	float PosXP = -0.0215+PosX, PosYP = -0.0025+PosY, offsetP = 0.001, offsetP1 = 0.002;
-	float4 OneP = all( abs(float2( texcoord.x -PosXP, texcoord.y-PosYP)) < float2(0.0025,0.009*0.682));
-	float4 TwoP = all( abs(float2( texcoord.x -PosXP-offsetP, texcoord.y-PosYP)) < float2(0.0025,0.007*0.682));
-	float4 ThreeP = all( abs(float2( texcoord.x -PosXP+offsetP1, texcoord.y-PosY)) < float2(0.0005,0.009));
-	P = (OneP-TwoP) + ThreeP;
+		//DEPTH
+		//D
+		float PosXD = -0.035+PosX, offsetD = 0.001;
+		float4 OneD = all( abs(float2( texcoord.x -PosXD, texcoord.y-PosY)) < float2(0.0025,0.009));
+		float4 TwoD = all( abs(float2( texcoord.x -PosXD-offsetD, texcoord.y-PosY)) < float2(0.0025,0.007));
+		D = OneD-TwoD;
+		
+		//E
+		float PosXE = -0.028+PosX, offsetE = 0.0005;
+		float4 OneE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.009));
+		float4 TwoE = all( abs(float2( texcoord.x -PosXE-offsetE, texcoord.y-PosY)) < float2(0.0025,0.007));
+		float4 ThreeE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.001));
+		E = (OneE-TwoE)+ThreeE;
+		
+		//P
+		float PosXP = -0.0215+PosX, PosYP = -0.0025+PosY, offsetP = 0.001, offsetP1 = 0.002;
+		float4 OneP = all( abs(float2( texcoord.x -PosXP, texcoord.y-PosYP)) < float2(0.0025,0.009*0.775));
+		float4 TwoP = all( abs(float2( texcoord.x -PosXP-offsetP, texcoord.y-PosYP)) < float2(0.0025,0.007*0.680));
+		float4 ThreeP = all( abs(float2( texcoord.x -PosXP+offsetP1, texcoord.y-PosY)) < float2(0.0005,0.009));
+		P = (OneP-TwoP) + ThreeP;
 
-	//T
-	float PosXT = -0.014+PosX, PosYT = -0.008+PosY;
-	float4 OneT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosYT)) < float2(0.003,0.001));
-	float4 TwoT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosY)) < float2(0.000625,0.009));
-	T = OneT+TwoT;
-	
-	//H
-	float PosXH = -0.0071+PosX;
-	float4 OneH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.001));
-	float4 TwoH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.009));
-	float4 ThreeH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.003,0.009));
-	H = (OneH-TwoH)+ThreeH;
-	
-	//Three
-	float offsetFive = 0.001, PosX3 = -0.001+PosX;
-	float4 OneThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.009));
-	float4 TwoThree = all( abs(float2( texcoord.x -PosX3 - offsetFive, texcoord.y-PosY)) < float2(0.003,0.007));
-	float4 ThreeThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.001));
-	Three = (OneThree-TwoThree)+ThreeThree;
-	
-	//DD
-	float PosXDD = 0.006+PosX, offsetDD = 0.001;	
-	float4 OneDD = all( abs(float2( texcoord.x -PosXDD, texcoord.y-PosY)) < float2(0.0025,0.009));
-	float4 TwoDD = all( abs(float2( texcoord.x -PosXDD-offsetDD, texcoord.y-PosY)) < float2(0.0025,0.007));
-	DD = OneDD-TwoDD;
-	
-	//Dot
-	float PosXDot = 0.011+PosX, PosYDot = 0.008+PosY;		
-	float4 OneDot = all( abs(float2( texcoord.x -PosXDot, texcoord.y-PosYDot)) < float2(0.00075,0.0015));
-	Dot = OneDot;
-	
-	//INFO
-	//I
-	float PosXI = 0.0155+PosX, PosYI = 0.004+PosY, PosYII = 0.008+PosY;
-	float4 OneI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosY)) < float2(0.003,0.001));
-	float4 TwoI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYI)) < float2(0.000625,0.005));
-	float4 ThreeI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYII)) < float2(0.003,0.001));
-	I = OneI+TwoI+ThreeI;
-	
-	//N
-	float PosXN = 0.0225+PosX, PosYN = 0.005+PosY,offsetN = -0.001;
-	float4 OneN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN)) < float2(0.002,0.004));
-	float4 TwoN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN - offsetN)) < float2(0.003,0.005));
-	N = OneN-TwoN;
-	
-	//F
-	float PosXF = 0.029+PosX, PosYF = 0.004+PosY, offsetF = 0.0005, offsetF1 = 0.001;
-	float4 OneF = all( abs(float2( texcoord.x -PosXF-offsetF, texcoord.y-PosYF-offsetF1)) < float2(0.002,0.004));
-	float4 TwoF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0025,0.005));
-	float4 ThreeF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0015,0.00075));
-	F = (OneF-TwoF)+ThreeF;
-	
-	//O
-	float PosXO = 0.035+PosX, PosYO = 0.004+PosY;
-	float4 OneO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.003,0.005));
-	float4 TwoO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.002,0.003));
-	O = OneO-TwoO;
-	}
-	
-	Website = D+E+P+T+H+Three+DD+Dot+I+N+F+O ? float4(1.0,1.0,1.0,1) : Color;
-	
-	if(timer >= 10000)
-	{
-		Done = Color;
+		//T
+		float PosXT = -0.014+PosX, PosYT = -0.008+PosY;
+		float4 OneT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosYT)) < float2(0.003,0.001));
+		float4 TwoT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosY)) < float2(0.000625,0.009));
+		T = OneT+TwoT;
+		
+		//H
+		float PosXH = -0.0072+PosX;
+		float4 OneH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.001));
+		float4 TwoH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.009));
+		float4 ThreeH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.00325,0.009));
+		H = (OneH-TwoH)+ThreeH;
+		
+		//Three
+		float offsetFive = 0.001, PosX3 = -0.001+PosX;
+		float4 OneThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.009));
+		float4 TwoThree = all( abs(float2( texcoord.x -PosX3 - offsetFive, texcoord.y-PosY)) < float2(0.003,0.007));
+		float4 ThreeThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.001));
+		Three = (OneThree-TwoThree)+ThreeThree;
+		
+		//DD
+		float PosXDD = 0.006+PosX, offsetDD = 0.001;	
+		float4 OneDD = all( abs(float2( texcoord.x -PosXDD, texcoord.y-PosY)) < float2(0.0025,0.009));
+		float4 TwoDD = all( abs(float2( texcoord.x -PosXDD-offsetDD, texcoord.y-PosY)) < float2(0.0025,0.007));
+		DD = OneDD-TwoDD;
+		
+		//Dot
+		float PosXDot = 0.011+PosX, PosYDot = 0.008+PosY;		
+		float4 OneDot = all( abs(float2( texcoord.x -PosXDot, texcoord.y-PosYDot)) < float2(0.00075,0.0015));
+		Dot = OneDot;
+		
+		//INFO
+		//I
+		float PosXI = 0.0155+PosX, PosYI = 0.004+PosY, PosYII = 0.008+PosY;
+		float4 OneI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosY)) < float2(0.003,0.001));
+		float4 TwoI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYI)) < float2(0.000625,0.005));
+		float4 ThreeI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYII)) < float2(0.003,0.001));
+		I = OneI+TwoI+ThreeI;
+		
+		//N
+		float PosXN = 0.0225+PosX, PosYN = 0.005+PosY,offsetN = -0.001;
+		float4 OneN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN)) < float2(0.002,0.004));
+		float4 TwoN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN - offsetN)) < float2(0.003,0.005));
+		N = OneN-TwoN;
+		
+		//F
+		float PosXF = 0.029+PosX, PosYF = 0.004+PosY, offsetF = 0.0005, offsetF1 = 0.001;
+		float4 OneF = all( abs(float2( texcoord.x -PosXF-offsetF, texcoord.y-PosYF-offsetF1)) < float2(0.002,0.004));
+		float4 TwoF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0025,0.005));
+		float4 ThreeF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0015,0.00075));
+		F = (OneF-TwoF)+ThreeF;
+		
+		//O
+		float PosXO = 0.035+PosX, PosYO = 0.004+PosY;
+		float4 OneO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.003,0.005));
+		float4 TwoO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.002,0.003));
+		O = OneO-TwoO;
+		//Website
+		return D+E+P+T+H+Three+DD+Dot+I+N+F+O ? 1-texcoord.y*50.0+48.35f : Color;
 	}
 	else
 	{
-		Done = Website;
+		return Color;
 	}
-
-	return Done;
 }
 
 //*Rendering passes*//
 
 technique Crosshair
+< ui_tooltip = "This Shader should be above Depth3D."; >
 {			
 		pass CrossCursor
 	{
@@ -777,18 +848,21 @@ technique Crosshair
 }
 
 technique Depth3D
+< ui_tooltip = "This Shader should be the VERY LAST Shader in your master shader list.\n"
+	           "You can always Drag shaders around by clicking them and moving them."; >
+	           //"For more help you can always contact me at DEPTH3D.info."; >//Website WIP
 {
-		pass AverageLuminance
-	{
-		VertexShader = PostProcessVS;
-		PixelShader = Average_Luminance;
-		RenderTarget = texLumi;
-	}
 		pass zbuffer
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = DepthMap;
 		RenderTarget = texDepth;
+	}
+		pass AverageLuminance
+	{
+		VertexShader = PostProcessVS;
+		PixelShader = Average_Luminance;
+		RenderTarget = texLumi;
 	}
 		pass StereoOut
 	{
