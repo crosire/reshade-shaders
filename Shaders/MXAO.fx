@@ -85,6 +85,12 @@ uniform float MXAO_SSAO_AMOUNT < __UNIFORM_SLIDER_FLOAT1
                 ui_label = "Indirect Lighting Saturation Filter";
                 ui_tooltip = "Controls how much unsaturated colors should be excluded from IL. Or in other words how much saturation should control the amount of light bounced. Physically inaccurate but helps reducing ugly bright corners while keeping nicer color bleeding intact.";
         > = 0.00;
+        
+        uniform float MXAO_SSIL_GAMMA < __UNIFORM_SLIDER_FLOAT1
+                ui_min = 1.00; ui_max = 3.00;
+                ui_label = "Indirect Lighting Gamma";
+                ui_tooltip = "Exponent for IL result. ( pow(<IL>, gamma) )";
+        > = 1.00;
 #endif
 
 #if (MXAO_TWO_LAYER != 0)
@@ -106,6 +112,12 @@ uniform float MXAO_SSAO_AMOUNT < __UNIFORM_SLIDER_FLOAT1
                 ui_tooltip = "Intensity of large scale AO / IL.";
         > = 1.0;
 #endif
+
+uniform float MXAO_GAMMA < __UNIFORM_SLIDER_FLOAT1
+        ui_min = 1.00; ui_max = 3.00;
+        ui_label = "AO Gamma";
+        ui_tooltip = "Exponent for the AO result. ( pow(<AO>, gamma) )";
+> = 1.00;
 
 uniform int MXAO_DEBUG_VIEW_ENABLE <
         ui_type = "combo";
@@ -498,6 +510,11 @@ void PS_AmbientObscurance(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
         #if(MXAO_TWO_LAYER != 0)
                 color = pow(color,1.0 / lerp(MXAO_AMOUNT_COARSE, MXAO_AMOUNT_FINE, layerID));
         #endif
+
+        #if(MXAO_ENABLE_IL)
+                color.xyz = pow(color.xyz, MXAO_SSIL_GAMMA) * MXAO_SSIL_GAMMA;
+        #endif
+        color.w = pow(color.w, MXAO_GAMMA) * MXAO_GAMMA;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
