@@ -115,7 +115,7 @@ uniform int MXAO_DEBUG_VIEW_ENABLE <
 > = 0;
 
 uniform int MXAO_BLEND_TYPE < __UNIFORM_SLIDER_INT1
-        ui_min = 0; ui_max = 2;
+        ui_min = 0; ui_max = 3;
         ui_label = "Blending Mode";
         ui_tooltip = "Different blending modes for merging AO/IL with original color.\0Blending mode 0 matches formula of MXAO 2.0 and older.";
 > = 0;
