@@ -79,6 +79,12 @@ uniform float MXAO_SSAO_AMOUNT < __UNIFORM_SLIDER_FLOAT1
                 ui_label = "Indirect Lighting Saturation";
                 ui_tooltip = "Controls color saturation of IL effect.";
         > = 1.00;
+        
+        uniform float MXAO_SSIL_SATURATION_FILTER < __UNIFORM_SLIDER_FLOAT1
+                ui_min = 0.00; ui_max = 1.00;
+                ui_label = "Indirect Lighting Saturation Filter";
+                ui_tooltip = "Controls how much unsaturated colors should be excluded from IL. Or in other words how much saturation should control the amount of light bounced. Physically inaccurate but helps reducing ugly bright corners while keeping nicer color bleeding intact.";
+        > = 0.00;
 #endif
 
 #if (MXAO_TWO_LAYER != 0)
@@ -331,6 +337,26 @@ bool GetCullingMask(in MXAO_VSOUT MXAO)
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+float3 RGBtoHSV(in float3 RGB){
+	float3 HSV = 0;
+	HSV.z = max(RGB.r, max(RGB.g, RGB.b));
+	float M = min(RGB.r, min(RGB.g, RGB.b));
+	float C = HSV.z - M;
+	if (C != 0){
+		float4 RGB0 = float4(RGB, 0);
+		float4 Delta = (HSV.z - RGB0) / C;
+		Delta.rgb -= Delta.brg;
+		Delta.rgb += float3(2,4,6);
+		Delta.brg = step(HSV.z, RGB) * Delta.brg;
+		HSV.x = max(Delta.r, max(Delta.g, Delta.b));
+		HSV.x = frac(HSV.x / 6);
+		HSV.y = 1 / Delta.w;
+	}
+	return HSV;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pixel Shaders
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -456,6 +482,7 @@ void PS_AmbientObscurance(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
                         if(fAO > 0.1)
                         {
         			float3 fIL = tex2Dlod(sMXAO_ColorTex, float4(sampleUV,0,sampleMIP + MXAO_MIPLEVEL_IL)).xyz;
+			        fIL *= lerp(1, RGBtoHSV(fIL).y, MXAO_SSIL_SATURATION_FILTER);
         			float3 tN = tex2Dlod(sMXAO_NormalTex, float4(sampleUV,0,sampleMIP + MXAO_MIPLEVEL_IL)).xyz * 2.0 - 1.0;
         			fIL = fIL - fIL*saturate(dot(V,tN)*rsqrt(VdotV)*2.0);
                                 color += float4(fIL*fAO,fAO - fAO * dot(fIL,0.333));
