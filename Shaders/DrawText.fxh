@@ -37,10 +37,10 @@
 //Sample Usage
 
 /*
-float4 main_fragment( float4 position : POSITION, 
+float4 main_fragment( float4 position : POSITION,
                       float2 txcoord  : TEXCOORD) : COLOR {
     float res = 0.0;
-    
+
     int line0[9]  = { __D, __e, __m, __o, __Space, __T, __e, __x, __t };   //Demo Text
     int line1[15] = { __b, __y, __Space, __k, __i, __n, __g, __e, __r, __i, __c, __1, __9, __9, __2 }; //by kingeric1992
     int line2[6]  = { __S, __i, __z, __e, __Colon, __Space }; // Size: %d.
@@ -48,12 +48,12 @@ float4 main_fragment( float4 position : POSITION,
     DrawText_String(float2(100.0 , 100.0), 32, 1, txcoord,  line0, 9, res);
     DrawText_String(float2(100.0 , 134.0), textSize, 1, txcoord,  line1, 15, res);
     DrawText_String(DrawText_Shift(float2(100.0 , 134.0), int2(0, 1), textSize, 1), 18, 1, txcoord,  line2, 6, res);
-    DrawText_Digit(DrawText_Shift(DrawText_Shift(float2(100.0 , 134.0), int2(0, 1), textSize, 1), int2(8, 0), 18, 1), 
+    DrawText_Digit(DrawText_Shift(DrawText_Shift(float2(100.0 , 134.0), int2(0, 1), textSize, 1), int2(8, 0), 18, 1),
                     18, 1, txcoord,  0, textSize, res);
-    
+
     return res;
 }
-    
+
 */
 
 //Text display
@@ -169,8 +169,8 @@ texture Texttex < source = "FontAtlas.png"; > {
     Height = 512;
 };
 
-sampler samplerText { 
-    Texture = Texttex; 
+sampler samplerText {
+    Texture = Texttex;
 };
 
 //accomodate for undef array size.
@@ -179,7 +179,7 @@ sampler samplerText {
         float2 uv = (tex * float2(BUFFER_WIDTH, BUFFER_HEIGHT) - pos) / size; \
         uv.y      = saturate(uv.y); \
         uv.x     *= ratio * 2.0; \
-        float  id = array[trunc(uv.x)]; \
+        float  id = array[int(trunc(uv.x))]; \
         if(uv.x  <= arrSize && uv.x >= 0.0) \
             text  = tex2D(samplerText, (frac(uv) + float2( id % 14.0, trunc(id / 14.0))) \
             / float2( _DRAWTEXT_GRID_X, _DRAWTEXT_GRID_Y) ).x; \
@@ -190,8 +190,8 @@ float2 DrawText_Shift( float2 pos, int2 shift, float size, float ratio ) {
 }
 
 void DrawText_Digit( float2 pos, float size, float ratio, float2 tex, int digit, float data, inout float res) {
-    int digits[13] = { 
-        __0, __1, __2, __3, __4, __5, __6, __7, __8, __9, 
+    int digits[13] = {
+        __0, __1, __2, __3, __4, __5, __6, __7, __8, __9,
         __Minus, __Space, __Dot
     };
 
@@ -208,10 +208,10 @@ void DrawText_Digit( float2 pos, float size, float ratio, float2 tex, int digit,
     index       = floor(frac(t * 0.1 / index) * 10);
     index       = lerp(lerp(10, 11, step(0, data)), index, step(-radix-1, uv.x));
     index       = (uv.x > 0 && uv.x < 1)? 12:index;
-    index       = digits[index];
-    
+    index       = digits[int(index)];
+
     if(uv.x <= digit + 1 && uv.x >= -radix-2)
-        text    = tex2D(samplerText, (frac(uv) + float2( index % 14.0, trunc(index / 14.0))) / 
+        text    = tex2D(samplerText, (frac(uv) + float2( index % 14.0, trunc(index / 14.0))) /
                         float2( _DRAWTEXT_GRID_X, _DRAWTEXT_GRID_Y)).x;
     res += text;
 }

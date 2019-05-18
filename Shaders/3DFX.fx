@@ -3,37 +3,33 @@
 //----------////
 
 #include "ReShade.fxh"
+#include "ReShadeUI.fxh"
 
-uniform float DITHERAMOUNT <
-	ui_type = "slider";
+uniform float DITHERAMOUNT < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 1.0;
 	ui_label = "Dither Amount [3DFX]";
 > = 0.5;
 
-uniform int DITHERBIAS <
-	ui_type = "slider";
+uniform int DITHERBIAS < __UNIFORM_SLIDER_INT1
 	ui_min = -16;
 	ui_max = 16;
 	ui_label = "Dither Bias [3DFX]";
 > = -1;
 
-uniform float LEIFX_LINES <
-	ui_type = "slider";
+uniform float LEIFX_LINES < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 2.0;
 	ui_label = "Lines Intensity [3DFX]";
 > = 1.0;
 
-uniform float LEIFX_PIXELWIDTH <
-	ui_type = "slider";
+uniform float LEIFX_PIXELWIDTH < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 100.0;
 	ui_label = "Pixel Width [3DFX]";
 > = 1.5;
 
-uniform float GAMMA_LEVEL <
-	ui_type = "slider";
+uniform float GAMMA_LEVEL < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0;
 	ui_max = 3.0;
 	ui_label = "Gamma Level [3DFX]";
@@ -224,9 +220,9 @@ float4 PS_3DFX2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 	// the Voodoo drivers usually supply a 1.3 gamma setting whether people liked it or not
 	// but it was enough to brainwash the competition for looking 'too dark'
 
-	colorInput.r = pow(colorInput.r, 1.0 / GAMMA_LEVEL);
-	colorInput.g = pow(colorInput.g, 1.0 / GAMMA_LEVEL);
-	colorInput.b = pow(colorInput.b, 1.0 / GAMMA_LEVEL);
+	colorInput.r = pow(abs(colorInput.r), 1.0 / GAMMA_LEVEL);
+	colorInput.g = pow(abs(colorInput.g), 1.0 / GAMMA_LEVEL);
+	colorInput.b = pow(abs(colorInput.b), 1.0 / GAMMA_LEVEL);
 
    return colorInput;
 }

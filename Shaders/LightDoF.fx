@@ -35,16 +35,16 @@
 
 //user variables//////////////////////////////////////////////////////////////////////////////////
 
-uniform float fLightDoF_Width <
+#include "ReShadeUI.fxh"
+
+uniform float fLightDoF_Width < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Bokeh Width [Light DoF]";
-	ui_type = "slider";
 	ui_min = 1.0;
 	ui_max = 25.0;
 > = 5.0;
 
-uniform float fLightDoF_Amount <
+uniform float fLightDoF_Amount < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "DoF Amount [Light DoF]";
-	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 10.0;
 > = 10.0;
@@ -54,10 +54,9 @@ uniform bool bLightDoF_UseCA <
 	ui_tooltip = "Use color channel shifting.";
 > = false;
 
-uniform float2 f2LightDoF_CA <
+uniform float2 f2LightDoF_CA < __UNIFORM_SLIDER_FLOAT2
 	ui_label = "Chromatic Aberration [Light DoF]";
 	ui_tooltip = "Shifts color channels.\nFirst value controls far CA, second controls near CA.";
-	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 1.0;
 > = float2(0.0, 1.0);
@@ -78,17 +77,15 @@ uniform bool bLightDoF_UseMouseFocus <
 	ui_tooltip = "Use the mouse position as the auto focus center";
 > = false;
 
-uniform float2 f2Bokeh_AutoFocusCenter <
+uniform float2 f2Bokeh_AutoFocusCenter < __UNIFORM_SLIDER_FLOAT2
 	ui_label = "Auto Focus Center [Light DoF]";
 	ui_tooltip = "Target for auto focus.\nFirst value is horizontal: Left<->Right\nSecond value is vertical: Up<->Down";
-	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 1.0;
 > = float2(0.5, 0.5);
 
-uniform float fLightDoF_ManualFocus <
+uniform float fLightDoF_ManualFocus < __UNIFORM_SLIDER_FLOAT1
 	ui_label = "Manual Focus [Light DoF]";
-	ui_type = "slider";
 	ui_min = 0.0;
 	ui_max = 1.0;
 > = 0.0;

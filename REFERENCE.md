@@ -124,7 +124,7 @@ sampler samplerTarget
 
 Annotations to customize UI appearance:
 
- * ui_type - Can be `input`, `drag`, `slider`, `combo` `radio` or `color`
+ * ui_type - Can be `input`, `drag`, `slider`, `combo`, `radio` or `color`
  * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
  * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
  * ui_step - The value added/subtracted when clicking the button next to the slider
@@ -302,15 +302,15 @@ float4 ExamplePS1(float4 pos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Ta
 
 Annotations:
 
- * ``technique tech1 < enabled = true; > { ... }``  
+ * ``technique tech1 < enabled = true; >``  
  Enable (or disable if false) this technique by default.
- * ``technique tech2 < timeout = 1000; > { ... }``  
+ * ``technique tech2 < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.
- * ``technique tech3 < toggle = 0x20; > { ... }``  
+ * ``technique tech3 < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
  Toggle this technique when the specified key is pressed.
- * ``technique tech3 < toggleTime = 100; > { ... }``  
- Toggle this technique at the specified time (seconds after midnight).
- * ``technique tech4 < ui_tooltip = "My Effect description"; >``
+ * ``technique tech4 < hidden = true; >``  
+ Hide this technique in the UI.
+ * ``technique tech5 < ui_tooltip = "My Effect description"; >``  
  Shows the specified text when the user hovers the technique in the UI.
 
 ```c++

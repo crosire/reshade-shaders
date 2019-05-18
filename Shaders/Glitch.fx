@@ -5,16 +5,16 @@
 
 uniform float  Timer < source = "timer"; >;
 
-uniform float Amount <
-	ui_type = "slider";
-	ui_min = 0.0;
-	ui_max = 10.0;
-	ui_tooltip = "Glitch Amount [Glitch B]";
+#include "ReShadeUI.fxh"
+
+uniform float Amount < __UNIFORM_SLIDER_FLOAT1
+    ui_min = 0.0;
+    ui_max = 10.0;
+    ui_tooltip = "Glitch Amount [Glitch B]";
 > = 1.0;
 
-uniform bool bUseUV <
-	ui_type = "combo";
-	ui_tooltip = "Use UV for Glitch [Glitch B]";
+uniform bool bUseUV < __UNIFORM_COMBO_BOOL1
+    ui_tooltip = "Use UV for Glitch [Glitch B]";
 > = false;
 
 float fmod(float a, float b) {
