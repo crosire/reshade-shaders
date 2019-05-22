@@ -52,7 +52,7 @@
 #include "ReShadeUI.fxh"
 
 /*
-  uniform float Version <
+uniform float Version <
 	ui_label = "Version";
 	ui_min = 0.8;
 	ui_max = 0.8;
