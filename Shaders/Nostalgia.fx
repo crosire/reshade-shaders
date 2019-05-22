@@ -2,7 +2,7 @@
 | :: Description :: |
 '-------------------/
 
-	Nostalgia (version 1.2)
+	Nostalgia (version 1.3)
 
 	Author: CeeJay.dk
 	License: MIT
@@ -32,7 +32,7 @@
 	+ Improved settings UI
 	- Commented much of the code
 
-	Version 1.2
+	Version 1.2 by microdee
 	+ Added more color palettes from wikipedia
 	+ Palettes can have different color counts
 
@@ -63,14 +63,6 @@
 | :: UI Settings :: |
 '------------------*/
 
-/*
-uniform bool Nostalgia_scanlines
-<
-	ui_label = "Scanlines";
-	//ui_category = "";
-> = 1;
-*/
-
 uniform int Nostalgia_scanlines
 <
 	ui_type = "combo";
@@ -99,8 +91,6 @@ uniform bool Nostalgia_dither
 <
 	ui_label = "Dither";
 > = 0;
-
-
 
 uniform int Nostalgia_palette <
 	ui_type = "combo";
@@ -514,21 +504,21 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 		if (Nostalgia_palette == 14) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
 		{
 			palette[0] 	= float3(0.247059,	0.196078,	0.682353); //
-			palette[0] 	= float3(0.890196,	0.054902,	0.760784); //
-			palette[0] 	= float3(0.729412,	0.666667,	1.000000); //
-			palette[0] 	= float3(1.,		1.000000,	1.      ); //White
-			palette[0] 	= float3(1.000000,	0.580392,	0.615686); //
-			palette[0] 	= float3(0.909804,	0.007843,	0.000000); //
-			palette[0] 	= float3(0.478431,	0.141176,	0.239216); //
-			palette[0] 	= float3(0.,		0.		,	0.		); //Black
-			palette[0] 	= float3(0.098039,	0.337255,	0.282353); //
-			palette[0] 	= float3(0.415686,	0.537255,	0.152941); //
-			palette[0] 	= float3(0.086275,	0.929412,	0.458824); //
-			palette[0] 	= float3(0.196078,	0.756863,	0.764706); //
-			palette[0] 	= float3(0.019608,	0.498039,	0.756863); //
-			palette[0] 	= float3(0.431373,	0.305882,	0.137255); //
-			palette[0] 	= float3(0.937255,	0.890196,	0.019608); //
-			palette[0] 	= float3(0.788235,	0.560784,	0.298039); //
+			palette[1] 	= float3(0.890196,	0.054902,	0.760784); //
+			palette[2] 	= float3(0.729412,	0.666667,	1.000000); //
+			palette[3] 	= float3(1.,		  1.000000,	1.      ); //White
+			palette[4] 	= float3(1.000000,	0.580392,	0.615686); //
+			palette[5] 	= float3(0.909804,	0.007843,	0.000000); //
+			palette[6] 	= float3(0.478431,	0.141176,	0.239216); //
+			palette[7] 	= float3(0.,		  0.	  ,	0.		); //Black
+			palette[8] 	= float3(0.098039,	0.337255,	0.282353); //
+			palette[9] 	= float3(0.415686,	0.537255,	0.152941); //
+			palette[10] 	= float3(0.086275,	0.929412,	0.458824); //
+			palette[11] 	= float3(0.196078,	0.756863,	0.764706); //
+			palette[12] 	= float3(0.019608,	0.498039,	0.756863); //
+			palette[13] 	= float3(0.431373,	0.305882,	0.137255); //
+			palette[14] 	= float3(0.937255,	0.890196,	0.019608); //
+			palette[15] 	= float3(0.788235,	0.560784,	0.298039); //
 		}
 
 		// :: Dither :: //
@@ -562,7 +552,7 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 		float closest_dist = dist; //this has to be the closest distance so far as it's the first we have checked
 		float3 closest_color = palette[0]; //and closest color so far is this one
 
-		for (int i = 1 ; i <= colorCount ; i++) //for colors 1 to colorCount
+		for (int i = 1 ; i < colorCount ; i++) //for colors 1 to colorCount
 		{
 			diff = color - palette[i]; //find the difference in color
 		
