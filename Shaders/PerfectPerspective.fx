@@ -2,84 +2,121 @@
 Copyright (c) 2018 Jacob Maximilian Fober
 
 This work is licensed under the Creative Commons 
-Attribution-ShareAlike 4.0 International License. 
+Attribution-NonCommercial-NoDerivatives 4.0 International License. 
 To view a copy of this license, visit 
-http://creativecommons.org/licenses/by-sa/4.0/.
+http://creativecommons.org/licenses/by-nc-nd/4.0/ 
+
+For inquiries please contact jakubfober@gmail.com
 */
 
-// Perfect Perspective PS ver. 2.3.2
+// Perfect Perspective PS ver. 2.7.0
 
-  ////////////////////
- /////// MENU ///////
-////////////////////
 
-#ifndef ShaderAnalyzer
-uniform int FOV <
-	ui_label = "Field of View";
-	ui_tooltip = "Match in-game Field of View";
-	ui_type = "drag";
-	ui_min = 45; ui_max = 120;
-	ui_category = "Distortion";
-> = 90;
+	  ////////////
+	 /// MENU ///
+	////////////
 
-uniform float Vertical <
-	ui_label = "Vertical Amount";
-	ui_tooltip = "0.0 - cylindrical projection \n"
-		"1.0 - spherical projection";
-	ui_type = "drag";
-	ui_min = 0.0; ui_max = 1.0;
-	ui_category = "Distortion";
-> = 0.618;
+#include "ReShadeUI.fxh"
 
-uniform int Type <
-	ui_label = "Type of FOV";
-	ui_tooltip = "If the image bulges in movement (too high FOV), change it to 'Diagonal' \n"
-		"When proportions are distorted at the periphery (too low FOV), choose 'Vertical'";
-	ui_type = "combo";
-	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
-	ui_category = "Distortion";
+uniform int Projection <
+	ui_tooltip = "Stereographic projection (shape) preserves angles and proportions,\n"
+		"best for navigation through tight space.\n\n"
+		"Equisolid projection (distance) preserves size relations,\n"
+		"best for navigation in open areas.\n\n"
+		"Equidistant (speed) maintains angular speed of motion,\n"
+		"best for chasing fast targets.";
+	#if __RESHADE__ < 40000
+		ui_label = "Type of projection";
+		ui_type = "combo";
+		ui_items = "Stereographic (shape)\0Equisolid (distance)\0Equidistant (speed)\0";
+	#else
+		ui_type = "radio";
+		ui_items = "Stereographic projection (shape)\0Equisolid projection (distance)\0Equidistant projection (speed)\0";
+	#endif
+	ui_category = "Distortion Correction";
 > = 0;
 
-uniform float4 Color <
-	ui_label = "Color";
-	ui_tooltip = "Use Alpha to adjust opacity";
-	ui_type = "Color";
-	ui_category = "Borders";
-> = float4(0.027, 0.027, 0.027, 0.902);
+uniform int FOV < __UNIFORM_SLIDER_INT1
+	ui_label = "Corrected Field of View";
+	ui_tooltip = "This setting should match your in-game Field of View";
+	#if __RESHADE__ < 40000
+		ui_step = 0.2;
+	#endif
+	ui_min = 0; ui_max = 170;
+	ui_category = "Distortion Correction";
+> = 90;
 
-uniform bool Borders <
-	ui_label = "Mirrored Borders";
-	ui_category = "Borders";
-> = true;
+uniform float Vertical < __UNIFORM_SLIDER_FLOAT1
+	ui_label = "Vertical Curviness Amount";
+	ui_tooltip = "0.0 - cylindrical projection\n"
+		"1.0 - spherical projection";
+	ui_min = 0.0; ui_max = 1.0;
+	ui_category = "Distortion Correction";
+> = 0.5;
+
+uniform float VerticalScale < __UNIFORM_SLIDER_FLOAT1
+	ui_label = "Vertical Proportions Scale";
+	ui_tooltip = "Adjust proportions for cylindrical Panini projection";
+	ui_min = 0.8; ui_max = 1.0;
+	ui_category = "Distortion Correction";
+> = 0.95;
+
+uniform int Type <
+	ui_label = "Type of FOV (Field of View)";
+	ui_tooltip = "...in stereographic mode\n\n"
+		"If image bulges in movement (too high FOV),\n"
+		"change it to 'Diagonal'.\n"
+		"When proportions are distorted at the periphery\n"
+		"(too low FOV), choose 'Vertical'.";
+	ui_type = "combo";
+	ui_items = "Horizontal FOV\0Diagonal FOV\0Vertical FOV\0";
+	ui_category = "Distortion Correction";
+> = 0;
 
 uniform float Zooming <
-	ui_label = "Border Scale";
+	ui_label = "Borders Scale";
+	ui_tooltip = "Adjust image scale and cropped area";
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 3.0; ui_step = 0.001;
-	ui_category = "Borders";
+	ui_min = 0.5; ui_max = 2.0; ui_step = 0.001;
+	ui_category = "Borders Settings";
 > = 1.0;
 
-uniform bool Debug <
-	ui_label = "Display Resolution Map";
-	ui_tooltip = "Color map of the Resolution Scale \n"
-		" (Green) - Supersampling \n"
-		" ( Red ) - Undersampling";
+uniform float4 BorderColor < __UNIFORM_COLOR_FLOAT4
+	ui_label = "Color of Borders";
+	ui_tooltip = "Use Alpha to change transparency";
+	ui_category = "Borders Settings";
+> = float4(0.027, 0.027, 0.027, 0.0);
+
+uniform bool MirrorBorders <
+	ui_label = "Mirrored Borders";
+	ui_tooltip = "Choose original or mirrored image at the borders";
+	ui_category = "Borders Settings";
+> = true;
+
+uniform bool DebugPreview <
+	ui_label = "Display Resolution Scale Map";
+	ui_tooltip = "Color map of the Resolution Scale:\n\n"
+		" Red   - undersampling\n"
+		" Green - supersampling\n"
+		" Blue  - neutral sampling";
 	ui_category = "Debug Tools";
 > = false;
 
-uniform float ResScale <
-	ui_label = "DSR scale factor";
-	ui_tooltip = "(DSR) Dynamic Super Resolution... \n"
-		"Simulate application running beyond-native screen resolution";
+uniform int2 ResScale <
+	ui_label = "Super Resolution Scale";
+	ui_tooltip = "Simulates application running beyond\n"
+		"native screen resolution (using VSR or DSR)\n\n"
+		" First value  - screen resolution\n"
+		" Second value - virtual super resolution";
 	ui_type = "drag";
-	ui_min = 1.0; ui_max = 8.0; ui_step = 0.02;
+	ui_min = 16; ui_max = 16384; ui_step = 0.2;
 	ui_category = "Debug Tools";
-> = 1.0;
-#endif
+> = int2(1920, 1920);
 
-  //////////////////////
- /////// SHADER ///////
-//////////////////////
+
+	  //////////////
+	 /// SHADER ///
+	//////////////
 
 #include "ReShade.fxh"
 
@@ -91,32 +128,40 @@ sampler SamplerColor
 	AddressV = MIRROR;
 };
 
-// RGB to YUV matrix
-static const float3x3 RGB2YUV =
-float3x3(
-	float3(0.2126, 0.7152, 0.0722),
-	float3(-0.09991, -0.33609, 0.436),
-	float3(0.615, -0.55861, -0.05639)
-);
-// YUV to RGB matrix
-static const float3x3 YUV2RGB =
-float3x3(
-	float3(1, 0, 1.28033),
-	float3(1, -0.21482, -0.38059),
-	float3(1, 2.12798, 0)
-);
+// Convert RGB to grayscale
+float Grayscale(float3 Color)
+{ return max(max(Color.r,Color.g),Color.b); }
 
-// Stereographic-Gnomonic lookup function by Jacob Max Fober
+// Perspective lookup functions by Jacob Max Fober
 // Input data:
 	// FOV >> Camera Field of View in degrees
 	// Coordinates >> UV coordinates (from -1, to 1), where (0,0) is at the center of the screen
-float Formula(float2 Coordinates)
+// Stereographic
+float Stereographic(float2 Coordinates)
 {
+	if(FOV==0.0) return 1.0; // Bypass
 	// Convert 1/4 FOV to radians and calc tangent squared
-	float SqrTanFOVq = tan(radians(float(FOV) * 0.25));
-	SqrTanFOVq *= SqrTanFOVq;
-	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * dot(Coordinates, Coordinates));
+	float SqrTanFOVq = pow(tan(radians(FOV * 0.25)),2.0);
+	float R2 = dot(Coordinates, Coordinates);
+	return (1.0 - SqrTanFOVq) / (1.0 - SqrTanFOVq * R2);
 }
+// Equisolid
+float Equisolid(float2 Coordinates)
+{
+	if(FOV==0.0) return 1.0; // Bypass
+	float rFOV = radians(FOV);
+	float R = length(Coordinates);
+	return tan(asin(sin(rFOV*0.25)*R)*2.0)/(tan(rFOV*0.5)*R);
+}
+// Equidistant
+float Equidistant(float2 Coordinates)
+{
+	if(FOV==0.0) return 1.0; // Bypass
+	float rFOVh = radians(FOV*0.5);
+	float R = length(Coordinates);
+	return tan(R*rFOVh)/(tan(rFOVh)*R);
+}
+
 
 // Shader pass
 float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
@@ -127,7 +172,12 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	float2 ScrPixelSize = ReShade::PixelSize;
 
 	// Convert FOV type..
-	float FovType = (Type == 1) ? sqrt(AspectR * AspectR + 1.0) : Type == 2 ? AspectR : 1.0;
+	float FovType; switch(Type)
+	{
+		case 0:{ FovType = 1.0; break; } // Horizontal
+		case 1:{ FovType = sqrt(AspectR * AspectR + 1.0); break; } // Diagonal
+		case 2:{ FovType = AspectR; break; } // Vertical
+	}
 
 	// Convert UV to Radial Coordinates
 	float2 SphCoord = texcoord * 2.0 - 1.0;
@@ -136,17 +186,25 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Zoom in image and adjust FOV type (pass 1 of 2)
 	SphCoord *= Zooming / FovType;
 
-	// Stereographic-Gnomonic lookup, vertical distortion amount and FOV type (pass 2 of 2)
-	SphCoord *= Formula(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType;
+	// Perspective lookup, vertical distortion amount and FOV type (pass 2 of 2)
+	switch(Projection)
+	{
+		case 0:{ SphCoord *= Stereographic(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType; break; } // Conformal
+		case 1:{ SphCoord *= Equisolid(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType; break; } // Equal area
+		case 2:{ SphCoord *= Equidistant(float2(SphCoord.x, sqrt(Vertical) * SphCoord.y)) * FovType; break; } // Linear scaled
+	}
 
 	// Aspect Ratio back to square
 	SphCoord.y /= AspectR;
+
+	// vertical proportions adjust
+	if(VerticalScale != 1.0) SphCoord.y /= lerp(VerticalScale, 1.0, Vertical);
 
 	// Get Pixel Size in stereographic coordinates
 	float2 PixelSize = fwidth(SphCoord);
 
 	// Outside borders check with Anti-Aliasing
-	float2 AtBorders = smoothstep( 1 - PixelSize, PixelSize + 1, abs(SphCoord) );
+	float2 AtBorders = smoothstep( 1.0 - PixelSize, 1.0 + PixelSize, abs(SphCoord) );
 
 	// Back to UV Coordinates
 	SphCoord = SphCoord * 0.5 + 0.5;
@@ -158,59 +216,59 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	Display = lerp(
 		Display, 
 		lerp(
-			Borders ? Display : tex2D(SamplerColor, texcoord).rgb, 
-			Color.rgb, 
-			Color.a
+			MirrorBorders ? Display : tex2D(SamplerColor, texcoord).rgb, 
+			BorderColor.rgb, 
+			BorderColor.a
 		), 
 		max(AtBorders.x, AtBorders.y)
 	);
 
 	// Output type choice
-	if (Debug)
+	if(DebugPreview)
 	{
 		// Calculate radial screen coordinates before and after perspective transformation
-		float4 RadialCoord = float4(texcoord, SphCoord) * 2 - 1;
+		float4 RadialCoord = float4(texcoord, SphCoord) * 2.0 - 1.0;
 		// Correct vertical aspect ratio
 		RadialCoord.yw *= AspectR;
 
+		// Define Mapping color
+		static const float3 UnderSmpl = float3(1.0, 0.0, 0.2); // Red
+		static const float3 SuperSmpl = float3(0.0, 1.0, 0.5); // Green
+		static const float3 NeutralSmpl = float3(0.0, 0.5, 1.0); // Blue
+
 		// Calculate Pixel Size difference...
-		float PixelScale = fwidth( length(RadialCoord.xy) );
+		float PixelScaleMap = fwidth( length(RadialCoord.xy) );
 		// ...and simulate Dynamic Super Resolution (DSR) scalar
-		PixelScale /= ResScale * fwidth( length(RadialCoord.zw) );
-		PixelScale -= 1;
+		PixelScaleMap *= ResScale.x / (fwidth( length(RadialCoord.zw) ) * ResScale.y);
+		PixelScaleMap -= 1.0;
 
-		// Separate supersampling and undersampling scalars
-		PixelSize.x = abs(min(PixelScale, 0));
-		PixelSize.y = max(PixelScale, 0);
+		// Generate supersampled-undersampled color map
+		float3 ResMap = lerp(
+			SuperSmpl,
+			UnderSmpl,
+			step(0.0, PixelScaleMap)
+		);
 
-		// Define Mapping colors
-		float3 UnderSampl = float3(1, 0, 0.3); // Red
-		float3 SuperSampl = float3(0, 1, 0.6); // Green
+		// Create black-white gradient mask of scale-neutral pixels
+		PixelScaleMap = 1.0 - abs(PixelScaleMap);
+		PixelScaleMap = saturate(PixelScaleMap * 4.0 - 3.0); // Clamp to more representative values
 
-		// Color supersampled and undersampled pixels
-		SuperSampl *= PixelSize.x;
-		UnderSampl *= PixelSize.y;
+		// Color neutral scale pixels
+		ResMap = lerp(ResMap, NeutralSmpl, PixelScaleMap);
 
-		// Combine to 3-tone map
-		float3 ScaleMap = saturate(SuperSampl + UnderSampl);
-
-		// Blend Scale Map color value with Display luminance...
-		// ...in YUV color space
-		ScaleMap.yz = mul(RGB2YUV, ScaleMap).yz;
-		ScaleMap.x = mul(RGB2YUV, Display).x * 0.8 + 0.1;
-
-		// Convert Scale Map back to RGB color space
-		ScaleMap = mul(YUV2RGB, ScaleMap);
-
-		return ScaleMap;
+		// Blend color map with display image
+		Display = normalize(ResMap) * (0.8 * Grayscale(Display) + 0.2);
 	}
-	else
-	{
-		return Display;
-	}
+
+	return Display;
 }
 
-technique PerfectPerspective
+
+	  //////////////
+	 /// OUTPUT ///
+	//////////////
+
+technique PerfectPerspective < ui_label = "Perfect Perspective"; ui_tooltip = "Correct fisheye distortion"; >
 {
 	pass
 	{

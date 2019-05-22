@@ -33,25 +33,23 @@
  *        Removed unnecessary lines and replaced them with ReShadeFX intrinsic counterparts
  */
 
-uniform float Threshold <
-	ui_type = "drag";
+#include "ReShadeUI.fxh"
+
+uniform float Threshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.25;
 	ui_label = "Cut-Off Threshold";
 	ui_tooltip = "Higher numbers increase the debanding strength dramatically but progressively diminish image details.";
 > = 0.004;
-uniform float Range <
-	ui_type = "drag";
+uniform float Range < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1; ui_max = 64;
 	ui_label = "Initial Radius";
 	ui_tooltip = "The radius increases linearly for each iteration. A higher radius will find more gradients, but a lower radius will smooth more aggressively.";
 > = 16.0;
-uniform int Iterations <
-	ui_type = "drag";
+uniform int Iterations < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 16;
 	ui_tooltip = "The number of debanding steps to perform per sample. Each step reduces a bit more banding, but takes time to compute. Note that the strength of each step falls off very quickly, so high numbers (> 4) are practically useless.";
 > = 1;
-uniform float Grain <
-	ui_type = "drag";
+uniform float Grain < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0; ui_max = 0.5;
 	ui_label = "Additional Noise";
 	ui_tooltip = "Add some extra noise to the image. This significantly helps cover up remaining quantization artifacts. Higher numbers add more noise.";

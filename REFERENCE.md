@@ -22,9 +22,6 @@ ReShade FX shading language
 * ``__DEVICE__`` Device id
 * ``__RENDERER__`` Renderer version
 * ``__APPLICATION__`` Hash of the application executable name
-* ``__DATE_YEAR__`` Current year
-* ``__DATE_MONTH__`` Current month
-* ``__DATE_DAY__`` Current day in month
 * ``BUFFER_WIDTH`` Backbuffer width
 * ``BUFFER_HEIGHT`` Backbuffer height
 * ``BUFFER_RCP_WIDTH`` Reciprocal backbuffer width
@@ -49,8 +46,8 @@ Semantics on textures are used to request special textures:
 Declared textures are created at runtime with the parameters specified in their definition body.
 
 ```c++
-texture texColorBuffer : COLOR; // or SV_Target
-texture texDepthBuffer : DEPTH; // or SV_Depth
+texture texColorBuffer : COLOR;
+texture texDepthBuffer : DEPTH;
 
 texture texTarget
 {
@@ -127,10 +124,11 @@ sampler samplerTarget
 
 Annotations to customize UI appearance:
 
- * ui_type - Can be `input`, `drag`, `combo` or `color`
- * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"`)
- * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"`)
- * ui_items - A list of items for the combo box, each item is terminated with a `\0` character (required when `ui_type = "combo"`)
+ * ui_type - Can be `input`, `drag`, `slider`, `combo`, `radio` or `color`
+ * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
+ * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
+ * ui_step - The value added/subtracted when clicking the button next to the slider
+ * ui_items - A list of items for the combo box or radio buttons, each item is terminated with a `\0` character (required when `ui_type = "combo"` or `ui_type = "radio"`)
  * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
  * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
  * ui_category - Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
@@ -304,17 +302,19 @@ float4 ExamplePS1(float4 pos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Ta
 
 Annotations:
 
- * ``technique tech1 < enabled = true; > { ... }``  
+ * ``technique tech1 < enabled = true; >``  
  Enable (or disable if false) this technique by default.
- * ``technique tech2 < timeout = 1000; > { ... }``  
+ * ``technique tech2 < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.
- * ``technique tech3 < toggle = 0x20; > { ... }``  
+ * ``technique tech3 < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
  Toggle this technique when the specified key is pressed.
- * ``technique tech3 < toggleTime = 100; > { ... }``  
- Toggle this technique at the specified time (seconds after midnight).
+ * ``technique tech4 < hidden = true; >``  
+ Hide this technique in the UI.
+ * ``technique tech5 < ui_tooltip = "My Effect description"; >``  
+ Shows the specified text when the user hovers the technique in the UI.
 
 ```c++
-technique Example < enabled = true; >
+technique Example
 {
 	pass p0
 	{	

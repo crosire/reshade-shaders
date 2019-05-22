@@ -4,71 +4,58 @@
  * Applies some common color adjustments to mimic a more cinema-like look.
  */
 
-uniform float Strength <
-	ui_type = "drag";
+#include "ReShadeUI.fxh"
+
+uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.05; ui_max = 1.5;
 	ui_toolip = "Strength of the color curve altering";
 > = 0.85;
 
-uniform float Fade <
-	ui_type = "drag";
+uniform float Fade < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.6;
 	ui_tooltip = "Decreases contrast to imitate faded image";
 > = 0.4;
-uniform float Contrast <
-	ui_type = "drag";
+uniform float Contrast < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 > = 1.0;
-uniform float Linearization <
-	ui_type = "drag";
+uniform float Linearization < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 > = 0.5;
-uniform float Bleach <
-	ui_type = "drag";
+uniform float Bleach < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -0.5; ui_max = 1.0;
 	ui_tooltip = "More bleach means more contrasted and less colorful image";
 > = 0.0;
-uniform float Saturation <
-	ui_type = "drag";
+uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 1.0;
 > = -0.15;
 
-uniform float RedCurve <
-	ui_type = "drag";
+uniform float RedCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float GreenCurve <
-	ui_type = "drag";
+uniform float GreenCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float BlueCurve <
-	ui_type = "drag";
+uniform float BlueCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float BaseCurve <
-	ui_type = "drag";
+uniform float BaseCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.5;
 
-uniform float BaseGamma <
-	ui_type = "drag";
+uniform float BaseGamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.7; ui_max = 2.0;
 	ui_tooltip = "Gamma Curve";
 > = 1.0;
-uniform float EffectGamma <
-	ui_type = "drag";
+uniform float EffectGamma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 0.65;
-uniform float EffectGammaR <
-	ui_type = "drag";
+uniform float EffectGammaR < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float EffectGammaG <
-	ui_type = "drag";
+uniform float EffectGammaG < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
-uniform float EffectGammaB <
-	ui_type = "drag";
+uniform float EffectGammaB < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 > = 1.0;
 
@@ -90,7 +77,7 @@ float3 FilmPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Targ
 	float A = dot(B.rgb, LumCoeff);
 	float3 D = A;
  
-	B = pow(B, 1.0 / BaseGamma);
+	B = pow(abs(B), 1.0 / BaseGamma);
  
 	float a = RedCurve;
 	float b = GreenCurve;
@@ -108,7 +95,7 @@ float3 FilmPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Targ
 	D.g = (1.0 / (1.0 + exp(-b * (D.g - 0.5))) - z) / (1.0 - 2.0 * z);
 	D.b = (1.0 / (1.0 + exp(-c * (D.b - 0.5))) - w) / (1.0 - 2.0 * w);
  
-	D = pow(D, 1.0 / EffectGamma);
+	D = pow(abs(D), 1.0 / EffectGamma);
  
 	float3 Di = 1.0 - D;
  

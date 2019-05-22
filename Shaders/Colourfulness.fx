@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2017, bacondither
+// Copyright (c) 2016-2018, bacondither
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,30 +22,54 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Colourfulness - version 2017-05-01
+// Colourfulness - version 2018-11-12
 // EXPECTS FULL RANGE GAMMA LIGHT
 
-uniform float colourfulness <
-	ui_type = "drag";
+#include "ReShadeUI.fxh"
+
+uniform float colourfulness < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -1.0; ui_max = 2.0;
 	ui_tooltip = "Degree of colourfulness, 0 = neutral";
 	ui_step = 0.01;
 > = 0.4;
 
-uniform float lim_luma <
-	ui_type = "drag";
+uniform float lim_luma < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 1.0;
-	ui_tooltip = "Lower vals allow more change near clipping";
+	ui_tooltip = "Lower values allows for more change near clipping";
 	ui_step = 0.01;
 > = 0.7;
+
+uniform bool enable_dither <
+	ui_tooltip = "Enables dithering, avoids introducing banding in gradients";
+	ui_category = "Dither";
+> = false;
+
+uniform bool col_noise <
+	ui_tooltip = "Coloured dither noise, lower subjective noise level";
+	ui_category = "Dither";
+> = true;
+
+uniform float backbuffer_bits <
+	ui_min = 1.0; ui_max = 32.0;
+	ui_tooltip = "Backbuffer bith depth, most likely 8 or 10 bits";
+	ui_category = "Dither";
+> = 8.0;
 
 //-------------------------------------------------------------------------------------------------
 #ifndef fast_luma
 	#define fast_luma 1 // Rapid approx of sRGB gamma, small difference in quality
 #endif
+
+#ifndef temporal_dither
+	#define temporal_dither 0 // Dither changes with every frame
+#endif
 //-------------------------------------------------------------------------------------------------
 
 #include "Reshade.fxh"
+
+#if (temporal_dither == 1)
+	uniform int rnd < source = "random"; min = 0; max = 1000; >;
+#endif
 
 // Sigmoid function, sign(v)*pow(pow(abs(v), -2) + pow(s, -2), 1.0/-2)
 #define soft_lim(v,s)  ( (v*s)*rcp(sqrt(s*s + v*v)) )
@@ -87,7 +111,20 @@ float3 Colourfulness(float4 vpos : SV_Position, float2 tex : TEXCOORD) : SV_Targ
 		float3 diffmax = diff_luma*min(min(poslim, neglim), 32) - diff_luma;
 
 		// Soft limit diff
-		c_diff = soft_lim( c_diff, max(wpmean(diffmax, rlc_diff, lim_luma), 1e-6) );
+		c_diff = soft_lim( c_diff, max(wpmean(diffmax, rlc_diff, lim_luma), 1e-7) );
+	}
+
+	if (enable_dither == true)
+	{
+		// Interleaved gradient noise by Jorge Jimenez
+		const float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+		#if (temporal_dither == 1)
+			float xy_magic = (vpos.x + rnd)*magic.x + (vpos.y + rnd)*magic.y;
+		#else
+			float xy_magic = vpos.x*magic.x + vpos.y*magic.y;
+		#endif
+		float noise = (frac(magic.z*frac(xy_magic)) - 0.5)/(exp2(backbuffer_bits) - 1);
+		c_diff += col_noise == true ? float3(-noise, noise, -noise) : noise;
 	}
 
 	return saturate(c0 + c_diff);

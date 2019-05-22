@@ -28,16 +28,16 @@
  * SOFTWARE.
  */
 
+#include "ReShadeUI.fxh"
+
 uniform bool alDebug <
 	ui_tooltip = "Activates debug mode of AL, upper bar shows detected light, lower bar shows adaptation";
 > = false;
-uniform float alInt <
-	ui_type = "drag";
+uniform float alInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Base intensity of AL";
 > = 10.15;
-uniform float alThreshold <
-	ui_type = "drag";
+uniform float alThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 100.0;
 	ui_tooltip = "Reduces intensity for not bright light";
 > = 15.00;
@@ -45,18 +45,15 @@ uniform float alThreshold <
 uniform bool AL_Adaptation <
 	ui_tooltip = "Activates adaptation algorithm";
 > = true;
-uniform float alAdapt <
-	ui_type = "drag";
+uniform float alAdapt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Intensity of AL correction for bright light";
 > = 0.70;
-uniform float alAdaptBaseMult <
-	ui_type = "drag";
+uniform float alAdaptBaseMult < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 4.0;
 	ui_tooltip = "Multiplier for adaption applied to the original image";
 > = 1.00;
-uniform int alAdaptBaseBlackLvL <
-	ui_type = "drag";
+uniform int alAdaptBaseBlackLvL < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 4;
 	ui_tooltip = "Distinction level of black and white (lower => less distinct)";
 > = 2;
@@ -74,26 +71,22 @@ uniform int AL_Adaptive <
 	ui_min = 0; ui_max = 2;
 	ui_items = "Warm\0Cold\0Light Dependent\0";
 > = 0;
-uniform float alDirtInt <
-	ui_type = "drag";
+uniform float alDirtInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of dirt effect";
 > = 1.0;
-uniform float alDirtOVInt <
-	ui_type = "drag";
+uniform float alDirtOVInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Intensity of colored dirt effect";
 > = 1.0;
 uniform bool AL_Lens <
 	ui_tooltip = "Lens effect based on AL";
 > = false;
-uniform float alLensThresh <
-	ui_type = "drag";
+uniform float alLensThresh < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Reduces intensity of lens effect for not bright light";
 > = 0.5;
-uniform float alLensInt <
-	ui_type = "drag";
+uniform float alLensInt < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 10.0;
 	ui_tooltip = "Intensity of lens effect";
 > = 2.0;
@@ -425,7 +418,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 #endif
 	if (AL_Adaptation)
 	{
-		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow((1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
+		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow(abs(1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
 		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither;
 		float4 baseSample = lerp(base, highSampleMix, max(0.0f, alInt - adapt));
 		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;

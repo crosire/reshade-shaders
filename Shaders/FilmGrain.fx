@@ -5,19 +5,18 @@
  * Computes a noise pattern and blends it with the image to create a film grain look.
  */
 
-uniform float Intensity <
-	ui_type = "drag";
+#include "ReShadeUI.fxh"
+
+uniform float Intensity < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "How visible the grain is. Higher is more visible.";
 > = 0.50;
-uniform float Variance <
-	ui_type = "drag";
+uniform float Variance < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Controls the variance of the Gaussian noise. Lower values look smoother.";
 > = 0.40;
 uniform float Mean = 0.5;
-uniform int SignalToNoiseRatio <
-	ui_type = "drag";
+uniform int SignalToNoiseRatio < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 16;
 	ui_label = "Signal-to-Noise Ratio";
 	ui_tooltip = "Higher Signal-to-Noise Ratio values give less grain to brighter pixels. 0 disables this feature.";
@@ -51,7 +50,7 @@ float3 FilmGrainPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV
 	float uniform_noise2 = frac(cosine * 53758.5453 - t); // and it doesn't cost any extra ASM
 
 	//Get settings
-	float stn = SignalToNoiseRatio != 0 ? pow(inv_luma, (float)SignalToNoiseRatio) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
+	float stn = SignalToNoiseRatio != 0 ? pow(abs(inv_luma), (float)SignalToNoiseRatio) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
 	float variance = (Variance*Variance) * stn;
 	float mean = Mean;
 

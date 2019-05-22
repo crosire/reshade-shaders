@@ -20,24 +20,23 @@
 // Credits :: Matso (Matso DOF), PetkaGtA, gp65cj042
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include "ReShadeUI.fxh"
+
 uniform bool DOF_AUTOFOCUS <
 	ui_tooltip = "Enables automated focus recognition based on samples around autofocus center.";
 > = true;
 uniform bool DOF_MOUSEDRIVEN_AF <
 	ui_tooltip = "Enables mouse driven auto-focus. If 1 the AF focus point is read from the mouse coordinates, otherwise the DOF_FOCUSPOINT is used.";
 > = false;
-uniform float2 DOF_FOCUSPOINT <
-	ui_type = "drag";
+uniform float2 DOF_FOCUSPOINT < __UNIFORM_SLIDER_FLOAT2
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "X and Y coordinates of autofocus center. Axes start from upper left screen corner.";
 > = float2(0.5, 0.5);
-uniform int DOF_FOCUSSAMPLES <
-	ui_type = "drag";
+uniform int DOF_FOCUSSAMPLES < __UNIFORM_SLIDER_INT1
 	ui_min = 3; ui_max = 10;
 	ui_tooltip = "Amount of samples around the focus point for smoother focal plane detection.";
 > = 6;
-uniform float DOF_FOCUSRADIUS <
-	ui_type = "drag";
+uniform float DOF_FOCUSRADIUS < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.02; ui_max = 0.20;
 	ui_tooltip = "Radius of samples around the focus point.";
 > = 0.05;
@@ -51,8 +50,7 @@ uniform float DOF_FARBLURCURVE <
 	ui_min = 0.05; ui_max = 5.0;
 	ui_tooltip = "Curve of blur behind focal plane. Higher means less blur.";
 > = 2.00;
-uniform float DOF_MANUALFOCUSDEPTH <
-	ui_type = "drag";
+uniform float DOF_MANUALFOCUSDEPTH < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Depth of focal plane when autofocus is off. 0.0 means camera, 1.0 means infinite distance.";
 > = 0.02;
@@ -68,85 +66,70 @@ uniform float DOF_BLURRADIUS <
 > = 15.0;
 
 // Ring DOF Settings
-uniform int iRingDOFSamples <
-	ui_type = "drag";
+uniform int iRingDOFSamples < __UNIFORM_SLIDER_INT1
 	ui_min = 5; ui_max = 30;
 	ui_tooltip = "Samples on the first ring. The other rings around have more samples.";
 > = 6;
-uniform int iRingDOFRings <
-	ui_type = "drag";
+uniform int iRingDOFRings < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 8;
 	ui_tooltip = "Ring count";
 > = 4;
-uniform float fRingDOFThreshold <
-	ui_type = "drag";
+uniform float fRingDOFThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 3.0;
 	ui_tooltip = "Threshold for bokeh brightening. Above this value, everything gets much much brighter.\n1.0 is maximum value for LDR games like GTASA, higher values work only on HDR games like Skyrim etc.";
 > = 0.7;
-uniform float fRingDOFGain <
-	ui_type = "drag";
+uniform float fRingDOFGain < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 30.0;
 	ui_tooltip = "Amount of brightening for pixels brighter than threshold.";
 > = 27.0;
-uniform float fRingDOFBias <
-	ui_type = "drag";
+uniform float fRingDOFBias < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Bokeh bias";
 > = 0.0;
-uniform float fRingDOFFringe <
-	ui_type = "drag";
+uniform float fRingDOFFringe < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of chromatic aberration";
 > = 0.5;
 
 // Magic DOF Settings
-uniform int iMagicDOFBlurQuality <
-	ui_type = "drag";
+uniform int iMagicDOFBlurQuality < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 30;
 	ui_tooltip = "Blur quality as control value over tap count.\nQuality 15 produces 721 taps, impossible with other DOF shaders by far, most they can do is about 150.";
 > = 8;
-uniform float fMagicDOFColorCurve <
-	ui_type = "drag";
+uniform float fMagicDOFColorCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 10.0;
 	ui_tooltip = "DOF weighting curve";
 > = 4.0;
 
 // GP65CJ042 DOF Settings
-uniform int iGPDOFQuality <
-	ui_type = "drag";
+uniform int iGPDOFQuality < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 7;
 	ui_tooltip = "0 = only slight gaussian farblur but no bokeh. 1-7 bokeh blur, higher means better quality of blur but less fps. ";
 > = 6;
 uniform bool bGPDOFPolygonalBokeh <
 	ui_tooltip = "Enables polygonal bokeh shape, e.g. POLYGON_NUM 5 means pentagonal bokeh shape. Setting this value to false results in circular bokeh shape.";
 > = true;
-uniform int iGPDOFPolygonCount <
-	ui_type = "drag";
+uniform int iGPDOFPolygonCount < __UNIFORM_SLIDER_INT1
 	ui_min = 3; ui_max = 9;
 	ui_tooltip = "Controls the amount pf polygons for polygonal bokeh shape. 3 = triangular, 4 = square, 5 = pentagonal etc.";
 > = 5;
-uniform float fGPDOFBias <
-	ui_type = "drag";
+uniform float fGPDOFBias < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 20.0;
 	ui_tooltip = "Shifts bokeh weighting to bokeh shape edge. Set to 0 for even bright bokeh shapes, raise it for darker bokeh shapes in center and brighter on edge.";
 > = 10.0;
-uniform float fGPDOFBiasCurve <
-	ui_type = "drag";
+uniform float fGPDOFBiasCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 3.0;
 	ui_tooltip = "Power of Bokeh Bias. Raise for more defined bokeh outlining on bokeh shape edge.";
 > = 2.0;
-uniform float fGPDOFBrightnessThreshold <
-	ui_type = "drag";
+uniform float fGPDOFBrightnessThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 	ui_tooltip = "Threshold for bokeh brightening. Above this value, everything gets much much brighter.\n1.0 is maximum value for LDR games like GTASA, higher values work only on HDR games like Skyrim etc.";
 > = 0.5;
-uniform float fGPDOFBrightnessMultiplier <
-	ui_type = "drag";
+uniform float fGPDOFBrightnessMultiplier < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 2.0;
 	ui_tooltip = "Amount of brightening for pixels brighter than fGPDOFBrightnessThreshold.";
 > = 2.0;
-uniform float fGPDOFChromaAmount <
-	ui_type = "drag";
+uniform float fGPDOFChromaAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.4;
 	ui_tooltip = "Amount of color shifting applied on blurred areas. ";
 > = 0.15;
@@ -155,23 +138,19 @@ uniform float fGPDOFChromaAmount <
 uniform bool bMatsoDOFChromaEnable <
 	ui_tooltip = "Enables chromatic aberration.";
 > = true;
-uniform float fMatsoDOFChromaPow <
-	ui_type = "drag";
+uniform float fMatsoDOFChromaPow < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.2; ui_max = 3.0;
 	ui_tooltip = "Amount of chromatic aberration color shifting.";
 > = 1.4;
-uniform float fMatsoDOFBokehCurve <
-	ui_type = "drag";
+uniform float fMatsoDOFBokehCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 20.0;
 	ui_tooltip = "Bokeh curve";
 > = 8.0;
-uniform int iMatsoDOFBokehQuality <
-	ui_type = "drag";
+uniform int iMatsoDOFBokehQuality < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 10;
 	ui_tooltip = "Blur quality as control value over tap count.";
 > = 2;
-uniform float fMatsoDOFBokehAngle <
-	ui_type = "drag";
+uniform float fMatsoDOFBokehAngle < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0; ui_max = 360; ui_step = 1;
 	ui_tooltip = "Rotation angle of bokeh shape.";
 > = 0;
@@ -186,79 +165,68 @@ uniform float fMatsoDOFBokehAngle <
 	#define iADOF_ShapeVertices 5 // Polygon count of bokeh shape. 4 = square, 5 = pentagon, 6 = hexagon and so on.
 #endif
 
-uniform int iADOF_ShapeQuality <
-	ui_type = "drag";
+uniform int iADOF_ShapeQuality < __UNIFORM_SLIDER_INT1
 	ui_min = 1; ui_max = 255;
 	ui_tooltip = "Quality level of DOF shape. Higher means more offsets taken, cleaner shape but also less performance. Compilation time stays same.";
 > = 17;
-uniform float fADOF_ShapeRotation <
-	ui_type = "drag";
+uniform float fADOF_ShapeRotation < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0; ui_max = 360; ui_step = 1;
 	ui_tooltip = "Static rotation of bokeh shape.";
 > = 15;
 uniform bool bADOF_RotAnimationEnable <
 	ui_tooltip = "Enables constant shape rotation in time.";
 > = false;
-uniform float fADOF_RotAnimationSpeed <
-	ui_type = "drag";
+uniform float fADOF_RotAnimationSpeed < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -5; ui_max = 5;
 	ui_tooltip = "Speed of shape rotation. Negative numbers change direction.";
 > = 2.0;
 uniform bool bADOF_ShapeCurvatureEnable <
 	ui_tooltip = "Bends edges of polygonal shape outwards (or inwards). Circular shape best with vertices > 7";
 > = false;
-uniform float fADOF_ShapeCurvatureAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeCurvatureAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of edge bending. 1.0 results in circular shape. Values below 0 produce star-like shapes.";
 > = 0.3;
 uniform bool bADOF_ShapeApertureEnable <
 	ui_tooltip = "Enables deformation of bokeh shape into swirl-like aperture. You will recognize it when you try it out. Best with big bokeh shapes.";
 > = false;
-uniform float fADOF_ShapeApertureAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeApertureAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = -0.05; ui_max = 0.05;
 	ui_tooltip = "Amount of deformation. Negative values mirror the effect. ";
 > = 0.01;
 uniform bool bADOF_ShapeAnamorphEnable <
 	ui_tooltip = "Lessens horizontal width of shape to simulate anamorphic bokeh shape seen in movies.";
 > = false;
-uniform float fADOF_ShapeAnamorphRatio <
-	ui_type = "drag";
+uniform float fADOF_ShapeAnamorphRatio < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Horizontal width factor. 1.0 means 100% width, 0.0 means 0% width (bokeh shape will be vertical line).";
 > = 0.2;
 uniform bool bADOF_ShapeDistortEnable <
 	ui_tooltip = "Deforms bokeh shape at screen borders to simulate lens distortion. Bokeh shapes at screen egdes look like an egg.";
 > = false;
-uniform float fADOF_ShapeDistortAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeDistortAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of deformation.";
 > = 0.2;
 uniform bool bADOF_ShapeDiffusionEnable <
 	ui_tooltip = "Enables some fuzzyness of bokeh shape, makes it less clearly defined.";
 > = false;
-uniform float fADOF_ShapeDiffusionAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeDiffusionAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Amount of shape diffusion. High values look like the bokeh shape exploded.";
 > = 0.1;
 uniform bool bADOF_ShapeWeightEnable <
 	ui_tooltip = "Enables bokeh shape weight bias and shifts color to the shape borders.";
 > = false;
-uniform float fADOF_ShapeWeightCurve <
-	ui_type = "drag";
+uniform float fADOF_ShapeWeightCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 8.0;
 	ui_tooltip = "Curve of shape weight bias.";
 > = 4.0;
-uniform float fADOF_ShapeWeightAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeWeightAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 8.0;
 	ui_tooltip = "Amount of shape weight bias.";
 > = 1.0;
-uniform float fADOF_BokehCurve <
-	ui_type = "drag";
+uniform float fADOF_BokehCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 1.0; ui_max = 20.0;
 	ui_tooltip = "Bokeh factor. Higher values produce more defined bokeh shapes for separated bright spots.";
 > = 4.0;
@@ -272,33 +240,28 @@ uniform int iADOF_ShapeChromaMode <
 	ui_items = "Mode 1\0Mode 2\0Mode 3\0Mode 4\0Mode 5\0Mode 6\0";
 	ui_tooltip = "Switches through the possible R G B shifts.";
 > = 3;
-uniform float fADOF_ShapeChromaAmount <
-	ui_type = "drag";
+uniform float fADOF_ShapeChromaAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 0.5;
 	ui_tooltip = "Amount of color shifting.";
 > = 0.125;
 uniform bool bADOF_ImageChromaEnable <
 	ui_tooltip = "Enables image chromatic aberration at screen corners.\nThis one is way more complex than the shape chroma (and any other chroma on the web).";
 > = false;
-uniform int iADOF_ImageChromaHues <
-	ui_type = "drag";
+uniform int iADOF_ImageChromaHues < __UNIFORM_SLIDER_INT1
 	ui_min = 2; ui_max = 20;
 	ui_tooltip = "Amount of samples through the light spectrum to get a smooth gradient.";
 > = 5;
-uniform float fADOF_ImageChromaCurve <
-	ui_type = "drag";
+uniform float fADOF_ImageChromaCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 	ui_tooltip = "Image chromatic aberration curve. Higher means less chroma at screen center areas.";
 > = 1.0;
-uniform float fADOF_ImageChromaAmount <
-	ui_type = "drag";
+uniform float fADOF_ImageChromaAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.25; ui_max = 10.0;
 	ui_tooltip = "Linearly increases image chromatic aberration amount.";
 > = 3.0;
 
 // MCFLY ADVANCED DOF Settings - POSTFX
-uniform float fADOF_SmootheningAmount <
-	ui_type = "drag";
+uniform float fADOF_SmootheningAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 	ui_tooltip = "Blur multiplicator of box blur after bokeh to smoothen shape. Box blur is better than gaussian.";
 > = 1.0;
@@ -308,18 +271,15 @@ uniform float fADOF_SmootheningAmount <
 #endif
 
 #if bADOF_ImageGrainEnable
-uniform float fADOF_ImageGrainCurve <
-	ui_type = "drag";
+uniform float fADOF_ImageGrainCurve < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 5.0;
 	ui_tooltip = "Curve of Image Grain distribution. Higher values lessen grain at moderately blurred areas.";
 > = 1.0;
-uniform float fADOF_ImageGrainAmount <
-	ui_type = "drag";
+uniform float fADOF_ImageGrainAmount < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 2.0;
 	ui_tooltip = "Linearly multiplies the amount of Image Grain applied.";
 > = 0.55;
-uniform float fADOF_ImageGrainScale <
-	ui_type = "drag";
+uniform float fADOF_ImageGrainScale < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 2.0;
 	ui_tooltip = "Grain texture scale. Low values produce more coarse Noise.";
 > = 1.0;
@@ -363,7 +323,7 @@ float GetCoC(float2 coords)
 		float2 focusPoint = DOF_MOUSEDRIVEN_AF ? MouseCoords * ReShade::PixelSize : DOF_FOCUSPOINT;
 
 		[loop]
-		for (int r = 0; r < DOF_FOCUSSAMPLES; r++)
+		for (int r = DOF_FOCUSSAMPLES; 0 < r; r--)
 		{
 			sincos((6.2831853 / DOF_FOCUSSAMPLES) * r, coords.y, coords.x);
 			coords.y *= ReShade::AspectRatio;
@@ -535,7 +495,7 @@ void PS_MagicDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 		float4 tap1 = tex2Dlod(SamplerHDR2, float4(texcoord + tapoffset1 * discRadius * ReShade::PixelSize / iMagicDOFBlurQuality, 0, 0));
 		float4 tap2 = tex2Dlod(SamplerHDR2, float4(texcoord + tapoffset2 * discRadius * ReShade::PixelSize / iMagicDOFBlurQuality, 0, 0));
 
-		blurcolor.xyz += pow(min(tap1.xyz, tap2.xyz), fMagicDOFColorCurve);
+		blurcolor.xyz += pow(abs(min(tap1.xyz, tap2.xyz)), fMagicDOFColorCurve);
 		blurcolor.w += 1.0;
 	}
 
@@ -663,7 +623,7 @@ void PS_GPDOF2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4
 		tap.xyz *= 1.0 + brightMultipiler * abs(tap.w * 2.0 - 1.0);
 
 		tap.w = (tap.w >= centerDepth * 0.99) ? 1.0 : pow(abs(tap.w * 2.0 - 1.0), 4.0);
-		float BiasCurve = 1.0 + fGPDOFBias * pow((float)sampleCycleCounter / iGPDOFQuality, fGPDOFBiasCurve);
+		float BiasCurve = 1.0 + fGPDOFBias * pow(abs((float)sampleCycleCounter / iGPDOFQuality), fGPDOFBiasCurve);
 
 		blurcolor.xyz += tap.xyz * tap.w * BiasCurve;
 		blurcolor.w += tap.w * BiasCurve;
@@ -719,7 +679,7 @@ float4 GetMatsoDOFBlur(int axis, float2 coord, sampler SamplerHDRX)
 
 		// my own pseudo-bokeh weighting
 		float b = dot(ct.rgb, 0.333) + length(ct.rgb) + 0.1;
-		float w = pow(b, fMatsoDOFBokehCurve) + abs((float)i);
+		float w = pow(abs(b), fMatsoDOFBokehCurve) + abs((float)i);
 
 		blurcolor.xyz += ct.xyz * w;
 		blurcolor.w += w;
@@ -814,7 +774,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 	if (bADOF_ShapeWeightEnable)
 		res.w = (1.0 - fADOF_ShapeWeightAmount);
 
-	res.xyz = pow(res.xyz, fADOF_BokehCurve)*res.w;
+	res.xyz = pow(abs(res.xyz), fADOF_BokehCurve)*res.w;
 
 	if (bADOF_ShapeAnamorphEnable)
 		discRadius.x *= fADOF_ShapeAnamorphRatio;
@@ -875,7 +835,7 @@ float3 BokehBlur(sampler2D tex, float2 coord, float CoC, float centerDepth)
 				tap.w *= tex2Dlod(SamplerMask, float4((sampleOffset + 0.707) * 0.707, 0, 0)).x;
 #endif
 
-				res.xyz += pow(tap.xyz, fADOF_BokehCurve) * tap.w;
+				res.xyz += pow(abs(tap.xyz), fADOF_BokehCurve) * tap.w;
 				res.w += tap.w;
 			}
 		}
@@ -962,9 +922,9 @@ void PS_McFlyDOF3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out flo
 
 	float weights[3] = { 1.0,0.75,0.5 };
 	//Why not separable? For the glory of Satan, of course!
-	for (float x = -2; x <= 2; x++)
+	for (int x = -2; x <= 2; x++)
 	{
-		for (float y = -2; y <= 2; y++)
+		for (int y = -2; y <= 2; y++)
 		{
 			float2 offset = float2(x, y);
 			float offsetweight = weights[abs(x)] * weights[abs(y)];

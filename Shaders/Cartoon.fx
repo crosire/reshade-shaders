@@ -3,13 +3,13 @@
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-uniform float Power <
-	ui_type = "drag";
+#include "ReShadeUI.fxh"
+
+uniform float Power < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 10.0;
 	ui_tooltip = "Amount of effect you want.";
 > = 1.5;
-uniform float EdgeSlope <
-	ui_type = "drag";
+uniform float EdgeSlope < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.1; ui_max = 6.0;
 	ui_label = "Edge Slope";
 	ui_tooltip = "Raise this to filter out fainter edges. You might need to increase the power to compensate. Whole numbers are faster.";
@@ -29,7 +29,7 @@ float3 CartoonPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) :
 
 	float edge = dot(float2(diff1, diff2), float2(diff1, diff2));
 
-	return saturate(pow(edge, EdgeSlope) * -Power + color);
+	return saturate(pow(abs(edge), EdgeSlope) * -Power + color);
 }
 
 technique Cartoon
