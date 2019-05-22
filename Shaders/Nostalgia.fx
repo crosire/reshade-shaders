@@ -49,7 +49,7 @@
 '---------------*/
 
 #include "ReShade.fxh"
-
+#include "ReShadeUI.fxh"
 
 /*--------------.
 | :: Defines :: |
@@ -95,7 +95,12 @@ uniform int Nostalgia_color_reduction
 	;
 > = 1;
 
-#include "ReShadeUI.fxh"
+uniform bool Nostalgia_dither 
+<
+	ui_label = "Dither";
+> = 0;
+
+
 
 uniform int Nostalgia_palette <
 	ui_type = "combo";
@@ -129,8 +134,6 @@ uniform float3 Nostalgia_color_1 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 1";
 	ui_category = "Custom palette"; > 
 = float3(255. , 255. , 255. ) / 255.; //White
-
-
 
 uniform float3 Nostalgia_color_2 < __UNIFORM_COLOR_FLOAT3
 	ui_label = "Color 2";
@@ -228,12 +231,14 @@ sampler Linear
 float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float3 color;
+	int colorCount = 16;
 
 	#if Nostalgia_linear == 1
 		color = tex2D(Linear, texcoord.xy).rgb;
 	#else
 		color = tex2D(ReShade::BackBuffer, texcoord.xy).rgb;
 	#endif
+	
 
 	if (Nostalgia_color_reduction)
 	{
@@ -255,7 +260,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			Nostalgia_color_13,
 			Nostalgia_color_14,
 			Nostalgia_color_15
-			colorCount = 16;
 		};
 
 		if (Nostalgia_palette == 1) //C64 palette from http://www.c64-wiki.com/index.php/Color
@@ -276,7 +280,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(170. , 255. , 102. ) / 255.; //Lightgreen
 			palette[14] = float3(  0. , 136. , 255. ) / 255.; //Lightblue
 			palette[15] = float3(187. , 187. , 187. ) / 255.; //Grey 3
-			colorCount = 16;
 		}
 
 		if (Nostalgia_palette == 2) //EGA palette
@@ -297,7 +300,7 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13]	= float3(1.0,		0.333333,	1.0		); //Bright magenta
 			palette[14]	= float3(1.0,		1.0,		0.333333); //Bright yellow
 			palette[15]	= float3(1.0,		1.0,		1.0		); //White
-			colorCount = 16;
+		}
 	
 		if (Nostalgia_palette == 3) //IBMPC palette
 		{
@@ -317,7 +320,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(1,0.4,1);
 			palette[14] = float3(1,1,0.4);
 			palette[15] = float3(1,1,1);
-			colorCount = 16;
 		}
 
 		if (Nostalgia_palette == 4) //ZX Spectrum palette
@@ -338,7 +340,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(1,0,1);
 			palette[14] = float3(1,1,0);
 			palette[15] = float3(1,1,1);
-			colorCount = 16;
 		}
 
 		if (Nostalgia_palette == 5) //AppleII palette
@@ -359,7 +360,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.815686274509804,0.866666666666667,0.552941176470588);
 			palette[14] = float3(0.447058823529412,1,0.815686274509804);
 			palette[15] = float3(1,1,1);
-			colorCount = 16;
 		}
 		
 		if (Nostalgia_palette == 6) //NTSC palette
@@ -380,8 +380,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.831372549019608,0.831372549019608,0.831372549019608);
 			palette[14] = float3(0.866666666666667,0.776470588235294,0.474509803921569);
 			palette[15] = float3(0.0392156862745098,0.96078431372549,0.776470588235294);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 7) // Commodore VIC-20
 		{
 			palette[0] = float3(0,0,0);
@@ -400,8 +400,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.580392156862745,0.87843137254902,0.537254901960784);
 			palette[14] = float3(0.501960784313725,0.443137254901961,0.8);
 			palette[15] = float3(1,1,0.698039215686274);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 8) // MSX Systems
 		{
 			palette[0] = float3(0,0,0);
@@ -420,8 +420,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.717647058823529,0.4,0.709803921568627);
 			palette[14] = float3(0.8,0.8,0.8);
 			palette[15] = float3(1,1,0.698039215686274);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 9) // Thomson MO5
 		{
 			palette[0] = float3(0,0,0);
@@ -440,8 +440,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.466666666666667,0.466666666666667,0.866666666666667);
 			palette[14] = float3(0.866666666666667,0.466666666666667,0.933333333333333);
 			palette[15] = float3(0.733333333333333,1,1);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 10) // Amstrad CPC
 		{
 			palette[0] = float3(0,0,0);
@@ -460,8 +460,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.498039215686275,1,0.498039215686275);
 			palette[14] = float3(0.498039215686275,1,1);
 			palette[15] = float3(1,1,0.498039215686275);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 11) // Atari ST
 		{
 			palette[0] = float3(0,0,0);
@@ -480,8 +480,8 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(1,0.525490196078431,0.368627450980392);
 			palette[14] = float3(0.631372549019608,0.63921568627451,0.76078431372549);
 			palette[15] = float3(1,0.768627450980392,0.517647058823529);
-			colorCount = 16;
 		}
+		
 		if (Nostalgia_palette == 12) // Mattel Aquarius
 		{
 			palette[0] = float3(0,0,0);
@@ -500,6 +500,7 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[13] = float3(0.0196078431372549,0.0509803921568627,0.407843137254902);
 			colorCount = 14;
 		}
+		
 		if (Nostalgia_palette == 13) // Gameboy
 		{
 			palette[0] = float3(0.0588235294117647,0.219607843137255,0.0588235294117647);
@@ -509,9 +510,6 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			colorCount = 4;
 		}
 
-
-
-		}
 
 		if (Nostalgia_palette == 14) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
 		{
@@ -531,27 +529,29 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 			palette[0] 	= float3(0.431373,	0.305882,	0.137255); //
 			palette[0] 	= float3(0.937255,	0.890196,	0.019608); //
 			palette[0] 	= float3(0.788235,	0.560784,	0.298039); //
-			colorCount = 16;
 		}
 
 		// :: Dither :: //
+
+		if (Nostalgia_dither == 1) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
+		{
 		
-		//Calculate grid position
-		float grid_position = frac(dot(texcoord, ReShade::ScreenSize * 0.5) + 0.25); //returns 0.25 and 0.75
-
-		//Calculate how big the shift should be
-		float dither_shift = (0.25) * (1.0 / (pow(2,2.0) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.
-
-		//Shift the individual colors differently, thus making it even harder to see the dithering pattern
-		float3 dither_shift_RGB = float3(dither_shift, dither_shift, dither_shift); //dithering
-
-		//modify shift acording to grid position.
-		dither_shift_RGB = lerp(2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position); //shift acording to grid position.
-
-		//shift the color by dither_shift
-		//color.rgb += lerp(2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position); //shift acording to grid position.
-		color.rgb += dither_shift_RGB;
-
+			//Calculate grid position
+			float grid_position = frac(dot(texcoord, ReShade::ScreenSize * 0.5) + 0.25); //returns 0.25 and 0.75
+	
+			//Calculate how big the shift should be
+			float dither_shift = (0.25) * (1.0 / (pow(2,2.0) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.
+	
+			//Shift the individual colors differently, thus making it even harder to see the dithering pattern
+			float3 dither_shift_RGB = float3(dither_shift, dither_shift, dither_shift); //dithering
+	
+			//modify shift acording to grid position.
+			dither_shift_RGB = lerp(2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position); //shift acording to grid position.
+	
+			//shift the color by dither_shift
+			//color.rgb += lerp(2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position); //shift acording to grid position.
+			color.rgb += dither_shift_RGB;
+		}
 		
 		// :: Color matching :: //
 		
