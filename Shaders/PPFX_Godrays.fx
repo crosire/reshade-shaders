@@ -151,9 +151,10 @@ float linearDepth(float2 txCoords)
 		float	rayWeight = 1.0;
 		float	finalWhitePoint = pxInput.w;
 		
+		[loop]
 		for (int i=1;i<(int)pGodraysSampleAmount;i++)
 		{
-			rayMask += max(0.0, saturate(tex2D(SamplerColorGRB, txCoords-stepSize*(float)i).xyz) - pGodraysThreshold) * rayWeight * pGodraysExposure;
+			rayMask += max(0.0, saturate(tex2Dlod(SamplerColorGRB, float4(txCoords-stepSize*(float)i, 0.0, 0.0)).xyz) - pGodraysThreshold) * rayWeight * pGodraysExposure;
 			finalWhitePoint += rayWeight * pGodraysExposure;
 			rayWeight /= pGodraysFalloff;
 		}
