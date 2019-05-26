@@ -32,6 +32,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 25-may-2019:	   v1.1.10: Added white boost/correction in gathering passes to have lower-intensity highlights become less prominent. 
+//							Added further weight adjustment tweaks. Changed highlight defaults to utilize code changed in 1.1.9/1.1.10
+// 24-may-2019:		v1.1.9: Better near-plane bleed mask. Better far plane pixel weights so more samples get accepted.
 // 02-mar-2019: 	v1.1.8: Added anamorphic bokeh support, so bokehs now get stretched and rotated based on the distance from the center of the screen, with various tweaks.
 // 08-jan-2019:		v1.1.7: Added 9-tap tent filter as described in [Jimenez2014) for mitigating undersampling. Implementation is from KinoBokeh (see credits below).
 // 02-jan-2019:		v1.1.6: When near plane max blur is set to 0, the original fragment is now used in the near plane instead of the half-res pixel. 
@@ -78,7 +81,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ReShade.fxh"
-#include "ReShadeUI.fxh"
 
 namespace CinematicDOF
 {
@@ -148,9 +150,10 @@ namespace CinematicDOF
 		ui_label = "Show out-of-focus plane overlay on mouse down";
 		ui_tooltip = "Enables the out-of-focus plane overlay when the left mouse button is pressed down,\nwhich helps with fine-tuning the focusing.";
 	> = true;
-	uniform float3 OutOfFocusPlaneColor < __UNIFORM_COLOR_FLOAT3
+	uniform float3 OutOfFocusPlaneColor <
 		ui_category = "Focusing, overlay";
 		ui_label = "Out-of-focus plane overlay color";
+		ui_type= "color";
 		ui_tooltip = "Specifies the color of the out-of-focus planes rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.8,0.8,0.8);
 	uniform float OutOfFocusPlaneColorTransparency <
@@ -160,14 +163,16 @@ namespace CinematicDOF
 		ui_min = 0.01; ui_max = 1.0;
 		ui_tooltip = "Amount of transparency of the out-of-focus planes. 0.0 is transparent, 1.0 is opaque.";
 	> = 0.7;
-	uniform float3 FocusPlaneColor < __UNIFORM_COLOR_FLOAT3
+	uniform float3 FocusPlaneColor <
 		ui_category = "Focusing, overlay";
 		ui_label = "Focus plane overlay color";
+		ui_type= "color";
 		ui_tooltip = "Specifies the color of the focus plane rendered when the left-mouse button\nis pressed and 'Show out-of-focus plane on mouse down' is enabled. In (red , green, blue)";
 	> = float3(0.0, 0.0, 1.0);
-	uniform float4 FocusCrosshairColor< __UNIFORM_COLOR_FLOAT4
+	uniform float4 FocusCrosshairColor<
 		ui_category = "Focusing, overlay";
 		ui_label = "Focus crosshair color";
+		ui_type = "color";
 		ui_tooltip = "Specifies the color of the crosshair for the auto-focus.\nAuto-focus must be enabled";
 	> = float4(1.0, 0.0, 1.0, 1.0);
 	
@@ -210,16 +215,16 @@ namespace CinematicDOF
 		ui_label="Highlight edge bias";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "The bias for the highlight: 0 means evenly spread, 1.5 means everything is at the\nedge of the bokeh circle.";
+		ui_tooltip = "The bias for the highlight: 0 means evenly spread, 1.0 means everything is at the\nedge of the bokeh circle.";
 		ui_step = 0.01;
-	> = 0.0;
+	> = 0.100;
 	uniform uint HighlightType <
 		ui_type = "combo";
 		ui_min= 0; ui_max=1;
 		ui_items="Bloom burn\0Twinkle circlets\0";
 		ui_label = "Highlight type";
-		ui_tooltip = "The type of highlights to produce. For Twinkle circlets it's recommended to keep\nHighlight thresholds at 0.5 or higher for blur without a highlight";
-	> = 1;
+		ui_tooltip = "The type of highlights to produce. For Bloom burn it's recommended to have highlight normalization set to a value slightly above 0";
+	> = 0;
 	uniform float HighlightAnamorphicFactor <
 		ui_category = "Highlight tweaking, anamorphism";
 		ui_label="Anamorphic factor";
@@ -259,15 +264,15 @@ namespace CinematicDOF
 		ui_min = 0.00; ui_max = 1.00;
 		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.\nWhen highlight type is Twinkle circlets, set the threshold at 0.5 or higher\nfor blur without highlights.";
 		ui_step = 0.01;
-	> = 0.5;
+	> = 0.0;
 	uniform float HighlightNormalizingFactor <
 		ui_category = "Highlight tweaking, far plane";
 		ui_label="Highlight normalizing factor";
 		ui_type = "drag";
 		ui_min = 0.00; ui_max = 1.00;
-		ui_tooltip = "(Advanced feature). When Twinkle circlets is used for highlights, this factor is\nused to determine the color of highlight circlets.";
+		ui_tooltip = "(Advanced feature). This factor is\nused to normalize/even out the color of highlight circlets.";
 		ui_step = 0.01;
-	> = 0.00;
+	> = 0.100;
 	uniform float HighlightGainNearPlane <
 		ui_category = "Highlight tweaking, near plane";
 		ui_label = "Highlight gain";
@@ -283,7 +288,7 @@ namespace CinematicDOF
 		ui_min = 0.00; ui_max = 1.00;
 		ui_tooltip = "The threshold for the source pixels. Pixels with a luminosity above this threshold\nwill be highlighted. Raise this value to only keep the highlights you want.\nWhen highlight type is Twinkle circlets, set the threshold at 0.5 or higher\nfor blur without highlights.";
 		ui_step = 0.01;
-	> = 0.5;
+	> = 0.0;
 	// ------------- ADVANCED SETTINGS
 	uniform bool ShowCoCValues <
 		ui_category = "Advanced";
@@ -304,7 +309,13 @@ namespace CinematicDOF
 		ui_min = 0.00; ui_max = 1.00;
 		ui_step = 0.01;
 	> = 0.0;
-	uniform bool ShowNearCoCBlur <
+	uniform float DBVal4f <
+		ui_category = "Debugging";
+		ui_type = "drag";
+		ui_min = 0.00; ui_max = 3.00;
+		ui_step = 0.00;
+	> = 1.0;
+	uniform bool ShowNearCoCTilesBlurredR <
 		ui_category = "Debugging";
 		ui_tooltip = "Shows the near coc blur buffer as b&w";
 	> = false;
@@ -314,10 +325,13 @@ namespace CinematicDOF
 	uniform bool ShowNearCoCTilesNeighbor <
 		ui_category = "Debugging";
 	> = false;
-	uniform bool ShowNearCoCTilesBlurred <
+	uniform bool ShowNearCoCTilesBlurredG <
 		ui_category = "Debugging";
 	> = false;
 	uniform bool ShowNearPlaneAlpha <
+		ui_category = "Debugging";
+	> = false;
+	uniform bool ShowNearPlaneBlurred <
 		ui_category = "Debugging";
 	> = false;
 #endif
@@ -336,9 +350,9 @@ namespace CinematicDOF
 	texture texCDCurrentFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the current focus depth obtained from the focus point
 	texture texCDPreviousFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the previous frame's focus depth from texCDCurrentFocus.
 	texture texCDCoC				{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
-	texture texCDCoCTileTmp			{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
-	texture texCDCoCTile			{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
-	texture texCDCoCTileNeighbor	{ Width = BUFFER_WIDTH/((TILE_SIZE*2)+1); Height = BUFFER_HEIGHT/((TILE_SIZE*2)+1); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTileTmp			{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTile			{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTileNeighbor	{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
 	texture texCDCoCTmp1			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };	// half res, single value
 	texture texCDCoCBlurred			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };	// half res, blurred CoC (r) and real CoC (g)
 	texture texCDBuffer1 			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RGBA8; };
@@ -392,6 +406,16 @@ namespace CinematicDOF
 	// Functions
 	//
 	//////////////////////////////////////////////////
+	
+	float3 AccentuateWhites(float3 fragment)
+	{
+		return fragment / (1.5 - clamp(fragment, 0, 1.49));	// accentuate 'whites'. 1.5 factor was empirically determined.
+	}
+	
+	float3 CorrectForWhiteAccentuation(float3 fragment)
+	{
+		return (fragment.rgb * 1.5) / (1.0 + fragment.rgb);		// correct for 'whites' accentuation in taps. 1.5 factor was empirically determined.
+	}
 	
 	// returns 2 vectors, (x,y) are up vector, (z,w) are right vector. 
 	// In: pixelVector which is the current pixel converted into a vector where (0,0) is the center of the screen.
@@ -524,8 +548,9 @@ namespace CinematicDOF
 	{
 		float radiusToUse = (absoluteSampleRadius ==0 ? 1 : absoluteSampleRadius) * 0.5;
 		return min(rcp(radiusToUse * radiusToUse * PI), rcp(0.5 * 0.5 * PI))
-				* saturate(radiusToUse - ringDistance) / radiusToUse
-				* saturate(1-ringDistance);
+						* lerp(saturate(radiusToUse - ringDistance) / radiusToUse, 1, 
+							lerp(0, 70* absoluteSampleRadius, saturate(2.5-FarPlaneMaxBlur)))
+						* saturate(1-ringDistance);
 	}
 	
 	// Same as PerformDiscBlur but this time for the near plane. It's in a separate function to avoid a lot of if/switch statements as
@@ -551,6 +576,7 @@ namespace CinematicDOF
 			return fragment;
 		}
 		
+		fragment.rgb = AccentuateWhites(fragment.rgb);
 		// use one extra ring as undersampling is really prominent in near-camera objects.
 		float numberOfRings = max(blurInfo.numberOfRings, 1) + 1;
 		float pointsFirstRing = 7;
@@ -559,12 +585,13 @@ namespace CinematicDOF
 		float threshold = max((fragment.a - HighlightThresholdNearPlane) * HighlightGainNearPlane, 0);
 		float4 average = float4((fragment.rgb + lerp(0, fragment.rgb, threshold * fragmentRadiusToUse * 0.01)) * (1-edgeBiasToUse), (1.0-edgeBiasToUse));
 		float2 pointOffset = float2(0,0);
-		float2 ringRadiusDeltaCoords = ReShade::PixelSize * lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadiusToUse) / (numberOfRings-1);
+		float2 ringRadiusDeltaCoords = ReShade::PixelSize * (lerp(0.0, blurInfo.nearPlaneMaxBlurInPixels, fragmentRadiusToUse) / (numberOfRings-1));
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		float maxLuma = saturate((dot(fragment.rgb, lumaDotWeight) * fragmentRadii.g)-HighlightThresholdNearPlane) * (1.0-edgeBiasToUse);
 		float4 anamorphicFactors = CalculateAnamorphicFactor(blurInfo.texcoord - 0.5); // xy are up vector, zw are right vector
 		float2x2 anamorphicRotationMatrix = CalculateAnamorphicRotationMatrix(blurInfo.texcoord);
+		
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
@@ -583,7 +610,7 @@ namespace CinematicDOF
 				float2 sampleRadii = tex2Dlod(SamplerCDCoCBlurred, tapCoords).rg;
 				// luma is stored in alpha
 				threshold = max((tap.a - HighlightThresholdNearPlane), 0) * (sampleRadii.g < 0 ? HighlightGainNearPlane : 0);
-				float3 weightedTap = (tap.rgb + lerp(0, tap.rgb, threshold * abs(sampleRadii.r)));
+				float3 weightedTap = AccentuateWhites(tap.rgb + lerp(0, tap.rgb, threshold * abs(sampleRadii.r)));
 				average.rgb += weightedTap * weight;
 				average.w += weight;
 				maxLuma = max(maxLuma, saturate((dot(weightedTap.rgb, lumaDotWeight)-HighlightThresholdNearPlane) * weight));
@@ -594,18 +621,25 @@ namespace CinematicDOF
 		}
 		
 		average.rgb/=(average.w + (average.w ==0));
-		float alpha = saturate(2 * (fragmentRadiusToUse > 0.1 ? 2 * fragmentRadiusToUse : max(fragmentRadiusToUse, -fragmentRadii.g)));
+		float alpha = saturate(2 * (fragmentRadiusToUse > 0.1 ? (fragmentRadii.g <=0 ? 2 : 1) * fragmentRadiusToUse : max(fragmentRadiusToUse, -fragmentRadii.g)));
 		fragment = average;
+		fragment.a = alpha;
 #if CD_DEBUG
 		if(ShowNearPlaneAlpha)
 		{
-			fragment.rgb = float3(alpha, alpha, alpha);
+			fragment = float4(alpha, alpha, alpha, 1.0);
 		}
 #endif
 		float newLuma = dot(fragment.rgb, lumaDotWeight);
 		// increase luma to the max luma found, if setting is enabled.
 		fragment.rgb *= 1+saturate(maxLuma-newLuma) * HighlightType;
-		fragment.a = alpha;
+		fragment.rgb = CorrectForWhiteAccentuation(fragment.rgb);
+#if CD_DEBUG
+		if(ShowNearPlaneBlurred)
+		{
+			fragment.a = 1.0;
+		}
+#endif
 		return fragment;
 	}
 
@@ -627,7 +661,7 @@ namespace CinematicDOF
 			// near plane fragment, will be done in near plane pass 
 			return fragment;
 		}
-		
+		fragment.rgb = AccentuateWhites(fragment.rgb);
 		// luma is stored in alpha
 		float pixelLumaGain = max(fragment.a, 0) * HighlightGainFarPlane;
 		float4 average = float4((fragment.rgb + lerp(0, fragment.rgb, pixelLumaGain * fragmentRadius)) * saturate(1.0-HighlightEdgeBias), saturate(1.0-HighlightEdgeBias));
@@ -658,7 +692,7 @@ namespace CinematicDOF
 				float absoluteSampleRadius = abs(sampleRadius);
 				float weight = (sampleRadius >=0) * ringWeight * CalculateSampleWeight(blurInfo.cocFactorPerPixel * absoluteSampleRadius, ringDistance);
 				// luma is stored in alpha.
-				float3 gainedTap = (tap.rgb + lerp(0, tap.rgb, max(tap.a, 0) * HighlightGainFarPlane * absoluteSampleRadius));
+				float3 gainedTap = AccentuateWhites(tap.rgb + lerp(0, tap.rgb, max(tap.a, 0) * HighlightGainFarPlane * absoluteSampleRadius));
 				average.rgb += gainedTap * weight;
 				average.w += weight;
 				float lumaSample = saturate((dot(gainedTap.rgb, lumaDotWeight) * sampleRadius )-HighlightThresholdFarPlane) * ringWeight;
@@ -674,7 +708,8 @@ namespace CinematicDOF
 		fragment.rgb = lerp(fragment.rgb, maxColor, min(saturate(maxLuma-newFragmentLuma), HighlightNormalizingFactor));
 		newFragmentLuma = dot(fragment.rgb, lumaDotWeight);
 		// increase luma to the max luma found, if setting is enabled.
-		fragment.rgb *= 1+saturate(maxLuma-newFragmentLuma) * HighlightType;
+		fragment.rgb *= (1+saturate(maxLuma-newFragmentLuma) * HighlightType);
+		fragment.rgb = CorrectForWhiteAccentuation(fragment.rgb);
 		return fragment;
 	}
 	
@@ -686,7 +721,6 @@ namespace CinematicDOF
 	// Out: RGBA fragment that's the result of the disc-blur on the pixel at texcoord in source. A contains luma of RGB.
 	float4 PerformPreDiscBlur(VSDISCBLURINFO blurInfo, sampler2D source)
 	{
-		const float3 lumaDotWeight = float3(0.3, 0.59, 0.11);
 		const float radiusFactor = 1.0/5.0;
 		const float pointsFirstRing = 7; 	// each ring has a multiple of this value of sample points. 
 		float4 fragment = tex2Dlod(source, float4(blurInfo.texcoord, 0, 0));
@@ -703,7 +737,6 @@ namespace CinematicDOF
 												* rcp((numberOfRings-1) + (numberOfRings==1));
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
-		float maxLuma = dot(fragment.rgb, lumaDotWeight) * (absoluteFragmentRadius < 0.01 ? 0 : 1);
 		float cocPerRing = length(currentRingRadiusCoords) * 0.5;
 		for(float ringIndex = 0; ringIndex < numberOfRings; ringIndex++)
 		{
@@ -720,7 +753,6 @@ namespace CinematicDOF
 				float lumaWeight = absoluteFragmentRadius - absoluteSampleRadius < 0.001;
 				float weight = CalculateSampleWeight(blurInfo.cocFactorPerPixel * absoluteSampleRadius, ringDistance) * isSamePlaneAsFragment * lumaWeight;
 				float3 tap = tex2Dlod(source, tapCoords).rgb;
-				maxLuma = max(maxLuma, isSamePlaneAsFragment * dot(tap.rgb, lumaDotWeight) * lumaWeight * (weight > 0.1));
 				average.rgb += tap * weight;
 				average.w += weight;
 				angle+=anglePerPoint;
@@ -729,9 +761,8 @@ namespace CinematicDOF
 			currentRingRadiusCoords += ringRadiusDeltaCoords;
 		}
 		fragment.rgb = average.rgb/(average.w + (average.w==0));
-		fragment.rgb *= 1+saturate(maxLuma-dot(fragment.rgb, lumaDotWeight));
 		// store luma of new rgb in alpha so we don't need to calculate it again.
-		fragment.a = dot(fragment.rgb, lumaDotWeight);
+		fragment.a = dot(fragment.rgb, float3(0.3, 0.59, 0.11));
 		return fragment;
 	}
 
@@ -969,7 +1000,8 @@ namespace CinematicDOF
 	{
 		// from tmp1 to tmp2. Merge original CoC into g.
 		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, 
-											float2(0.0, ReShade::PixelSize.y * (ReShade::ScreenSize.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), tex2D(SamplerCDCoC, texcoord).x);
+														 float2(0.0, ReShade::PixelSize.y * (ReShade::ScreenSize.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), 
+						  tex2D(SamplerCDCoC, texcoord).x);
 	}
 	
 	// Pixel shader which combines 2 half-res sources to a full res output. From texCDBuffer1 & 2 to texCDBuffer4.
@@ -1026,9 +1058,9 @@ namespace CinematicDOF
 			return;
 		}
 #if CD_DEBUG
-		if(ShowNearCoCBlur)
+		if(ShowNearCoCTilesBlurredG)
 		{
-			fragment = GetDebugFragment(tex2D(SamplerCDCoCBlurred, focusInfo.texcoord).r, false);
+			fragment = GetDebugFragment(tex2D(SamplerCDCoCBlurred, focusInfo.texcoord).g, false);
 			return;
 		}
 		if(ShowNearCoCTiles)
@@ -1036,7 +1068,7 @@ namespace CinematicDOF
 			fragment = GetDebugFragment(tex2D(SamplerCDCoCTile, focusInfo.texcoord).r, true);
 			return;
 		}
-		if(ShowNearCoCTilesBlurred)
+		if(ShowNearCoCTilesBlurredR)
 		{
 			fragment = GetDebugFragment(tex2D(SamplerCDCoCBlurred, focusInfo.texcoord).r, true);
 			return;
