@@ -102,7 +102,7 @@
 // https://github.com/crosire/reshade/commit/b025bfae5f7343509ec0cacf6df0cff537c499f2#diff-82cf230afdb2a0d5174111e6f17548a5R1631
 // Added various GUI related uniform variable annotations
 // https://reshade.me/forum/releases/2341-3-0
-#define __UNIFORM_COMBO_ANY ui_type = "combo";
+#define __UNIFORM_COMBO_ANY    ui_type = "combo";
 
 //      __UNIFORM_COMBO_BOOL1
 #define __UNIFORM_COMBO_BOOL2  __UNIFORM_COMBO_ANY // It is unsupported on all version
@@ -188,3 +188,29 @@
 #define __UNIFORM_COLOR_FLOAT1 __UNIFORM_SLIDER_ANY
 #endif
 
+// Since 4.3.0
+// Add new "list" GUI widget (#103)
+// https://github.com/crosire/reshade/commit/515287d20ce615c19cf3d4c21b49f83896f04ddc#diff-59405a313bd8cbfb0ca6dd633230e504R1894
+// Added new "list" GUI widget
+// https://reshade.me/forum/releases/5417-4-3
+#if SUPPORTED_VERSION(4,3,0)
+#define __UNIFORM_LIST_ANY    ui_type = "list";
+#else
+#define __UNIFORM_LIST_ANY    __UNIFORM_COMBO_ANY
+#endif
+
+//      __UNIFORM_LIST_BOOL1
+#define __UNIFORM_LIST_BOOL2  __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_BOOL3  __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_BOOL4  __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_INT1   __UNIFORM_LIST_ANY // Supported in 4.3.0
+#define __UNIFORM_LIST_INT2   __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_INT3   __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_INT4   __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_FLOAT1 __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_FLOAT2 __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_FLOAT3 __UNIFORM_LIST_ANY // Not supported in all versions
+#define __UNIFORM_LIST_FLOAT4 __UNIFORM_LIST_ANY // Not supported in all versions
+
+// For compatible with ComboBox
+#define __UNIFORM_LIST_BOOL1  __UNIFORM_COMBO_ANY
