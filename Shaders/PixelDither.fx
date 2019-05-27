@@ -1,13 +1,35 @@
 #include "ReShade.fxh"
 #include "ReShadeUI.fxh"
 
+/*
+PixelDither.fx
+This is a simple shader that I ported from 
+a Unity project I'd been working on, after 
+a friend requested it. It's simple and not 
+super configurable, as is. The only option 
+that can be changed in the UI is the width 
+of the screen in pixels. If you want a new 
+palette, just save it as a 1xN .gif in the
+textures directory as palette.gif, and add 
+PIXELDITHER_PALETTESIZE = N to your prepro 
+directives (unless N=32, in which case you
+don't have to do anything). The bigger the
+palette is, the bigger the performance hit
+so try to be thrifty! Using a huge palette
+kinda misses the point anyway.
+For best results, try increasing the gamma
+and saturation before applying PixelDither
+since a lot of dark-ish colors tend to map
+to pure grey.
+Have fun!
+*/
+
 #ifndef PIXELDITHER_PALETTESIZE
 	#define PIXELDITHER_PALETTESIZE 32
 #endif
 
 uniform float _ResolutionX <
 	ui_type = "input";
-	ui_min = 20; ui_max = 960;
 	ui_tooltip = "Sets the screen width in pixels. For best results, use an integer that cleanly divides your screen resolution.";
 > = 480.0;
 
