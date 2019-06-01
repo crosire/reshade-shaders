@@ -79,6 +79,18 @@ uniform float MXAO_SSAO_AMOUNT < __UNIFORM_SLIDER_FLOAT1
                 ui_label = "Indirect Lighting Saturation";
                 ui_tooltip = "Controls color saturation of IL effect.";
         > = 1.00;
+        
+        uniform float MXAO_SSIL_SATURATION_FILTER < __UNIFORM_SLIDER_FLOAT1
+                ui_min = 0.00; ui_max = 1.00;
+                ui_label = "Indirect Lighting Saturation Filter";
+                ui_tooltip = "Controls how much unsaturated colors should be excluded from IL. Or in other words how much saturation should control the amount of light bounced. Physically inaccurate but helps reducing ugly bright corners while keeping nicer color bleeding intact.";
+        > = 0.00;
+        
+        uniform float MXAO_SSIL_GAMMA < __UNIFORM_SLIDER_FLOAT1
+                ui_min = 1.00; ui_max = 3.00;
+                ui_label = "Indirect Lighting Gamma";
+                ui_tooltip = "Exponent for IL result. ( pow(<IL>, gamma) )";
+        > = 1.00;
 #endif
 
 #if (MXAO_TWO_LAYER != 0)
@@ -101,6 +113,12 @@ uniform float MXAO_SSAO_AMOUNT < __UNIFORM_SLIDER_FLOAT1
         > = 1.0;
 #endif
 
+uniform float MXAO_GAMMA < __UNIFORM_SLIDER_FLOAT1
+        ui_min = 1.00; ui_max = 3.00;
+        ui_label = "AO Gamma";
+        ui_tooltip = "Exponent for the AO result. ( pow(<AO>, gamma) )";
+> = 1.00;
+
 uniform int MXAO_DEBUG_VIEW_ENABLE <
         ui_type = "combo";
         ui_label = "Enable Debug View";
@@ -109,7 +127,7 @@ uniform int MXAO_DEBUG_VIEW_ENABLE <
 > = 0;
 
 uniform int MXAO_BLEND_TYPE < __UNIFORM_SLIDER_INT1
-        ui_min = 0; ui_max = 2;
+        ui_min = 0; ui_max = 3;
         ui_label = "Blending Mode";
         ui_tooltip = "Different blending modes for merging AO/IL with original color.\0Blending mode 0 matches formula of MXAO 2.0 and older.";
 > = 0;
@@ -331,6 +349,26 @@ bool GetCullingMask(in MXAO_VSOUT MXAO)
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+float3 RGBtoHSV(in float3 RGB){
+	float3 HSV = 0;
+	HSV.z = max(RGB.r, max(RGB.g, RGB.b));
+	float M = min(RGB.r, min(RGB.g, RGB.b));
+	float C = HSV.z - M;
+	if (C != 0){
+		float4 RGB0 = float4(RGB, 0);
+		float4 Delta = (HSV.z - RGB0) / C;
+		Delta.rgb -= Delta.brg;
+		Delta.rgb += float3(2,4,6);
+		Delta.brg = step(HSV.z, RGB) * Delta.brg;
+		HSV.x = max(Delta.r, max(Delta.g, Delta.b));
+		HSV.x = frac(HSV.x / 6);
+		HSV.y = 1 / Delta.w;
+	}
+	return HSV;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pixel Shaders
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -456,6 +494,7 @@ void PS_AmbientObscurance(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
                         if(fAO > 0.1)
                         {
         			float3 fIL = tex2Dlod(sMXAO_ColorTex, float4(sampleUV,0,sampleMIP + MXAO_MIPLEVEL_IL)).xyz;
+			        fIL *= lerp(1, RGBtoHSV(fIL).y, MXAO_SSIL_SATURATION_FILTER);
         			float3 tN = tex2Dlod(sMXAO_NormalTex, float4(sampleUV,0,sampleMIP + MXAO_MIPLEVEL_IL)).xyz * 2.0 - 1.0;
         			fIL = fIL - fIL*saturate(dot(V,tN)*rsqrt(VdotV)*2.0);
                                 color += float4(fIL*fAO,fAO - fAO * dot(fIL,0.333));
@@ -471,6 +510,11 @@ void PS_AmbientObscurance(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
         #if(MXAO_TWO_LAYER != 0)
                 color = pow(color,1.0 / lerp(MXAO_AMOUNT_COARSE, MXAO_AMOUNT_FINE, layerID));
         #endif
+
+        #if(MXAO_ENABLE_IL)
+                color.xyz = pow(color.xyz, MXAO_SSIL_GAMMA) * MXAO_SSIL_GAMMA;
+        #endif
+        color.w = pow(color.w, MXAO_GAMMA) * MXAO_GAMMA;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
