@@ -151,7 +151,7 @@ uniform float3 pSSDOLightPos <
 uniform int pSSDOMixMode <
     ui_label = "Mix Mode";
     ui_type = "combo";
-    ui_items = "Multiply (visually best imo)\0Additive (use with very low ssdoAmount & ssdoIntensity), generally not recommended.\0";
+    ui_items = "Multiply (visually best imo)\0Additive (use with very low Amount & Intensity), generally not recommended.\0";
 > = 0;
 
 uniform int pSSDODebugMode <
@@ -198,7 +198,7 @@ texture texSSDOC
 // *** EXTERNAL TEXTURES ***
 texture texNoise < source = "mcnoise.png"; >
 {
-	Width = 1920;
+	Width = 1080;
 	Height = 1080;
 	#define NOISE_SCREENSCALE float2((BUFFER_WIDTH/pow(2.0,pSSDOLOD))/1920.0,(BUFFER_HEIGHT/pow(2.0,pSSDOLOD))/1080.0)
 };
@@ -283,11 +283,11 @@ float4 viewSpace(float2 txCoords)
 {
 	const float2 offsetS = txCoords+float2(0.0,1.0)*pxSize;
 	const float2 offsetE = txCoords+float2(1.0,0.0)*pxSize;
-	float depth = linearDepth(txCoords);
-	float depthS = linearDepth(offsetS);
-	float depthE = linearDepth(offsetE);
+	const float depth = linearDepth(txCoords);
+	const float depthS = linearDepth(offsetS);
+	const float depthE = linearDepth(offsetE);
 	
-	float3 vsNormal = cross(normalize(float3(offsetS-txCoords,depthS-depth)),normalize(float3(offsetE-txCoords,depthE-depth)));
+	const float3 vsNormal = cross(normalize(float3(offsetS-txCoords,depthS-depth)),normalize(float3(offsetE-txCoords,depthE-depth)));
 	return float4(vsNormal.x,-vsNormal.y,-vsNormal.z,depth);
 }
 
@@ -302,26 +302,26 @@ float4 viewSpace(float2 txCoords)
 	// SSDO - Scatter Illumination
 	float4 FX_SSDOScatter( float2 txCoords )
 	{
-		float	sourceAxisDiv = pow(2.0,pSSDOSourceLOD);
-		float2	texelSize = pxSize*pow(2.0,pSSDOSourceLOD);
-		float4	vsOrig = tex2D(SamplerViewSpace,txCoords);
+		const float	sourceAxisDiv = pow(2.0,pSSDOSourceLOD);
+		const float2	texelSize = pxSize*pow(2.0,pSSDOSourceLOD);
+		const float4	vsOrig = tex2D(SamplerViewSpace,txCoords);
 		float3	ssdo = 0.0;
 		
-		float2	randomDir = tex2D(SamplerNoise,frac(txCoords*NOISE_SCREENSCALE)).xy;
+		const float2	randomDir = tex2D(SamplerNoise,frac(txCoords*NOISE_SCREENSCALE)).xy;
 		
 		[loop]
 		for (float offs=1.0;offs<=pSSDOSampleAmount;offs++)
 		{
-			float2 fetchCoords = txCoords+(frac(randomDir*11.139795*offs)*2.0-1.0)*offs*(pSSDOSampleRange/(pSSDOSampleAmount*sourceAxisDiv))*texelSize;
-			float4 vsFetch = tex2Dlod(SamplerViewSpace,float4(fetchCoords,0,pSSDOSourceLOD));
+			const float2 fetchCoords = txCoords+(frac(randomDir*11.139795*offs)*2.0-1.0)*offs*(pSSDOSampleRange/(pSSDOSampleAmount*sourceAxisDiv))*texelSize;
+			const float4 vsFetch = tex2Dlod(SamplerViewSpace,float4(fetchCoords,0,pSSDOSourceLOD));
 			float3 albedoFetch = tex2Dlod(SamplerColorLOD,float4(fetchCoords,0,pSSDOBounceLOD)).xyz;
 			albedoFetch = lerp(dot(albedoFetch,lumaCoeff),albedoFetch,pSSDOBounceSaturation);
 			albedoFetch /= max(1.0,max(albedoFetch.x,max(albedoFetch.y,albedoFetch.z)));
 			
-			float3 dirVec = float3(fetchCoords.x-txCoords.x,txCoords.y-fetchCoords.y,vsOrig.w-vsFetch.w);
-			float illuminationFact = dot(normalize(dirVec),pSSDOLightPos);
-			float visibility = (illuminationFact > 0.0) ? max(0.0,sign(dot(normalize(float3(dirVec.xy,abs(dirVec.z))),vsOrig.xyz))) : 1.0;
-			float normalDiff = length(vsFetch.xyz-vsOrig.xyz);
+			const float3 dirVec = float3(fetchCoords.x-txCoords.x,txCoords.y-fetchCoords.y,vsOrig.w-vsFetch.w);
+			const float illuminationFact = dot(normalize(dirVec),pSSDOLightPos);
+			const float visibility = (illuminationFact > 0.0) ? max(0.0,sign(dot(normalize(float3(dirVec.xy,abs(dirVec.z))),vsOrig.xyz))) : 1.0;
+			const float normalDiff = length(vsFetch.xyz-vsOrig.xyz);
 			if (illuminationFact < 0.0) albedoFetch = 1.0-albedoFetch;
 			ssdo += clamp(sign(illuminationFact),-pSSDOILMix,pSSDOAOMix) * (1.0-albedoFetch*pSSDOBounceMultiplier) * visibility * (max(0.0,SSDO_CONTRIB_RANGE-length(dirVec))/SSDO_CONTRIB_RANGE) * sign(max(0.0,normalDiff-0.3));
 		}
@@ -332,16 +332,16 @@ float4 viewSpace(float2 txCoords)
 	// Depth-Bilateral Gaussian Blur - Horizontal
 	float4 FX_BlurBilatH( float2 txCoords, float radius )
 	{
-		float	texelSize = pxSize.x/pSSDOFilterScale;
+		const float	texelSize = pxSize.x/pSSDOFilterScale;
 		float4	pxInput = tex2D(SamplerSSDOB,txCoords);
 		pxInput.xyz *= 0.5;
 		float	sampleSum = 0.5;
-		float	weightDiv = 1.0+2.0/radius;
+		const float	weightDiv = 1.0+2.0/radius;
 		
 		[loop]
 		for (float hOffs=1.5; hOffs<radius; hOffs+=2.0*pSSDOFilterStep)
 		{
-			float weight = 1.0/pow(abs(weightDiv),hOffs*hOffs/radius);
+			const float weight = 1.0/pow(abs(weightDiv),hOffs*hOffs/radius);
 			float2 fetchCoords = txCoords;
 			fetchCoords.x += texelSize * hOffs;
 			float4 fetch = tex2Dlod(SamplerSSDOB, float4(fetchCoords, 0.0, 0.0));
@@ -363,11 +363,11 @@ float4 viewSpace(float2 txCoords)
 	// Depth-Bilateral Gaussian Blur - Vertical
 	float3 FX_BlurBilatV( float2 txCoords, float radius )
 	{
-		float	texelSize = pxSize.y/pSSDOFilterScale;
+		const float	texelSize = pxSize.y/pSSDOFilterScale;
 		float4	pxInput = tex2D(SamplerSSDOC,txCoords);
 		pxInput.xyz *= 0.5;
 		float	sampleSum = 0.5;
-		float	weightDiv = 1.0+2.0/radius;
+		const float	weightDiv = 1.0+2.0/radius;
 		
 		[loop]
 		for (float vOffs=1.5; vOffs<radius; vOffs+=2.0*pSSDOFilterStep)
@@ -444,16 +444,27 @@ float4 PS_SetOriginal(VS_OUTPUT_POST IN) : COLOR
 	{
     float3 SSDO_MIX_MODE;
 		if (pSSDOMixMode == 1)
-			SSDO_MIX_MODE = +pow(abs(tex2D(SamplerSSDOB,IN.txcoord.xy).xyz*2.0),pSSDOIntensity)-1.0;
+			SSDO_MIX_MODE = pow(abs(tex2D(SamplerSSDOB,IN.txcoord.xy).xyz*2.0),pSSDOIntensity)-1.0;
 		else
 			SSDO_MIX_MODE = pow(abs(tex2D(SamplerSSDOB,IN.txcoord.xy).xyz*2.0),pSSDOIntensity);
 		
 		if (pSSDODebugMode == 1)
+		{
+      if (pSSDOMixMode == 1)
+        return float4(saturate(0.5 + SSDO_MIX_MODE),1.0);
+      else
+        return float4(saturate(0.5 * SSDO_MIX_MODE),1.0);
 			return float4(saturate(0.5 * SSDO_MIX_MODE),1.0);
+		}
 		else if (pSSDODebugMode == 2)
 			return float4(tex2D(SamplerSSDOA,IN.txcoord.xy).xyz,1.0);
 		else
-      return float4(saturate(tex2D(ReShade::BackBuffer,IN.txcoord.xy).xyz * SSDO_MIX_MODE),1.0);
+		{
+      if (pSSDOMixMode == 1)
+        return float4(saturate(tex2D(ReShade::BackBuffer,IN.txcoord.xy).xyz + SSDO_MIX_MODE),1.0);
+      else
+        return float4(saturate(tex2D(ReShade::BackBuffer,IN.txcoord.xy).xyz * SSDO_MIX_MODE),1.0);
+    }
 	}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
