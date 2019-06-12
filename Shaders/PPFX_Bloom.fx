@@ -82,7 +82,7 @@ uniform float pTonemapSaturateBlacks <
 uniform float pBloomRadius <
     ui_category = "Bloom";
     ui_label = "Bloom Sample Radius";
-    ui_tooltip = "Maximum distance within pixels affect each other - directly affetcs performance: Combine with pBloomDownsampling to increase your effective radius while keeping a high framerate.";
+    ui_tooltip = "Maximum distance within pixels affect each other - directly affects performance: Combine with pBloomDownsampling to increase your effective radius while keeping a high framerate.";
     ui_type = "slider";
     ui_min = 2.0;
     ui_max = 250.0;
