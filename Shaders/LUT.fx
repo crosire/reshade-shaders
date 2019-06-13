@@ -7,13 +7,13 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef fLUT_TextureName
-	#define fLUT_TextureName "lut.png"
+#define fLUT_TextureName "lut.png"
 #endif
 #ifndef fLUT_TileSizeXY
-	#define fLUT_TileSizeXY 32
+#define fLUT_TileSizeXY 32
 #endif
 #ifndef fLUT_TileAmount
-	#define fLUT_TileAmount 32
+#define fLUT_TileAmount 32
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,53 +22,62 @@
 
 #include "ReShadeUI.fxh"
 
-uniform float fLUT_AmountChroma < __UNIFORM_SLIDER_FLOAT1
-	ui_min = 0.00; ui_max = 1.00;
-	ui_label = "LUT chroma amount";
-	ui_tooltip = "Intensity of color/chroma change of the LUT.";
-> = 1.00;
-
 uniform float fLUT_AmountLuma < __UNIFORM_SLIDER_FLOAT1
-	ui_min = 0.00; ui_max = 1.00;
+	ui_min = 0.0; ui_max = 1.0; ui_step = (1.0 / 100.0);
 	ui_label = "LUT luma amount";
 	ui_tooltip = "Intensity of luma change of the LUT.";
-> = 1.00;
+> = 1.0;
+
+uniform float fLUT_AmountChroma < __UNIFORM_SLIDER_FLOAT1
+	ui_min = 0.0; ui_max = 1.0; ui_step = (1.0 / 100.0);
+	ui_label = "LUT chroma amount";
+	ui_tooltip = "Intensity of color/chroma change of the LUT.";
+> = 1.0;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "ReShade.fxh"
-texture texLUT < source = fLUT_TextureName; > { Width = fLUT_TileSizeXY*fLUT_TileAmount; Height = fLUT_TileSizeXY; Format = RGBA8; };
-sampler	SamplerLUT 	{ Texture = texLUT; };
+
+texture texLUT < source = fLUT_TextureName; >
+{
+	Width = fLUT_TileSizeXY * fLUT_TileAmount;
+	Height = fLUT_TileSizeXY;
+	Format = RGBA8;
+};
+
+sampler SamplerLUT
+{
+	Texture = texLUT;
+	AddressU = BORDER;
+	AddressV = BORDER;
+	AddressW = BORDER;
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void PS_LUT_Apply(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 res : SV_Target0)
+void PS_LUT_Apply(in float4 vars : SV_Position, in float2 texCoord : TEXCOORD, out float4 back : SV_Target)
 {
-	float4 color = tex2D(ReShade::BackBuffer, texcoord.xy);
-	float2 texelsize = 1.0 / fLUT_TileSizeXY;
-	texelsize.x /= fLUT_TileAmount;
+	back = tex2D(ReShade::BackBuffer, texCoord);
+	vars = float(fLUT_TileSizeXY - 1) / fLUT_TileSizeXY * back.rgrg + 0.5 / fLUT_TileSizeXY;
 
-	float3 lutcoord = float3((color.xy*fLUT_TileSizeXY-color.xy+0.5)*texelsize.xy,color.z*fLUT_TileSizeXY-color.z);
-	float lerpfact = frac(lutcoord.z);
-	lutcoord.x += (lutcoord.z-lerpfact)*texelsize.y;
+	float blueTable = back.b * (fLUT_TileAmount - 1);
 
-	float3 lutcolor = lerp(tex2D(SamplerLUT, lutcoord.xy).xyz, tex2D(SamplerLUT, float2(lutcoord.x+texelsize.y,lutcoord.y)).xyz,lerpfact);
+	vars.xz = (vars.xz + float2(floor(blueTable), ceil(blueTable))) * (1.0 / fLUT_TileAmount);
 
-	color.xyz = lerp(normalize(color.xyz), normalize(lutcolor.xyz), fLUT_AmountChroma) * 
-	            lerp(length(color.xyz),    length(lutcolor.xyz),    fLUT_AmountLuma);
+	vars = lerp(tex2D(SamplerLUT, vars.xy), tex2D(SamplerLUT, vars.zw), frac(blueTable));
+	vars = lerp(length(back), length(vars), fLUT_AmountLuma) * lerp(normalize(back), normalize(vars), fLUT_AmountChroma);
+	vars.a = back.a;
 
-	res.xyz = color.xyz;
-	res.w = 1.0;
+	back = vars;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
 technique LUT
 {
