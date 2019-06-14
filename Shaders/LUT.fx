@@ -50,9 +50,6 @@ texture texLUT < source = fLUT_TextureName; >
 sampler SamplerLUT
 {
 	Texture = texLUT;
-	AddressU = BORDER;
-	AddressV = BORDER;
-	AddressW = BORDER;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

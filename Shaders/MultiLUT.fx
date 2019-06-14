@@ -60,9 +60,6 @@ texture texMultiLUT < source = fLUT_TextureName; >
 sampler SamplerMultiLUT
 {
 	Texture = texMultiLUT;
-	AddressU = BORDER;
-	AddressV = BORDER;
-	AddressW = BORDER;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
