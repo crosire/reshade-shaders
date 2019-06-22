@@ -28,7 +28,7 @@
 #endif
 
 #ifndef qSSDOFilterPrecision
-#define		qSSDOFilterPrecision		RGBA16	// SSDO Filter Precision - The texture format used when filtering out the SSDO's noise. Use this to prevent banding artifacts that you may see in combination with very high ssdoIntensity values. RGBA16F, RGBA32F or, standard, RGBA8. Strongly suggest the latter to keep high framerates.
+#define		qSSDOFilterPrecision		RGBA16F	// SSDO Filter Precision - The texture format used when filtering out the SSDO's noise. Use this to prevent banding artifacts that you may see in combination with very high ssdoIntensity values. RGBA16F, RGBA32F or, standard, RGBA8. Strongly suggest the latter to keep high framerates.
 #endif
 
 uniform float pSSDOIntensity <
@@ -196,11 +196,11 @@ texture texSSDOC
 };
 
 // *** EXTERNAL TEXTURES ***
-texture texNoise < source = "mcnoise.png"; >
+texture texNoise < source = "ppfxnoise.png"; >
 {
 	Width = 1080;
 	Height = 1080;
-	#define NOISE_SCREENSCALE float2((BUFFER_WIDTH/pow(2.0,pSSDOLOD))/1920.0,(BUFFER_HEIGHT/pow(2.0,pSSDOLOD))/1080.0)
+	#define NOISE_SCREENSCALE float2((BUFFER_WIDTH/pow(2.0,pSSDOLOD))/1080.0,(BUFFER_HEIGHT/pow(2.0,pSSDOLOD))/1080.0)
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
