@@ -76,7 +76,7 @@ uniform float pGodraysFalloff <
 // *** ESSENTIALS ***
 texture texColorGRA { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 texture texColorGRB { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
-texture texDepth : DEPTH;
+texture texGameDepth : DEPTH;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++   SAMPLERS   +++++
@@ -104,7 +104,7 @@ sampler SamplerColorGRB
 
 sampler2D SamplerDepth
 {
-	Texture = texDepth;
+	Texture = texGameDepth;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -166,7 +166,7 @@ uniform int pSSDODebugMode <
 
 // *** ESSENTIALS ***
 texture texColorLOD { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; MipLevels = 4; };
-texture texDepth : DEPTH;
+texture texGameDepth : DEPTH;
 
 // *** FX RTs ***
 texture texViewSpace
@@ -215,7 +215,7 @@ sampler SamplerColorLOD
 
 sampler2D SamplerDepth
 {
-	Texture = texDepth;
+	Texture = texGameDepth;
 };
 
 // *** FX RTs ***
