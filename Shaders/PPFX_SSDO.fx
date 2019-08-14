@@ -196,7 +196,6 @@ texture texNoise < source = "ssdonoise.png"; >
 sampler SamplerColorLOD
 {
 	Texture = texColorLOD;
-	SRGBTexture = true;
 };
 
 sampler2D SamplerDepth
@@ -495,6 +494,5 @@ technique PPFXSSDO < ui_label = "PPFX SSDO"; ui_tooltip = "Screen Space Directio
 	{
 		VertexShader = VS_PostProcess;
 		PixelShader = PS_SSDOMix;
-		SRGBWriteEnable = true;
 	}
 }
