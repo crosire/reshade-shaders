@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.4.0 (c) 2018 Jakub Maximilian Fober
+Filmic Anamorph Sharpen PS v1.4.1 (c) 2018 Jakub Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -33,40 +33,33 @@ uniform float Clamp < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.5; ui_max = 1.0; ui_step = 0.001;
 > = 0.65;
 
-uniform bool UseMask <
-	ui_label = "Only center";
+uniform bool UseMask < __UNIFORM_INPUT_BOOL1
+	ui_label = "Sharpen only center";
 	ui_category = "Settings";
 	ui_tooltip = "Sharpen only in center of the image";
 > = false;
 
-uniform bool DepthMask <
-	ui_label = "Enable rim masking";
+uniform bool DepthMask < __UNIFORM_INPUT_BOOL1
+	ui_label = "Enable depth rim masking";
 	ui_tooltip = "Depth high-pass mask switch";
 	ui_category = "Depth mask";
 > = false;
 
-uniform int DepthMaskContrast <
+uniform int DepthMaskContrast < __UNIFORM_DRAG_INT1
 	ui_label = "Edges mask strength";
 	ui_tooltip = "Depth high-pass mask amount";
-	ui_type = "drag";
 	ui_category = "Depth mask";
 	ui_min = 0; ui_max = 2000; ui_step = 1;
 > = 128;
 
-uniform int Coefficient <
+uniform int Coefficient < __UNIFORM_RADIO_INT1
 	ui_tooltip = "For digital video signal use BT.709, for analog (like VGA) use BT.601";
-	#if __RESHADE__ < 40000
-		ui_label = "YUV coefficients";
-		ui_type = "combo";
-		ui_items = "BT.709 (digital signal)\0BT.601 (analog signal))\0";
-	#else
-		ui_type = "radio";
-		ui_items = "BT.709 - digital\0BT.601 - analog\0";
-	#endif
+	ui_label = "YUV coefficients";
+	ui_items = "BT.709 - digital\0BT.601 - analog\0";
 	ui_category = "Additional settings";
 > = 0;
 
-uniform bool Preview <
+uniform bool Preview < __UNIFORM_INPUT_BOOL1
 	ui_label = "Preview sharpen layer";
 	ui_tooltip = "Preview sharpen layer and mask for adjustment.\n"
 		"If you don't see red strokes,\n"
