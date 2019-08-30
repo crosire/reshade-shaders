@@ -1,4 +1,4 @@
-/** Aspect Ratio PS, version 1.0.0
+/** Aspect Ratio PS, version 1.0.1
 by Fubax 2019 for ReShade
 */
 
@@ -39,6 +39,9 @@ float3 AspectRatioPS(float4 vois: SV_Poisition, float2 coord : TexCoord) : SV_Ta
 	// Center coordinates
 	coord -= 0.5;
 
+	// if (Zoom != 1.0) coord /= Zoom;
+	if (Zoom != 1.0) coord /= clamp(Zoom, 1.0, 1.5); // Anti-cheat
+
 	// Squeeze horizontally
 	if (A<0)
 	{
@@ -60,9 +63,6 @@ float3 AspectRatioPS(float4 vois: SV_Poisition, float2 coord : TexCoord) : SV_Ta
 			Mask = abs(coord.y)>0.5;
 	}
 	
-	// if (Zoom != 1.0) coord /= Zoom;
-	if (Zoom != 1.0) coord /= clamp(Zoom, 1.0, 1.5); // Anti-cheat
-
 	// Coordinates back to the corner
 	coord += 0.5;
 
