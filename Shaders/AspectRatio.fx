@@ -1,4 +1,4 @@
-/** Aspect Ratio PS, version 1.0.1
+/** Aspect Ratio PS, version 1.0.2
 by Fubax 2019 for ReShade
 */
 
@@ -32,7 +32,7 @@ uniform float3 Color < __UNIFORM_COLOR_FLOAT3
 	 /// SHADER ///
 	//////////////
 
-float3 AspectRatioPS(float4 vois: SV_Poisition, float2 coord : TexCoord) : SV_Target
+float3 AspectRatioPS(float4 pos : SV_Position, float2 coord : TEXCOORD0) : SV_Target
 {
 	bool Mask = false;
 
