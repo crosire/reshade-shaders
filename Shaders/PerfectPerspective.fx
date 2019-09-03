@@ -6,10 +6,10 @@ Attribution-NonCommercial-NoDerivatives 4.0 International License.
 To view a copy of this license, visit 
 http://creativecommons.org/licenses/by-nc-nd/4.0/ 
 
-For inquiries please contact jakubfober@gmail.com
+For inquiries please contact jakub.m.fober@pm.me
 */
 
-// Perfect Perspective PS ver. 2.7.0
+// Perfect Perspective PS ver. 2.7.1
 
 
 	  ////////////
@@ -184,7 +184,8 @@ float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoor
 	// Aspect Ratio correction
 	SphCoord.y *= AspectR;
 	// Zoom in image and adjust FOV type (pass 1 of 2)
-	SphCoord *= Zooming / FovType;
+	// SphCoord *= Zooming / FovType;
+	SphCoord *= clamp(Zooming, 0.5, 2.0) / FovType; // Anti-cheat
 
 	// Perspective lookup, vertical distortion amount and FOV type (pass 2 of 2)
 	switch(Projection)
