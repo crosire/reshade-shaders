@@ -75,7 +75,7 @@ uniform int View_Mode <
 > = 0;
 
 uniform bool Performance_Mode <
-	ui_label = "Performance Mode";
+	ui_label = " Performance Mode";
 	ui_tooltip = "Occlusion Quality Processing.\n"
 				 "Default is True.";
 	ui_category = "Occlusion Masking";
@@ -124,33 +124,16 @@ uniform bool WP <
 	ui_category = "Weapon Hand Adjust";
 > = false;
 
-uniform int Weapon_Scale < __UNIFORM_SLIDER_INT1
-	ui_min = -3; ui_max = 3;
-	ui_label = " Weapon Scale";
-	ui_tooltip = "Use this to set the proper weapon hand scale.";
-	ui_category = "Weapon Hand Adjust";
-> = 0;
-
-uniform float2 Weapon_Adjust <
+uniform float3 Weapon_Adjust <
 	ui_type = "drag";
-	ui_min = 0.0; ui_max = 25.0;
+	ui_min = 0.0; ui_max = 250.0;
 	ui_label = " Weapon Hand Adjust";
 	ui_tooltip = "Adjust Weapon depth map for your games.\n"
-	             "X, CutOff Point used to set a diffrent scale for first person hand apart from world scale.\n"
-	             "Y, Precision is used to adjust the first person hand in world scale.\n"
-	             "Default is float2(X 0.0, Y 0.0)";
+				 "X, CutOff Point used to set a diffrent scale for first person hand apart from world scale.\n"
+				 "Y, Precision is used to adjust the first person hand in world scale.\n"
+	             "Default is float2(X 0.0, Y 0.0, Z 0.0)";
 	ui_category = "Weapon Hand Adjust";
-> = float2(0.0,0.0);
-
-uniform float Weapon_Depth_Adjust <
-	ui_type = "drag";
-	ui_min = -50.0; ui_max = 50.0; ui_step = 0.25;
-	ui_label = " Weapon Depth Adjustment";
-	ui_tooltip = "Pushes or Pulls the FPS Hand in or out of the screen if a weapon profile is selected.\n"
-	             "This also used to fine tune the Weapon Hand if creating a weapon profile.\n"
-	             "Default is Zero.";
-	ui_category = "Weapon Hand Adjust";
-> = 0;
+> = float3(0.0,0.0,0.0);
 
 //Stereoscopic Options//
 uniform int Stereoscopic_Mode <
@@ -183,7 +166,6 @@ uniform bool Eye_Swap <
 	ui_tooltip = "Left : Right to Right : Left.";
 	ui_category = "Stereoscopic Options";
 > = false;
-
 //Cursor Adjustments//
 uniform int Cursor_Type <
 	#if Compatibility
@@ -203,9 +185,9 @@ uniform float3 Cursor_STT <
 	ui_min = 0; ui_max = 1;
 	ui_label = " Cursor Adjustments";
 	ui_tooltip = "This controlls the Size, Thickness, & Color.\n" 
-				 "Defaults are ( X 0.125, Y 0.5, Z 1.0).";
+				 "Defaults are ( X 0.125, Y 0.5, Z 0.0).";
 	ui_category = "Cursor Adjustments";
-> = float3(0.125,0.5,1.0);
+> = float3(0.125,0.5,0.0);
 
 uniform bool SCSC <
 	ui_label = " Cursor Lock";
@@ -235,14 +217,11 @@ sampler BackBuffer
 	AddressW = BORDER;
 };	
 	
-texture texDepth  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT * 0.75 ; Format = RGBA16F;}; 
+texture texDepth  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F;}; 
 
 sampler SamplerDepth
 	{
 		Texture = texDepth;
-		MinFilter = LINEAR;
-		MagFilter = LINEAR;
-		MipFilter = LINEAR;
 	};
 
 uniform float2 Mousecoords < source = "mousepoint"; > ;	
@@ -260,8 +239,7 @@ float4 MCursor(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	float dist_fromVertical = abs(center.y - MousecoordsXY.y) * Screen_Ratio.y , Size_V = Size_Thickness.x * CCA, THICC_V = Size_Thickness.y * CCB;	
 	
 	//Cross Cursor
-	float B = min(max(THICC_H - dist_fromHorizontal,0)/THICC_H,max(Size_H-dist_fromVertical,0));
-	float A = min(max(THICC_V - dist_fromVertical,0)/THICC_V,max(Size_V-dist_fromHorizontal,0));
+	float B = min(max(THICC_H - dist_fromHorizontal,0)/THICC_H,max(Size_H-dist_fromVertical,0)), A = min(max(THICC_V - dist_fromVertical,0)/THICC_V,max(Size_V-dist_fromHorizontal,0));
 	float CC = A+B; //Cross Cursor
 	
 	//Ring Cursor
@@ -272,44 +250,33 @@ float4 MCursor(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	//Solid Square Cursor
 	float Solid_Square_Size = Size_Thickness.x * CCC;
 	float SSC = min(max(Solid_Square_Size - dist_fromHorizontal,0)/Solid_Square_Size,max(Solid_Square_Size-dist_fromVertical,0)); //Solid Square Cursor
-	
-	float Cursor = CC;
-	
-	if(Cursor_Type == 1)
-		Cursor = RC;
-	else if(Cursor_Type == 2)
-		Cursor = SSC;
-	else if(Cursor_Type == 3)
-		Cursor = SSC + CC;
-	else if(Cursor_Type == 4)
-		Cursor = SSC + RC;
-	else if(Cursor_Type == 5)
-		Cursor = CC + RC;
-	else if(Cursor_Type == 6)
-		Cursor = CC + RC + SSC;
-	
-	if (Cursor_STT.z == 1 )
-		Color.rgb = float3(1,1,1);
-	else if (Cursor_STT.z >= 0.9 )
-		Color.rgb = float3(0,0,1);
-	else if (Cursor_STT.z >= 0.8 )
-		Color.rgb = float3(0,1,0);
-	else if (Cursor_STT.z >= 0.7 )
-		Color.rgb = float3(1,0,0);	
-	else if (Cursor_STT.z >= 0.6 )
-		Color.rgb = float3(0,1,1);
-	else if (Cursor_STT.z >= 0.5 )
-		Color.rgb = float3(1,0,1);
-	else if (Cursor_STT.z >= 0.4 )
-		Color.rgb = float3(1,1,0);
-	else if (Cursor_STT.z >= 0.3 )
-		Color.rgb = float3(1,0.4,0.7);
-	else if (Cursor_STT.z >= 0.2 )
-		Color.rgb = float3(1,0.64,0);
-	else if (Cursor_STT.z >= 0.1 )
-		Color.rgb = float3(0.5,0,0.5);
-		
-	Out = Cursor  ? Color : Out;
+	// Cursor Array //
+	float Cursor, CArray[7] = {
+		CC,			 //Cross Cursor
+		RC, 	     //Ring Cursor		
+		SSC,         //Solid Square Cursor
+		SSC + CC,    //Solid Square Cursor / Cross Cursor
+		SSC + RC,    //Solid Square Cursor / Ring Cursor		
+		CC + RC,     //Cross Cursor / Ring Cursor
+		CC + RC + SSC//Cross Cursor / Ring Cursor / Solid Square Cursor
+	};
+	Cursor = CArray[Cursor_Type];
+	// Cursor Color Array //
+	float3 CCArray[10] = {
+		float3(1,1,1),
+		float3(0,0,1),	
+		float3(0,1,0),
+		float3(1,0,0),	
+		float3(0,1,1),
+		float3(1,0,1),
+		float3(1,1,0),
+		float3(1,0.4,0.7),
+		float3(1,0.64,0),
+		float3(0.5,0,0.5)
+	};
+	Color.rgb = CCArray[int(Cursor_STT.z * 10)];
+
+	Out = Cursor ? Color : Out;
 	
 	return Out;
 }
@@ -358,82 +325,29 @@ float Depth(in float2 texcoord : TEXCOORD0)
 float2 WeaponDepth(in float2 texcoord : TEXCOORD0)
 {
 	if (Depth_Map_Flip)
-	texcoord.y =  1 - texcoord.y;
-		
-	float zBufferWH = tex2D(DepthBuffer, texcoord).x, CutOff = Weapon_Adjust.x , Adjust = Weapon_Adjust.y, Tune = Weapon_Depth_Adjust, Scale = Weapon_Scale;
+		texcoord.y =  1 - texcoord.y;
+	//Weapon Profiles Starts Here
+	float zBufferWH = tex2D(DepthBuffer, texcoord).x, CutOff = Weapon_Adjust.x , Adjust = Weapon_Adjust.y, Tune = Weapon_Adjust.z;
 	
-	float4 WA_XYZW;//Weapon Profiles Starts Here
-	if (WP == 1)                                   // WA_XYZW.x | WA_XYZW.y | WA_XYZW.z | WA_XYZW.w 
-		WA_XYZW = float4(CutOff,Adjust,Tune,Scale);// X Cutoff  | Y Adjust  | Z Tuneing | W Scaling 		
+	float3 WA_XYZ;//Weapon Profiles Starts Here
+	if (WP == 1)                             // WA_XYZW.x | WA_XYZW.y | WA_XYZW.z  
+		WA_XYZ = float3(CutOff,Adjust,Tune);// X Cutoff  | Y Adjust  | Z Tuneing 		
 	
-	// Code Adjustment Values.
-	// WA_XYZW.x | WA_XYZW.y | WA_XYZW.z | WA_XYZW.w 
-	// X Cutoff  | Y Adjust  | Z Tuneing | W Scaling 	
+	// Here on out is the Weapon Hand Adjustment code.		
+	//Conversions to linear space.....
+	//Near & Far Adjustment
+	float Far = 1.0, Near = 0.125/WA_XYZ.y;  //Division Depth Map Adjust - Near	
+	float2 Offsets = float2(1 + WA_XYZ.z,1 - WA_XYZ.z), Z = float2( zBufferWH, 1-zBufferWH );
 	
-	// Hear on out is the Weapon Hand Adjustment code.		
-	float Set_Scale , P = WA_XYZW.y;
-	
-	if (WA_XYZW.w == -3)
-	{
-		WA_XYZW.x *= 21.0f;
-		P = (P + 0.00000001) * 100;
-		Set_Scale = 0.5f;
-	}			
-	if (WA_XYZW.w == -2)
-	{
-		P = (P + 0.00000001) * 100;
-		Set_Scale = 0.5f;
-	}
-	else if (WA_XYZW.w == -1)
-	{
-		Set_Scale = 0.332;
-		P = (P + 0.00000001) * 100;
-	}
-	else if (WA_XYZW.w == 0)
-	{
-		Set_Scale = 0.105;
-		P = (P + 0.00000001) * 100;
-	}
-	else if (WA_XYZW.w == 1)
-	{
-		Set_Scale = 0.07265625;
-		P = (P + 0.00000001) * 100;
-	}
-	else if (WA_XYZW.w == 2)
-	{
-		Set_Scale = 0.0155;
-		P = (P + 0.00000001) * 2000;
-	}	
-	else if (WA_XYZW.w == 3)
-	{
-		Set_Scale = 0.01;
-		P = (P + 0.00000001) * 100;
-	}
-	//FPS Hand Depth Maps require more precision at smaller scales to look right.		 		
-	float Far = (P * Set_Scale) * (1+(WA_XYZW.z * 0.01f)), Near = P;
-	
-	float2 Z = float2( zBufferWH, 1-zBufferWH );
-			
-	if ( Depth_Map == 0 )
-		zBufferWH /= Far - Z.x * (Near - Far);
-	else if ( Depth_Map == 1 )
-		zBufferWH /= Far - Z.y * (Near - Far);
-	
-	zBufferWH = saturate(zBufferWH);
-	
-	//This code is used to adjust the already set Weapon Hand Profile.
-	float WA = 1 + (Weapon_Depth_Adjust * 0.015);
-	if (WP > 1)
-	zBufferWH = (zBufferWH - 0) /  (WA - 0);
-	
-	//Auto Anti Weapon Depth Map Z-Fighting is always on.
-	float WeaponLumAdjust = saturate(abs(smoothstep(0,0.5,Lumi(texcoord)*2.5)));	
-			
-	//Anti Weapon Hand Z-Fighting code trigger
-	//if (WP > 1)
-	zBufferWH = saturate(lerp(0.025, zBufferWH, saturate(WeaponLumAdjust)));
-				
-	return float2(zBufferWH.x,WA_XYZW.x);	
+	if (WA_XYZ.z > 0)
+	Z = min( 1, float2( Z.x * Offsets.x , Z.y / Offsets.y  ));
+
+	[branch] if (Depth_Map == 0)//DM0. Normal
+		zBufferWH = Far * Near / (Far + Z.x * (Near - Far));		
+	else if (Depth_Map == 1)//DM1. Reverse
+		zBufferWH = Far * Near / (Far + Z.y * (Near - Far));	
+					
+	return float2(saturate(zBufferWH.x),WA_XYZ.x);		
 }
 
 void DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float4 Color : SV_Target)
@@ -493,30 +407,31 @@ float zBuffer(in float2 texcoord : TEXCOORD0)
 
 // Horizontal parallax offset & Hole filling effect reworked from here http://graphics.cs.brown.edu/games/SteepParallax/index.html
 float2 Parallax( float Diverge, float2 Coordinates)
-{
-	float Cal_Steps = (Divergence * 0.5) + (Divergence * 0.04);
-	
-	if(!Performance_Mode)
-	Cal_Steps = Divergence + (Divergence * 0.04);
-	
+{	float Perf = 1.0;
+
+	if(Performance_Mode)
+		Perf = 0.5;
+		
+	//ParallaxSteps Calculations
+	float D = abs(length(Diverge)), Cal_Steps = (D * Perf) + (D * 0.04), Steps = clamp(Cal_Steps,0,255);
+		
 	// Offset per step progress & Limit
-	float LayerDepth = 1.0 / Cal_Steps;
+	float LayerDepth = rcp(Steps);
 
 	//Offsets listed here Max Seperation is 3% - 8% of screen space with Depth Offsets & Netto layer offset change based on MS.
 	float MS = Diverge * pix.x, deltaCoordinates = MS * LayerDepth;
-	float2 ParallaxCoord = Coordinates,DB_Offset = float2((Diverge * 0.075f) * pix.x, 0);
+	float2 ParallaxCoord = Coordinates,DB_Offset = float2((Diverge * 0.0625f) * pix.x, 0);
 	float CurrentDepthMapValue = zBuffer(ParallaxCoord), CurrentLayerDepth = 0, DepthDifference;
 
 	[loop] //Steep parallax mapping
-    for ( int i = 0 ; i < Cal_Steps; i++ )
-    {
-		// Doing it this way should stop crashes in older version of reshade, I hope.
+    for ( int i = 0; i < Steps; i++ )
+    {	// Doing it this way should stop crashes in older version of reshade, I hope.
         if (CurrentDepthMapValue <= CurrentLayerDepth)
 			break; // Once we hit the limit Stop Exit Loop.
         // Shift coordinates horizontally in linear fasion
         ParallaxCoord.x -= deltaCoordinates;
         // Get depth value at current coordinates
-        if(View_Mode == 1)
+    	[branch] if(View_Mode == 1)
         	CurrentDepthMapValue = zBuffer( ParallaxCoord );
         else
         	CurrentDepthMapValue = zBuffer( ParallaxCoord - DB_Offset);
@@ -532,30 +447,25 @@ float2 Parallax( float Diverge, float2 Coordinates)
 	// Interpolate coordinates
 	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
 	ParallaxCoord = PrevParallaxCoord * max(0,weight) + ParallaxCoord * min(1,1.0f - weight);
-
+	
+	if(View_Mode == 0)
+	ParallaxCoord += DB_Offset;
+	
 	// Apply gap masking
 	DepthDifference = (afterDepthValue-beforeDepthValue) * MS;
 	if(View_Mode == 1)
-		ParallaxCoord.x = lerp(ParallaxCoord.x - DepthDifference,ParallaxCoord.x,0.5f);
+		ParallaxCoord.x = ParallaxCoord.x - DepthDifference;
 	
 	return ParallaxCoord;
 }
 
 float4 EdgeMask( float Diverge, float4 Image, float2 texcoords)
 {
-	float Side_A = 0, Side_B = -1;
-	
-	if(Diverge > 0)
-		{
-			Side_A = -1;	 
-			Side_B = 0;
-		}
-		
-	float PA = Side_A+(BUFFER_WIDTH*pix.x), PB = Side_B+(BUFFER_WIDTH*pix.x), Y = BUFFER_HEIGHT*pix.y;
-	float4 Bar_A = all( abs(float2( texcoords.x-PA, texcoords.y-Y)) < float2(Divergence * pix.x,1.0f));
-	float4 Bar_B = all( abs(float2( texcoords.x-PB, texcoords.y-Y)) < float2(Divergence * pix.x,1.0f));
-		
-	return Bar_A + Bar_B ? float4(0,0,0,1) : Image;
+	float SB_R = 1-(Divergence * 0.02) * 0.025,SB_L = (Divergence * 0.02) * 0.025;
+		if(texcoords.x < SB_R && texcoords.x > SB_L)
+		return Image;
+	else
+		return float4(0,0,0,1);
 }
 
 float4 PS_calcLR(float2 texcoord)
