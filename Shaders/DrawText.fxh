@@ -4,7 +4,12 @@
 #define _DRAWTEXT_GRID_X 14.0
 #define _DRAWTEXT_GRID_Y 7.0
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                   //
+//  DrawText.fxh by kingreic1992   ( update: Sep.28.2019 )                                           //
+//                                                                                                   //
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                                                                                                   //
 //  Available functions:                                                                             //
 //      DrawText_String( offset, text size, xy ratio, input coord, string array, array size, output) //
@@ -26,7 +31,8 @@
 //          float  data         = input float.                                                       //
 //          float  output       = output.                                                            //
 //                                                                                                   //
-//      float2 DrawText_Shift(shift, text size, xy ratio)                                            //
+//      float2 DrawText_Shift(offset, shift, text size, xy ratio)                                    //
+//          float2 offset       = same as DrawText_String.                                           //
 //          float2 shift        = shift line(y) and column.                                          //
 //          float text size     = same as DrawText_String.                                           //
 //          float xy ratio      = same as DrawText_String.                                           //
@@ -37,6 +43,9 @@
 //Sample Usage
 
 /*
+
+#include "DrawText.fxh"
+
 float4 main_fragment( float4 position : POSITION,
                       float2 txcoord  : TEXCOORD) : COLOR {
     float res = 0.0;
@@ -50,10 +59,8 @@ float4 main_fragment( float4 position : POSITION,
     DrawText_String(DrawText_Shift(float2(100.0 , 134.0), int2(0, 1), textSize, 1), 18, 1, txcoord,  line2, 6, res);
     DrawText_Digit(DrawText_Shift(DrawText_Shift(float2(100.0 , 134.0), int2(0, 1), textSize, 1), int2(8, 0), 18, 1),
                     18, 1, txcoord,  0, textSize, res);
-
     return res;
 }
-
 */
 
 //Text display
@@ -191,29 +198,31 @@ float2 DrawText_Shift( float2 pos, int2 shift, float size, float ratio ) {
 
 void DrawText_Digit( float2 pos, float size, float ratio, float2 tex, int digit, float data, inout float res) {
     int digits[13] = {
-        __0, __1, __2, __3, __4, __5, __6, __7, __8, __9,
-        __Minus, __Space, __Dot
+        __0, __1, __2, __3, __4, __5, __6, __7, __8, __9, __Minus, __Space, __Dot
     };
 
-    float  text = 0;
     float2 uv = (tex * float2(BUFFER_WIDTH, BUFFER_HEIGHT) - pos) / size;
     uv.y      = saturate(uv.y);
     uv.x     *= ratio * 2.0;
 
     float  t  = abs(data);
-    int radix = floor(log10(max(t, 0.00001)));
-    radix     = (floor(t) == 0)? 0:radix;
+    int radix = floor(t)? ceil(log2(t)/3.32192809):0;
 
-    float index = pow(10, floor(-uv.x) + step(1, uv.x)); //current digit
-    index       = floor(frac(t * 0.1 / index) * 10);
-    index       = lerp(lerp(10, 11, step(0, data)), index, step(-radix-1, uv.x));
-    index       = (uv.x > 0 && uv.x < 1)? 12:index;
-    index       = digits[int(index)];
+    //early exit:
+    if(uv.x > digit+1 || -uv.x > radix+1) return;
 
-    if(uv.x <= digit + 1 && uv.x >= -radix-2)
-        text    = tex2D(samplerText, (frac(uv) + float2( index % 14.0, trunc(index / 14.0))) /
-                        float2( _DRAWTEXT_GRID_X, _DRAWTEXT_GRID_Y)).x;
-    res += text;
+    float index = t;
+    if(floor(uv.x) > 0)
+        for(int i = ceil(-uv.x); i<0; i++) index *= 10.;
+    else
+        for(int i = ceil(uv.x); i<0; i++) index /= 10.;
+
+    index = (uv.x >= -radix-!radix)? index%10 : (10+step(0, data)); //adding sign
+    index = (uv.x > 0 && uv.x < 1)? 12:index; //adding dot
+    index = digits[(uint)index];
+
+    res  += tex2D(samplerText, (frac(uv) + float2( index % 14.0, trunc(index / 14.0))) /
+                float2( _DRAWTEXT_GRID_X, _DRAWTEXT_GRID_Y)).x;
 }
 
 #endif
