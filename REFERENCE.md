@@ -65,9 +65,6 @@ texture texTarget
 	//   R8, R16F, R32F
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F
-	// Available compressed formats (read-only):
-	//   DXT1 or BC1, DXT3 or BC2, DXT5 or BC3
-	//   LATC1 or BC4, LATC2 or BC5
 	Format = RGBA8;
 
 	// The default value is used if an option is missing here.
