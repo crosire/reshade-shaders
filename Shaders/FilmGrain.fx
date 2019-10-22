@@ -15,7 +15,11 @@ uniform float Variance < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
 	ui_tooltip = "Controls the variance of the Gaussian noise. Lower values look smoother.";
 > = 0.40;
-uniform float Mean = 0.5;
+uniform float Mean < __UNIFORM_SLIDER_FLOAT1
+	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Affects the brightness of the noise.";
+> = 0.5;
+
 uniform int SignalToNoiseRatio < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 16;
 	ui_label = "Signal-to-Noise Ratio";

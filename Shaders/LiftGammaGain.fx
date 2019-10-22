@@ -8,17 +8,17 @@
 uniform float3 RGB_Lift < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 2.0;
 	ui_label = "RGB Lift";
-	ui_tooltip = "Adjust shadows for Red, Green and Blue.";
+	ui_tooltip = "Adjust shadows for red, green and blue.";
 > = float3(1.0, 1.0, 1.0);
 uniform float3 RGB_Gamma < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 2.0;
 	ui_label = "RGB Gamma";
-	ui_tooltip = "Adjust midtones for Red, Green and Blue.";
+	ui_tooltip = "Adjust midtones for red, green and blue.";
 > = float3(1.0, 1.0, 1.0);
 uniform float3 RGB_Gain < __UNIFORM_SLIDER_FLOAT3
 	ui_min = 0.0; ui_max = 2.0;
 	ui_label = "RGB Gain";
-	ui_tooltip = "Adjust highlights for Red, Green and Blue.";
+	ui_tooltip = "Adjust highlights for red, green and blue.";
 > = float3(1.0, 1.0, 1.0);
 
 

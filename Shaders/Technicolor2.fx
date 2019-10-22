@@ -21,6 +21,7 @@ uniform float Saturation < __UNIFORM_SLIDER_FLOAT1
 
 uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Adjust the strength of the effect.";
 > = 1.0;
 
 #include "ReShade.fxh"

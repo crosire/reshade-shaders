@@ -22,21 +22,24 @@
 
 uniform int BlackPoint < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
+	ui_label = "Black Point";
 	ui_tooltip = "The black point is the new black - literally. Everything darker than this will become completely black.";
 > = 16;
 
 uniform int WhitePoint < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 255;
+	ui_label = "White Point";
 	ui_tooltip = "The new white point. Everything brighter than this becomes completely white";
 > = 235;
 
 uniform bool HighlightClipping <
+	ui_label = "Highlight clipping pixels";
 	ui_tooltip = "Colors between the two points will stretched, which increases contrast, but details above and below the points are lost (this is called clipping).\n"
-	"This setting marks the pixels that clip.\n"
-	"Red: Some detail is lost in the highlights\n"
-	"Yellow: All detail is lost in the highlights\n"
-	"Blue: Some detail is lost in the shadows\n"
-	"Cyan: All detail is lost in the shadows.";
+		"This setting marks the pixels that clip.\n"
+		"Red: Some detail is lost in the highlights\n"
+		"Yellow: All detail is lost in the highlights\n"
+		"Blue: Some detail is lost in the shadows\n"
+		"Cyan: All detail is lost in the shadows.";
 > = false;
 
 #include "ReShade.fxh"

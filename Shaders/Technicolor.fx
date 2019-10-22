@@ -14,6 +14,7 @@ uniform float3 RGBNegativeAmount < __UNIFORM_COLOR_FLOAT3
 
 uniform float Strength < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 1.0;
+	ui_tooltip = "Adjust the strength of the effect.";
 > = 0.4;
 
 #include "ReShade.fxh"
