@@ -843,12 +843,12 @@ float3 PS_calcLR(float2 texcoord)
 		D = -Divergence;
 
 	float FadeIO = smoothstep(0,1,1-Fade_in_out(texcoord).x), FD = D, FD_Adjust = 0.1;
-	
+
 	if( Eye_Fade_Reduction_n_Power.y == 1)
 		FD_Adjust = 0.2;
 	else if( Eye_Fade_Reduction_n_Power.y == 2)
 		FD_Adjust = 0.3;
-		
+
 	if (FPSDFIO == 1 || FPSDFIO == 2)
 		FD = lerp(FD * FD_Adjust,FD,FadeIO);
 
@@ -1033,7 +1033,7 @@ float4 Out(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
 }
 
 //*Rendering passes*//
-technique Depth3D_NV
+technique Depth3D //Note to self: this should start the same as to not break profiles.
 < ui_tooltip = "This Shader should be the VERY LAST Shader in your master shader list.\n"
 	           "You can always Drag shaders around by clicking them and moving them.\n"
 	           "For more help you can always contact me at DEPTH3D.info or my Github."; >
