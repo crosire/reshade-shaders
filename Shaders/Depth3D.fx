@@ -69,7 +69,7 @@
 //Divergence & Convergence//
 uniform float Divergence <
 	ui_type = "drag";
-	ui_min = 10; ui_max = 75; ui_step = 0.25;
+	ui_min = 10; ui_max = 60; ui_step = 0.25;
 	ui_label = "Divergence Slider";
 	ui_tooltip = "Divergence increases differences between the left and right retinal images and allows you to experience depth.\n"
 							 "The process of deriving binocular depth information is called stereopsis.";
@@ -165,7 +165,7 @@ uniform bool Depth_Detection <
 	ui_label = "Depth Detection";
 	ui_tooltip = "Use this to dissable/enable in game Depth Detection.";
 	ui_category = "Depth Map";
-> = true;
+> = false;
 
 uniform bool Depth_Map_Flip <
 	ui_label = "Depth Map Flip";
@@ -210,6 +210,12 @@ uniform int2 Eye_Fade_Reduction_n_Power <
 							 "Default is int( X 0 , Y 0 ).";
 	ui_category = "Weapon Hand Adjust";
 > = int2(0,0);
+
+uniform bool Weapon_ZPD_Boundary <
+	ui_label = "Weapon Screen Boundary Detection";
+	ui_tooltip = "This selection menu gives extra boundary conditions to WZPD.";
+	ui_category = "Weapon Hand Adjust";
+> = false;
 //Heads-Up Display
 uniform float2 HUD_Adjust <
 	ui_type = "drag";
@@ -235,7 +241,7 @@ uniform int Stereoscopic_Mode <
 uniform int Scaling_Support < //not sure if this work with Freestyle
 	ui_type = "combo";
 	ui_items = "SR Native\0SR 2160p A\0SR 2160p B\0SR 1080p A\0SR 1080p B\0SR 1050p A\0SR 1050p B\0SR 720p A\0SR 720p B\0";
-	ui_label = " Scaling Support";
+	ui_label = "Scaling Support";
 	ui_tooltip = "Dynamic Super Resolution scaling support for Line Interlaced.\n"
 							 "Set this to your native Screen Resolution A or B, DSR Smoothing must be set to 0%.\n"
 							 "Default is SR Native.";
@@ -245,7 +251,7 @@ uniform int Scaling_Support < //not sure if this work with Freestyle
 uniform int Perspective <
 	ui_type = "drag";
 	ui_min = -100; ui_max = 100;
-	ui_label = " Perspective Slider";
+	ui_label = "Perspective Slider";
 	ui_tooltip = "Determines the perspective point of the two images this shader produces.\n"
 							 "For an HMD, use Polynomial Barrel Distortion shader to adjust for IPD.\n"
 							 "Do not use this perspective adjustment slider to adjust for IPD.\n"
@@ -254,13 +260,13 @@ uniform int Perspective <
 > = 0;
 
 uniform bool Theater_Mode <
-	ui_label = " Theater Mode";
+	ui_label = "Theater Mode";
 	ui_tooltip = "Sets the 3D Shader in to Theater mode for VR only Usable in Side By Side Half.";
 	ui_category = "Stereoscopic Options";
 > = false;
 
 uniform bool Eye_Swap <
-	ui_label = " Swap Eyes";
+	ui_label = "Swap Eyes";
 	ui_tooltip = "L/R to R/L.";
 	ui_category = "Stereoscopic Options";
 > = false;
@@ -277,30 +283,31 @@ uniform int Cursor_Type <
 uniform int2 Cursor_SC <
 	ui_type = "drag";
 	ui_min = 0; ui_max = 5;
-	ui_label = " Cursor Adjustments";
+	ui_label = "Cursor Adjustments";
 	ui_tooltip = "This controlls the Size & Color.\n"
 							 "Defaults are ( X 1, Y 2 ).";
 	ui_category = "Cursor Adjustments";
 > = int2(1,2);
 
 uniform bool Cursor_Lock <
-	ui_label = " Cursor Lock";
+	ui_label = "Cursor Lock";
 	ui_tooltip = "Screen Cursor to Screen Crosshair Lock.";
 	ui_category = "Cursor Adjustments";
 > = false;
 
 static const float Auto_Balance_Clamp = 0.5; //This Clamps Auto Balance's max Distance
 static const float Auto_Depth_Adjust = 0.1; //The Map Automaticly scales to outdoor and indoor areas.
-static const float WZPD = 0.03; //WZPD [Weapon Zero Parallax Distance] controls the focus distance for the screen Pop-out effect also known as Convergence for the weapon hand.
 ///////////////////////////////////////////////////////////////3D Starts Here/////////////////////////////////////////////////////////////////
 uniform bool Mask_Cycle < source = "key"; keycode = Mask_Cycle_Key; toggle = true; >;
 uniform bool Trigger_Fade_A < source = "mousebutton"; keycode = Fade_Key; toggle = true; mode = "toggle";>;
 uniform bool Trigger_Fade_B < source = "mousebutton"; keycode = Fade_Key;>;
 uniform int ran < source = "random"; min = 0; max = 1; >;
 uniform float2 Mousecoords < source = "mousepoint"; > ;
+//uniform float framecount < source = "framecount"; >;
 uniform float frametime < source = "frametime";>;
 uniform float timer < source = "timer"; >;
 
+#define WZPD 0.025 //WZPD [Weapon Zero Parallax Distance] controls the focus distance for the screen Pop-out effect also known as Convergence for the weapon hand.
 #define pix float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
 #define Per float2( (Perspective * pix.x) * 0.5, 0) //Per is Perspective
 
@@ -694,53 +701,56 @@ float AutoDepthRange(float d, float2 texcoord )
 
 float2 Conv(float D,float2 texcoord)
 {
-	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x), WConvergence = 1 - WZPD / D;
+	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x), W_Convergence = WZPD;
 
-		if (Auto_Depth_Adjust > 0)
-			D = AutoDepthRange(D,texcoord);
+	if (Weapon_ZPD_Boundary == 1)
+	{   //only really only need to check one point just above the center bottom.
+		float WZPDB = 1 - WZPD / tex2Dlod(SamplerDM,float4(float2(0.5,0.9375),0,0)).x;
+		if (WZPDB < -0.1)
+			W_Convergence *= 0.25;	
+	}
+	
+	W_Convergence = 1 - W_Convergence / D;
+	
+	if (Auto_Depth_Adjust > 0)
+		D = AutoDepthRange(D,texcoord);
 
-		if(Auto_Balance_Ex > 0 )
-			ZP = saturate(ALC);
+	if(Auto_Balance_Ex > 0 )
+		ZP = saturate(ALC);
+	//Screen ZPD Violation Detection.
+	Z *= lerp( 1, 0.5, smoothstep(0,1,tex2Dlod(SamplerLum,float4(texcoord + 1,0,0)).z));
+	
+	float Convergence = 1 - Z / D;
+	if (ZPD == 0)
+		ZP = 1;
 
-		Z *= lerp( 1, 0.5, smoothstep(0,1,tex2Dlod(SamplerLum,float4(texcoord + 1,0,0)).z));
-		float Convergence = 1 - Z / D;
-		if (ZPD == 0)
-			ZP = 1;
+	if (WZPD <= 0)
+		WZP = 1;
 
-		if (WZPD <= 0)
-			WZP = 1;
+	if (ALC <= 0.025)
+		WZP = 1;
 
-		if (ALC <= 0.025)
-			WZP = 1;
+	ZP = min(ZP,Auto_Balance_Clamp);
 
-		ZP = min(ZP,Auto_Balance_Clamp);
-
-    return float2(lerp(Convergence,D, ZP),lerp(WConvergence,D,WZP));
+  return float2(lerp(Convergence,D, ZP),lerp(W_Convergence,D,WZP));
 }
 
 float zBuffer(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
 {
 	float3 DM = tex2Dlod(SamplerDM,float4(texcoord,0,0)).xyz;
 
-	if (WP == 0)
+	if (WP == 0 || WZPD == 0)
 		DM.y = 0;
 
 	DM.y = lerp(Conv(DM.x,texcoord).x, Conv(DM.z,texcoord).y, DM.y);
 
-	if (WZPD <= 0)
-		DM.y = Conv(DM.x,texcoord).x;
-
-
-	float ALC = abs(Lum(texcoord).x);
-
-	if (Depth_Detection)
-	{
-		//Check Depth at 3 Point D_A Top_Center / Bottom_Center
+	if ( Depth_Detection )
+	{   //Check Depth at 3 Point D_A Top_Center / Bottom_Center / ??Check evey 1 in 100 frames C100 = (framecount % 100) < 0.01??
 		float D_A = tex2Dlod(SamplerDM,float4(float2(0.5,0.0),0,0)).x, D_B = tex2Dlod(SamplerDM,float4(float2(0.0,1.0),0,0)).x;
-
-		if (D_A != 1 && D_B != 1)
+				
+		if (D_A != 1 && D_B != 1)//Has to be Sky
 		{
-			if (D_A == D_B)
+			if (D_A == D_B)//No depth
 				DM = 0.0625;
 		}
 	}
@@ -750,48 +760,46 @@ float zBuffer(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) 
 //////////////////////////////////////////////////////////Parallax Generation///////////////////////////////////////////////////////////////////////
 float2 Parallax(float Diverge, float2 Coordinates) // Horizontal parallax offset & Hole filling effect
 {   float2 ParallaxCoord = Coordinates;
-	float DepthLR = 1, LRDepth, Perf = 1, Z, MS = Diverge * pix.x, MSM, N = 5, S[5] = {0.5,0.625,0.75,0.875,1.0};
+	float Perf = 1, MS = Diverge * pix.x;
 
 	if(Performance_Mode)
 	Perf = .5;
 	//ParallaxSteps Calculations
-	float D = abs(length(Diverge)), Cal_Steps = (D * Perf) + (D * 0.04), Steps = clamp(Cal_Steps,0,255);
-
+	float D = abs(Diverge), Cal_Steps = (D * Perf) + (D * 0.04), Steps = clamp(Cal_Steps,0,255);
 	// Offset per step progress & Limit
 	float LayerDepth = rcp(Steps);
-
 	//Offsets listed here Max Seperation is 3% - 8% of screen space with Depth Offsets & Netto layer offset change based on MS.
 	float deltaCoordinates = MS * LayerDepth, CurrentDepthMapValue = tex2Dlod(SamplerzBuffer,float4(ParallaxCoord,0,0)).x, CurrentLayerDepth = 0, DepthDifference;
 	float2 DB_Offset = float2(Diverge * 0.03, 0) * pix;
 
-    if(View_Mode == 1)
-    	DB_Offset = 0;
-
-	[loop] //Steep parallax mapping
-    for ( int i = 0; i < Steps; i++ )
-    {	  // Doing it this way should stop crashes in older version of reshade, I hope.
-        if(CurrentDepthMapValue < CurrentLayerDepth)
-			break; // Once we hit the limit Stop Exit Loop.
-        // Shift coordinates horizontally in linear fasion
-        ParallaxCoord.x -= deltaCoordinates;
-        // Get depth value at current coordinates
-    	CurrentDepthMapValue = tex2Dlod(SamplerzBuffer,float4(ParallaxCoord - DB_Offset,0,0)).x;
-        // Get depth of next layer
-        CurrentLayerDepth += LayerDepth;
-    }
-
+  if(View_Mode == 1)
+  	DB_Offset = 0;
+	//Do-While Seems to be faster then for or while loop in DX 9, 10, and 11. But, not in openGL. DX12 nor Vulkan was tested.
+	[loop] //For loop is broken in this shader for some reason in DX9. I don't know why. This is the reason for the change.
+    do  // Steep parallax mapping
+    {   // Shift coordinates horizontally in linear fasion
+	    ParallaxCoord.x -= deltaCoordinates;
+	    // Get depth value at current coordinates
+	    CurrentDepthMapValue = tex2Dlod(SamplerzBuffer,float4(ParallaxCoord - DB_Offset,0,0)).x;
+	    // Get depth of next layer
+	    CurrentLayerDepth += LayerDepth;
+	}   while ( CurrentDepthMapValue > CurrentLayerDepth);
 	// Parallax Occlusion Mapping
 	float2 PrevParallaxCoord = float2(ParallaxCoord.x + deltaCoordinates, ParallaxCoord.y);
-	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x - CurrentLayerDepth + LayerDepth, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
-
+	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
+	if(View_Mode == 1)
+		beforeDepthValue += LayerDepth - CurrentLayerDepth;
+	
 	// Interpolate coordinates
 	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
-	ParallaxCoord = PrevParallaxCoord * max(0.,weight) + ParallaxCoord * min(1.,1. - weight);
+	ParallaxCoord = PrevParallaxCoord * weight + ParallaxCoord * (1. - weight);
 
+	if(View_Mode == 0)//This is to limit artifacts.
+	ParallaxCoord += DB_Offset * 0.625;
 	// Apply gap masking
 	DepthDifference = (afterDepthValue-beforeDepthValue) * MS;
 	if(View_Mode == 1)
-		ParallaxCoord.x = ParallaxCoord.x - DepthDifference;
+		ParallaxCoord.x -= DepthDifference;
 
 	return ParallaxCoord;
 }
@@ -887,7 +895,7 @@ float3 PS_calcLR(float2 texcoord)
 	else if(Stereoscopic_Mode >= 3)
 	{
 		float3 HalfLA = dot(Left.rgb,float3(0.299, 0.587, 0.114)), HalfRA = dot(Right.rgb,float3(0.299, 0.587, 0.114));
-		float3 LMA = lerp(HalfLA,Left.rgb,0.75), RMA = lerp(HalfRA,Right.rgb,0.75);//Hard Locked 0.75% color forlower ghosting.
+		float3 LMA = lerp(HalfLA,Left.rgb,0.75), RMA = lerp(HalfRA,Right.rgb,0.75);//Hard Locked 0.75% color for lower ghosting.
 		// Left/Right Image
 		float4 cA = float4(LMA,1);
 		float4 cB = float4(RMA,1);
