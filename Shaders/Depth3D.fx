@@ -405,12 +405,8 @@ float4 MouseCursor(float2 texcoord )
 		if (Cursor_Type == 3)
 		Screen_Ratio = float2(1.6,1.0);
 
-		float S_dist_fromHorizontal = abs((center.x - (Size* Arrow_Size_B) / Screen_Ratio.x) - MousecoordsXY.x) * Screen_Ratio.x;
-		float S_dist_fromVertical = abs((center.y - (Size* Arrow_Size_B)) - MousecoordsXY.y);
-
-
-		float dist_fromHorizontal = abs(center.x - MousecoordsXY.x) * Screen_Ratio.x ;
-		float dist_fromVertical = abs(center.y - MousecoordsXY.y);
+		float S_dist_fromHorizontal = abs((center.x - (Size* Arrow_Size_B) / Screen_Ratio.x) - MousecoordsXY.x) * Screen_Ratio.x, dist_fromHorizontal = abs(center.x - MousecoordsXY.x) * Screen_Ratio.x ;
+		float S_dist_fromVertical = abs((center.y - (Size* Arrow_Size_B)) - MousecoordsXY.y), dist_fromVertical = abs(center.y - MousecoordsXY.y);
 
 		//Cross Cursor
 		float B = min(max(THICC - dist_fromHorizontal,0),max(Size-dist_fromVertical,0)), A = min(max(THICC - dist_fromVertical,0),max(Size-dist_fromHorizontal,0));
@@ -425,7 +421,8 @@ float4 MouseCursor(float2 texcoord )
 			dist_fromVertical = abs(center.y - Size - MousecoordsXY.y);
 		}
 		//Cursor
-		float C = all(min(max(Size - dist_fromHorizontal,0),max(Size-dist_fromVertical,0))) - all(min(max(Size - dist_fromHorizontal * Arrow_Size_C,0),max(Size - dist_fromVertical * Arrow_Size_C,0))); //Solid Square Cursor
+		float C = all(min(max(Size - dist_fromHorizontal,0),max(Size-dist_fromVertical,0)));//removing the line below removes the square.
+			  C -= all(min(max(Size - dist_fromHorizontal * Arrow_Size_C,0),max(Size - dist_fromVertical * Arrow_Size_C,0)));//Need to add this to fix a - bool issue in openGL
 			  C -= all(min(max((Size * Arrow_Size_A) - S_dist_fromHorizontal,0),max((Size * Arrow_Size_A)-S_dist_fromVertical,0)));
 		// Cursor Array //
 		if(Cursor_Type == 1)
@@ -707,11 +704,11 @@ float2 Conv(float D,float2 texcoord)
 	{   //only really only need to check one point just above the center bottom.
 		float WZPDB = 1 - WZPD / tex2Dlod(SamplerDM,float4(float2(0.5,0.9375),0,0)).x;
 		if (WZPDB < -0.1)
-			W_Convergence *= 0.25;	
+			W_Convergence *= 0.25;
 	}
-	
+
 	W_Convergence = 1 - W_Convergence / D;
-	
+
 	if (Auto_Depth_Adjust > 0)
 		D = AutoDepthRange(D,texcoord);
 
@@ -719,7 +716,7 @@ float2 Conv(float D,float2 texcoord)
 		ZP = saturate(ALC);
 	//Screen ZPD Violation Detection.
 	Z *= lerp( 1, 0.5, smoothstep(0,1,tex2Dlod(SamplerLum,float4(texcoord + 1,0,0)).z));
-	
+
 	float Convergence = 1 - Z / D;
 	if (ZPD == 0)
 		ZP = 1;
@@ -747,7 +744,7 @@ float zBuffer(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) 
 	if ( Depth_Detection )
 	{   //Check Depth at 3 Point D_A Top_Center / Bottom_Center / ??Check evey 1 in 100 frames C100 = (framecount % 100) < 0.01??
 		float D_A = tex2Dlod(SamplerDM,float4(float2(0.5,0.0),0,0)).x, D_B = tex2Dlod(SamplerDM,float4(float2(0.0,1.0),0,0)).x;
-				
+
 		if (D_A != 1 && D_B != 1)//Has to be Sky
 		{
 			if (D_A == D_B)//No depth
@@ -789,7 +786,7 @@ float2 Parallax(float Diverge, float2 Coordinates) // Horizontal parallax offset
 	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
 	if(View_Mode == 1)
 		beforeDepthValue += LayerDepth - CurrentLayerDepth;
-	
+
 	// Interpolate coordinates
 	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
 	ParallaxCoord = PrevParallaxCoord * weight + ParallaxCoord * (1. - weight);
