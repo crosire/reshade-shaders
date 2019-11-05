@@ -211,11 +211,13 @@ uniform int2 Eye_Fade_Reduction_n_Power <
 	ui_category = "Weapon Hand Adjust";
 > = int2(0,0);
 
-uniform bool Weapon_ZPD_Boundary <
-	ui_label = "Weapon Screen Boundary Detection";
+uniform int Weapon_ZPD_Boundary <
+	ui_type = "slider";
+	ui_min = 0; ui_max = 3;
+	ui_label = " Weapon Screen Boundary Detection";
 	ui_tooltip = "This selection menu gives extra boundary conditions to WZPD.";
 	ui_category = "Weapon Hand Adjust";
-> = false;
+> = 0;
 //Heads-Up Display
 uniform float2 HUD_Adjust <
 	ui_type = "drag";
@@ -293,6 +295,12 @@ uniform bool Cursor_Lock <
 	ui_label = "Cursor Lock";
 	ui_tooltip = "Screen Cursor to Screen Crosshair Lock.";
 	ui_category = "Cursor Adjustments";
+> = false;
+
+uniform bool DeBug <
+	ui_label = "Debug View";
+	ui_tooltip = "Use this to to figure out if depth is working in your game.";
+	ui_category = "Debug";
 > = false;
 
 static const float Auto_Balance_Clamp = 0.5; //This Clamps Auto Balance's max Distance
@@ -393,7 +401,7 @@ float4 CSB(float2 texcoords)
 /////////////////////////////////////////////////////////////Cursor///////////////////////////////////////////////////////////////////////////
 float4 MouseCursor(float2 texcoord )
 {   float4 Out = CSB(texcoord),Color;
-	float Cursor;
+	float Cursor, A = 0.9375, B = 1-A;
 	if(Cursor_Type > 0)
 	{
 		float CCA = 0.005, CCB = 0.00025, CCC = 0.25, CCD = 0.00125, Arrow_Size_A = 0.7, Arrow_Size_B = 1.3, Arrow_Size_C = 4.0;//scaling
@@ -443,6 +451,11 @@ float4 MouseCursor(float2 texcoord )
 		};
 		int CSTT = clamp(Cursor_SC.y,0,5);
 		Color.rgb = CCArray[CSTT];
+	}
+	if(DeBug)
+	{	
+		if((texcoord.x > A || texcoord.x < B) || (texcoord.y > A || texcoord.y < B))
+			Out.rgb = tex2Dlod(SamplerzBuffer,float4(texcoord,0,0)).xxx;
 	}
 	return Cursor ? Color : Out;
 }
@@ -698,13 +711,18 @@ float AutoDepthRange(float d, float2 texcoord )
 
 float2 Conv(float D,float2 texcoord)
 {
-	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x), W_Convergence = WZPD;
+	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x),WBS = 0.25, W_Convergence = WZPD;
 
-	if (Weapon_ZPD_Boundary == 1)
+	if (Weapon_ZPD_Boundary == 2)
+		WBS = 0.375;
+	else if (Weapon_ZPD_Boundary == 3)
+		WBS = 0.5;
+
+	if (Weapon_ZPD_Boundary >= 1)
 	{   //only really only need to check one point just above the center bottom.
 		float WZPDB = 1 - WZPD / tex2Dlod(SamplerDM,float4(float2(0.5,0.9375),0,0)).x;
 		if (WZPDB < -0.1)
-			W_Convergence *= 0.25;
+			W_Convergence *= WBS;
 	}
 
 	W_Convergence = 1 - W_Convergence / D;
@@ -771,20 +789,23 @@ float2 Parallax(float Diverge, float2 Coordinates) // Horizontal parallax offset
 
   if(View_Mode == 1)
   	DB_Offset = 0;
-	//Do-While Seems to be faster then for or while loop in DX 9, 10, and 11. But, not in openGL. DX12 nor Vulkan was tested.
-	[loop] //For loop is broken in this shader for some reason in DX9. I don't know why. This is the reason for the change.
-    do  // Steep parallax mapping
-    {   // Shift coordinates horizontally in linear fasion
+	//DX12 nor Vulkan was tested.
+	//Do-While Loop Seems to be faster then for or while loop in DX 9, 10, and 11. But, not in openGL. In some rare openGL games it causes CTD
+	//For loop is broken in this shader for some reason in DX9. I don't know why. This is the reason for the change. I blame Voodoo Magic
+	//While Loop is the most compatible of the bunch. So I am forced to use this loop.
+	[loop]
+	while ( CurrentDepthMapValue > CurrentLayerDepth) // Steep parallax mapping
+	{   // Shift coordinates horizontally in linear fasion
 	    ParallaxCoord.x -= deltaCoordinates;
 	    // Get depth value at current coordinates
 	    CurrentDepthMapValue = tex2Dlod(SamplerzBuffer,float4(ParallaxCoord - DB_Offset,0,0)).x;
 	    // Get depth of next layer
 	    CurrentLayerDepth += LayerDepth;
-	}   while ( CurrentDepthMapValue > CurrentLayerDepth);
+		continue;
+	}
 	// Parallax Occlusion Mapping
 	float2 PrevParallaxCoord = float2(ParallaxCoord.x + deltaCoordinates, ParallaxCoord.y);
 	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
-	if(View_Mode == 1)
 		beforeDepthValue += LayerDepth - CurrentLayerDepth;
 
 	// Interpolate coordinates
