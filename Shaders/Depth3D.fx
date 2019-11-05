@@ -805,12 +805,7 @@ float2 Parallax(float Diverge, float2 Coordinates) // Horizontal parallax offset
 	}
 	// Parallax Occlusion Mapping
 	float2 PrevParallaxCoord = float2(ParallaxCoord.x + deltaCoordinates, ParallaxCoord.y);
-	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
-	
-	if(View_Mode == 1)
-		beforeDepthValue += LayerDepth - CurrentLayerDepth;
-	else		
-		beforeDepthValue += LayerDepth + CurrentLayerDepth;
+	float beforeDepthValue = tex2Dlod(SamplerzBuffer,float4( ParallaxCoord ,0,0)).x + LayerDepth - CurrentLayerDepth, afterDepthValue = CurrentDepthMapValue - CurrentLayerDepth;
 	// Interpolate coordinates
 	float weight = afterDepthValue / (afterDepthValue - beforeDepthValue);
 	ParallaxCoord = PrevParallaxCoord * weight + ParallaxCoord * (1. - weight);
