@@ -246,16 +246,6 @@ uniform int Stereoscopic_Mode <
 	ui_category = "Stereoscopic Options";
 > = 0;
 
-uniform int Scaling_Support < //not sure if this work with Freestyle
-	ui_type = "combo";
-	ui_items = "SR Native\0SR 2160p A\0SR 2160p B\0SR 1080p A\0SR 1080p B\0SR 1050p A\0SR 1050p B\0SR 720p A\0SR 720p B\0";
-	ui_label = "Scaling Support";
-	ui_tooltip = "Dynamic Super Resolution scaling support for Line Interlaced.\n"
-							 "Set this to your native Screen Resolution A or B, DSR Smoothing must be set to 0%.\n"
-							 "Default is SR Native.";
-	ui_category = "Stereoscopic Options";
-> = 0;
-
 uniform int Perspective <
 	ui_type = "drag";
 	ui_min = -100; ui_max = 100;
@@ -452,7 +442,7 @@ float4 MouseCursor(float2 texcoord )
 		int CSTT = clamp(Cursor_SC.y,0,5);
 		Color.rgb = CCArray[CSTT];
 	}
-	
+
 	if(Depth_View)
 	Out.rgb = tex2Dlod(SamplerzBuffer,float4(texcoord,0,0)).xxx;
 
@@ -761,18 +751,7 @@ float3 PS_calcLR(float2 texcoord)
 	Left.rgb = HUD(Left.rgb,float2(TCL.x - HUD_Adjustment,TCL.y));
 	Right.rgb = HUD(Right.rgb,float2(TCR.x + HUD_Adjustment,TCR.y));
 
-	float2 gridxy, GXYArray[9] = {
-		float2(TexCoords.x * BUFFER_WIDTH, TexCoords.y * BUFFER_HEIGHT), //Native
-		float2(TexCoords.x * 3840.0, TexCoords.y * 2160.0),
-		float2(TexCoords.x * 3841.0, TexCoords.y * 2161.0),
-		float2(TexCoords.x * 1920.0, TexCoords.y * 1080.0),
-		float2(TexCoords.x * 1921.0, TexCoords.y * 1081.0),
-		float2(TexCoords.x * 1680.0, TexCoords.y * 1050.0),
-		float2(TexCoords.x * 1681.0, TexCoords.y * 1051.0),
-		float2(TexCoords.x * 1280.0, TexCoords.y * 720.0),
-		float2(TexCoords.x * 1281.0, TexCoords.y * 721.0)
-	};
-	gridxy = floor(GXYArray[Scaling_Support]);
+	float2 gridxy = floor(float2(TexCoords.x * BUFFER_WIDTH, TexCoords.y * BUFFER_HEIGHT)); //Native
 
 	if(Stereoscopic_Mode == 0)
 		color = TexCoords.x < 0.5 ? Left : Right;
