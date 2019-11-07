@@ -173,11 +173,17 @@ uniform bool Depth_Map_Flip <
 	ui_category = "Depth Map";
 > = false;
 
+uniform bool Depth_View <
+	ui_label = "Depth View";
+	ui_tooltip = "Use this to to figure out if depth is working in your game.";
+	ui_category = "Depth Map";
+> = false;
+
 uniform int WP <
 	ui_type = "combo";
-	ui_items = "Weapon Profile Off\0Custom WP\0WP 0\0WP 1\0WP 2\0WP 3\0WP 4\0WP 5\0WP 6\0WP 7\0WP 8\0WP 9\0WP 10\0WP 11\0WP 12\0WP 13\0WP 14\0WP 15\0WP 16\0WP 17\0WP 18\0WP 19\0WP 20\0WP 21\0WP 22\0WP 23\0WP 24\0WP 25\0WP 26\0WP 27\0WP 28\0WP 29\0WP 30\0WP 31\0WP 32\0WP 33\0WP 34\0WP 35\0WP 36\0WP 37\0WP 38\0WP 39\0WP 40\0WP 41\0WP 42\0WP 43\0WP 44\0WP 45\0WP 46\0WP 47\0WP 48\0WP 49\0WP 50\0WP 51\0WP 52\0WP 53\0WP 54\0WP 55\0WP 56\0WP 57\0WP 58\0WP 59\0";
+	ui_items = "Weapon Profile Off\0Custom WP\0";
 	ui_label = "Weapon Profiles";
-	ui_tooltip = "Pick Weapon Profile for your game or make your own.";
+	ui_tooltip = "Make a Weapon Profile for your game.";
 	ui_category = "Weapon Hand Adjust";
 > = 0;
 
@@ -211,9 +217,9 @@ uniform int2 Eye_Fade_Reduction_n_Power <
 	ui_category = "Weapon Hand Adjust";
 > = int2(0,0);
 
-uniform int Weapon_ZPD_Boundary <
+uniform float Weapon_ZPD_Boundary <
 	ui_type = "slider";
-	ui_min = 0; ui_max = 3;
+	ui_min = 0; ui_max = 0.5;
 	ui_label = " Weapon Screen Boundary Detection";
 	ui_tooltip = "This selection menu gives extra boundary conditions to WZPD.";
 	ui_category = "Weapon Hand Adjust";
@@ -295,12 +301,6 @@ uniform bool Cursor_Lock <
 	ui_label = "Cursor Lock";
 	ui_tooltip = "Screen Cursor to Screen Crosshair Lock.";
 	ui_category = "Cursor Adjustments";
-> = false;
-
-uniform bool DeBug <
-	ui_label = "Debug View";
-	ui_tooltip = "Use this to to figure out if depth is working in your game.";
-	ui_category = "Debug";
 > = false;
 
 static const float Auto_Balance_Clamp = 0.5; //This Clamps Auto Balance's max Distance
@@ -452,11 +452,10 @@ float4 MouseCursor(float2 texcoord )
 		int CSTT = clamp(Cursor_SC.y,0,5);
 		Color.rgb = CCArray[CSTT];
 	}
-	if(DeBug)
-	{	
-		if((texcoord.x > A || texcoord.x < B) || (texcoord.y > A || texcoord.y < B))
-			Out.rgb = tex2Dlod(SamplerzBuffer,float4(texcoord,0,0)).xxx;
-	}
+	
+	if(Depth_View)
+	Out.rgb = tex2Dlod(SamplerzBuffer,float4(texcoord,0,0)).xxx;
+
 	return Cursor ? Color : Out;
 }
 
@@ -530,129 +529,7 @@ float2 WeaponDepth(float2 texcoord)
 { //if you see Game it's an Empty Spot for a future profile. Will List the Weapon Profiles on my website. Not Every game will need an update.
 	//Weapon Setting// This is here only for user convenience. That is all.
 	float3 WA_XYZ = float3(Weapon_Adjust.x,Weapon_Adjust.y,Weapon_Adjust.z);
-	if(WP == 2)                // X Cutoff | Y Adjust | Z Tuneing //
-		WA_XYZ = float3(0.425,5.0,1.125); 	 //WP 0  | ES: Oblivion #C753DADB
-	else if(WP == 3)
-		WA_XYZ = float3(0,0,0);                //WP 1  | Game
-	else if(WP == 4)
-		WA_XYZ = float3(0.625,37.5,7.25);      //WP 2  | BorderLands 2 #7B81CCAB
-	else if(WP == 5)
-		WA_XYZ = float3(0,0,0);                //WP 3  | Game
-	else if(WP == 6)
-		WA_XYZ = float3(0.253,28.75,98.5);     //WP 4  | Fallout 4 #2D950D30
-	else if(WP == 7)
-		WA_XYZ = float3(0.276,20.0,9.5625);    //WP 5  | Skyrim: SE #3950D04E
-	else if(WP == 8)
-		WA_XYZ = float3(0.338,20.0,9.25);      //WP 6  | DOOM 2016 #142EDFD6
-	else if(WP == 9)
-		WA_XYZ = float3(0.255,177.5,63.025);   //WP 7  | CoD:Black Ops #17232880 CoD:MW2 #9D77A7C4 CoD:MW3 #22EF526F
-	else if(WP == 10)
-		WA_XYZ = float3(0.254,100.0,0.9843);   //WP 8  | CoD:Black Ops II #D691718C
-	else if(WP == 11)
-		WA_XYZ = float3(0.254,203.125,0.98435);//WP 9  | CoD:Ghost #7448721B
-	else if(WP == 12)
-		WA_XYZ = float3(0.254,203.125,0.98433);//WP 10 | CoD:AW #23AB8876 CoD:MW Re #BF4D4A41
-	else if(WP == 13)
-		WA_XYZ = float3(0.254,125.0,0.9843);   //WP 11 | CoD:IW #1544075
-	else if(WP == 14)
-		WA_XYZ = float3(0.255,200.0,63.0);     //WP 12 | CoD:WaW #697CDA52
-	else if(WP == 15)
-		WA_XYZ = float3(0.510,162.5,3.975);    //WP 13 | CoD #4383C12A CoD:UO #239E5522 CoD:2 #3591DE9C
-	else if(WP == 16)
-		WA_XYZ = float3(0.254,23.75,0.98425);  //WP 14 | CoD: Black Ops IIII #73FA91DC
-	else if(WP == 17)
-		WA_XYZ = float3(0.375,60.0,15.15625);  //WP 15 | Quake DarkPlaces #37BD797D
-	else if(WP == 18)
-		WA_XYZ = float3(0.7,14.375,2.5);       //WP 16 | Quake 2 XP #34F4B6C
-	else if(WP == 19)
-		WA_XYZ = float3(0.750,30.0,1.050);     //WP 17 | Quake 4 #ED7B83DE
-	else if(WP == 20)
-		WA_XYZ = float3(0,0,0);                //WP 18 | Game
-	else if(WP == 21)
-		WA_XYZ = float3(0.450,12.0,23.75);     //WP 19 | Metro Redux Games #886386A
-	else if(WP == 22)
-		WA_XYZ = float3(0,0,0);                //WP 20 | Game
-	else if(WP == 23)
-		WA_XYZ = float3(0,0,0);                //WP 21 | Game
-	else if(WP == 24)
-		WA_XYZ = float3(0,0,0);                //WP 22 | Game
-	else if(WP == 25)
-		WA_XYZ = float3(0.625,350.0,0.785);    //WP 23 | Minecraft
-	else if(WP == 26)
-		WA_XYZ = float3(0.255,6.375,53.75);    //WP 24 | S.T.A.L.K.E.R: Games #F5C7AA92 #493B5C71
-	else if(WP == 27)
-		 WA_XYZ = float3(0,0,0);               //WP 25 | Game
-	else if(WP == 28)
-		WA_XYZ = float3(0.750,30.0,1.025);     //WP 26 | Prey 2006 #DE2F0F4D
-	else if(WP == 29)
-		WA_XYZ = float3(0.2832,13.125,0.8725); //WP 27 | Prey 2017 High Settings and < #36976F6D
-	else if(WP == 30)
-		WA_XYZ = float3(0.2832,13.75,0.915625);//WP 28 | Prey 2017 Very High #36976F6D
-	else if(WP == 31)
-		WA_XYZ = float3(0.7,9.0,2.3625);       //WP 29 | Return to Castle Wolfenstine #BF757E3A
-	else if(WP == 32)
-		WA_XYZ = float3(0.4894,62.50,0.98875); //WP 30 | Wolfenstein #30030941
-	else if(WP == 33)
-		WA_XYZ = float3(1.0,93.75,0.81875);    //WP 31 | Wolfenstein: The New Order #C770832 / The Old Blood #3E42619F
-	else if(WP == 34)
-		WA_XYZ = float3(0,0,0);                //WP 32 | Wolfenstein II: The New Colossus / Cyberpilot
-	else if(WP == 35)
-		WA_XYZ = float3(0.278,37.50,9.1);      //WP 33 | Black Mesa #6FC1FF71
-	else if(WP == 36)
-		WA_XYZ = float3(0.420,4.75,1.0);       //WP 34 | Blood 2 #6D3CD99E
-	else if(WP == 37)
-		WA_XYZ = float3(0.500,4.75,0.75);      //WP 35 | Blood 2 Alt #6D3CD99E
-	else if(WP == 38)
-		WA_XYZ = float3(0.785,21.25,0.3875);   //WP 36 | SOMA #F22A9C7D
-	else if(WP == 39)
-		WA_XYZ = float3(0.444,20.0,1.1875);    //WP 37 | Cryostasis #6FB6410B
-	else if(WP == 40)
-		WA_XYZ = float3(0.286,80.0,7.0);       //WP 38 | Unreal Gold with v227 #16B8D61A
-	else if(WP == 41)
-		WA_XYZ = float3(0.280,15.5,9.1);       //WP 39 | Serious Sam Revolution #EB9EEB74/Serious Sam HD: The First Encounter /The Second Encounter /Serious Sam 2 #8238E9CA/ Serious Sam 3: BFE*
-	else if(WP == 42)
-		WA_XYZ = float3(0,0,0);                //WP 40 | Serious Sam 4: Planet Badass
-	else if(WP == 43)
-		WA_XYZ = float3(0,0,0);                //WP 41 | Game
-	else if(WP == 44)
-		WA_XYZ = float3(0.277,20.0,8.8);       //WP 42 | TitanFall 2 #308AEBEA
-	else if(WP == 45)
-		WA_XYZ = float3(0.7,16.250,0.300);     //WP 43 | Project Warlock #5FCFB1E5
-	else if(WP == 46)
-		WA_XYZ = float3(0.625,9.0,2.375);      //WP 44 | Kingpin Life of Crime #7DCCBBBD
-	else if(WP == 47)
-		WA_XYZ = float3(0.28,20.0,9.0);        //WP 45 | EuroTruckSim2 #9C5C946E
-	else if(WP == 48)
-		WA_XYZ = float3(0.458,10.5,1.105);     //WP 46 | F.E.A.R #B302EC7 & F.E.A.R 2: Project Origin #91D9EBAF
-	else if(WP == 49)
-		WA_XYZ = float3(1.5,37.5,0.99875);     //WP 47 | Condemned Criminal Origins
-	else if(WP == 50)
-		WA_XYZ = float3(2.0,16.25,0.09);       //WP 48 | Immortal Redneck CP alt 1.9375 #2C742D7C
-	else if(WP == 51)
-		WA_XYZ = float3(0,0,0);                //WP 49 | Game
-	else if(WP == 52)
-		WA_XYZ = float3(0.489,68.75,1.02);     //WP 50 | NecroVisioN & NecroVisioN: Lost Company #663E66FE
-	else if(WP == 53)
-		WA_XYZ = float3(1.0,237.5,0.83625);    //WP 51 | Rage64 #AA6B948E
-	else if(WP == 54)
-		WA_XYZ = float3(0,0,0);                //WP 52 | Rage 2
-	else if(WP == 55)
-		WA_XYZ = float3(0.425,15.0,99.0);      //WP 53 | Bioshock Remastred #44BD41E1
-	else if(WP == 56)
-		WA_XYZ = float3(0.425,21.25,99.5);     //WP 54 | Bioshock 2 Remastred #7CF5A01
-	else if(WP == 57)
-		WA_XYZ = float3(0.425,5.25,1.0);       //WP 55 | No One Lives Forever
-	else if(WP == 58)
-		WA_XYZ = float3(0.519,31.25,8.875);    //WP 56 | No One Lives Forever 2
-	else if(WP == 59)
-		WA_XYZ = float3(0,0,0);                //WP 57 | Game
-	else if(WP == 60)
-		WA_XYZ = float3(0,0,0);                //WP 58 | Game
-	else if(WP == 61)
-		WA_XYZ = float3(0,0,0);                //WP 59 | Game
-	else if(WP == 62)
-		WA_XYZ = float3(1.962,5.5,0);          //WP 60 | Dying Light
-	//Weapon Profiles Ends Here//
+	//Weapon Profiles Ends Here// - Removed since this not the point of this shader. Also to reduce compile time.
 
 	// Here on out is the Weapon Hand Adjustment code.
 	if (Depth_Map_Flip)
@@ -679,7 +556,7 @@ float3 DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0
 		float R, G, B, WD = WeaponDepth(texcoord).x, CoP = WeaponDepth(texcoord).y, CutOFFCal = (CoP/Depth_Map_Adjust) * 0.5; //Weapon Cutoff Calculation
 		CutOFFCal = step(DM.x,CutOFFCal);
 
-		[branch] if (WP == 0)
+		if (!WP)
 		{
 			DM.x = DM.x;
 		}
@@ -711,18 +588,13 @@ float AutoDepthRange(float d, float2 texcoord )
 
 float2 Conv(float D,float2 texcoord)
 {
-	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x),WBS = 0.25, W_Convergence = WZPD;
+	float Z = ZPD, WZP = 0.5, ZP = 0.5, ALC = abs(Lum(texcoord).x), W_Convergence = WZPD;
 
-	if (Weapon_ZPD_Boundary == 2)
-		WBS = 0.375;
-	else if (Weapon_ZPD_Boundary == 3)
-		WBS = 0.5;
-
-	if (Weapon_ZPD_Boundary >= 1)
+	if (Weapon_ZPD_Boundary > 0)
 	{   //only really only need to check one point just above the center bottom.
 		float WZPDB = 1 - WZPD / tex2Dlod(SamplerDM,float4(float2(0.5,0.9375),0,0)).x;
 		if (WZPDB < -0.1)
-			W_Convergence *= WBS;
+			W_Convergence *= 0.5-Weapon_ZPD_Boundary;
 	}
 
 	W_Convergence = 1 - W_Convergence / D;
