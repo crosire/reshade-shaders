@@ -39,7 +39,7 @@ uniform int FOV < __UNIFORM_SLIDER_INT1
 	ui_category = "Radial distance";
 > = 90;
 
-uniform int Pass < __UNIFORM_RADIO_INT1
+uniform int iPass < __UNIFORM_RADIO_INT1
 	ui_label = "Keying type";
 	ui_items = "Background key\0Foreground key\0";
 	ui_category = "Direction adjustment";
@@ -107,7 +107,7 @@ float3 ChromakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_T
 
 	// Generate depth mask
 	float DepthMask = MaskAA(texcoord);
-	if(bool(Pass)) DepthMask = 1.0-DepthMask;
+	if(bool(iPass)) DepthMask = 1.0-DepthMask;
 
 	return lerp(tex2D(ReShade::BackBuffer, texcoord).rgb, Screen, DepthMask);
 }
