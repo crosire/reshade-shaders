@@ -1,5 +1,5 @@
 /*
-Filmic Anamorph Sharpen PS v1.4.2 (c) 2018 Jakub Maximilian Fober
+Filmic Anamorph Sharpen PS v1.4.3 (c) 2018 Jakub Maximilian Fober
 
 This work is licensed under the Creative Commons 
 Attribution-ShareAlike 4.0 International License. 
@@ -97,7 +97,7 @@ float Overlay(float LayerAB)
 }
 
 // Sharpen pass
-float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCoord) : SV_Target
+float3 FilmicAnamorphSharpenPS(float4 pos : SV_Position, float2 UvCoord : TEXCOORD0) : SV_Target
 {
 	// Sample display image
 	float3 Source = tex2D(ReShade::BackBuffer, UvCoord).rgb;
@@ -195,7 +195,8 @@ float3 FilmicAnamorphSharpenPS(float4 vois : SV_Position, float2 UvCoord : TexCo
 		// Luma high-pass color
 		float HighPassColor = 0.0;
 		[unroll]
-		for(int s = 0; s < 4; s++) HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
+		for(int s = 0; s < 4; s++)
+			HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
 		HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
 
 		// Sharpen strength
