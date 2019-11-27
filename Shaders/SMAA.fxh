@@ -691,7 +691,7 @@ float2 SMAALumaEdgeDetectionPS(float2 texcoord,
                                SMAATexture2D(colorTex)
                                ) {
     // Calculate the threshold:
-	const float2 threshold = float2(SMAA_THRESHOLD, SMAA_THRESHOLD);
+    float2 threshold = float2(SMAA_THRESHOLD, SMAA_THRESHOLD);
 
     // Calculate lumas:
     float3 weights = float3(0.2126, 0.7152, 0.0722);
