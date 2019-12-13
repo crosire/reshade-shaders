@@ -138,7 +138,7 @@ uniform float GaussianSigma < __UNIFORM_SLIDER_FLOAT1
 
 #include "ReShade.fxh"
 
-float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
+float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TARGET {
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 texIJ;
 	float weight;

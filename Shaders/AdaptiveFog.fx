@@ -64,7 +64,7 @@ texture   Otis_BloomTarget 	{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Form
 sampler2D Otis_BloomSampler { Texture = Otis_BloomTarget; };
 
 // pixel shader which performs bloom, by CeeJay. 
-void PS_Otis_AFG_PerformBloom(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 fragment: SV_Target0)
+void PS_Otis_AFG_PerformBloom(float4 position : SV_Position, float2 texcoord : TEXCOORD, out float4 fragment: SV_Target0)
 {
 	float4 color = tex2D(ReShade::BackBuffer, texcoord);
 	float3 BlurColor2 = 0;

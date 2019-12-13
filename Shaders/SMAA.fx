@@ -239,7 +239,7 @@ void SMAANeighborhoodBlendingWrapVS(
 
 float SMAADepthLinearizationPS(
 	float4 position : SV_Position,
-	float2 texcoord : TEXCOORD0) : SV_Target
+	float2 texcoord : TEXCOORD) : SV_Target
 {
 	return ReShade::GetLinearizedDepth(texcoord);
 }
