@@ -111,7 +111,7 @@ float3 distort(sampler2D samp, float2 uv, float edgeSize)
     return posterize(hsv2rgb(hsv), floor(lerp(256.0, pow(1.0 - hsv.z - 0.5, 2.0) * 64.0 * shiftx + 4.0, 1.0 - pow(1.0 - Amount, 5.0))));
 }
 
-float4 PS_Glitch ( float4 pos : SV_Position, float2 fragCoord : TEXCOORD0) : SV_Target
+float4 PS_Glitch ( float4 pos : SV_Position, float2 fragCoord : TEXCOORD) : SV_Target
 {
 	float4 fragColor;
 	float wow;

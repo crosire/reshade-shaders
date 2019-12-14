@@ -170,7 +170,7 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : S
 	return result;
 }
 
-float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
+float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TARGET {
 	float3 result = 0.0;
 	float3 texIJb;
 	float3 texIJc;
