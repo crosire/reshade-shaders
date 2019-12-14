@@ -9,7 +9,7 @@ float mod(float x, float y)
 	return x - y * floor (x/y);
 }
 
-float3 PS_Nightvision(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
+float3 PS_Nightvision(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 {	
 	float2 p = uv;
 	
