@@ -75,7 +75,7 @@ uniform float pGodraysFalloff <
 
 // *** ESSENTIALS ***
 texture texColorGRA { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
-texture texColorGRB { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
+texture texColorGRB < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 texture texGameDepth : DEPTH;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

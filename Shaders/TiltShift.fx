@@ -43,7 +43,7 @@ uniform float BlurMultiplier < __UNIFORM_SLIDER_FLOAT1
 > = 6.0;
 
 // First pass render target, to make sure Alpha channel exists
-texture TiltShiftTarget { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+texture TiltShiftTarget < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 sampler TiltShiftSampler { Texture = TiltShiftTarget; };
 
 

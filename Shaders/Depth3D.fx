@@ -348,14 +348,14 @@ sampler BackBufferCLAMP
         AddressW = CLAMP;
     };
 
-texture texDM  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
+texture texDM < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 
 sampler SamplerDM
 	{
 		Texture = texDM;
 	};
 
-texture texzBuffer  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
+texture texzBuffer < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
 
 sampler SamplerzBuffer
 	{

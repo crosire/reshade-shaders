@@ -102,7 +102,7 @@ uniform float pm_p <
 
 #include "ReShade.fxh"
 
-texture AS_Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
+texture AS_Pass0Tex < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
 sampler AS_Pass0Sampler { Texture = AS_Pass0Tex; };
 
 // Helper funcs

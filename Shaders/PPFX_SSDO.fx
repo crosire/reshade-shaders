@@ -154,7 +154,7 @@ texture texColorLOD { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGB
 texture texDepth : DEPTH;
 
 // *** FX RTs ***
-texture texViewSpace
+texture texViewSpace < pooled = true; > 
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
@@ -173,7 +173,7 @@ texture texSSDOB
 	Height = BUFFER_HEIGHT*pSSDOFilterScale;
 	Format = qSSDOFilterPrecision;
 };
-texture texSSDOC
+texture texSSDOC < pooled = true; > 
 {
 	Width = BUFFER_WIDTH*pSSDOFilterScale;
 	Height = BUFFER_HEIGHT*pSSDOFilterScale;
