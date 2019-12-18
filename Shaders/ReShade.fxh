@@ -36,9 +36,12 @@
 	#define RESHADE_DEPTH_INPUT_X_OFFSET 0
 #endif
 
+#define BUFFER_PIXEL_SIZE float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
+#define BUFFER_SCREEN_SIZE float2(BUFFER_WIDTH, BUFFER_HEIGHT)
+#define BUFFER_ASPECT_RATIO (BUFFER_WIDTH * BUFFER_RCP_HEIGHT)
+
 namespace ReShade
 {
-	// Global variables
 #if defined(__RESHADE_FXC__)
 	float GetAspectRatio() { return BUFFER_WIDTH * BUFFER_RCP_HEIGHT; }
 	float2 GetPixelSize() { return float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT); }
@@ -47,11 +50,12 @@ namespace ReShade
 	#define PixelSize GetPixelSize()
 	#define ScreenSize GetScreenSize()
 #else
+	// These are deprecated and will be removed eventually.
 	static const float AspectRatio = BUFFER_WIDTH * BUFFER_RCP_HEIGHT;
 	static const float2 PixelSize = float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT);
 	static const float2 ScreenSize = float2(BUFFER_WIDTH, BUFFER_HEIGHT);
 #endif
-	
+
 	// Global textures and samplers
 	texture BackBufferTex : COLOR;
 	texture DepthBufferTex : DEPTH;

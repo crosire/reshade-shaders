@@ -76,7 +76,7 @@ float MaskAA(float2 texcoord)
 	// Convert to radial depth
 	float2 Size;
 	Size.x = tan(radians(FOV*0.5));
-	Size.y = Size.x / ReShade::AspectRatio;
+	Size.y = Size.x / BUFFER_ASPECT_RATIO;
 	if(RadialX) Depth *= length(float2((texcoord.x-0.5)*Size.x, 1.0));
 	if(RadialY) Depth *= length(float2((texcoord.y-0.5)*Size.y, 1.0));
 

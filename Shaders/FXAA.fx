@@ -91,7 +91,7 @@ float4 FXAAPixelShader(float4 vpos : SV_Position, noperspective float2 texcoord 
 		FXAATexture, // tex
 		FXAATexture, // fxaaConsole360TexExpBiasNegOne
 		FXAATexture, // fxaaConsole360TexExpBiasNegTwo
-		ReShade::PixelSize, // fxaaQualityRcpFrame
+		BUFFER_PIXEL_SIZE, // fxaaQualityRcpFrame
 		0, // fxaaConsoleRcpFrameOpt
 		0, // fxaaConsoleRcpFrameOpt2
 		0, // fxaaConsole360RcpFrameOpt2

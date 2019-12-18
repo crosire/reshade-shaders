@@ -81,7 +81,7 @@ sampler Layer_Sampler
 void PS_Layer(float4 pos : SV_Position, float2 texCoord : TEXCOORD, out float4 passColor : SV_Target)
 {
     const float4 backColor = tex2D(ReShade::BackBuffer, texCoord);
-    const float2 pixelSize = 1.0 / (float2(LAYER_SIZE_X, LAYER_SIZE_Y) * Layer_Scale / ReShade::ScreenSize);
+    const float2 pixelSize = 1.0 / (float2(LAYER_SIZE_X, LAYER_SIZE_Y) * Layer_Scale / BUFFER_SCREEN_SIZE);
     const float4 layer     = tex2D(Layer_Sampler, texCoord * pixelSize + Layer_Pos * (1.0 - pixelSize));
 
     passColor   = lerp(backColor, layer, layer.a * Layer_Blend);

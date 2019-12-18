@@ -67,9 +67,9 @@ float CalculateDepthDiffCoC(float2 texcoord : TEXCOORD)
 	
 	if(Spherical == true)
 	{
-		texcoord.x = (texcoord.x-Sphere_FocusHorizontal)*ReShade::ScreenSize.x;
-		texcoord.y = (texcoord.y-Sphere_FocusVertical)*ReShade::ScreenSize.y;
-		const float degreePerPixel = Sphere_FieldOfView / ReShade::ScreenSize.x;
+		texcoord.x = (texcoord.x-Sphere_FocusHorizontal)*BUFFER_WIDTH;
+		texcoord.y = (texcoord.y-Sphere_FocusVertical)*BUFFER_HEIGHT;
+		const float degreePerPixel = Sphere_FieldOfView*BUFFER_RCP_WIDTH;
 		const float fovDifference = sqrt((texcoord.x*texcoord.x)+(texcoord.y*texcoord.y))*degreePerPixel;
 		depthdiff = sqrt((scenedepth*scenedepth)+(scenefocus*scenefocus)-(2*scenedepth*scenefocus*cos(fovDifference*(2*M_PI/360))));
 	}

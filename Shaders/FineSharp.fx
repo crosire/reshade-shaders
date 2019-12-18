@@ -57,7 +57,7 @@ uniform float pstr <
 // Helper functions
 
 float4 Src(float a, float b, float2 tex) {
-	return tex2D(ReShade::BackBuffer, mad(ReShade::PixelSize, float2(a, b), tex));
+	return tex2D(ReShade::BackBuffer, mad(BUFFER_PIXEL_SIZE, float2(a, b), tex));
 }
 
 float3x3 RGBtoYUV(float Kb, float Kr) {

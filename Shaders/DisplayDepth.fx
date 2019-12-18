@@ -97,7 +97,7 @@ float GetDepth(float2 texcoord)
 
 float3 NormalVector(float2 texcoord)
 {
-	float3 offset = float3(ReShade::PixelSize.xy, 0.0);
+	float3 offset = float3(BUFFER_PIXEL_SIZE, 0.0);
 	float2 posCenter = texcoord.xy;
 	float2 posNorth  = posCenter - offset.zy;
 	float2 posEast   = posCenter + offset.xz;
@@ -125,7 +125,7 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 	| :: Ordered Dithering :: |
 	'------------------------*/
 	//Calculate grid position
-	float grid_position = frac(dot(texcoord, (ReShade::ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+	float grid_position = frac(dot(texcoord, (BUFFER_SCREEN_SIZE * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
 	//Calculate how big the shift should be
 	float dither_shift = 0.25 * (1.0 / (pow(2, dither_bit) - 1.0));
@@ -145,7 +145,7 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 		return;
 	}
 	
-	color = lerp(normal_color, depth_color, step(ReShade::ScreenSize.x / 2, position.x));
+	color = lerp(normal_color, depth_color, step(BUFFER_WIDTH * 0.5, position.x));
 }
 
 technique DisplayDepth <

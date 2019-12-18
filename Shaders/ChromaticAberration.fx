@@ -21,9 +21,9 @@ float3 ChromaticAberrationPass(float4 vpos : SV_Position, float2 texcoord : TexC
 {
 	float3 color, colorInput = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	// Sample the color components
-	color.r = tex2D(ReShade::BackBuffer, texcoord + (ReShade::PixelSize * Shift)).r;
+	color.r = tex2D(ReShade::BackBuffer, texcoord + (BUFFER_PIXEL_SIZE * Shift)).r;
 	color.g = colorInput.g;
-	color.b = tex2D(ReShade::BackBuffer, texcoord - (ReShade::PixelSize * Shift)).b;
+	color.b = tex2D(ReShade::BackBuffer, texcoord - (BUFFER_PIXEL_SIZE * Shift)).b;
 
 	// Adjust the strength of the effect
 	return lerp(colorInput, color, Strength);

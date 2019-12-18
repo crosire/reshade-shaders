@@ -249,7 +249,7 @@ float gaussian_function(float2 i) {
 //Why use a single-pass blur? To reduce the amount of textures used in half.
 //Scale should be the original resolution divided by target resolution.
 float3 blur(sampler sp, float2 uv, float scale) {
-    float2 ps = ReShade::PixelSize * scale;
+    float2 ps = BUFFER_PIXEL_SIZE * scale;
     
     #if MAGICBLOOM_BLUR_PRECALCULATED
     static const float kernel[9] = { 
@@ -316,7 +316,7 @@ float3 blend_screen(float3 a, float3 b) {
     No use now but might be useful later on so I just left it here.
 */
 /*void debug_value(inout float3 col, float2 uv, float value, float3 needle_color) {
-    static const float2 ps = ReShade::PixelSize;
+    static const float2 ps = BUFFER_PIXEL_SIZE;
     col = (uv.x + ps.x > value && uv.x - ps.x < value) ? needle_color : col;
 }*/
 
