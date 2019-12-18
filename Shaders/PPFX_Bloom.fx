@@ -171,17 +171,17 @@ uniform float pLensdirtCurve <
 // *** ESSENTIALS ***
 texture2D texColor : COLOR;
 texture texColorHDRA { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
-texture texColorHDRB { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
+texture texColorHDRB < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 
 // *** FX RTs ***
-texture texBloomA
+texture texBloomA 
 {
 	Width = BUFFER_WIDTH/pBloomDownsampling;
 	Height = BUFFER_HEIGHT/pBloomDownsampling;
-	// Available formats: R8, R32F, RG8, RGBA8, RGBA16, RGBA16F, RGBA32F --- Available compressed formats: DXT1 or BC1, DXT3 or BC2, DXT5 or BC3, LATC1 or BC4, LATC2 or BC5
+	// Available formats: R8, R32F, RG8, RGBA8, RGBA16, RGBA16F, RGBA32F
 	Format = pBloomPrecision;
 };
-texture texBloomB
+texture texBloomB < pooled = true; > 
 {
 	Width = BUFFER_WIDTH/pBloomDownsampling;
 	Height = BUFFER_HEIGHT/pBloomDownsampling;
