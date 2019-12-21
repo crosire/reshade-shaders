@@ -7,6 +7,7 @@
 // DEV_NOTES
 //+++++++++++++++++++++++++++++
 // Updated for compatibility with ReShade 4 and isolated by Marot Satil.
+// Reshade.fxh Preprocessor Definition Support added by JJXB
 #include "ReShade.fxh"
 //+++++++++++++++++++++++++++++
 // CUSTOM PARAMETERS
@@ -150,10 +151,10 @@ uniform int pSSDODebugMode <
 
 // *** ESSENTIALS ***
 texture texColorLOD { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; MipLevels = 4; };
-texture texGameDepth : DEPTH;
+texture texDepth : DEPTH;
 
 // *** FX RTs ***
-texture texViewSpace
+texture texViewSpace < pooled = true; > 
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
@@ -172,7 +173,7 @@ texture texSSDOB
 	Height = BUFFER_HEIGHT*pSSDOFilterScale;
 	Format = qSSDOFilterPrecision;
 };
-texture texSSDOC
+texture texSSDOC < pooled = true; > 
 {
 	Width = BUFFER_WIDTH*pSSDOFilterScale;
 	Height = BUFFER_HEIGHT*pSSDOFilterScale;
@@ -201,7 +202,7 @@ sampler SamplerColorLOD
 
 sampler2D SamplerDepth
 {
-	Texture = texGameDepth;
+	Texture = texDepth;
 };
 
 // *** FX RTs ***
@@ -261,7 +262,7 @@ struct VS_INPUT_POST
 
 float linearDepth(float2 txCoords)
 {
-	return (2.0*ZNEAR)/(ZFAR+ZNEAR-tex2D(SamplerDepth,txCoords).x*(ZFAR-ZNEAR));
+	return ReShade::GetLinearizedDepth(txCoords);
 }
 
 float4 viewSpace(float2 txCoords)

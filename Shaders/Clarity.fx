@@ -71,9 +71,9 @@ uniform bool ClarityViewMask
 
 #include "ReShade.fxh"
 
-texture ClarityTex{ Width = BUFFER_WIDTH*0.5; Height = BUFFER_HEIGHT*0.5; Format = R8; };
-texture ClarityTex2{ Width = BUFFER_WIDTH*0.5; Height = BUFFER_HEIGHT*0.5; Format = R8; };
-texture ClarityTex3{ Width = BUFFER_WIDTH*0.25; Height = BUFFER_HEIGHT*0.25; Format = R8; };
+texture ClarityTex < pooled = true; > { Width = BUFFER_WIDTH * 0.5; Height = BUFFER_HEIGHT * 0.5; Format = R8; };
+texture ClarityTex2 { Width = BUFFER_WIDTH * 0.5; Height = BUFFER_HEIGHT * 0.5; Format = R8; };
+texture ClarityTex3 < pooled = true; > { Width = BUFFER_WIDTH * 0.25; Height = BUFFER_HEIGHT * 0.25; Format = R8; };
 
 sampler ClaritySampler { Texture = ClarityTex;};
 sampler ClaritySampler2 { Texture = ClarityTex2;};

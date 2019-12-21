@@ -105,9 +105,9 @@ uniform float2 f2LightDoF_MouseCoord <source="mousepoint";>;
 */
 
 //texture for saving the current frame's focus
-texture tFocus { Format=R16F; };
+texture tFocus { Format = R16F; };
 //texture for saving the last frame's focus
-texture tLastFocus { Format=R16F; };
+texture tLastFocus { Format = R16F; };
 
 //samplers////////////////////////////////////////////////////////////////////////////////////////
 
@@ -192,24 +192,24 @@ float3 poisson(sampler sp, float2 uv, float farOrNear, float CA) {
 //shaders/////////////////////////////////////////////////////////////////////////////////////////
 
 //far blur shader
-float3 Far(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+float3 Far(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
 	return poisson(ReShade::BackBuffer, uv, false, f2LightDoF_CA.x);
 }
 
 //near blur shader
-float3 Near(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+float3 Near(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
 	return poisson(ReShade::BackBuffer, uv, true, f2LightDoF_CA.y);
 }
 
 //shader to get the focus, kinda like center of confusion but less complicated
-float GetFocus(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+float GetFocus(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
 	float2 linearMouse = f2LightDoF_MouseCoord * ReShade::PixelSize; //linearize the mouse position
 	float2 focus = bLightDoF_UseMouseFocus ? linearMouse : f2Bokeh_AutoFocusCenter;
 	return lerp(tex2D(sLastFocus, 0).x, ReShade::GetLinearizedDepth(focus), fLightDoF_AutoFocusSpeed);
 }
 
 //shader for saving this frame's focus to lerp with the next one's
-float SaveFocus(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+float SaveFocus(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
 	return tex2D(sFocus, 0).x;
 }
 

@@ -14,10 +14,6 @@
 
 //------------------- Preprocessor Settings -------------------
 
-#ifndef SMAA_PREDICATION
-#define SMAA_PREDICATION 0 // Disable predication by default
-#endif
-
 #if !defined(SMAA_PRESET_LOW) && !defined(SMAA_PRESET_MEDIUM) && !defined(SMAA_PRESET_HIGH) && !defined(SMAA_PRESET_ULTRA)
 #define SMAA_PRESET_CUSTOM // Do not use a quality preset by default
 #endif
@@ -26,19 +22,23 @@
 
 #include "ReShadeUI.fxh"
 
-uniform int EdgeDetectionType <
-	ui_type = "combo";
+uniform int EdgeDetectionType < __UNIFORM_COMBO_INT1
 	ui_items = "Luminance edge detection\0Color edge detection\0Depth edge detection\0";
 	ui_label = "Edge Detection Type";
 > = 1;
 
 #ifdef SMAA_PRESET_CUSTOM
-uniform float EdgeDetectionThreshold <
-	ui_type = "drag";
-	ui_min = 0.05; ui_max = 0.20; ui_step = 0.01;
+uniform float EdgeDetectionThreshold < __UNIFORM_DRAG_FLOAT1
+	ui_min = 0.05; ui_max = 0.20; ui_step = 0.001;
 	ui_tooltip = "Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
 	ui_label = "Edge Detection Threshold";
-> = 0.05;
+> = 0.10;
+
+uniform float DepthEdgeDetectionThreshold < __UNIFORM_DRAG_FLOAT1
+	ui_min = 0.001; ui_max = 0.10; ui_step = 0.001;
+	ui_tooltip = "Depth Edge detection threshold. If SMAA misses some edges try lowering this slightly.";
+	ui_label = "Depth Edge Detection Threshold";
+> = 0.01;
 
 uniform int MaxSearchSteps < __UNIFORM_SLIDER_INT1
 	ui_min = 0; ui_max = 112;
@@ -58,44 +58,44 @@ uniform int CornerRounding < __UNIFORM_SLIDER_INT1
 	ui_tooltip = "Determines the percent of anti-aliasing to apply to corners.";
 > = 25;
 
-#if SMAA_PREDICATION
-uniform float PredicationThreshold <
-	ui_type = "drag";
+uniform bool PredicationEnabled < __UNIFORM_INPUT_BOOL1
+	ui_label = "Enable Predicated Thresholding";
+> = false;
+
+uniform float PredicationThreshold < __UNIFORM_DRAG_FLOAT1
 	ui_min = 0.005; ui_max = 1.00; ui_step = 0.01;
 	ui_tooltip = "Threshold to be used in the additional predication buffer.";
 	ui_label = "Predication Threshold";
 > = 0.01;
 
 uniform float PredicationScale < __UNIFORM_SLIDER_FLOAT1
-	ui_min = 1; ui_max = 5;
+	ui_min = 1; ui_max = 8;
 	ui_tooltip = "How much to scale the global threshold used for luma or color edge.";
 	ui_label = "Predication Scale";
 > = 2.0;
 
 uniform float PredicationStrength < __UNIFORM_SLIDER_FLOAT1
-	ui_min = 0; ui_max = 1;
+	ui_min = 0; ui_max = 4;
 	ui_tooltip = "How much to locally decrease the threshold.";
 	ui_label = "Predication Strength";
 > = 0.4;
 #endif
-#endif
 
-uniform int DebugOutput <
-	ui_type = "combo";
+uniform int DebugOutput < __UNIFORM_COMBO_INT1
 	ui_items = "None\0View edges\0View weights\0";
 	ui_label = "Debug Output";
 > = false;
 
 #ifdef SMAA_PRESET_CUSTOM
+	#define SMAA_PREDICATION PredicationEnabled
 	#define SMAA_THRESHOLD EdgeDetectionThreshold
+	#define SMAA_DEPTH_THRESHOLD DepthEdgeDetectionThreshold
 	#define SMAA_MAX_SEARCH_STEPS MaxSearchSteps
 	#define SMAA_MAX_SEARCH_STEPS_DIAG MaxSearchStepsDiagonal
 	#define SMAA_CORNER_ROUNDING CornerRounding
-	#if SMAA_PREDICATION
-		#define SMAA_PREDICATION_THRESHOLD PredicationThreshold
-		#define SMAA_PREDICATION_SCALE PredicationScale
-		#define SMAA_PREDICATION_STRENGTH PredicationStrength
-	#endif
+	#define SMAA_PREDICATION_THRESHOLD PredicationThreshold
+	#define SMAA_PREDICATION_SCALE PredicationScale
+	#define SMAA_PREDICATION_STRENGTH PredicationStrength
 #endif
 
 #define SMAA_RT_METRICS float4(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT, BUFFER_WIDTH, BUFFER_HEIGHT)
@@ -121,20 +121,20 @@ uniform int DebugOutput <
 
 // Textures
 
-texture depthTex 	
+texture depthTex < pooled = true; >
 { 
 	Width = BUFFER_WIDTH;   
 	Height = BUFFER_HEIGHT;   
 	Format = R16F;  
 };
 
-texture edgesTex
+texture edgesTex < pooled = true; >
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
 	Format = RG8;
 };
-texture blendTex
+texture blendTex < pooled = true; >
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
@@ -239,7 +239,7 @@ void SMAANeighborhoodBlendingWrapVS(
 
 float SMAADepthLinearizationPS(
 	float4 position : SV_Position,
-	float2 texcoord : TEXCOORD0) : SV_Target
+	float2 texcoord : TEXCOORD) : SV_Target
 {
 	return ReShade::GetLinearizedDepth(texcoord);
 }
@@ -249,20 +249,18 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	if (EdgeDetectionType == 0)
-		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler
-	#if SMAA_PREDICATION
-		, depthLinearSampler
-	#endif
-		);
+	if (EdgeDetectionType == 0 && SMAA_PREDICATION == true)
+		return SMAALumaEdgePredicationDetectionPS(texcoord, offset, colorGammaSampler, depthLinearSampler);
+	else if (EdgeDetectionType == 0)
+		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
+
 	if (EdgeDetectionType == 2)
 		return SMAADepthEdgeDetectionPS(texcoord, offset, depthLinearSampler);
 
-	return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler
-	#if SMAA_PREDICATION
-		, depthLinearSampler
-	#endif
-		);
+	if (SMAA_PREDICATION)
+		return SMAAColorEdgePredicationDetectionPS(texcoord, offset, colorGammaSampler, depthLinearSampler);
+	else
+		return SMAAColorEdgeDetectionPS(texcoord, offset, colorGammaSampler);
 }
 float4 SMAABlendingWeightCalculationWrapPS(
 	float4 position : SV_Position,
