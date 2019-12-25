@@ -121,20 +121,20 @@ uniform int DebugOutput < __UNIFORM_COMBO_INT1
 
 // Textures
 
-texture depthTex 	
+texture depthTex < pooled = true; >
 { 
 	Width = BUFFER_WIDTH;   
 	Height = BUFFER_HEIGHT;   
 	Format = R16F;  
 };
 
-texture edgesTex
+texture edgesTex < pooled = true; >
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
 	Format = RG8;
 };
-texture blendTex
+texture blendTex < pooled = true; >
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;

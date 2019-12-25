@@ -56,7 +56,7 @@ uniform float BloomWidth < __UNIFORM_SLIDER_FLOAT1
 //////////////////////////////////////
 // textures
 //////////////////////////////////////
-texture   Otis_BloomTarget 	{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};	
+texture   Otis_BloomTarget < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};	
 
 //////////////////////////////////////
 // samplers

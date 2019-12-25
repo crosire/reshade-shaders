@@ -105,9 +105,9 @@ uniform float2 f2LightDoF_MouseCoord <source="mousepoint";>;
 */
 
 //texture for saving the current frame's focus
-texture tFocus { Format=R16F; };
+texture tFocus { Format = R16F; };
 //texture for saving the last frame's focus
-texture tLastFocus { Format=R16F; };
+texture tLastFocus { Format = R16F; };
 
 //samplers////////////////////////////////////////////////////////////////////////////////////////
 
