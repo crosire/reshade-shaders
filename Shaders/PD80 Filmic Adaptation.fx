@@ -1,13 +1,13 @@
 /* 
   Filmic tonemapper with exposure correction by prod80 for ReShade
-  Version 3.0
+  Version 4.0
 
   Sources/credits
   For the methods : https://placeholderart.wordpress.com/2014/11/21/implementing-a-physically-based-camera-manual-exposure/
   For the methods : https://placeholderart.wordpress.com/2014/12/15/implementing-a-physically-based-camera-automatic-exposure/
   For the logic : https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/Exposure.hlsl
  
-  Exposure code from MJP and David Neubelt, copyrighted under MIT License (see EOF)
+  Exposure code from MJP and David Neubelt, copyrighted under MIT License
   And John Hable for the tonemap method from UNCHARTED2
 */
 
@@ -110,7 +110,7 @@ uniform float setDelay <
   ui_type = "slider";
   ui_min = 0.1;
   ui_max = 5.0;
-  > = 1.5;
+  > = 1.0;
 
 uniform float GreyValue <
   ui_label = "50% Grey Value";
@@ -151,14 +151,16 @@ sampler samplerPrevAvgLuma { Texture = texPrevAvgLuma; };
 float PS_WriteLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float4 color     = tex2D( samplerColor, texcoord );
-  float luma       = getMaxLuminance( color.xyz );
+  color.xyz        = SRGBToLinear( color.xyz );
+  float luma       = getLuminance( color.xyz );
   luma             = max( luma, 0.06f ); //hackjob until better solution
-  return luma;
+  return log2( luma );
 }
 
 float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float luma       = tex2Dlod( samplerLuma, float4(0.0f, 0.0f, 0, 8 )).x;
+  luma             = exp2( luma );
   float prevluma   = tex2D( samplerPrevAvgLuma, float2( 0.0f, 0.0f )).x;
   float fps        = 1000.0f / Frametime;
   float delay      = fps * ( setDelay / 2.0f );	
@@ -213,14 +215,5 @@ technique prod80_02_FilmicTonemap
   }
 }
 
-//Exposure code
-//=================================================================================================
-//
-//  Baking Lab
-//  by MJP and David Neubelt
-//  http://mynameismjp.wordpress.com/
-//
-//  All code licensed under the MIT license
-//
-//=================================================================================================
+
 
