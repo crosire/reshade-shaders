@@ -1,6 +1,6 @@
 /* 
  Color Effects, Contrasts, and Brightness by prod80 for ReShade
- Version 3.0
+ Version 4.0
 */
 
 #include "ReShade.fxh"
@@ -58,7 +58,7 @@ uniform float3 inWhiteRGB <
 uniform bool enableLumaOutBlack <
   ui_label = "Allow average scene luminosity to influence Black OUT.\nWhen NOT selected Black OUT minimum is ignored.";
   ui_category = "Levels";
-  > = false;
+  > = true;
 
 uniform float3 outBlackRGBmin <
   ui_type = "color";
@@ -70,7 +70,7 @@ uniform float3 outBlackRGBmax <
   ui_type = "color";
   ui_label = "Black OUT maximum";
   ui_category = "Levels";
-  > = float3(0.028, 0.028, 0.028);
+  > = float3(0.036, 0.036, 0.036);
 
 uniform float3 outWhiteRGB <
   ui_type = "color";
@@ -251,14 +251,16 @@ sampler samplerCPrevAvgLuma { Texture = texCPrevAvgLuma; };
 float PS_WriteCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float4 color     = tex2D( samplerColor, texcoord );
-  float luma      = getLuminance( color.xyz );
-  return luma;
+  color.xyz        = SRGBToLinear( color.xyz );
+  float luma       = getLuminance( color.xyz );
+  return log2( max( luma, 0.001f ));
 }
 
 float PS_AvgCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float luma       = tex2Dlod( samplerCLuma, float4(0.0f, 0.0f, 0, 8 )).x;
   float prevluma   = tex2D( samplerCPrevAvgLuma, float2( 0.0f, 0.0f )).x;
+  luma             = exp2( luma );
   float fps        = 1000.0f / Frametime;
   fps              *= 0.5f; //approx. 1 second delay to change luma between bright and dark
   float avgLuma    = lerp( prevluma, luma, 1.0f / fps ); 
