@@ -159,9 +159,9 @@ float PS_WriteLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
 
 float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-  float luma       = tex2Dlod( samplerLuma, float4(0.0f, 0.0f, 0, 8 )).x;
+  float luma       = tex2Dlod( samplerLuma, float4(0.5f, 0.5f, 0, 8 )).x;
   luma             = exp2( luma );
-  float prevluma   = tex2D( samplerPrevAvgLuma, float2( 0.0f, 0.0f )).x;
+  float prevluma   = tex2D( samplerPrevAvgLuma, float2( 0.5f, 0.5f )).x;
   float fps        = 1000.0f / Frametime;
   float delay      = fps * ( setDelay / 2.0f );	
   float avgLuma    = lerp( prevluma, luma, 1.0f / delay );
@@ -171,7 +171,7 @@ float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 float4 PS_Tonemap(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float4 color     = tex2D( samplerColor, texcoord );
-  float lumaMod    = tex2D( samplerAvgLuma, float2( 0.0f, 0.0f )).x;
+  float lumaMod    = tex2D( samplerAvgLuma, float2( 0.5f, 0.5f )).x;
   lumaMod          = max( lumaMod, adaptationMin );
   lumaMod          = min( lumaMod, adaptationMax );
   color.xyz        = SRGBToLinear( color.xyz );
@@ -183,7 +183,7 @@ float4 PS_Tonemap(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 
 float PS_PrevAvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-  float avgLuma    = tex2D( samplerAvgLuma, float2( 0.0f, 0.0f )).x;
+  float avgLuma    = tex2D( samplerAvgLuma, float2( 0.5f, 0.5f )).x;
   return avgLuma;
 }
 
@@ -214,6 +214,3 @@ technique prod80_02_FilmicTonemap
     RenderTarget   = texPrevAvgLuma;
   }
 }
-
-
-
