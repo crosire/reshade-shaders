@@ -175,6 +175,3 @@ technique prod80_04_LumaSharpen
     PixelShader    = PS_LumaSharpen;
   }
 }
-
-
-
