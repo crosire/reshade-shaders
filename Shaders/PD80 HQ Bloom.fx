@@ -1,6 +1,6 @@
  /* 
  * HQ Bloom by prod80 for ReShade
- * Version 3.0
+ * Version 4.0
  * 
  * Additional credits:
  *
@@ -50,7 +50,7 @@ uniform float BloomMix <
   ui_type = "slider";
   ui_min = 0.0;
   ui_max = 1.0;
-  > = 0.4;
+  > = 0.5;
 
 uniform float BloomLimit <
   ui_label = "Bloom Threshold";
@@ -59,7 +59,7 @@ uniform float BloomLimit <
   ui_type = "slider";
   ui_min = 0.0;
   ui_max = 1.0;
-  > = 0.15;
+  > = 0.25;
 
 uniform float GreyValue <
   ui_label = "Bloom Exposure";
@@ -68,7 +68,7 @@ uniform float GreyValue <
   ui_type = "slider";
   ui_min = 0.0;
   ui_max = 1.0;
-  > = 0.5;
+  > = 0.333;
 
 uniform float BlurSigma <
   ui_label = "Bloom Width";
@@ -77,7 +77,7 @@ uniform float BlurSigma <
   ui_type = "slider";
   ui_min = 0.0;
   ui_max = 80.0;
-  > = 30.0;
+  > = 40.0;
 
 uniform bool enableBKelvin <
   ui_label  = "Enable Bloom Color Temp (K)";
@@ -222,14 +222,16 @@ void analyze_pixels(float3 ori, sampler2D tex, float2 texcoord, float2 _range, f
 float PS_WriteBLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float4 color     = tex2D( samplerColor, texcoord );
-  float luma       = getMaxLuminance( color.xyz );
-  luma             = max( luma, 0.06f ); //hackjob until better solution
-  return luma;
+  color.xyz        = SRGBToLinear( color.xyz );
+  float luma       = getLuminance( color.xyz );
+  luma             = max( luma, BloomLimit ); //have to limit or will be very bloomy
+  return log2( luma );
 }
 
 float PS_AvgBLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float luma       = tex2Dlod( samplerBLuma, float4(0.0f, 0.0f, 0, 8 )).x;
+  luma             = exp2( luma );
   float prevluma   = tex2D( samplerBPrevAvgLuma, float2( 0.0f, 0.0f )).x;
   float fps        = 1000.0f / Frametime;
   fps              *= 0.5f; //approx. 1 second delay to change luma between bright and dark
@@ -241,7 +243,7 @@ float4 PS_BloomIn(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 {
   float4 color     = tex2D( samplerColor, texcoord );
   float luma       = tex2D( samplerBAvgLuma, float2( 0.0f, 0.0f )).x;
-  color.xyz        = max( color.xyz - max( luma, BloomLimit ), 0.0f );
+  color.xyz        = max( color.xyz - luma, 0.0f );
   color.xyz        = SRGBToLinear( color.xyz );
   color.xyz        = CalcExposedColor( color.xyz, luma, 0.0f, GreyValue );
   color.xyz        = LinearTosRGB( color.xyz );
