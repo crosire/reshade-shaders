@@ -1,6 +1,6 @@
 /* 
  prod80 Shaders : Helper Functions
- Required for PD80 effects
+ Version 4.0
 */
 
 #define LumCoeff float3(0.212656, 0.715158, 0.072186)
