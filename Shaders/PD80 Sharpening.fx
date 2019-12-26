@@ -1,6 +1,6 @@
 /* 
  Luma Sharpening by prod80 for ReShade
- Version 3.0
+ Version 4.0
 */
 
 #include "ReShade.fxh"
