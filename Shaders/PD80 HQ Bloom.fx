@@ -275,14 +275,14 @@ float4 PS_GaussianH(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
   for( int i = 0; i < LOOPCOUNT && SigmaSum < Q; ++i )
   {
     buffSigma.x    = Sigma.x * Sigma.y;
-	calcOffset     = pxlOffset - 1.0f + buffSigma.x / Sigma.x;
-	buffSigma.y    = Sigma.x + buffSigma.x;
+	  calcOffset     = pxlOffset - 1.0f + buffSigma.x / Sigma.x;
+	  buffSigma.y    = Sigma.x + buffSigma.x;
     color          += tex2D( samplerBloomIn, texcoord.xy + float2( calcOffset*px, 0.0f )) * buffSigma.y;
     color          += tex2D( samplerBloomIn, texcoord.xy - float2( calcOffset*px, 0.0f )) * buffSigma.y;
     SigmaSum       += ( 2.0f * Sigma.x + 2.0f * buffSigma.x );
     pxlOffset      += 2.0f;
     Sigma.xy       *= Sigma.yz;
-	Sigma.xy       *= Sigma.yz;
+	  Sigma.xy       *= Sigma.yz;
   }
  
   color.xyz        /= SigmaSum;
@@ -314,14 +314,14 @@ float4 PS_GaussianV(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
   for( int i = 0; i < LOOPCOUNT && SigmaSum < Q; ++i )
   {
     buffSigma.x    = Sigma.x * Sigma.y;
-	calcOffset     = pxlOffset - 1.0f + buffSigma.x / Sigma.x;
-	buffSigma.y    = Sigma.x + buffSigma.x;
-	color          += tex2D( samplerBloomH, texcoord.xy + float2( 0.0f, calcOffset*py )) * buffSigma.y;
+	  calcOffset     = pxlOffset - 1.0f + buffSigma.x / Sigma.x;
+	  buffSigma.y    = Sigma.x + buffSigma.x;
+	  color          += tex2D( samplerBloomH, texcoord.xy + float2( 0.0f, calcOffset*py )) * buffSigma.y;
     color          += tex2D( samplerBloomH, texcoord.xy - float2( 0.0f, calcOffset*py )) * buffSigma.y;
     SigmaSum       += ( 2.0f * Sigma.x + 2.0f * buffSigma.x );
     pxlOffset      += 2.0f;
     Sigma.xy       *= Sigma.yz;
-	Sigma.xy       *= Sigma.yz;
+	  Sigma.xy       *= Sigma.yz;
   }
  
   color.xyz        /= SigmaSum;
@@ -339,25 +339,25 @@ float4 PS_Gaussian(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
     float maxdiff;
     float middiff;
     if (threshold_preset == 0)
-	{
+	  {
       avgdiff      = 0.6f;
       maxdiff      = 1.9f;
       middiff      = 1.2f;
     }
     else if (threshold_preset == 1)
-	{
+  	{
       avgdiff      = 1.8f;
       maxdiff      = 4.0f;
       middiff      = 2.0f;
     }
     else if (threshold_preset == 2)
-	{
+    {
       avgdiff      = 3.4f;
       maxdiff      = 6.8f;
       middiff      = 3.3f;
     }
     else if (threshold_preset == 3)
-	{
+    {
       avgdiff      = custom_avgdiff;
       maxdiff      = custom_maxdiff;
       middiff      = custom_middiff;
@@ -381,11 +381,11 @@ float4 PS_Gaussian(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
     float3 res; // Final pixel
 
     // Compute a random angle
-    float dir  = rand( permute( h )) * 6.2831853f;
-    float2 o = float2( cos( dir ), sin( dir ));
+    float dir      = rand( permute( h )) * 6.2831853f;
+    float2 o       = float2( cos( dir ), sin( dir ));
 
     for ( int i = 1; i <= iterations; ++i )
-	{
+	  {
       // Compute a random distance
       float dist   = rand(h) * range * i;
       float2 pt    = dist * ReShade::PixelSize;
@@ -501,6 +501,3 @@ technique prod80_01_Bloom
     RenderTarget   = texBPrevAvgLuma;
   }
 }
-
-
-
