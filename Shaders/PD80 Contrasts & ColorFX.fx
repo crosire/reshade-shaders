@@ -258,8 +258,8 @@ float PS_WriteCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 
 float PS_AvgCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-  float luma       = tex2Dlod( samplerCLuma, float4(0.0f, 0.0f, 0, 8 )).x;
-  float prevluma   = tex2D( samplerCPrevAvgLuma, float2( 0.0f, 0.0f )).x;
+  float luma       = tex2Dlod( samplerCLuma, float4(0.5f, 0.5f, 0, 8 )).x;
+  float prevluma   = tex2D( samplerCPrevAvgLuma, float2( 0.5f, 0.5f )).x;
   luma             = exp2( luma );
   float fps        = 1000.0f / Frametime;
   fps              *= 0.5f; //approx. 1 second delay to change luma between bright and dark
@@ -270,7 +270,7 @@ float PS_AvgCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
 float4 PS_CC(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
   float4 color     = tex2D( samplerColor, texcoord );
-  float avgluma    = tex2D( samplerCAvgLuma, float2( 0.0f, 0.0f )).x;
+  float avgluma    = tex2D( samplerCAvgLuma, float2( 0.5f, 0.5f )).x;
 
   if( enableKelvin == TRUE )
   {
@@ -371,7 +371,7 @@ float4 PS_CC(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 
 float PS_PrevAvgCLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-  float avgLuma    = tex2D( samplerCAvgLuma, float2( 0.0f, 0.0f )).x;
+  float avgLuma    = tex2D( samplerCAvgLuma, float2( 0.5f, 0.5f )).x;
   return avgLuma;
 }
 
@@ -402,6 +402,3 @@ technique prod80_03_CurvesColors
     RenderTarget   = texCPrevAvgLuma;
   }
 }
-
-
-
