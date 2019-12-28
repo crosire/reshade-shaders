@@ -1,6 +1,6 @@
 /* 
  Color Effects, Contrasts, and Brightness by prod80 for ReShade
- Version 4.0
+ Version 5.0
 */
 
 #include "ReShade.fxh"
@@ -145,16 +145,16 @@ uniform float3 midcolor <
   ui_type = "color";
   ui_label = "Mid Tone Color";
   ui_category = "Gradients";
-  > = float3(1.0, 0.843, 0.2);
+  > = float3(1.0, 0.325, 0.0);
 
 uniform float3 shadowcolor <
   ui_type = "color";
   ui_label = "Shadow Color";
   ui_category = "Gradients";
-  > = float3(1.0, 0.5, 0.9);
+  > = float3(1.0, 0.0, 0.325);
 
 uniform float midpower <
-  ui_label = "Mid Tone Power Distribution";
+  ui_label = "Mid Tone Color Distribution Curve";
   ui_category = "Gradients";
   ui_type = "slider";
   ui_min = 0.05;
@@ -162,12 +162,20 @@ uniform float midpower <
   > = 2.0;
 
 uniform float shadowpower <
-  ui_label = "Shadow Power Distribution";
+  ui_label = "Shadow Color Distribution Curve";
   ui_category = "Gradients";
   ui_type = "slider";
   ui_min = 0.05;
   ui_max = 5.0;
-  > = 2.0;
+  > = 3.0;
+
+uniform float CGdesat <
+  ui_label = "Desaturate Base Image";
+  ui_category = "Gradients";
+  ui_type = "slider";
+  ui_min = 0.0;
+  ui_max = 1.0;
+  > = 0.0;
 
 uniform float finalmix <
   ui_label = "Mix with Original";
@@ -175,7 +183,7 @@ uniform float finalmix <
   ui_type = "slider";
   ui_min = 0.0;
   ui_max = 1.0;
-  > = 0.2;
+  > = 0.333;
 
 //LumaGradients
 uniform bool enableLumaGradients <
@@ -315,23 +323,16 @@ float4 PS_CC(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
   if( enableGradients == TRUE )
   {
     color.xyz      = saturate( color.xyz );
-    //float avgcolor = dot( color.xyz, 0.333333f );
-    float avgcolor = Luminance( color.xyz );
-    float3 Ginten  = RGBToHCV( color.xyz );
-    Ginten.x       = Ginten.z - Ginten.y * 0.5f;
+    float avgcolor = getLuminance( color.xyz );
     float low      = pow( 1.0f - avgcolor, shadowpower );
     float high     = pow( avgcolor, midpower );
     float mid      = saturate( 1.0f - low - high );
-    float3 midC    = max( midcolor.xyz, 0.000001f );   //avoid division by 0
-    float3 shaC    = max( shadowcolor.xyz, 0.000001f );  //ditto
-    float maxMid   = getMaxLuminance( midC.xyz );
-    float maxSha   = getMaxLuminance( shaC.xyz );
-    float3 cMid    = midC.xyz / maxMid;     //scale color where maximum has a value of 1
-    float3 cSha    = shaC.xyz / maxSha;     //ditto
-    float3 cg      = saturate( mid * cMid.xyz + low * cSha.xyz + high );
-    cg.xyz         = RGBToHSL( cg.xyz );
-    cg.xyz         = HSLToRGB( float3( cg.xy, Ginten.x )); //place back original intensity
-    color.xyz      = lerp( color.xyz, cg.xyz, finalmix );
+    float3 midC    = RGBToHSL( midcolor.xyz );
+    float3 shaC    = RGBToHSL( shadowcolor.xyz );
+    midC.xyz       = HSLToRGB( float3( midC.xy, avgcolor ));
+    shaC.xyz       = HSLToRGB( float3( shaC.xy, avgcolor ));
+    float3 CG      = shaC.xyz * low + midC.xyz * mid + high;
+    color.xyz      = lerp( lerp( color.xyz, avgcolor, CGdesat ), CG.xyz, finalmix );
   }
  
   if( enableLumaGradients == TRUE )
