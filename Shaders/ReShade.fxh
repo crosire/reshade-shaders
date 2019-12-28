@@ -16,6 +16,29 @@
 #ifndef RESHADE_DEPTH_LINEARIZATION_FAR_PLANE
 	#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
 #endif
+// Reserved for Emulators with Weak Depth Buffers
+// Keep at 1 for Stock Behaviour
+#ifndef RESHADE_DEPTH_MULTIPLIER
+	#define RESHADE_DEPTH_MULTIPLIER 1
+#endif
+// Depth Scale Factors Per Axis.
+//  Keep at 1 for Stock Behaviour.
+// Below 1 Expands and Above 1 Contracts On Relevant Axis.
+#ifndef RESHADE_DEPTH_INPUT_X_SCALE
+	#define RESHADE_DEPTH_INPUT_X_SCALE 1
+#endif
+#ifndef RESHADE_DEPTH_INPUT_Y_SCALE
+	#define RESHADE_DEPTH_INPUT_Y_SCALE 1
+#endif
+// Depth Buffer Location Offset.
+// Keep at 0 for Stock Behaviour.
+// Recommended to adjust in increments/decrements of anything between 0.005 and 0.1.
+#ifndef RESHADE_DEPTH_INPUT_X_OFFSET_SCALE
+	#define RESHADE_DEPTH_INPUT_X_OFFSET_SCALE 0
+#endif
+#ifndef RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE
+	#define RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE 0
+#endif
 
 namespace ReShade
 {
@@ -46,7 +69,13 @@ namespace ReShade
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 		texcoord.y = 1.0 - texcoord.y;
 #endif
-		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x;
+		// Apply the Depth Buffer Scale
+    	texcoord.y *= RESHADE_DEPTH_INPUT_Y_SCALE;
+		texcoord.x *= RESHADE_DEPTH_INPUT_X_SCALE;
+		// Apply Depth Buffer Location Offset
+    	texcoord.y -= RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE;
+		texcoord.x -= RESHADE_DEPTH_INPUT_X_OFFSET_SCALE;
+		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER;
 
 #if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 		const float C = 0.01;
