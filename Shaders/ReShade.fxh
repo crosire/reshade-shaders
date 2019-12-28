@@ -22,7 +22,7 @@
 	#define RESHADE_DEPTH_MULTIPLIER 1
 #endif
 // Depth Scale Factors Per Axis.
-//  Keep at 1 for Stock Behaviour.
+// Keep at 1 for Stock Behaviour.
 // Below 1 Expands and Above 1 Contracts On Relevant Axis.
 #ifndef RESHADE_DEPTH_INPUT_X_SCALE
 	#define RESHADE_DEPTH_INPUT_X_SCALE 1
@@ -69,13 +69,25 @@ namespace ReShade
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 		texcoord.y = 1.0 - texcoord.y;
 #endif
-		// Apply the Depth Buffer Scale
+		// Apply the Depth Buffer Scale if modified
+#if RESHADE_DEPTH_INPUT_Y_SCALE != 0
     	texcoord.y *= RESHADE_DEPTH_INPUT_Y_SCALE;
+#endif
+#if RESHADE_DEPTH_INPUT_X_SCALE != 0
 		texcoord.x *= RESHADE_DEPTH_INPUT_X_SCALE;
-		// Apply Depth Buffer Location Offset
+#endif
+		// Apply Depth Buffer Location Offset if modified
+#if RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE != 1
     	texcoord.y -= RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE;
+#endif
+#if RESHADE_DEPTH_INPUT_X_OFFSET_SCALE != 1
 		texcoord.x -= RESHADE_DEPTH_INPUT_X_OFFSET_SCALE;
+#endif
+#if RESHADE_DEPTH_MULTIPLIER != 1
 		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER;
+#else
+		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x;
+#endif
 
 #if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 		const float C = 0.01;
@@ -94,7 +106,15 @@ namespace ReShade
 // Vertex shader generating a triangle covering the entire screen
 void PostProcessVS(in uint id : SV_VertexID, out float4 position : SV_Position, out float2 texcoord : TEXCOORD)
 {
-	texcoord.x = (id == 2) ? 2.0 : 0.0;
-	texcoord.y = (id == 1) ? 2.0 : 0.0;
+	if (id == 2)
+		texcoord.x = 2.0;
+	else
+		texcoord.x = 0.0;
+
+	if (id == 1)
+		texcoord.y = 2.0;
+	else
+		texcoord.y = 0.0;
+
 	position = float4(texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 }
