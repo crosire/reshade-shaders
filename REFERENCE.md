@@ -164,6 +164,8 @@ Annotations are also used to request special runtime values:
  Gets the position of the mouse cursor in screen coordinates.
  * ``uniform float2 mousedelta < source = "mousedelta"; >;``  
  Gets the movement of the mouse cursor in screen coordinates.
+ * ``uniform bool hasdepth < source = "bufready_depth"; >;``
+ True if the application's depth buffer is available in textures declared with `DEPTH`, false if not.
 
 ```c++
 // Initializers are used for the initial value when providied.

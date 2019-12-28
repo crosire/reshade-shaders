@@ -17,7 +17,7 @@ uniform float EdgeSlope < __UNIFORM_SLIDER_FLOAT1
 
 #include "ReShade.fxh"
 
-float3 CartoonPass(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
+float3 CartoonPass(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	const float3 coefLuma = float3(0.2126, 0.7152, 0.0722);

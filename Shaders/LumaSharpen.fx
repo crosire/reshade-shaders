@@ -59,7 +59,7 @@ uniform bool show_sharpen <
   /                          Main code                          /
   '-----------------------------------------------------------*/
 
-float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : SV_Target
+float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
 	// -- Get the original pixel --
 	float3 ori = tex2D(ReShade::BackBuffer, tex).rgb; // ori = original pixel
@@ -158,7 +158,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// -- Calculate the sharpening --
 	float3 sharp = ori - blur_ori;  //Subtracting the blurred image from the original image
 
-#if 0 //older CeeJay 1.4 code (included here because the new code while faster can be difficult to understand)
+#if 0 //older 1.4 code (included here because the new code while faster can be difficult to understand)
 	// -- Adjust strength of the sharpening --
 	float sharp_luma = dot(sharp, sharp_strength_luma); //Calculate the luma and adjust the strength
 

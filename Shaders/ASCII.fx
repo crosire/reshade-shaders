@@ -429,7 +429,7 @@ return saturate(color);
 }
 
 
-float3 PS_Ascii(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
+float3 PS_Ascii(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {  
 	float3 color = AsciiPass(texcoord);
 	return color.rgb;

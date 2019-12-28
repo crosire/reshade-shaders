@@ -191,7 +191,7 @@ float4 scanlineWeights(float distance, float4 color)
 	}
 }
 
-float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : SV_Target
+float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
 	// Here's a helpful diagram to keep in mind while trying to
 	// understand the code:

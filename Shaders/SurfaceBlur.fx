@@ -67,7 +67,7 @@ uniform int DebugMode
 #endif
 
 #if SurfaceBlurIterations >= 3
-	texture SurfaceBlurTex2 { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+	texture SurfaceBlurTex2 < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 	sampler SurfaceBlurSampler2 { Texture = SurfaceBlurTex2;};
 #endif
 

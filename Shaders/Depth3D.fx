@@ -348,14 +348,14 @@ sampler BackBufferCLAMP
         AddressW = CLAMP;
     };
 
-texture texDM  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
+texture texDM < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16F; };
 
 sampler SamplerDM
 	{
 		Texture = texDM;
 	};
 
-texture texzBuffer  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
+texture texzBuffer < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
 
 sampler SamplerzBuffer
 	{
@@ -540,7 +540,7 @@ float2 WeaponDepth(float2 texcoord)
 	return float2(saturate(zBufferWH), WA_XYZ.x);
 }
 
-float3 DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
+float3 DepthMap(in float4 position : SV_Position, in float2 texcoord : TEXCOORD) : SV_Target
 {
 		float4 DM = Depth(texcoord).xxxx;
 		float R, G, B, WD = WeaponDepth(texcoord).x, CoP = WeaponDepth(texcoord).y, CutOFFCal = (CoP/Depth_Map_Adjust) * 0.5; //Weapon Cutoff Calculation
@@ -612,7 +612,7 @@ float2 Conv(float D,float2 texcoord)
   return float2(lerp(Convergence,D, ZP),lerp(W_Convergence,D,WZP));
 }
 
-float zBuffer(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0) : SV_Target
+float zBuffer(in float4 position : SV_Position, in float2 texcoord : TEXCOORD) : SV_Target
 {
 	float3 DM = tex2Dlod(SamplerDM,float4(texcoord,0,0)).xyz;
 
