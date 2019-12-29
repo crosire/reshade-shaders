@@ -2,6 +2,8 @@ ReShade FX shaders
 ==================
 
 This repository aims to collect post-processing shaders written in the ReShade FX shader language.
+qUINT shaders are provided by https://github.com/martymcmodding/qUINT
+
 
 Installation
 ------------
