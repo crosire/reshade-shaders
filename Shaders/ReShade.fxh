@@ -13,31 +13,27 @@
 #ifndef RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 	#define RESHADE_DEPTH_INPUT_IS_LOGARITHMIC 0
 #endif
-#ifndef RESHADE_DEPTH_LINEARIZATION_FAR_PLANE
-	#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
-#endif
-// Reserved for Emulators with Weak Depth Buffers
-// Keep at 1 for Stock Behaviour
+//RESHADE_DEPTH_MULTIPLER only useful for emulators, keep at 1 for standard operation
 #ifndef RESHADE_DEPTH_MULTIPLIER
 	#define RESHADE_DEPTH_MULTIPLIER 1
 #endif
-// Depth Scale Factors Per Axis.
-// Keep at 1 for Stock Behaviour.
-// Below 1 Expands and Above 1 Contracts On Relevant Axis.
-#ifndef RESHADE_DEPTH_INPUT_X_SCALE
-	#define RESHADE_DEPTH_INPUT_X_SCALE 1
+#ifndef RESHADE_DEPTH_LINEARIZATION_FAR_PLANE
+	#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
 #endif
+//above 1 expands, below 1 contracts, 1 is no scaling on axis
 #ifndef RESHADE_DEPTH_INPUT_Y_SCALE
 	#define RESHADE_DEPTH_INPUT_Y_SCALE 1
 #endif
-// Depth Buffer Location Offset.
-// Keep at 0 for Stock Behaviour.
-// Recommended to adjust in increments/decrements of anything between 0.005 and 0.1.
-#ifndef RESHADE_DEPTH_INPUT_X_OFFSET_SCALE
-	#define RESHADE_DEPTH_INPUT_X_OFFSET_SCALE 0
+#ifndef RESHADE_DEPTH_INPUT_X_SCALE
+	#define RESHADE_DEPTH_INPUT_X_SCALE 1
 #endif
+//the Offset value to add to the Y, Positive numbers = Up, Negative numbers = Down
 #ifndef RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE
 	#define RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE 0
+#endif
+//the Offset value to add to the X, Positive numbers = Right, Negative numbers = Left
+#ifndef RESHADE_DEPTH_INPUT_X_OFFSET_SCALE
+	#define RESHADE_DEPTH_INPUT_X_OFFSET_SCALE 0
 #endif
 
 namespace ReShade
@@ -69,25 +65,11 @@ namespace ReShade
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 		texcoord.y = 1.0 - texcoord.y;
 #endif
-		// Apply the Depth Buffer Scale if modified
-#if RESHADE_DEPTH_INPUT_Y_SCALE != 0
-    	texcoord.y *= RESHADE_DEPTH_INPUT_Y_SCALE;
-#endif
-#if RESHADE_DEPTH_INPUT_X_SCALE != 0
-		texcoord.x *= RESHADE_DEPTH_INPUT_X_SCALE;
-#endif
-		// Apply Depth Buffer Location Offset if modified
-#if RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE != 1
-    	texcoord.y -= RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE;
-#endif
-#if RESHADE_DEPTH_INPUT_X_OFFSET_SCALE != 1
-		texcoord.x -= RESHADE_DEPTH_INPUT_X_OFFSET_SCALE;
-#endif
-#if RESHADE_DEPTH_MULTIPLIER != 1
-		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER;
-#else
-		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x;
-#endif
+		texcoord.x /= RESHADE_DEPTH_INPUT_X_SCALE; //above 1 expands, below 1 contracts
+    	texcoord.y /= RESHADE_DEPTH_INPUT_Y_SCALE; //above 1 expands, below 1 contracts
+		texcoord.x -= (RESHADE_DEPTH_INPUT_X_OFFSET_SCALE/2.000000001); //halves the input value before applying
+    	texcoord.y += (RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE/2.000000001); //halves the input value before applying, adds instead of minusing
+		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER; //RESHADE_DEPTH_MULTIPLER only useful for emulators, keep at 1 for standard operation
 
 #if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 		const float C = 0.01;
@@ -106,15 +88,7 @@ namespace ReShade
 // Vertex shader generating a triangle covering the entire screen
 void PostProcessVS(in uint id : SV_VertexID, out float4 position : SV_Position, out float2 texcoord : TEXCOORD)
 {
-	if (id == 2)
-		texcoord.x = 2.0;
-	else
-		texcoord.x = 0.0;
-
-	if (id == 1)
-		texcoord.y = 2.0;
-	else
-		texcoord.y = 0.0;
-
+	texcoord.x = (id == 2) ? 2.0 : 0.0;
+	texcoord.y = (id == 1) ? 2.0 : 0.0;
 	position = float4(texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 }
