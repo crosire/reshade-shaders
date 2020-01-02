@@ -150,12 +150,11 @@ float4 PS_LumaSharpen(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV
   float3 color     = BlendLuma( orig.xyz, blend.xyz ); 
   if( enableShowEdges == TRUE )
     color.xyz      = min( edges.xyz, limiter );
-  
   return float4( color.xyz, 1.0f );
 }
 
 //// TECHNIQUES /////////////////////////////////////////////////////////////////
-technique prod80_04_LumaSharpen
+technique prod80_05_LumaSharpen
 {
   pass GaussianH
   {
