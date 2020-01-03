@@ -28,12 +28,12 @@
 	#define RESHADE_DEPTH_INPUT_X_SCALE 1
 #endif
 //the Offset value to add to the Y, Positive numbers = Up, Negative numbers = Down
-#ifndef RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE
-	#define RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE 0
+#ifndef RESHADE_DEPTH_INPUT_Y_OFFSET
+	#define RESHADE_DEPTH_INPUT_Y_OFFSET 0
 #endif
 //the Offset value to add to the X, Positive numbers = Right, Negative numbers = Left
-#ifndef RESHADE_DEPTH_INPUT_X_OFFSET_SCALE
-	#define RESHADE_DEPTH_INPUT_X_OFFSET_SCALE 0
+#ifndef RESHADE_DEPTH_INPUT_X_OFFSET
+	#define RESHADE_DEPTH_INPUT_X_OFFSET 0
 #endif
 
 namespace ReShade
@@ -66,9 +66,9 @@ namespace ReShade
 		texcoord.y = 1.0 - texcoord.y;
 #endif
 		texcoord.x /= RESHADE_DEPTH_INPUT_X_SCALE; //above 1 expands, below 1 contracts
-    	texcoord.y /= RESHADE_DEPTH_INPUT_Y_SCALE; //above 1 expands, below 1 contracts
-		texcoord.x -= (RESHADE_DEPTH_INPUT_X_OFFSET_SCALE/2.000000001); //halves the input value before applying
-    	texcoord.y += (RESHADE_DEPTH_INPUT_Y_OFFSET_SCALE/2.000000001); //halves the input value before applying, adds instead of minusing
+		texcoord.y /= RESHADE_DEPTH_INPUT_Y_SCALE; //above 1 expands, below 1 contracts
+		texcoord.x -= (RESHADE_DEPTH_INPUT_X_OFFSET/2.000000001); //halves the input value before applying
+		texcoord.y += (RESHADE_DEPTH_INPUT_Y_OFFSET/2.000000001); //halves the input value before applying, adds instead of minusing
 		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER; //RESHADE_DEPTH_MULTIPLER only useful for emulators, keep at 1 for standard operation
 
 #if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
