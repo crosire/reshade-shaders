@@ -41,6 +41,10 @@ Annotations:
  * ``texture imageTex < source = "path/to/image.bmp"; > { ... };``  
  Opens image from the patch specified, resizes it to the texture size and loads it into the texture.
 
+ * ``texture myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ``texture myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
+
 Semantics on textures are used to request special textures:
 
  * ``texture texColor : COLOR;``  
