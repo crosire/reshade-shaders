@@ -79,85 +79,92 @@ sampler ClaritySampler { Texture = ClarityTex;};
 sampler ClaritySampler2 { Texture = ClarityTex2;};
 sampler ClaritySampler3 { Texture = ClarityTex3;};
 
+static const float offset4[4] = { 0.0, 1.1824255238, 3.0293122308, 5.0040701377 };
+static const float weight4[4] = { 0.39894, 0.2959599993, 0.0045656525, 0.00000149278686458842 };
+
+static const float offset6[6] = { 0.0, 1.4584295168, 3.40398480678, 5.3518057801, 7.302940716, 9.2581597095 };
+static const float weight6[6] = { 0.13298, 0.23227575, 0.1353261595, 0.0511557427, 0.01253922, 0.0019913644 };
+
+static const float offset11[11] = { 0.0, 1.4895848401, 3.4757135714, 5.4618796741, 7.4481042327, 9.4344079746, 11.420811147, 13.4073334, 15.3939936778, 17.3808101174, 19.3677999584 };
+static const float weight11[11] = { 0.06649, 0.1284697563, 0.111918249, 0.0873132676, 0.0610011113, 0.0381655709, 0.0213835661, 0.0107290241, 0.0048206869, 0.0019396469, 0.0006988718 };
+
+static const float offset15[15] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4401038149, 21.43402885, 23.4279736431, 25.4219399344, 27.4159294386 };
+static const float weight15[15] = { 0.0443266667, 0.0872994708, 0.0820892038, 0.0734818355, 0.0626171681, 0.0507956191, 0.0392263968, 0.0288369812, 0.0201808877, 0.0134446557, 0.0085266392, 0.0051478359, 0.0029586248, 0.0016187257, 0.0008430913 };
+
+static const float offset18[18] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4661974725, 21.4627427973, 23.4592916956, 25.455844494, 27.4524015179, 29.4489630909, 31.445529535, 33.4421011704 };
+static const float weight18[18] = { 0.033245, 0.0659162217, 0.0636705814, 0.0598194658, 0.0546642566, 0.0485871646, 0.0420045997, 0.0353207015, 0.0288880982, 0.0229808311, 0.0177815511, 0.013382297, 0.0097960001, 0.0069746748, 0.0048301008, 0.0032534598, 0.0021315311, 0.0013582974 };
+
+
+float ClarityFinalColorFunc(float offset, float weight, float2 texcoord) 
+{
+		float colorDiff;
+
+		float2 texDiff = float2(0.0, offset * ReShade::PixelSize.y) * ClarityOffset;
+		colorDiff += tex2D(ClaritySampler3, texcoord + texDiff).r * weight;
+		colorDiff += tex2D(ClaritySampler3, texcoord - texDiff).r * weight;
+
+		return colorDiff;
+}
+
 float3 ClarityFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
 
 	float color = tex2D(ClaritySampler3, texcoord).r;
 	
-if(ClarityRadius == 0)	
-{
-	float offset[4] = { 0.0, 1.1824255238, 3.0293122308, 5.0040701377 };
-	float weight[4] = { 0.39894, 0.2959599993, 0.0045656525, 0.00000149278686458842 };
-	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 4; ++i)
+	if(ClarityRadius == 0)	
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-	}
-}	
-
-if(ClarityRadius == 1)	
-{
-	float offset[6] = { 0.0, 1.4584295168, 3.40398480678, 5.3518057801, 7.302940716, 9.2581597095 };
-	float weight[6] = { 0.13298, 0.23227575, 0.1353261595, 0.0511557427, 0.01253922, 0.0019913644 };
+		color *= weight4[0];
+		
+		[loop]
+		for(int i = 1; i < 4; ++i)
+		{
+			color += ClarityFinalColorFunc(offset4[i], weight4[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 6; ++i)
+	if(ClarityRadius == 1)	
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-	}
-}	
-
-if(ClarityRadius == 2)	
-{
-	float offset[11] = { 0.0, 1.4895848401, 3.4757135714, 5.4618796741, 7.4481042327, 9.4344079746, 11.420811147, 13.4073334, 15.3939936778, 17.3808101174, 19.3677999584 };
-	float weight[11] = { 0.06649, 0.1284697563, 0.111918249, 0.0873132676, 0.0610011113, 0.0381655709, 0.0213835661, 0.0107290241, 0.0048206869, 0.0019396469, 0.0006988718 };
+		color *= weight6[0];
+		
+		[loop]
+		for(int i = 1; i < 6; ++i)
+		{
+			color += ClarityFinalColorFunc(offset6[i], weight6[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 11; ++i)
+	if(ClarityRadius == 2)	
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color *= weight11[0];
+		
+		[loop]
+		for(int i = 1; i < 11; ++i)
+		{
+			color += ClarityFinalColorFunc(offset11[i], weight11[i], texcoord);
+		}
 	}
-}	
-
-if(ClarityRadius == 3)	
-{
-	float offset[15] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4401038149, 21.43402885, 23.4279736431, 25.4219399344, 27.4159294386 };
-	float weight[15] = { 0.0443266667, 0.0872994708, 0.0820892038, 0.0734818355, 0.0626171681, 0.0507956191, 0.0392263968, 0.0288369812, 0.0201808877, 0.0134446557, 0.0085266392, 0.0051478359, 0.0029586248, 0.0016187257, 0.0008430913 };
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 15; ++i)
+	if(ClarityRadius == 3)	
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color *= weight15[0];
+		
+		[loop]
+		for(int i = 1; i < 15; ++i)
+		{
+			color += ClarityFinalColorFunc(offset15[i], weight15[i], texcoord);
+		}
 	}
-}
-
-if(ClarityRadius == 4)	
-{
-	float offset[18] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4661974725, 21.4627427973, 23.4592916956, 25.455844494, 27.4524015179, 29.4489630909, 31.445529535, 33.4421011704 };
-	float weight[18] = { 0.033245, 0.0659162217, 0.0636705814, 0.0598194658, 0.0546642566, 0.0485871646, 0.0420045997, 0.0353207015, 0.0288880982, 0.0229808311, 0.0177815511, 0.013382297, 0.0097960001, 0.0069746748, 0.0048301008, 0.0032534598, 0.0021315311, 0.0013582974 };
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 18; ++i)
+	if(ClarityRadius == 4)	
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-	}
-}	
+		color *= weight18[0];
+		
+		[loop]
+		for(int i = 1; i < 18; ++i)
+		{
+			color += ClarityFinalColorFunc(offset18[i], weight18[i], texcoord);
+		}
+	}	
 	
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb; //Original Image
 	float luma = dot(orig.rgb,float3(0.32786885,0.655737705,0.0163934436));
@@ -256,168 +263,162 @@ if(ClarityRadius == 4)
 	return saturate(orig);
 }	
 
+float3 Clarity1ColorFunc(float offset, float weight, float2 texcoord) 
+{
+		float3 colorDiff;
+
+		float2 diff = float2(offset * ReShade::PixelSize.x, 0.0) * ClarityOffset;
+		colorDiff += tex2D(ReShade::BackBuffer, texcoord + diff).rgb * weight;
+		colorDiff += tex2D(ReShade::BackBuffer, texcoord - diff).rgb * weight;
+
+		return colorDiff;
+}
+
+
 float Clarity1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	
-if(ClarityRadius == 0)	
-{
-	float offset[4] = { 0.0, 1.1824255238, 3.0293122308, 5.0040701377 };
-	float weight[4] = { 0.39894, 0.2959599993, 0.0045656525, 0.00000149278686458842 };
-	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 4; ++i)
+	if(ClarityRadius == 0)	
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-	}
-}	
-
-if(ClarityRadius == 1)	
-{
-	float offset[6] = { 0.0, 1.4584295168, 3.40398480678, 5.3518057801, 7.302940716, 9.2581597095 };
-	float weight[6] = { 0.13298, 0.23227575, 0.1353261595, 0.0511557427, 0.01253922, 0.0019913644 };
+		color *= weight4[0];
+		
+		[loop]
+		for(int i = 1; i < 4; ++i)
+		{
+			color += Clarity1ColorFunc(offset4[i], weight4[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 6; ++i)
+	if(ClarityRadius == 1)	
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-	}
-}	
-
-if(ClarityRadius == 2)	
-{
-	float offset[11] = { 0.0, 1.4895848401, 3.4757135714, 5.4618796741, 7.4481042327, 9.4344079746, 11.420811147, 13.4073334, 15.3939936778, 17.3808101174, 19.3677999584 };
-	float weight[11] = { 0.06649, 0.1284697563, 0.111918249, 0.0873132676, 0.0610011113, 0.0381655709, 0.0213835661, 0.0107290241, 0.0048206869, 0.0019396469, 0.0006988718 };
+		color *= weight6[0];
+		
+		[loop]
+		for(int i = 1; i < 6; ++i)
+		{
+			color += Clarity1ColorFunc(offset6[i], weight6[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 11; ++i)
+	if(ClarityRadius == 2)	
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-	}
-}	
-
-if(ClarityRadius == 3)	
-{
-	float offset[15] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4401038149, 21.43402885, 23.4279736431, 25.4219399344, 27.4159294386 };
-	float weight[15] = { 0.0443266667, 0.0872994708, 0.0820892038, 0.0734818355, 0.0626171681, 0.0507956191, 0.0392263968, 0.0288369812, 0.0201808877, 0.0134446557, 0.0085266392, 0.0051478359, 0.0029586248, 0.0016187257, 0.0008430913 };
+		color *= weight11[0];
+		
+		[loop]
+		for(int i = 1; i < 11; ++i)
+		{
+			color += Clarity1ColorFunc(offset11[i], weight11[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 15; ++i)
+	if(ClarityRadius == 3)	
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-	}
-}	
-
-if(ClarityRadius == 4)	
-{
-	float offset[18] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4661974725, 21.4627427973, 23.4592916956, 25.455844494, 27.4524015179, 29.4489630909, 31.445529535, 33.4421011704 };
-	float weight[18] = { 0.033245, 0.0659162217, 0.0636705814, 0.0598194658, 0.0546642566, 0.0485871646, 0.0420045997, 0.0353207015, 0.0288880982, 0.0229808311, 0.0177815511, 0.013382297, 0.0097960001, 0.0069746748, 0.0048301008, 0.0032534598, 0.0021315311, 0.0013582974 };
+		color *= weight15[0];
+		
+		[loop]
+		for(int i = 1; i < 15; ++i)
+		{
+			color += Clarity1ColorFunc(offset15[i], weight15[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 18; ++i)
+	if(ClarityRadius == 4)	
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-	}
-}	
+		color *= weight18[0];
+		
+		[loop]
+		for(int i = 1; i < 18; ++i)
+		{
+			color += Clarity1ColorFunc(offset18[i], weight18[i], texcoord);
+		}
+	}	
 	
 	return dot(color.rgb,float3(0.32786885,0.655737705,0.0163934436));
+}
+
+float Clarity2ColorFunc(float offset, float weight, float2 texcoord) 
+{
+		float colorDiff;
+
+		float2 diff = float2(0.0, offset * ReShade::PixelSize.y) * ClarityOffset;
+		colorDiff += tex2D(ClaritySampler, texcoord + diff).r* weight;
+		colorDiff += tex2D(ClaritySampler, texcoord - diff).r* weight;
+
+		return colorDiff;
 }
 
 float Clarity2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
 {
 	float color = tex2D(ClaritySampler, texcoord).r;
 	
-if(ClarityRadius == 0)	
-{
-	float offset[4] = { 0.0, 1.1824255238, 3.0293122308, 5.0040701377 };
-	float weight[4] = { 0.39894, 0.2959599993, 0.0045656525, 0.00000149278686458842 };
-	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 4; ++i)
+	if(ClarityRadius == 0)	
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-	}
-}	
-
-if(ClarityRadius == 1)	
-{
-	float offset[6] = { 0.0, 1.4584295168, 3.40398480678, 5.3518057801, 7.302940716, 9.2581597095 };
-	float weight[6] = { 0.13298, 0.23227575, 0.1353261595, 0.0511557427, 0.01253922, 0.0019913644 };
+		color *= weight4[0];
+		
+		[loop]
+		for(int i = 1; i < 4; ++i)
+		{
+			color += Clarity2ColorFunc(offset4[i], weight4[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 6; ++i)
+	if(ClarityRadius == 1)	
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-	}
-}	
-
-if(ClarityRadius == 2)	
-{
-	float offset[11] = { 0.0, 1.4895848401, 3.4757135714, 5.4618796741, 7.4481042327, 9.4344079746, 11.420811147, 13.4073334, 15.3939936778, 17.3808101174, 19.3677999584 };
-	float weight[11] = { 0.06649, 0.1284697563, 0.111918249, 0.0873132676, 0.0610011113, 0.0381655709, 0.0213835661, 0.0107290241, 0.0048206869, 0.0019396469, 0.0006988718 };
+		color *= weight6[0];
+		
+		[loop]
+		for(int i = 1; i < 6; ++i)
+		{
+			color += Clarity2ColorFunc(offset6[i], weight6[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 11; ++i)
+	if(ClarityRadius == 2)	
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-	}
-}	
-
-if(ClarityRadius == 3)	
-{
-	float offset[15] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4401038149, 21.43402885, 23.4279736431, 25.4219399344, 27.4159294386 };
-	float weight[15] = { 0.0443266667, 0.0872994708, 0.0820892038, 0.0734818355, 0.0626171681, 0.0507956191, 0.0392263968, 0.0288369812, 0.0201808877, 0.0134446557, 0.0085266392, 0.0051478359, 0.0029586248, 0.0016187257, 0.0008430913 };
+		color *= weight11[0];
+		
+		[loop]
+		for(int i = 1; i < 11; ++i)
+		{
+			color += Clarity2ColorFunc(offset11[i], weight11[i], texcoord);
+		}
+	}	
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 15; ++i)
+	if(ClarityRadius == 3)	
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color *= weight15[0];
+		
+		[loop]
+		for(int i = 1; i < 15; ++i)
+		{
+			color += Clarity2ColorFunc(offset15[i], weight15[i], texcoord);
+		}
 	}
-}
-
-if(ClarityRadius == 4)	
-{
-	float offset[18] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4661974725, 21.4627427973, 23.4592916956, 25.455844494, 27.4524015179, 29.4489630909, 31.445529535, 33.4421011704 };
-	float weight[18] = { 0.033245, 0.0659162217, 0.0636705814, 0.0598194658, 0.0546642566, 0.0485871646, 0.0420045997, 0.0353207015, 0.0288880982, 0.0229808311, 0.0177815511, 0.013382297, 0.0097960001, 0.0069746748, 0.0048301008, 0.0032534598, 0.0021315311, 0.0013582974 };
 	
-	color *= weight[0];
-	
-	[loop]
-	for(int i = 1; i < 18; ++i)
+	if(ClarityRadius == 4)	
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-	}
-}	
+		color *= weight18[0];
+		
+		[loop]
+		for(int i = 1; i < 18; ++i)
+		{
+			color += Clarity2ColorFunc(offset18[i], weight18[i], texcoord);
+		}
+	}	
 
 	return color;
+}
+
+float Clarity3ColorFunc(float offset, float weight, float2 texcoord) 
+{
+		float colorDiff;
+
+		float2 diff = float2(offset * ReShade::PixelSize.x, 0.0) * ClarityOffset;
+		colorDiff += tex2D(ClaritySampler2, texcoord + diff).r* weight;
+		colorDiff += tex2D(ClaritySampler2, texcoord - diff).r* weight;
+
+		return colorDiff;
 }
 
 float Clarity3(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
@@ -426,76 +427,56 @@ float Clarity3(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COL
 	
 if(ClarityRadius == 0)	
 {
-	float offset[4] = { 0.0, 1.1824255238, 3.0293122308, 5.0040701377 };
-	float weight[4] = { 0.39894, 0.2959599993, 0.0045656525, 0.00000149278686458842 };
-	
-	color *= weight[0];
+	color *= weight4[0];
 	
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += Clarity3ColorFunc(offset4[i], weight4[i], texcoord);
 	}
 }	
 
 if(ClarityRadius == 1)	
 {
-	float offset[6] = { 0.0, 1.4584295168, 3.40398480678, 5.3518057801, 7.302940716, 9.2581597095 };
-	float weight[6] = { 0.13298, 0.23227575, 0.1353261595, 0.0511557427, 0.01253922, 0.0019913644 };
-	
-	color *= weight[0];
+	color *= weight6[0];
 	
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += Clarity3ColorFunc(offset6[i], weight6[i], texcoord);
 	}
 }	
 
 if(ClarityRadius == 2)	
 {
-	float offset[11] = { 0.0, 1.4895848401, 3.4757135714, 5.4618796741, 7.4481042327, 9.4344079746, 11.420811147, 13.4073334, 15.3939936778, 17.3808101174, 19.3677999584 };
-	float weight[11] = { 0.06649, 0.1284697563, 0.111918249, 0.0873132676, 0.0610011113, 0.0381655709, 0.0213835661, 0.0107290241, 0.0048206869, 0.0019396469, 0.0006988718 };
-	
-	color *= weight[0];
+	color *= weight11[0];
 	
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += Clarity3ColorFunc(offset11[i], weight11[i], texcoord);
 	}
 }	
 
 if(ClarityRadius == 3)	
 {
-	float offset[15] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4401038149, 21.43402885, 23.4279736431, 25.4219399344, 27.4159294386 };
-	float weight[15] = { 0.0443266667, 0.0872994708, 0.0820892038, 0.0734818355, 0.0626171681, 0.0507956191, 0.0392263968, 0.0288369812, 0.0201808877, 0.0134446557, 0.0085266392, 0.0051478359, 0.0029586248, 0.0016187257, 0.0008430913 };
-	
-	color *= weight[0];
+	color *= weight15[0];
 	
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += Clarity3ColorFunc(offset15[i], weight15[i], texcoord);
 	}
 }	
 
 if(ClarityRadius == 4)	
 {
-	float offset[18] = { 0.0, 1.4953705027, 3.4891992113, 5.4830312105, 7.4768683759, 9.4707125766, 11.4645656736, 13.4584295168, 15.4523059431, 17.4461967743, 19.4661974725, 21.4627427973, 23.4592916956, 25.455844494, 27.4524015179, 29.4489630909, 31.445529535, 33.4421011704 };
-	float weight[18] = { 0.033245, 0.0659162217, 0.0636705814, 0.0598194658, 0.0546642566, 0.0485871646, 0.0420045997, 0.0353207015, 0.0288880982, 0.0229808311, 0.0177815511, 0.013382297, 0.0097960001, 0.0069746748, 0.0048301008, 0.0032534598, 0.0021315311, 0.0013582974 };
-	
-	color *= weight[0];
+	color *= weight18[0];
 	
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += Clarity3ColorFunc(offset18[i], weight18[i], texcoord);
 	}
 }	
 	
