@@ -52,7 +52,7 @@ uniform float EffectFactor < __UNIFORM_SLIDER_FLOAT1
 	ui_tooltip = "Specifies the factor the desaturation is applied. Range from 0.0, which means the effect is off (normal image), till 1.0 which means the desaturated parts are\nfull greyscale (or color blending if that's enabled)";
 > = 0.9;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 #ifndef M_PI
 	#define M_PI 3.1415927

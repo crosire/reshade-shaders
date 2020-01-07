@@ -34,7 +34,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 #define TEXFORMAT RGBA8
 

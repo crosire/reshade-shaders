@@ -51,7 +51,7 @@ uniform float BloomWidth < __UNIFORM_SLIDER_FLOAT1
 	ui_tooltip = "Width of the bloom";
 > = 0.2;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 //////////////////////////////////////
 // textures

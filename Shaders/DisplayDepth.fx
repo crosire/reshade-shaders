@@ -5,7 +5,7 @@
 // in Reshade's settings. (The RESHADE_DEPTH_INPUT_* ones)
 ///////////////////////////////////////////////////////
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 #if __RESHADE__ < 30101
 	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
