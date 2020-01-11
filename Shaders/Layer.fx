@@ -27,7 +27,7 @@
 #include "ReShade.fxh"
 
 #ifndef LAYER_SOURCE
-#define LAYER_SOURCE "layer.png"
+#define LAYER_SOURCE "Layer.png"
 #endif
 #ifndef LAYER_SIZE_X
 #define LAYER_SIZE_X 1280
