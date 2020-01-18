@@ -39,7 +39,7 @@ uniform float fUIFarPlane <
 
 uniform float fUIDepthMultiplier <
 	ui_type = "drag";
-	ui_label = "Depth Muliplier";
+	ui_label = "Depth Multiplier";
 	ui_tooltip = "RESHADE_DEPTH_MULTIPLIER=<value>";
 	ui_min = 0.0; ui_max = 1000.0;
 	ui_step = 0.001;
