@@ -10,10 +10,13 @@
 	#define fPTVLUT_TextureName "ptvlut.png"
 #endif
 #ifndef fPTVLUT_TileSizeXY
-	#define fPTVLUT_TileSizeXY 32
+	#define fPTVLUT_TileSizeXY 512
 #endif
-#ifndef fPTVLUT_TileAmount
-	#define fPTVLUT_TileAmount 32
+#ifndef fPTVLUT_TileAmountX
+	#define fPTVLUT_TileAmountX 1
+#endif
+#ifndef fPTVLUT_TileAmountY
+	#define fPTVLUT_TileAmountY 1
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -33,7 +36,7 @@ uniform float fPTVLUT_AmountLuma < __UNIFORM_SLIDER_FLOAT1
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "ReShade.fxh"
-texture texPTVLUT < source = fPTVLUT_TextureName; > { Width = fPTVLUT_TileSizeXY*fPTVLUT_TileAmount; Height = fPTVLUT_TileSizeXY; Format = RGBA8; };
+texture texPTVLUT < source = fPTVLUT_TextureName; > { Width = fPTVLUT_TileSizeXY*fPTVLUT_TileAmountX; Height = fPTVLUT_TileSizeXY*fPTVLUT_TileAmountY; Format = RGBA8; };
 sampler	SamplerPTVLUT 	{ Texture = texPTVLUT; };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
