@@ -41,6 +41,10 @@ Annotations:
  * ``texture imageTex < source = "path/to/image.bmp"; > { ... };``  
  Opens image from the patch specified, resizes it to the texture size and loads it into the texture.
 
+ * ``texture myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ``texture myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
+
 Semantics on textures are used to request special textures:
 
  * ``texture texColor : COLOR;``  
@@ -164,6 +168,8 @@ Annotations are also used to request special runtime values:
  Gets the position of the mouse cursor in screen coordinates.
  * ``uniform float2 mousedelta < source = "mousedelta"; >;``  
  Gets the movement of the mouse cursor in screen coordinates.
+ * ``uniform bool hasdepth < source = "bufready_depth"; >;``
+ True if the application's depth buffer is available in textures declared with `DEPTH`, false if not.
 
 ```c++
 // Initializers are used for the initial value when providied.
