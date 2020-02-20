@@ -54,13 +54,14 @@ uniform int splitscreen_mode <
     "Angled 50/50 split\0"
     "Angled 25/50/25 split\0"
     "Horizontal 50/50 split\0"
-    "Horizontal 25/50/25 split\0"
+    "Horizontal 25/50/25 split\0"    
     "Diagonal split\0"
     "Circle split\0"
     "White pixels\0"
     "Green Ultimatte(tm) pixels\0"
     "Super Blue Ultimatte(tm) pixels\0"
     "Black pixels\0"
+    "MWO - Horz 25/50/25 With Green Ultimatte(tm) pixels\0"
     "All\0"
     ;
 > = 0;
@@ -97,7 +98,7 @@ sampler Before_sampler { Texture = Before; };
 | :: Effect :: |
 '-------------*/
 
-float4 Apply_Split(float4 pos, float2 texcoord, float4 color_before, float4 color_after)
+float4 Apply_Split(float4 pos, float2 texcoord, float4 color_before, float4 color_after, float4 color_initial)
 {
 	float4 color; 
 
@@ -202,9 +203,21 @@ float4 Apply_Split(float4 pos, float2 texcoord, float4 color_before, float4 colo
     {
     	color = (distance(color_before.rgb, float3(0.0,0.0,0.0)) <= 0.075) ? color_after : color_before; 
     }
+    
+    // -- Green Pixels -- must use intiial
+    [branch] if (splitscreen_mode == 12)
+    {
+    	//Calculate the distance from center
+        float dist = abs(texcoord.y - 0.5);
+        
+        //Further than 1/4 away from center?
+        dist = saturate(dist - 0.2575);
+        
+        color = dist ? color_initial : ((distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? color_after : color_before);
+    }
 
     // -- ALL  --
-    [branch] if (splitscreen_mode == 12)
+    [branch] if (splitscreen_mode == 13)
     {
     	color = color_after;
     }
@@ -229,6 +242,7 @@ float4 PS_Before_OutputInitial(float4 pos : SV_Position, float2 texcoord : TEXCO
 float4 PS_After(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
     float4 color; 
+    float4 color_init = tex2D(Initial_sampler, texcoord);
     float4 color_bef = tex2D(Before_sampler, texcoord);
     float4 color_aft = tex2D(ReShade::BackBuffer, texcoord);
 
@@ -239,7 +253,7 @@ float4 PS_After(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
     	color_bef = color;
     }
     
-    color =  Apply_Split(pos, texcoord, color_bef, color_aft);
+    color =  Apply_Split(pos, texcoord, color_bef, color_aft, color_init);
 
  	return color;
 }

@@ -51,7 +51,7 @@ uniform float BloomWidth < __UNIFORM_SLIDER_FLOAT1
 	ui_tooltip = "Width of the bloom";
 > = 0.2;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 //////////////////////////////////////
 // textures
@@ -72,7 +72,7 @@ void PS_Otis_AFG_PerformBloom(float4 position : SV_Position, float2 texcoord : T
 	float MaxDistance = 8*BloomWidth;
 	float CurDistance = 0;
 	float Samplecount = 25.0;
-	float2 blurtempvalue = texcoord * ReShade::PixelSize * BloomWidth;
+	float2 blurtempvalue = texcoord * BUFFER_PIXEL_SIZE * BloomWidth;
 	float2 BloomSample = float2(2.5,-2.5);
 	float2 BloomSampleValue;
 	

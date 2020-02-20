@@ -32,8 +32,8 @@ uniform float lum_add < __UNIFORM_SLIDER_FLOAT1
 
 float3 PS_HQ4X(float4 pos : SV_Position, float2 uv : TexCoord) : SV_Target
 {
-	float x = s * ReShade::PixelSize.x;
-	float y = s * ReShade::PixelSize.y;
+	float x = s * BUFFER_RCP_WIDTH;
+	float y = s * BUFFER_RCP_HEIGHT;
 
 	const float3 dt = 1.0 * float3(1.0, 1.0, 1.0);
 

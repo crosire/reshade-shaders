@@ -52,12 +52,12 @@ float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Ta
 	// -- calculate the right border_width for a given border_ratio --
 	float2 border_width_variable = border_width;
 	if (border_width.x == -border_width.y) // If width is not used
-		if (ReShade::AspectRatio < border_ratio)
-			border_width_variable = float2(0.0, (ReShade::ScreenSize.y - (ReShade::ScreenSize.x / border_ratio)) * 0.5);
+		if (BUFFER_ASPECT_RATIO < border_ratio)
+			border_width_variable = float2(0.0, (BUFFER_HEIGHT - (BUFFER_WIDTH / border_ratio)) * 0.5);
 		else
-			border_width_variable = float2((ReShade::ScreenSize.x - (ReShade::ScreenSize.y * border_ratio)) * 0.5, 0.0);
+			border_width_variable = float2((BUFFER_WIDTH - (BUFFER_HEIGHT * border_ratio)) * 0.5, 0.0);
 
-	float2 border = (ReShade::PixelSize * border_width_variable); // Translate integer pixel width to floating point
+	float2 border = (BUFFER_PIXEL_SIZE * border_width_variable); // Translate integer pixel width to floating point
 	float2 within_border = saturate((-texcoord * texcoord + texcoord) - (-border * border + border)); // Becomes positive when inside the border and zero when outside
 
 	return all(within_border) ? color : border_color;

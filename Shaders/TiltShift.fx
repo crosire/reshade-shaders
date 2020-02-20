@@ -73,8 +73,8 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 		Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 		// Correct Aspect Ratio
 		float2 UvCoordAspect = UvCoord;
-		UvCoordAspect.y += ReShade::AspectRatio * 0.5 - 0.5;
-		UvCoordAspect.y /= ReShade::AspectRatio;
+		UvCoordAspect.y += BUFFER_ASPECT_RATIO * 0.5 - 0.5;
+		UvCoordAspect.y /= BUFFER_ASPECT_RATIO;
 		// Center coordinates
 		UvCoordAspect = UvCoordAspect * 2.0 - 1.0;
 		// Tilt vector
@@ -89,7 +89,7 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	// Horizontal gaussian blur 
 	if(BlurMask > 0)
 	{
-		float UvOffset = ReShade::PixelSize.x * BlurMask * BlurMultiplier;
+		float UvOffset = BUFFER_PIXEL_SIZE.x * BlurMask * BlurMultiplier;
 		Image.rgb *= Weight[0];
 		[unroll]
 		for (int i = 1; i < 11; i++)
@@ -126,7 +126,7 @@ void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	// Vertical gaussian blur
 	if(BlurMask > 0)
 	{
-		float UvOffset = ReShade::PixelSize.y * BlurMask * BlurMultiplier;
+		float UvOffset = BUFFER_PIXEL_SIZE.y * BlurMask * BlurMultiplier;
 		Image.rgb *= Weight[0];
 		[unroll]
 		for (int i = 1; i < 11; i++)

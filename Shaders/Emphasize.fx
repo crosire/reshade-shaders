@@ -52,7 +52,7 @@ uniform float EffectFactor < __UNIFORM_SLIDER_FLOAT1
 	ui_tooltip = "Specifies the factor the desaturation is applied. Range from 0.0, which means the effect is off (normal image), till 1.0 which means the desaturated parts are\nfull greyscale (or color blending if that's enabled)";
 > = 0.9;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 #ifndef M_PI
 	#define M_PI 3.1415927
@@ -67,9 +67,9 @@ float CalculateDepthDiffCoC(float2 texcoord : TEXCOORD)
 	
 	if(Spherical == true)
 	{
-		texcoord.x = (texcoord.x-Sphere_FocusHorizontal)*ReShade::ScreenSize.x;
-		texcoord.y = (texcoord.y-Sphere_FocusVertical)*ReShade::ScreenSize.y;
-		const float degreePerPixel = Sphere_FieldOfView / ReShade::ScreenSize.x;
+		texcoord.x = (texcoord.x-Sphere_FocusHorizontal)*BUFFER_WIDTH;
+		texcoord.y = (texcoord.y-Sphere_FocusVertical)*BUFFER_HEIGHT;
+		const float degreePerPixel = Sphere_FieldOfView*BUFFER_RCP_WIDTH;
 		const float fovDifference = sqrt((texcoord.x*texcoord.x)+(texcoord.y*texcoord.y))*degreePerPixel;
 		depthdiff = sqrt((scenedepth*scenedepth)+(scenefocus*scenefocus)-(2*scenedepth*scenefocus*cos(fovDifference*(2*M_PI/360))));
 	}

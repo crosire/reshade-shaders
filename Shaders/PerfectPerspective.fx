@@ -167,9 +167,9 @@ float Equidistant(float2 Coordinates)
 float3 PerfectPerspectivePS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	// Get Aspect Ratio
-	float AspectR = 1.0 / ReShade::AspectRatio;
+	float AspectR = 1.0 / BUFFER_ASPECT_RATIO;
 	// Get Screen Pixel Size
-	float2 ScrPixelSize = ReShade::PixelSize;
+	float2 ScrPixelSize = BUFFER_PIXEL_SIZE;
 
 	// Convert FOV type..
 	float FovType; switch(Type)

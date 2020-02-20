@@ -95,6 +95,12 @@ uniform float Max_Luma_Smooth < __UNIFORM_DRAG_FLOAT1
     ui_step = (1.0 / 250.0);
 > = 0.10;
 
+uniform float Speed < __UNIFORM_SLIDER_FLOAT1
+	ui_min = -10.00; ui_max = 10.00;
+	ui_label = "Speed";
+	ui_tooltip = "Speed Layer blinks in and out";
+> = 0.000;
+
 texture Layer_Tex <
     source = LAYER_SOURCE;
 > {
@@ -110,6 +116,8 @@ sampler Layer_Sampler
     AddressV = BORDER;
 };
 
+uniform float elapsed_time < source = "timer"; >;
+
 void PS_Layer(float4 pos : SV_Position, float2 texCoord : TEXCOORD, out float4 passColor : SV_Target)
 {
     const float4 backColor = tex2D(ReShade::BackBuffer, texCoord);
@@ -117,13 +125,14 @@ void PS_Layer(float4 pos : SV_Position, float2 texCoord : TEXCOORD, out float4 p
     const float4 layer     = tex2D(Layer_Sampler, texCoord * pixelSize + Layer_Pos * (1.0 - pixelSize));
 
     const float luminance = saturate(dot(CoefLuma, layer));
+    float time = (elapsed_time * 0.001 * clamp(Speed, -10.0, 10.0));
 
     float lumaLo = smoothstep(Min_Luma, Min_Luma + Min_Luma_Smooth, luminance);
 	float lumaHi = 1.0 - smoothstep(Max_Luma - Max_Luma_Smooth, Max_Luma, luminance);
 
 	float lumaMask = lumaLo * lumaHi;
 
-    passColor   = lerp(backColor, layer, lumaMask * Layer_Blend);
+    passColor   = lerp(backColor, layer, lumaMask * Layer_Blend * abs(cos(time)));
     passColor.a = backColor.a;
 }
 

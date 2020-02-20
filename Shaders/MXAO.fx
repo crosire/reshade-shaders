@@ -199,7 +199,7 @@ MXAO_VSOUT VS_MXAO(in uint id : SV_VertexID)
         static const float FOV = 70.0; //vertical FoV
 
         MXAO.uvtoviewADD = float3(-tan(radians(FOV * 0.5)).xx,1.0);
-        MXAO.uvtoviewADD.y *= BUFFER_WIDTH * BUFFER_RCP_HEIGHT;
+        MXAO.uvtoviewADD.y *= BUFFER_ASPECT_RATIO;
         MXAO.uvtoviewMUL = float3(-2.0 * MXAO.uvtoviewADD.xy,0.0);
 */
         return MXAO;
@@ -272,7 +272,7 @@ float4 BlurFilter(in MXAO_VSOUT MXAO, in sampler inputsampler, in float inputsca
         [loop]
         for(int iStep = 0; iStep < blursteps; iStep++)
         {
-                float2 sampleCoord = MXAO.texcoord.xy + blurOffsets[iStep] * ReShade::PixelSize * radius / inputscale; 
+                float2 sampleCoord = MXAO.texcoord.xy + blurOffsets[iStep] * BUFFER_PIXEL_SIZE * radius / inputscale; 
 
                 GetBlurKeyAndSample(sampleCoord, inputscale, inputsampler, tempsample, tempkey);
                 GetBlurWeight(tempkey, centerkey, surfacealignment, tempweight);
@@ -307,7 +307,7 @@ void SetupAOParameters(in MXAO_VSOUT MXAO, in float3 P, in float layerID, out fl
 
 void TesselateNormals(inout float3 N, in float3 P, in MXAO_VSOUT MXAO)
 {
-        float2 searchRadiusScaled = 0.018 / P.z * float2(1.0,ReShade::AspectRatio);
+        float2 searchRadiusScaled = 0.018 / P.z * float2(1.0,BUFFER_ASPECT_RATIO);
         float3 likelyFace[4] = {N,N,N,N};
 
         for(int iDirection=0; iDirection < 4; iDirection++)
@@ -340,7 +340,7 @@ void TesselateNormals(inout float3 N, in float3 P, in MXAO_VSOUT MXAO)
 
 bool GetCullingMask(in MXAO_VSOUT MXAO)
 {
-        float4 cOffsets = float4(ReShade::PixelSize.xy,-ReShade::PixelSize.xy) * 8;
+        float4 cOffsets = float4(BUFFER_PIXEL_SIZE,-BUFFER_PIXEL_SIZE) * 8;
         float cullingArea = tex2D(sMXAO_CullingTex, MXAO.scaledcoord.xy + cOffsets.xy).x;
         cullingArea      += tex2D(sMXAO_CullingTex, MXAO.scaledcoord.xy + cOffsets.zy).x;
         cullingArea      += tex2D(sMXAO_CullingTex, MXAO.scaledcoord.xy + cOffsets.xw).x;
@@ -374,7 +374,7 @@ float3 RGBtoHSV(in float3 RGB){
 
 void PS_InputBufferSetup(in MXAO_VSOUT MXAO, out float4 color : SV_Target0, out float4 depth : SV_Target1, out float4 normal : SV_Target2)
 {
-        float3 offs = float3(ReShade::PixelSize.xy,0);
+        float3 offs = float3(BUFFER_PIXEL_SIZE,0);
 
 	float3 f 	 =       GetPosition(MXAO.texcoord.xy, MXAO);
 	float3 gradx1 	 = - f + GetPosition(MXAO.texcoord.xy + offs.xz, MXAO);
@@ -418,7 +418,7 @@ void PS_Culling(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
         [loop]
         for(int iSample=0; iSample < MXAO.samples; iSample++)
         {                
-                sampleUV = MXAO.scaledcoord.xy + Dir.xy * float2(1.0, ReShade::AspectRatio) * (iSample + randStep);   
+                sampleUV = MXAO.scaledcoord.xy + Dir.xy * float2(1.0, BUFFER_ASPECT_RATIO) * (iSample + randStep);   
                 Dir.xy = mul(Dir.xy, float2x2(0.76465,-0.64444,0.64444,0.76465));             
 
                 float sampleMIP = saturate(scaledRadius * iSample * 20.0) * 3.0;
@@ -479,7 +479,7 @@ void PS_AmbientObscurance(in MXAO_VSOUT MXAO, out float4 color : SV_Target0)
         [loop]
         for(int iSample=0; iSample < MXAO.samples; iSample++)
         {                
-                sampleUV = MXAO.scaledcoord.xy + Dir.xy * float2(1.0, ReShade::AspectRatio) * (iSample + randStep);   
+                sampleUV = MXAO.scaledcoord.xy + Dir.xy * float2(1.0, BUFFER_ASPECT_RATIO) * (iSample + randStep);   
                 Dir.xy = mul(Dir.xy, float2x2(0.76465,-0.64444,0.64444,0.76465));             
 
                 float sampleMIP = saturate(scaledRadius * iSample * 20.0) * 3.0;

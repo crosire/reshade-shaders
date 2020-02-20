@@ -139,7 +139,7 @@ float4 HSLtoRGB(float4 hsl) {
 float4 PS_Rainbow(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
 	float2 lPos = texcoord / clamp(Spread, 0.25, 10.0);
-	float time = (elapsed_time * 0.001 * clamp(Speed, -5.0, 5.0)) / clamp(Spread, 0.25, 10.0);	
+	float time = (elapsed_time * 0.001 * clamp(Speed, -10.0, 10.0)) / clamp(Spread, 0.25, 10.0);	
 
 	//set colors and direction
 	float hue = (-1 * lPos.x) / 2.0;

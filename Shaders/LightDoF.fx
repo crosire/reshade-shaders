@@ -165,9 +165,9 @@ float3 poisson(sampler sp, float2 uv, float farOrNear, float CA) {
 		offset = float2(dot(offset, basis.xz), dot(offset, basis.yw));
 		
 		if (bLightDoF_UseCA) {
-			float2 rCoord = uv + offset * ReShade::PixelSize * fLightDoF_Width * (1.0 + CA);
-			float2 gCoord = uv + offset * ReShade::PixelSize * fLightDoF_Width * (1.0 + CA * 0.5);
-			float2 bCoord = uv + offset * ReShade::PixelSize * fLightDoF_Width;
+			float2 rCoord = uv + offset * BUFFER_PIXEL_SIZE * fLightDoF_Width * (1.0 + CA);
+			float2 gCoord = uv + offset * BUFFER_PIXEL_SIZE * fLightDoF_Width * (1.0 + CA * 0.5);
+			float2 bCoord = uv + offset * BUFFER_PIXEL_SIZE * fLightDoF_Width;
 			
 			rCoord = lerp(uv, rCoord, getFocus(rCoord, farOrNear));
 			gCoord = lerp(uv, gCoord, getFocus(gCoord, farOrNear));
@@ -180,7 +180,7 @@ float3 poisson(sampler sp, float2 uv, float farOrNear, float CA) {
 					);
 		}
 		else {
-			float2 coord = uv + offset * ReShade::PixelSize * fLightDoF_Width;
+			float2 coord = uv + offset * BUFFER_PIXEL_SIZE * fLightDoF_Width;
 			coord = lerp(uv, coord, getFocus(coord, farOrNear));
 			col += tex2Dlod(sp, float4(coord, 0, 0)).rgb;
 		}
@@ -203,7 +203,7 @@ float3 Near(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
 
 //shader to get the focus, kinda like center of confusion but less complicated
 float GetFocus(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
-	float2 linearMouse = f2LightDoF_MouseCoord * ReShade::PixelSize; //linearize the mouse position
+	float2 linearMouse = f2LightDoF_MouseCoord * BUFFER_PIXEL_SIZE; //linearize the mouse position
 	float2 focus = bLightDoF_UseMouseFocus ? linearMouse : f2Bokeh_AutoFocusCenter;
 	return lerp(tex2D(sLastFocus, 0).x, ReShade::GetLinearizedDepth(focus), fLightDoF_AutoFocusSpeed);
 }
