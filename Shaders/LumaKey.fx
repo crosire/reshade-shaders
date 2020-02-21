@@ -6,6 +6,11 @@ This work is licensed under the Creative Commons
 Attribution-ShareAlike 4.0 International License. 
 To view a copy of this license, visit 
 http://creativecommons.org/licenses/by-sa/4.0/.
+
+	About:
+	Uses Luminance to Key out colors
+	This is good for removing skies, or dark areas or when exact colors are imperfect for keying
+
 */
 
 #include "ReShade.fxh"
@@ -69,8 +74,6 @@ uniform float3 CustomKeyColor < __UNIFORM_COLOR_FLOAT3
 
 
 
-
-
 	  /////////////////
 	 /// FUNCTIONS ///
 	/////////////////
@@ -89,7 +92,7 @@ float4 InvertColor(float4 rgba_in)
 	 /// SHADER ///
 	//////////////
 
-float3 ChromakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
+float3 LumakeyPS(float4 vois : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	// Define chromakey color, Ultimatte(tm) Super Blue, Ultimatte(tm) Green, or user color
 	float3 Screen;
@@ -138,6 +141,6 @@ technique LumaKey < ui_tooltip = "Generate green-screen based on luminance"; >
 	pass
 	{
 		VertexShader = PostProcessVS;
-		PixelShader = ChromakeyPS;
+		PixelShader = LumakeyPS;
 	}
 }

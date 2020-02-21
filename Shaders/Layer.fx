@@ -25,6 +25,7 @@
 
     Version 0.3 by Charles Fettinger
     * Added Min/Max Luminance to remove unwanted colors
+    - This is very useful for removing backgrounds for images with no alpha layer
 */
 
 #include "ReShade.fxh"

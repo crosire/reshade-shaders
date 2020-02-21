@@ -33,8 +33,9 @@
     Version 3.0
     * add ability to swap the content areas
     * add Initial sample to allow prestine application of effects to main section of effects
-    - Splitscreen is not Initial/Before/After
+    - Splitscreen is now Initial/Before/After
     * add ability to split on COLORs: Green, Blue, Black and White and NON-SPLIT or ALL
+    * add split combining horizontal split with a Green Ultimatte(tm)
 */
 
 /*------------------.
@@ -61,7 +62,7 @@ uniform int splitscreen_mode <
     "Green Ultimatte(tm) pixels\0"
     "Super Blue Ultimatte(tm) pixels\0"
     "Black pixels\0"
-    "MWO - Horz 25/50/25 With Green Ultimatte(tm) pixels\0"
+    "Horz 25/50/25 With Green Ultimatte(tm) pixels\0"
     "All\0"
     ;
 > = 0;
