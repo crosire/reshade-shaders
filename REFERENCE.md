@@ -32,6 +32,13 @@ ReShade FX shading language
 
 Possible values for ``__RENDERER__`` are 0x9000 for D3D9, 0xa000 or higher for D3D10, 0xb000 or higher for D3D11, 0xc000 or higher for D3D12, 0x10000 or higher for OpenGL and 0x20000 or higher for Vulkan.
 
+Constructs like the following may be interpreted as this define being a configurable UI option. To prevent this, the define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it.
+```
+#ifndef MY_PREPROCESSOR_DEFINE
+	#define MY_PREPROCESSOR_DEFINE 0
+#endif
+```
+
 ### Textures
 
 > Textures are multidimensional data containers usually used to store images.
