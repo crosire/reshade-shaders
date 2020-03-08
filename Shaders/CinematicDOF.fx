@@ -452,7 +452,7 @@ namespace CinematicDOF
 	// returns minCoC
 	float PerformTileGatherHorizontal(sampler source, float2 texcoord)
 	{
-		float tileSize = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
+		float tileSize = TILE_SIZE * (BUFFER_SCREEN_SIZE.x / GROUND_TRUTH_SCREEN_WIDTH);
 		float minCoC = 10;
 		float coc;
 		float2 coordOffset = float2(BUFFER_PIXEL_SIZE.x, 0);
