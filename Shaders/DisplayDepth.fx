@@ -7,7 +7,7 @@
 
 #include "ReShade.fxh"
 
-#if __RESHADE__ < 30101
+#if (__RESHADE__ < 30101) || (__RESHADE__ >= 40600)
 	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
 	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
 	#define __DISPLAYDEPTH_UI_REVERSED_DEFAULT__ 0
