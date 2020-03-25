@@ -78,8 +78,8 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	Image.rgb = tex2D(ReShade::BackBuffer, UvCoord).rgb;
 	// Correct Aspect Ratio
 	float2 UvCoordAspect = UvCoord;
-	UvCoordAspect.y += ReShade::AspectRatio * 0.5 - 0.5;
-	UvCoordAspect.y /= ReShade::AspectRatio;
+	UvCoordAspect.y += BUFFER_ASPECT_RATIO * 0.5 - 0.5;
+	UvCoordAspect.y /= BUFFER_ASPECT_RATIO;
 	// Center coordinates
 	UvCoordAspect = UvCoordAspect * 2.0 - 1.0;
 	// Tilt vector
@@ -96,7 +96,7 @@ void TiltShiftPass1PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	if(BlurMask > 0)
 	{
 		// Get offset for this pixel
-		float UvOffset = ReShade::PixelSize.x *BlurMask *BlurMultiplier;
+		float UvOffset = BUFFER_PIXEL_SIZE.x *BlurMask *BlurMultiplier;
 		// Set initial weight for first dry single sample
 		float total_weight = 0.5;
 		// Blur with dynamic samples
@@ -131,7 +131,7 @@ void TiltShiftPass2PS(float4 vpos : SV_Position, float2 UvCoord : TEXCOORD, out 
 	if(BlurMask > 0)
 	{
 		// Get offset for this pixel
-		float UvOffset = ReShade::PixelSize.y *BlurMask *BlurMultiplier;
+		float UvOffset = BUFFER_PIXEL_SIZE.y *BlurMask *BlurMultiplier;
 		// Set initial weight for first dry single sample
 		float total_weight = 0.5;
 		// Blur with dynamic samples

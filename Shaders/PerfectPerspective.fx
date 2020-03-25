@@ -252,7 +252,7 @@ float3 PerfectPerspectivePS(float4 pos : SV_Position, float2 texCoord : TEXCOORD
 	sphCoord *= univPerspective(k, Vertical, sphCoord) * FovType;
 
 	// Aspect Ratio back to square
-	sphCoord.y *= ReShade::AspectRatio;
+	sphCoord.y *= BUFFER_ASPECT_RATIO;
 
 	// Anamorphic correction
 	if(VerticalScale != 1.0 && Vertical != 1.0)
