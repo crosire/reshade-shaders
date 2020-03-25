@@ -221,7 +221,7 @@ float univPerspective(float k, float l, float2 coord)
 float3 PerfectPerspectivePS(float4 pos : SV_Position, float2 texCoord : TEXCOORD) : SV_Target
 {
 	// Get inverted screen aspect ratio
-	const float aspectRatioInv = 1.0 / ReShade::AspectRatio;
+	const float aspectRatioInv = 1.0 / BUFFER_ASPECT_RATIO;
 
 	// Convert FOV type..
 	float FovType; switch(Type)
