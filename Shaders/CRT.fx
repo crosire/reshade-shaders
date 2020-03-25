@@ -218,7 +218,7 @@ float3 AdvancedCRTPass(float4 position : SV_Position, float2 tex : TEXCOORD) : S
 	float2 Resolution = float2(Input_ratio, Input_ratio);
 	float2 rubyTextureSize = Resolution;
 	float2 rubyInputSize = Resolution;
-	float2 rubyOutputSize = ReShade::ScreenSize;
+	float2 rubyOutputSize = BUFFER_SCREEN_SIZE;
 
 	float2 orig_xy = Curvature ? transform(tex, rubyTextureSize, rubyInputSize) : tex;
 	float cval = corner(orig_xy, rubyTextureSize, rubyInputSize);

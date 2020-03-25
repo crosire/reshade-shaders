@@ -32,6 +32,13 @@ ReShade FX shading language
 
 Possible values for ``__RENDERER__`` are 0x9000 for D3D9, 0xa000 or higher for D3D10, 0xb000 or higher for D3D11, 0xc000 or higher for D3D12, 0x10000 or higher for OpenGL and 0x20000 or higher for Vulkan.
 
+Constructs like the following may be interpreted as this define being a configurable UI option. To prevent this, the define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it.
+```
+#ifndef MY_PREPROCESSOR_DEFINE
+	#define MY_PREPROCESSOR_DEFINE 0
+#endif
+```
+
 ### Textures
 
 > Textures are multidimensional data containers usually used to store images.
@@ -40,6 +47,10 @@ Annotations:
 
  * ``texture imageTex < source = "path/to/image.bmp"; > { ... };``  
  Opens image from the patch specified, resizes it to the texture size and loads it into the texture.
+
+ * ``texture myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ``texture myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
 
 Semantics on textures are used to request special textures:
 

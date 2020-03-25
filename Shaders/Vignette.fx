@@ -45,7 +45,7 @@ float4 VignettePass(float4 vpos : SV_Position, float2 tex : TexCoord) : SV_Targe
 		float2 distance_xy = tex - Center;
 
 		// Adjust the ratio
-		distance_xy *= float2((ReShade::PixelSize.y / ReShade::PixelSize.x), Ratio);
+		distance_xy *= float2((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH), Ratio);
 
 		// Calculate the distance
 		distance_xy /= Radius;
@@ -58,7 +58,7 @@ float4 VignettePass(float4 vpos : SV_Position, float2 tex : TexCoord) : SV_Targe
 	if (Type == 1) // New round (-x*x+x) + (-y*y+y) method.
 	{
 		tex = -tex * tex + tex;
-		color.rgb = saturate(((ReShade::PixelSize.y / ReShade::PixelSize.x)*(ReShade::PixelSize.y / ReShade::PixelSize.x) * Ratio * tex.x + tex.y) * 4.0) * color.rgb;
+		color.rgb = saturate(((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH)*(BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH) * Ratio * tex.x + tex.y) * 4.0) * color.rgb;
 	}
 
 	if (Type == 2) // New (-x*x+x) * (-y*y+y) TV style method.
@@ -97,7 +97,7 @@ float4 VignettePass(float4 vpos : SV_Position, float2 tex : TexCoord) : SV_Targe
 
 	if (Type == 6) // New round (-x*x+x) * (-y*y+y) method.
 	{
-		//tex.y /= float2((ReShade::PixelSize.y / ReShade::PixelSize.x), Ratio);
+		//tex.y /= float2((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH), Ratio);
 		float tex_xy = dot(float4(tex, tex), float4(-tex, 1.0, 1.0)); //dot is actually slower
 		color.rgb = saturate(tex_xy * 4.0) * color.rgb;
 	}

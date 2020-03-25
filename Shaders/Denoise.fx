@@ -151,7 +151,7 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : S
 
 	for (int i = -WindowRadius; i <= WindowRadius; i++) {
 		for (int j = -WindowRadius; j <= WindowRadius; j++) {
-			texIJ = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
+			texIJ = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i, j)).rgb;
 			weight = dot(orig - texIJ, orig - texIJ);
 
 			weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));
@@ -188,12 +188,12 @@ float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : S
 				
 				for (int n = -BlockRadius; n <= BlockRadius; n++) {
 					for (int m = -BlockRadius; m <= BlockRadius; m++) {              
-							texIJb = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i + n, j + m)).rgb;
-							texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(    n,     m)).rgb;
+							texIJb = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i + n, j + m)).rgb;
+							texIJc = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(    n,     m)).rgb;
 							weight = dot(texIJb - texIJc, texIJb - texIJc) + weight;
 					}
                 }
-				texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
+				texIJc = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i, j)).rgb;
 
 				weight *= invBlockArea;
 				weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));

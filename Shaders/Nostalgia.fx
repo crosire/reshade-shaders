@@ -527,7 +527,7 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 		{
 		
 			//Calculate grid position
-			float grid_position = frac(dot(texcoord, ReShade::ScreenSize * 0.5) + 0.25); //returns 0.25 and 0.75
+			float grid_position = frac(dot(texcoord, BUFFER_SCREEN_SIZE * 0.5) + 0.25); //returns 0.25 and 0.75
 	
 			//Calculate how big the shift should be
 			float dither_shift = (0.25) * (1.0 / (pow(2,2.0) - 1.0)); // 0.25 seems good both when using math and when eyeballing it. So does 0.75 btw.
@@ -570,12 +570,12 @@ float3 PS_Nostalgia(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_
 
 	if (Nostalgia_scanlines == 1)
 	{
-		color *= frac(texcoord.y * (ReShade::ScreenSize.y * 0.5)) + 0.5; //Scanlines
+		color *= frac(texcoord.y * (BUFFER_HEIGHT * 0.5)) + 0.5; //Scanlines
 	}
 	if (Nostalgia_scanlines == 2)
 	{
 		float grey  = dot(color,float(1.0/3.0));
-		color = (frac(texcoord.y * (ReShade::ScreenSize.y * 0.5)) < 0.25) ? color : color * ((-grey*grey+grey+grey) * 0.5 + 0.5);
+		color = (frac(texcoord.y * (BUFFER_HEIGHT * 0.5)) < 0.25) ? color : color * ((-grey*grey+grey+grey) * 0.5 + 0.5);
 	}
 
 	return color; //return the pixel

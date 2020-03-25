@@ -239,7 +239,7 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 	for (int i = -10; i < 11; i++)
 	{
 		float currweight = weight[abs(i)];
-		sum += tex2Dlod(tex, float4(coord.xy + axis.xy * (float)i * ReShade::PixelSize * mult, 0, lodlevel)) * currweight;
+		sum += tex2Dlod(tex, float4(coord.xy + axis.xy * (float)i * BUFFER_PIXEL_SIZE * mult, 0, lodlevel)) * currweight;
 	}
 
 	return sum;
@@ -302,7 +302,7 @@ void BloomPass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	for (int i = 0; i < 4; i++)
 	{
-		float2 bloomuv = offset[i] * ReShade::PixelSize.xy * 2;
+		float2 bloomuv = offset[i] * BUFFER_PIXEL_SIZE * 2;
 		bloomuv += texcoord;
 		float4 tempbloom = tex2Dlod(ReShade::BackBuffer, float4(bloomuv.xy, 0, 0));
 		tempbloom.w = max(0, dot(tempbloom.xyz, 0.333) - fAnamFlareThreshold);
@@ -329,7 +329,7 @@ void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	for (int i = 0; i < 8; i++)
 	{
-		float2 bloomuv = offset[i] * ReShade::PixelSize * 4;
+		float2 bloomuv = offset[i] * BUFFER_PIXEL_SIZE * 4;
 		bloomuv += texcoord;
 		bloom += tex2Dlod(SamplerBloom1, float4(bloomuv, 0, 0));
 	}
@@ -353,7 +353,7 @@ void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	for (int i = 0; i < 8; i++)
 	{
-		float2 bloomuv = offset[i] * ReShade::PixelSize * 8;
+		float2 bloomuv = offset[i] * BUFFER_PIXEL_SIZE * 8;
 		bloomuv += texcoord;
 		bloom += tex2Dlod(SamplerBloom2, float4(bloomuv, 0, 0));
 	}
@@ -425,7 +425,7 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		float2 lfcoord = 0;
 		float3 lenstemp = 0;
 		float2 distfact = texcoord.xy - 0.5;
-		distfact.x *= ReShade::AspectRatio;
+		distfact.x *= BUFFER_ASPECT_RATIO;
 
 		for (int i = 0; i < 19; i++)
 		{
@@ -508,7 +508,7 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 
 		for (int z = -4; z < 5; z++)
 		{
-			anamFlare += GetAnamorphicSample(0, texcoord.xy + float2(0, z * ReShade::PixelSize.y * 2), fFlareBlur) * fFlareTint * gaussweight[abs(z)];
+			anamFlare += GetAnamorphicSample(0, texcoord.xy + float2(0, z * BUFFER_RCP_HEIGHT * 2), fFlareBlur) * fFlareTint * gaussweight[abs(z)];
 		}
 
 		lens.xyz += anamFlare * fFlareIntensity;
@@ -577,10 +577,10 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	if (bAnamFlareEnable || bLenzEnable || bGodrayEnable || bChapFlareEnable)
 	{
 		float3 lensflareSample = tex2D(SamplerLensFlare1, texcoord.xy).rgb, lensflareMask;
-		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( 0.5,  0.5) * ReShade::PixelSize).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * ReShade::PixelSize).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * ReShade::PixelSize).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * ReShade::PixelSize).rgb;
+		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( 0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
 
 		color.rgb += lensflareMask * 0.25 * lensflareSample;
 	}

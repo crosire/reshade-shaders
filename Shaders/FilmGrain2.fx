@@ -103,9 +103,9 @@ float pnoise3D(in float3 p)
 
 float2 coordRot(in float2 tc, in float angle)
 {
-	float rotX = ((tc.x * 2.0 - 1.0) * ReShade::AspectRatio * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));
-	float rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * ReShade::AspectRatio * sin(angle));
-	rotX = ((rotX / ReShade::AspectRatio) * 0.5 + 0.5);
+	float rotX = ((tc.x * 2.0 - 1.0) * BUFFER_ASPECT_RATIO * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));
+	float rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * BUFFER_ASPECT_RATIO * sin(angle));
+	rotX = ((rotX / BUFFER_ASPECT_RATIO) * 0.5 + 0.5);
 	rotY = rotY * 0.5 + 0.5;
 
 	return float2(rotX, rotY);
@@ -115,14 +115,14 @@ float4 main(float4 vpos : SV_Position, float2 texCoord : TexCoord) : SV_Target
 {
 	float3 rotOffset = float3(1.425, 3.892, 5.835); // Rotation offset values	
 	float2 rotCoordsR = coordRot(texCoord, timer + rotOffset.x);
-	float3 noise = pnoise3D(float3(rotCoordsR * ReShade::ScreenSize / grainsize, 0.0)).xxx;
+	float3 noise = pnoise3D(float3(rotCoordsR * BUFFER_SCREEN_SIZE / grainsize, 0.0)).xxx;
 
 	if (coloramount > 0)
 	{
 		float2 rotCoordsG = coordRot(texCoord, timer + rotOffset.y);
 		float2 rotCoordsB = coordRot(texCoord, timer + rotOffset.z);
-		noise.g = lerp(noise.r, pnoise3D(float3(rotCoordsG * ReShade::ScreenSize / grainsize, 1.0)), coloramount);
-		noise.b = lerp(noise.r, pnoise3D(float3(rotCoordsB * ReShade::ScreenSize / grainsize, 2.0)), coloramount);
+		noise.g = lerp(noise.r, pnoise3D(float3(rotCoordsG * BUFFER_SCREEN_SIZE / grainsize, 1.0)), coloramount);
+		noise.b = lerp(noise.r, pnoise3D(float3(rotCoordsB * BUFFER_SCREEN_SIZE / grainsize, 2.0)), coloramount);
 	}
 
 	float3 col = tex2D(ReShade::BackBuffer, texCoord).rgb;

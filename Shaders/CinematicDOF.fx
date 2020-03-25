@@ -32,6 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Version history:
+// 03-feb-2020:    v1.1.15: Experimental near plane edge blur improvements.
+// 04-oct-2019:    v1.1.14: Fine-tuning of near plane blur using smaller tiles. 
 // 23-jun-2019:    v1.1.13: Cleanup of highlight code, reimplementing of luma boost / highlightblending. Removal of unnecessary controls.
 // 13-jun-2019:    v1.1.12: Bugfix in maxColor blending in near/far blur: no more dirty edges on large highlighted areas.
 // 10-jun-2019:	   v1.1.11: Added new weight calculation, added near-plane highlight normalization.
@@ -87,7 +89,7 @@
 
 namespace CinematicDOF
 {
-	#define CINEMATIC_DOF_VERSION "v1.1.13"
+	#define CINEMATIC_DOF_VERSION "v1.1.15"
 
 // Uncomment line below for debug info / code / controls
 //	#define CD_DEBUG 1
@@ -140,7 +142,7 @@ namespace CinematicDOF
 		ui_min = 10; ui_max = 300.0;
 		ui_step = 1.0;
 		ui_tooltip = "Focal length of the used lens. The longer the focal length, the narrower the\ndepth of field and thus the more is out of focus. For portraits, start with 120 or 150.";
-	> = 120.00;
+	> = 100.00;
 	uniform float FNumber <
 		ui_category = "Focusing";
 		ui_label = "Aperture (f-number)";
@@ -334,16 +336,24 @@ namespace CinematicDOF
 
 	#define SENSOR_SIZE			0.024		// Height of the 35mm full-frame format (36mm x 24mm)
 	#define PI 					3.1415926535897932
-	#define TILE_SIZE			2			// amount of pixels left/right/up/down of the current pixel. So 4 is 9x9
+	#define TILE_SIZE			1			// amount of pixels left/right/up/down of the current pixel. So 4 is 9x9
+	#define TILE_MULTIPLY		1
 	#define GROUND_TRUTH_SCREEN_WIDTH	1920.0f
 	#define GROUND_TRUTH_SCREEN_HEIGHT	1200.0f
+
+#ifndef BUFFER_PIXEL_SIZE
+	#define BUFFER_PIXEL_SIZE	ReShade::PixelSize
+#endif
+#ifndef BUFFER_SCREEN_SIZE
+	#define BUFFER_SCREEN_SIZE	ReShade::ScreenSize
+#endif
 	
 	texture texCDCurrentFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the current focus depth obtained from the focus point
 	texture texCDPreviousFocus		{ Width = 1; Height = 1; Format = R16F; };		// for storing the previous frame's focus depth from texCDCurrentFocus.
 	texture texCDCoC				{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = R16F; };
-	texture texCDCoCTileTmp			{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
-	texture texCDCoCTile			{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
-	texture texCDCoCTileNeighbor	{ Width = BUFFER_WIDTH/(TILE_SIZE*2); Height = BUFFER_HEIGHT/(TILE_SIZE*2); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTileTmp			{ Width = BUFFER_WIDTH/(TILE_SIZE*TILE_MULTIPLY); Height = BUFFER_HEIGHT/(TILE_SIZE*TILE_MULTIPLY); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTile			{ Width = BUFFER_WIDTH/(TILE_SIZE*TILE_MULTIPLY); Height = BUFFER_HEIGHT/(TILE_SIZE*TILE_MULTIPLY); Format = R16F; };	// R is MinCoC
+	texture texCDCoCTileNeighbor	{ Width = BUFFER_WIDTH/(TILE_SIZE*TILE_MULTIPLY); Height = BUFFER_HEIGHT/(TILE_SIZE*TILE_MULTIPLY); Format = R16F; };	// R is MinCoC
 	texture texCDCoCTmp1			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = R16F; };	// half res, single value
 	texture texCDCoCBlurred			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RG16F; };	// half res, blurred CoC (r) and real CoC (g)
 	texture texCDBuffer1 			{ Width = BUFFER_WIDTH/2; Height = BUFFER_HEIGHT/2; Format = RGBA8; };
@@ -361,10 +371,10 @@ namespace CinematicDOF
 	sampler SamplerCDBuffer5 			{ Texture = texCDBuffer5; };
 	sampler SamplerCDCoC				{ Texture = texCDCoC; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTmp1			{ Texture = texCDCoCTmp1; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
-	sampler SamplerCDCoCBlurred			{ Texture = texCDCoCBlurred; };// MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
+	sampler SamplerCDCoCBlurred			{ Texture = texCDCoCBlurred; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTileTmp			{ Texture = texCDCoCTileTmp; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	sampler SamplerCDCoCTile			{ Texture = texCDCoCTile; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
-	sampler SamplerCDCoCTileNeighbor	{ Texture = texCDCoCTileNeighbor; }; 
+	sampler SamplerCDCoCTileNeighbor	{ Texture = texCDCoCTileNeighbor; MagFilter = POINT; MinFilter = POINT; MipFilter = POINT;};
 	
 	uniform float2 MouseCoords < source = "mousepoint"; >;
 	uniform bool LeftMouseDown < source = "mousebutton"; keycode = 0; toggle = false; >;
@@ -442,17 +452,17 @@ namespace CinematicDOF
 	// returns minCoC
 	float PerformTileGatherHorizontal(sampler source, float2 texcoord)
 	{
-		float tileSize = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
+		float tileSize = TILE_SIZE * (BUFFER_SCREEN_SIZE.x / GROUND_TRUTH_SCREEN_WIDTH);
 		float minCoC = 10;
 		float coc;
-		float2 coordOffset = float2(ReShade::PixelSize.x, 0);
+		float2 coordOffset = float2(BUFFER_PIXEL_SIZE.x, 0);
 		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
 			coc = tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
-			coordOffset.x+=ReShade::PixelSize.x;
+			coordOffset.x+=BUFFER_PIXEL_SIZE.x;
 		}
 		return minCoC;
 	}
@@ -461,17 +471,17 @@ namespace CinematicDOF
 	// returns min CoC
 	float PerformTileGatherVertical(sampler source, float2 texcoord)
 	{
-		float tileSize = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
+		float tileSize = TILE_SIZE * (BUFFER_SCREEN_SIZE.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		float minCoC = 10;
 		float coc;
-		float2 coordOffset = float2(0, ReShade::PixelSize.y);
+		float2 coordOffset = float2(0, BUFFER_PIXEL_SIZE.y);
 		for(float i = 0; i <= tileSize; ++i) 
 		{
 			coc = tex2Dlod(source, float4(texcoord + coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
 			coc = tex2Dlod(source, float4(texcoord - coordOffset, 0, 0)).r;
 			minCoC = min(minCoC, coc);
-			coordOffset.y+=ReShade::PixelSize.y;
+			coordOffset.y+=BUFFER_PIXEL_SIZE.y;
 		}
 		return minCoC;
 	}
@@ -480,11 +490,11 @@ namespace CinematicDOF
 	float PerformNeighborTileGather(sampler source, float2 texcoord)
 	{
 		float minCoC = 10;
-		float tileSizeX = TILE_SIZE * (ReShade::ScreenSize.x / GROUND_TRUTH_SCREEN_WIDTH);
-		float tileSizeY = TILE_SIZE * (ReShade::ScreenSize.y / GROUND_TRUTH_SCREEN_HEIGHT);
+		float tileSizeX = TILE_SIZE * (BUFFER_SCREEN_SIZE.x / GROUND_TRUTH_SCREEN_WIDTH);
+		float tileSizeY = TILE_SIZE * (BUFFER_SCREEN_SIZE.y / GROUND_TRUTH_SCREEN_HEIGHT);
 		// tile is TILE_SIZE*2+1 wide. So add that and substract that to get to neighbor tile right/left.
 		// 3x3 around center.
-		float2 baseCoordOffset = float2(ReShade::PixelSize.x * (tileSizeX*2+1), ReShade::PixelSize.x * (tileSizeY*2+1));
+		float2 baseCoordOffset = float2(BUFFER_PIXEL_SIZE.x * (tileSizeX*2+1), BUFFER_PIXEL_SIZE.x * (tileSizeY*2+1));
 		for(float i=-1;i<2;i++)
 		{
 			for(float j=-1;j<2;j++)
@@ -503,7 +513,7 @@ namespace CinematicDOF
 	// Out:	RGBA fragment for color buffer based on the radius specified. 
 	float4 GetDebugFragment(float radius, bool showInFocus)
 	{
-		float4 toReturn = (radius/2 <= length(ReShade::PixelSize)) && showInFocus ? float4(0.0, 0.0, 1.0, 1.0) : float4(radius, radius, radius, 1.0);
+		float4 toReturn = (radius/2 <= length(BUFFER_PIXEL_SIZE)) && showInFocus ? float4(0.0, 0.0, 1.0, 1.0) : float4(radius, radius, radius, 1.0);
 		if(radius < 0)
 		{
 			toReturn = float4(-radius, 0, 0, 1);
@@ -587,7 +597,7 @@ namespace CinematicDOF
 		float3 averageGained = AccentuateWhites(average.rgb);
 		float2 pointOffset = float2(0,0);
 		float nearPlaneBlurInPixels = blurInfo.nearPlaneMaxBlurInPixels * fragmentRadiusToUse;
-		float2 ringRadiusDeltaCoords = ReShade::PixelSize * (nearPlaneBlurInPixels / (numberOfRings-1));
+		float2 ringRadiusDeltaCoords = BUFFER_PIXEL_SIZE * (nearPlaneBlurInPixels / (numberOfRings-1));
 		float pointsOnRing = pointsFirstRing;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		float maxLuma = dot(averageGained, lumaDotWeight) * fragmentRadii.g * (1-HighlightThresholdNearPlane);
@@ -598,8 +608,7 @@ namespace CinematicDOF
 			float anglePerPoint = 6.28318530717958 / pointsOnRing;
 			float angle = anglePerPoint;
 			// no further weight needed, bleed all you want. 
-			float weight = lerp(ringIndex/blurInfo.numberOfRings, 1, smoothstep(0, 1, bokehBusyFactorToUse));
-
+			float weight = lerp(ringIndex/numberOfRings, 1, smoothstep(0, 1, bokehBusyFactorToUse));
 			for(float pointNumber = 0; pointNumber < pointsOnRing; pointNumber++)
 			{
 				sincos(angle, pointOffset.y, pointOffset.x);
@@ -609,13 +618,12 @@ namespace CinematicDOF
 				float4 tapCoords = float4(blurInfo.texcoord + (pointOffset * currentRingRadiusCoords), 0, 0);
 				float4 tap = tex2Dlod(source, tapCoords);
 				// r contains blurred CoC, g contains original CoC. Original can be negative
-				float2 sampleRadii = tex2Dlod(SamplerCDCoCBlurred, tapCoords).rg;
+				float blurredSampleRadius = tex2Dlod(SamplerCDCoCBlurred, tapCoords).r;
 				average.rgb += tap.rgb * weight;
 				average.w += weight;
 				float3 gainedTap = AccentuateWhites(tap.rgb);
 				averageGained += gainedTap * weight;
-				float absSampleRadius = abs(sampleRadii.g);
-				float lumaSample = dot(gainedTap, lumaDotWeight) * absSampleRadius * (1-HighlightThresholdNearPlane);
+				float lumaSample = dot(gainedTap, lumaDotWeight) * saturate(blurredSampleRadius) * (1-HighlightThresholdNearPlane);
 				maxLuma = max(maxLuma, lumaSample);
 				angle+=anglePerPoint;
 			}
@@ -624,8 +632,8 @@ namespace CinematicDOF
 		}
 		
 		average.rgb/=(average.w + (average.w ==0));
-		float alpha = saturate(2 * (fragmentRadiusToUse > 0.1 ? (fragmentRadii.g <=0 ? 2 : 1) * fragmentRadiusToUse : max(fragmentRadiusToUse, -fragmentRadii.g)));
-		fragment = average;
+		float alpha = saturate((min(2.5, NearPlaneMaxBlur) + 0.4) * (fragmentRadiusToUse > 0.1 ? (fragmentRadii.g <=0 ? 2 : 1) * fragmentRadiusToUse : max(fragmentRadiusToUse, -fragmentRadii.g)));
+		fragment.rgb = average.rgb;
 		fragment.a = alpha;
 #if CD_DEBUG
 		if(ShowNearPlaneAlpha)
@@ -666,7 +674,7 @@ namespace CinematicDOF
 		float4 average = float4(fragment.rgb * fragmentRadius * bokehBusyFactorToUse, bokehBusyFactorToUse);
 		float3 averageGained = AccentuateWhites(average.rgb);
 		float2 pointOffset = float2(0,0);
-		float2 ringRadiusDeltaCoords =  (ReShade::PixelSize * blurInfo.farPlaneMaxBlurInPixels * fragmentRadius) / blurInfo.numberOfRings;
+		float2 ringRadiusDeltaCoords =  (BUFFER_PIXEL_SIZE * blurInfo.farPlaneMaxBlurInPixels * fragmentRadius) / blurInfo.numberOfRings;
 		float2 currentRingRadiusCoords = ringRadiusDeltaCoords;
 		float cocPerRing = (fragmentRadius * FarPlaneMaxBlur) / blurInfo.numberOfRings;
 		float pointsOnRing = pointsFirstRing;
@@ -725,7 +733,7 @@ namespace CinematicDOF
 		float4 average = absoluteFragmentRadius == 0 ? fragment : float4(fragment.rgb * absoluteFragmentRadius, absoluteFragmentRadius);
 		float2 pointOffset = float2(0,0);
 		// pre blur blurs near plane fragments with near plane samples and far plane fragments with far plane samples [Jimenez2014].
-		float2 ringRadiusDeltaCoords = ReShade::PixelSize 
+		float2 ringRadiusDeltaCoords = BUFFER_PIXEL_SIZE 
 												* ((isNearPlaneFragment ? blurInfo.nearPlaneMaxBlurInPixels : blurInfo.farPlaneMaxBlurInPixels) *  absoluteFragmentRadius) 
 												* rcp((numberOfRings-1) + (numberOfRings==1));
 		float pointsOnRing = pointsFirstRing;
@@ -820,7 +828,7 @@ namespace CinematicDOF
 		float fragmentLuma = dot(fragment.rgb, lumaDotWeight);
 		float4 originalFragment = fragment;
 		float absoluteCoC = abs(coc);
-		float lengthPixelSize = length(ReShade::PixelSize);
+		float lengthPixelSize = length(BUFFER_PIXEL_SIZE);
 		if(absoluteCoC < 0.2 || PostBlurSmoothing < 0.01 || fragmentLuma < 0.3)
 		{
 			// in focus or postblur smoothing isn't enabled or not really a highlight, ignore
@@ -856,7 +864,7 @@ namespace CinematicDOF
 		toFill.focusDepth = tex2Dlod(SamplerCDCurrentFocus, float4(0, 0, 0, 0)).r;
 		toFill.focusDepthInM = toFill.focusDepth * 1000.0; 		// km to m
 		toFill.focusDepthInMM = toFill.focusDepthInM * 1000.0; 	// m to mm
-		toFill.pixelSizeLength = length(ReShade::PixelSize);
+		toFill.pixelSizeLength = length(BUFFER_PIXEL_SIZE);
 		
 		// HyperFocal calculation, see https://photo.stackexchange.com/a/33898. Useful to calculate the edges of the depth of field area
 		float hyperFocal = (FocalLength * FocalLength) / (FNumber * SENSOR_SIZE);
@@ -905,10 +913,10 @@ namespace CinematicDOF
 		blurInfo.vpos = float4(blurInfo.texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 		
 		blurInfo.numberOfRings = round(BlurQuality);
-		float pixelSizeLength = length(ReShade::PixelSize);
+		float pixelSizeLength = length(BUFFER_PIXEL_SIZE);
 		blurInfo.farPlaneMaxBlurInPixels = (FarPlaneMaxBlur / 100.0) / pixelSizeLength;
 		blurInfo.nearPlaneMaxBlurInPixels = (NearPlaneMaxBlur / 100.0) / pixelSizeLength;
-		blurInfo.cocFactorPerPixel = length(ReShade::PixelSize) * blurInfo.farPlaneMaxBlurInPixels;	// not needed for near plane.
+		blurInfo.cocFactorPerPixel = length(BUFFER_PIXEL_SIZE) * blurInfo.farPlaneMaxBlurInPixels;	// not needed for near plane.
 		return blurInfo;
 	}
 
@@ -921,7 +929,7 @@ namespace CinematicDOF
 	// Pixel shader which determines the focus depth for the current frame, which will be stored in the currentfocus texture.
 	void PS_DetermineCurrentFocus(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float fragment : SV_Target0)
 	{
-		float2 autoFocusPointToUse = UseMouseDrivenAutoFocus ? MouseCoords * ReShade::PixelSize : AutoFocusPoint;
+		float2 autoFocusPointToUse = UseMouseDrivenAutoFocus ? MouseCoords * BUFFER_PIXEL_SIZE : AutoFocusPoint;
 		fragment = UseAutoFocus ? lerp(tex2D(SamplerCDPreviousFocus, float2(0, 0)).r, ReShade::GetLinearizedDepth(autoFocusPointToUse), AutoFocusTransitionSpeed) 
 								: (ManualFocusPlane / 1000);
 	}
@@ -984,7 +992,7 @@ namespace CinematicDOF
 	{
 		// from source CoC to tmp1
 		fragment = PerformSingleValueGaussianBlur(SamplerCDCoCTileNeighbor, texcoord, 
-												  float2(ReShade::PixelSize.x * (ReShade::ScreenSize.x/GROUND_TRUTH_SCREEN_WIDTH), 0.0), true);
+												  float2(BUFFER_PIXEL_SIZE.x * (BUFFER_SCREEN_SIZE.x/GROUND_TRUTH_SCREEN_WIDTH), 0.0), true);
 	}
 
 	// Pixel shader which performs the second part of the gaussian blur on the blur disc values
@@ -992,8 +1000,8 @@ namespace CinematicDOF
 	{
 		// from tmp1 to tmp2. Merge original CoC into g.
 		fragment = float2(PerformSingleValueGaussianBlur(SamplerCDCoCTmp1, texcoord, 
-														 float2(0.0, ReShade::PixelSize.y * (ReShade::ScreenSize.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), 
-						  tex2D(SamplerCDCoC, texcoord).x);
+														 float2(0.0, BUFFER_PIXEL_SIZE.y * (BUFFER_SCREEN_SIZE.y/GROUND_TRUTH_SCREEN_HEIGHT)), false), 
+						  tex2D(SamplerCDCoCTileNeighbor, texcoord).x);
 	}
 	
 	// Pixel shader which combines 2 half-res sources to a full res output. From texCDBuffer1 & 2 to texCDBuffer4.
@@ -1018,7 +1026,7 @@ namespace CinematicDOF
 	// See also [Jimenez2014] for a discussion about this filter.
 	void PS_TentFilter(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 fragment : SV_Target0)
 	{
-		float4 coord = ReShade::PixelSize.xyxy * float4(1, 1, -1, 0);
+		float4 coord = BUFFER_PIXEL_SIZE.xyxy * float4(1, 1, -1, 0);
 		float4 average;
 		average = tex2D(SamplerCDBuffer2, texcoord - coord.xy);
 		average += tex2D(SamplerCDBuffer2, texcoord - coord.wy) * 2;
@@ -1035,7 +1043,7 @@ namespace CinematicDOF
 	// Pixel shader which performs the first part of the gaussian post-blur smoothing pass, to iron out undersampling issues with the disc blur
 	void PS_PostSmoothing1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 fragment : SV_Target0)
 	{
-		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer4, texcoord, float2(ReShade::PixelSize.x, 0.0));
+		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer4, texcoord, float2(BUFFER_PIXEL_SIZE.x, 0.0));
 	}
 
 	// Pixel shader which performs the second part of the gaussian post-blur smoothing pass, to iron out undersampling issues with the disc blur
@@ -1071,10 +1079,10 @@ namespace CinematicDOF
 			return;
 		}
 #endif
-		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer5, focusInfo.texcoord, float2(0.0, ReShade::PixelSize.y));
+		fragment = PerformFullFragmentGaussianBlur(SamplerCDBuffer5, focusInfo.texcoord, float2(0.0, BUFFER_PIXEL_SIZE.y));
 		float4 originalFragment = tex2D(SamplerCDBuffer4, focusInfo.texcoord);
 		float coc = abs(tex2Dlod(SamplerCDCoC, float4(focusInfo.texcoord, 0, 0)).r);
-		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(coc < length(ReShade::PixelSize) ? 0 : 4 * coc));
+		fragment.rgb = lerp(originalFragment.rgb, fragment.rgb, saturate(coc < length(BUFFER_PIXEL_SIZE) ? 0 : 4 * coc));
 		fragment.w = 1.0;
 		
 #if __RENDERER__ <= 0x9300 	// doing focusing in vertex shaders in dx9 doesn't work for auto-focus, so we'll just do it in the pixel shader instead
@@ -1098,7 +1106,7 @@ namespace CinematicDOF
 			fragment = lerp(fragment, colorToBlend, OutOfFocusPlaneColorTransparency);
 			if(UseAutoFocus)
 			{
-				float2 focusPointCoords = UseMouseDrivenAutoFocus ? MouseCoords * ReShade::PixelSize : AutoFocusPoint;
+				float2 focusPointCoords = UseMouseDrivenAutoFocus ? MouseCoords * BUFFER_PIXEL_SIZE : AutoFocusPoint;
 				fragment = lerp(fragment, FocusCrosshairColor, FocusCrosshairColor.w * saturate(exp(-BUFFER_WIDTH * length(focusInfo.texcoord - float2(focusPointCoords.x, focusInfo.texcoord.y)))));
 				fragment = lerp(fragment, FocusCrosshairColor, FocusCrosshairColor.w * saturate(exp(-BUFFER_HEIGHT * length(focusInfo.texcoord - float2(focusInfo.texcoord.x, focusPointCoords.y)))));
 			}

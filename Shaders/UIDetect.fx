@@ -66,7 +66,7 @@ float PS_UIDetect(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Tar
         [branch]
         if (UIPixelCoord[i].z - uilayer == 0){
             if (nextuilayer == 0){
-                diff = pow(dot(tex2Dlod(ReShade::BackBuffer, float4(UIPixelCoord[i].xy * ReShade::PixelSize.xy, 0, 0)).xyz - UIPixelRGB[i].xyz / 255.0, 0.333), 2);
+                diff = pow(dot(tex2Dlod(ReShade::BackBuffer, float4(UIPixelCoord[i].xy * BUFFER_PIXEL_SIZE, 0, 0)).xyz - UIPixelRGB[i].xyz / 255.0, 0.333), 2);
                 if (diff < 0.00001) {
                     ui_detected = 1;
                 }else{

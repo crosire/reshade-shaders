@@ -34,6 +34,17 @@ uniform float fAdp_TriggerRadius <
     ui_step = 0.1;
 > = 6.0;
 
+uniform float fAdp_YAxisFocalPoint <
+    ui_label = "Y Axis Focal Point";
+    ui_tooltip = "Where along the Y Axis the Adaption TriggerRadius applies.\n"
+                 "0 = Top of the screen\n"
+                 "1 = Bottom of the screen";
+    ui_category = "General settings";
+    ui_type = "drag";
+    ui_min = 0.0;
+    ui_max = 1.0;
+> = 0.5;
+
 uniform float fAdp_Equilibrium <
     ui_label = "Adaption Equilibrium";
     ui_tooltip = "The value of image brightness for which there is no brightness adaption.\n"
@@ -134,7 +145,7 @@ float PS_Luma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 
 float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-    float avgLumaCurrFrame = tex2Dlod(SamplerLuma, float4(0.5.xx, 0, fAdp_TriggerRadius)).x;
+    float avgLumaCurrFrame = tex2Dlod(SamplerLuma, float4(fAdp_YAxisFocalPoint.xx, 0, fAdp_TriggerRadius)).x;
     float avgLumaLastFrame = tex2Dlod(SamplerAvgLumaLast, float4(0.0.xx, 0, 0)).x;
     float delay = sign(fAdp_Delay) * saturate(0.815 + fAdp_Delay / 10.0 - Frametime / 1000.0);
     float avgLuma = lerp(avgLumaCurrFrame, avgLumaLastFrame, delay);

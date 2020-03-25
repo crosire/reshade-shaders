@@ -406,7 +406,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 	}
 
 	float dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
-	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, ReShade::ScreenSize * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, BUFFER_SCREEN_SIZE * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
 
 	if (all(base.xyz == 1.0))
 	{
