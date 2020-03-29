@@ -63,6 +63,7 @@ uniform int splitscreen_mode <
     "Super Blue Ultimatte(tm) pixels\0"
     "Black pixels\0"
     "Horz 25/50/25 With Green Ultimatte(tm) pixels\0"
+    "Alpha Layer\0"
     "All\0"
     ;
 > = 0;
@@ -184,28 +185,32 @@ float4 Apply_Split(float4 pos, float2 texcoord, float4 color_before, float4 colo
     // -- White Pixels -- must use intiial
     [branch] if (splitscreen_mode == 8)
     {
-    	color = (distance(color_before.rgb, float3(1.0,1.0,1.0)) <= 0.075) ? color_after : color_before; 
+    	//color = (distance(color_before.rgb, float3(1.0,1.0,1.0)) <= 0.075) ? color_after : color_before; 
+        color = (distance(color_before.rgb, float3(1.0,1.0,1.0)) <= 0.075) ? float4(lerp(color_initial.rgb,color_after.rgb, color_before.a),1.0) : color_before;
     }
 
     // -- Green Pixels -- must use intiial
     [branch] if (splitscreen_mode == 9)
     {
-    	color = (distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? color_after : color_before; 
+        //color = (distance(color_before.rgb, float3(0.29, 0.84, 0.36)) <= 0.075) ? color_after : color_before; 
+    	//color = (distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? color_after : lerp(color_after,color_before, color_before.a); - applies to all alpha 
+        color = (distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? float4(lerp(color_initial.rgb,color_after.rgb, color_before.a),1.0) : color_before;
     }
 
     // -- Blue Pixels -- must use intiial
     [branch] if (splitscreen_mode == 10)
     {
-    	color = (distance(color_before.rgb,float3(0.07, 0.18, 0.72)) <= 0.075 ) ? color_after : color_before; 
+    	color = (distance(color_before.rgb,float3(0.07, 0.18, 0.72)) <= 0.075 ) ? float4(lerp(color_initial.rgb,color_after.rgb, color_before.a),1.0) : color_before; 
     }
 
     // -- White Pixels -- must use intiial
     [branch] if (splitscreen_mode == 11)
     {
-    	color = (distance(color_before.rgb, float3(0.0,0.0,0.0)) <= 0.075) ? color_after : color_before; 
+    	//color = (distance(color_before.rgb, float3(0.0,0.0,0.0)) <= 0.075) ? color_after : color_before; 
+        color = (distance(color_before.rgb, float3(0.0,0.0,0.0)) <= 0.075) ? float4(lerp(color_initial.rgb,color_after.rgb, color_before.a),1.0) : color_before;
     }
     
-    // -- Green Pixels -- must use intiial
+    // -- Green Pixels plus split -- must use intiial
     [branch] if (splitscreen_mode == 12)
     {
     	//Calculate the distance from center
@@ -215,10 +220,15 @@ float4 Apply_Split(float4 pos, float2 texcoord, float4 color_before, float4 colo
         dist = saturate(dist - 0.2575);
         
         color = dist ? color_initial : ((distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? color_after : color_before);
+        //color = dist ? color_initial : (distance(color_before.rgb,float3(0.29, 0.84, 0.36)) <= 0.075 ) ? float4(lerp(color_initial.rgb,color_after.rgb, color_before.a),1.0) : color_before;
     }
-
-    // -- ALL  --
+    //Alpha
     [branch] if (splitscreen_mode == 13)
+    {
+        color = lerp(color_after,color_before, color_before.a);
+    }
+    // -- ALL  --
+    [branch] if (splitscreen_mode == 14)
     {
     	color = color_after;
     }
@@ -251,7 +261,9 @@ float4 PS_After(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targe
     {
     	color = color_aft;
     	color_aft = color_bef;
-    	color_bef = color;
+    	//color_init = color_bef;
+        color_bef = color;
+        
     }
     
     color =  Apply_Split(pos, texcoord, color_bef, color_aft, color_init);
