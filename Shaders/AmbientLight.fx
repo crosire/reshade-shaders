@@ -41,6 +41,9 @@ uniform float alThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 100.0;
 	ui_tooltip = "Reduces intensity for not bright light";
 > = 15.00;
+uniform bool AL_Dither <
+	ui_tooltip = "Applies dither - may cause diagonal stripes";
+> = true;
 
 uniform bool AL_Adaptation <
 	ui_tooltip = "Activates adaptation algorithm";
@@ -416,7 +419,8 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 #if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
-	if (AL_Adaptation)
+
+	if (AL_Adaptation && AL_Dither)
 	{
 		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow(abs(1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
 		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither;
@@ -424,13 +428,28 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
 		return baseSampleMix > 0.008 ? baseSample : lerp(base, highSampleMix, max(0.0f, (alInt - adapt) * 0.85f) * baseSampleMix);
 	}
-	else
+  else if (AL_Adaptation)
+	{
+		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow(abs(1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
+		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0)));
+		float4 baseSample = lerp(base, highSampleMix, max(0.0f, alInt - adapt));
+		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
+		return baseSampleMix > 0.008 ? baseSample : lerp(base, highSampleMix, max(0.0f, (alInt - adapt) * 0.85f) * baseSampleMix);
+	}
+	else if (AL_Dither)
 	{
 		float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + dither + adapt;
 		float4 baseSample = lerp(base, highSampleMix, alInt);
 		float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
 		return baseSampleMix > 0.008 ? baseSample : lerp(base, highSampleMix, max(0.0f, alInt * 0.85f) * baseSampleMix);
 	}
+	else
+  {
+    float4 highSampleMix = (1.0 - ((1.0 - base) * (1.0 - high * 1.0))) + adapt;
+    float4 baseSample = lerp(base, highSampleMix, alInt);
+    float baseSampleMix = baseSample.r + baseSample.g + baseSample.b;
+    return baseSampleMix > 0.008 ? baseSample : lerp(base, highSampleMix, max(0.0f, alInt * 0.85f) * baseSampleMix);
+  }
 }
 
 technique AmbientLight
