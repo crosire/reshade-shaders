@@ -7,7 +7,7 @@
 	It doesn't feature the auto mask from the original shader.
 
 	It does feature a new multi-channnel masking feature. UI masks can now contain
-	separate 'modes' within each of the three coloror channels.
+	separate 'modes' within each of the three color channels.
 
 	For example, you can have the regular hud on the red channel (the default one),
 	a mask for an inventory screen on the green channel and a mask for a quest menu
@@ -16,7 +16,7 @@
 	Multiple channels can be active at once, they'll just add up to mask the image.
 
 	Simple/legacy masks are not affected by this, they'll work just as you'd expect,
-	so you can still make simple black and white masks that use all coloror channels, it'll
+	so you can still make simple black and white masks that use all color channels, it'll
 	be no different than just having it on a single channel.
 
 	Tips:
@@ -26,12 +26,12 @@
 	--You don't actually need to place the UIMask_Bottom technique at the bottom of
 	  your shader pipeline, if you have any effects that don't necessarily affect
 	  the visibility of the HUD you can place it before that.
-	  For instance, if you use coloror correction shaders like LUT, you might want
+	  For instance, if you use color correction shaders like LUT, you might want
 	  to place UIMask_Bottom just before that.
 
 	--Preprocessor flags:
 	  --UIMASK_MULTICHANNEL:
-		Enables having up to three different masks on each coloror channel.
+		Enables having up to three different masks on each color channel.
 	  --UIMASK_TOGGLEKEY_RED:
 		Keycode that toggles the red channel of the mask.
 	  --UIMASK_TOGGLEKEY_BLUE:
@@ -130,13 +130,55 @@ namespace UIMask
 
 //#region Uniforms
 
+uniform int _Help
+<
+	ui_label = " ";
+	ui_text =
+		"For more detailed instructions, see the text at the top of this "
+		"effect's shader file (UIMask.fx).\n"
+		"\n"
+		"Available preprocessor definitions:\n"
+		"  UIMASK_MULTICHANNEL:\n"
+		"    If set to 1, each of the RGB color channels in the texture is "
+		"treated as a separate mask.\n"
+		"  UIMASK_TOGGLEKEY_RED:\n"
+		"    Defines the key for using the mask in the red channel, the "
+		"default is Numpad 7.\n"
+		"  UIMASK_TOGGLEKEY_GREEN:\n"
+		"    Defines the key for using the mask in the green channel, the "
+		"default is Numpad 8.\n"
+		"  UIMASK_TOGGLEKEY_BLUE:\n"
+		"    Defines the key for using the mask in the blue channel, the "
+		"default is Numpad 9.\n"
+		"\n"
+		"Google \"virtual key codes\" for the values of each keyboard key.\n"
+		"\n"
+		"How to create a mask:\n"
+		"\n"
+		"1. Take a screenshot with the game's UI appearing.\n"
+		"2. Open the screenshot in an image editor, GIMP or Photoshop are "
+		"recommended.\n"
+		"3. Create a new layer over the screenshot layer, fill it with black.\n"
+		"4. Reduce the layer opacity so you can see the screenshot layer "
+		"below.\n"
+		"5. Cover the UI with white to mask it from effects. The stronger the "
+		"mask white color, the more opaque the mask will be.\n"
+		"6. Set the mask layer opacity back to 100%.\n"
+		"7. Save the image in one of your texture folders, named "
+		"\"UIMask.png\".\n"
+		;
+	ui_category = "Help";
+	ui_category_closed = true;
+	ui_type = "radio";
+>;
+
 uniform float fMask_Intensity
 <
 	__UNIFORM_SLIDER_FLOAT1
 
 	ui_label = "Mask Intensity";
 	ui_tooltip =
-		"How much to mask effects to the original image.\n"
+		"How much to mask effects from affecting the original image.\n"
 		"\nDefault: 1.0";
 	ui_min = 0.0;
 	ui_max = 1.0;
@@ -155,23 +197,23 @@ uniform bool bDisplayMask <
 
 uniform bool ToggleRed
 <
-	source="key";
-	keycode=UIMASK_TOGGLEKEY_RED;
-	toggle=true;
+	source = "key";
+	keycode = UIMASK_TOGGLEKEY_RED;
+	toggle = true;
 >;
 
 uniform bool ToggleGreen
 <
-	source="key";
-	keycode=UIMASK_TOGGLEKEY_GREEN;
-	toggle=true;
+	source = "key";
+	keycode = UIMASK_TOGGLEKEY_GREEN;
+	toggle = true;
 >;
 
 uniform bool ToggleBlue
 <
-	source="key";
-	keycode=UIMASK_TOGGLEKEY_BLUE;
-	toggle=true;
+	source = "key";
+	keycode = UIMASK_TOGGLEKEY_BLUE;
+	toggle = true;
 >;
 
 #endif
@@ -194,7 +236,7 @@ texture MaskTex <source="UIMask.png";>
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
-	Format=TEXFORMAT;
+	Format = TEXFORMAT;
 };
 sampler Mask
 {
@@ -251,7 +293,9 @@ technique UIMask_Top
 
 technique UIMask_Bottom
 <
-	ui_tooltip = "Place this *below* the effects to be masked.";
+	ui_tooltip =
+		"Place this *below* the effects to be masked.\n"
+		"If you want to add a toggle key for the effect, set it to this one.";
 >
 {
 	pass
