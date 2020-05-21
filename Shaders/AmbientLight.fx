@@ -41,6 +41,9 @@ uniform float alThreshold < __UNIFORM_SLIDER_FLOAT1
 	ui_min = 0.0; ui_max = 100.0;
 	ui_tooltip = "Reduces intensity for not bright light";
 > = 15.00;
+uniform bool AL_Dither <
+	ui_tooltip = "Applies dither - may cause diagonal stripes";
+> = true;
 
 uniform bool AL_Adaptation <
 	ui_tooltip = "Activates adaptation algorithm";
@@ -405,8 +408,12 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		high += highLens;
 	}
 
-	float dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
-	dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, BUFFER_SCREEN_SIZE * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+	float dither = 0.0;
+	if (AL_Dither)
+	{
+		dither = 0.15 * (1.0 / (pow(2, 10.0) - 1.0));
+		dither = lerp(2.0 * dither, -2.0 * dither, frac(dot(texcoord, BUFFER_SCREEN_SIZE * float2(1.0 / 16.0, 10.0 / 36.0)) + 0.25));
+	}
 
 	if (all(base.xyz == 1.0))
 	{
@@ -416,6 +423,7 @@ float4 PS_AL_Magic(float4 vpos : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 #if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 	[flatten]
 #endif
+
 	if (AL_Adaptation)
 	{
 		base.xyz *= max(0.0f, (1.0f - adapt * 0.75f * alAdaptBaseMult * pow(abs(1.0f - (base.x + base.y + base.z) / 3), alAdaptBaseBlackLvL)));
