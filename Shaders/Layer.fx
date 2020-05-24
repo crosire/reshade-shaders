@@ -31,13 +31,13 @@
 #include "ReShade.fxh"
 
 #ifndef LAYER_SOURCE
-#define LAYER_SOURCE "PredatorThermalView.gif"
+#define LAYER_SOURCE "Layer.png"
 #endif
 #ifndef LAYER_SIZE_X
-#define LAYER_SIZE_X 480
+#define LAYER_SIZE_X 1280
 #endif
 #ifndef LAYER_SIZE_Y
-#define LAYER_SIZE_Y 284
+#define LAYER_SIZE_Y 720
 #endif
 
 #if LAYER_SINGLECHANNEL
