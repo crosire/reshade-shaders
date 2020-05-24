@@ -2,5 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/reshade-shaders/v16/.suo
-/.vs/
+/.vs
