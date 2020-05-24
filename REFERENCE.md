@@ -17,7 +17,9 @@ ReShade FX shading language
 
 ### Macros
 
-* ``__FILE__`` Current file name
+* ``__FILE__`` Current file path
+* ``__FILE_NAME__`` Current file name without path
+* ``__FILE_STEM__`` Current file name without extension and path
 * ``__LINE__`` Current line number
 * ``__RESHADE__`` Version of the injector
 * ``__VENDOR__`` Vendor id
@@ -31,6 +33,13 @@ ReShade FX shading language
 * ``BUFFER_COLOR_DEPTH`` Bit depth of the backbuffer (e.g. 8 or 10)
 
 Possible values for ``__RENDERER__`` are 0x9000 for D3D9, 0xa000 or higher for D3D10, 0xb000 or higher for D3D11, 0xc000 or higher for D3D12, 0x10000 or higher for OpenGL and 0x20000 or higher for Vulkan.
+
+Constructs like the following may be interpreted as this define being a configurable UI option. To prevent this, the define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it.
+```
+#ifndef MY_PREPROCESSOR_DEFINE
+	#define MY_PREPROCESSOR_DEFINE 0
+#endif
+```
 
 ### Textures
 
@@ -154,22 +163,24 @@ Annotations are also used to request special runtime values:
  Timer counting time in milliseconds since game start.
  * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 9; step = 1; >;``  
  Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
- * ``uniform int random < source = "random"; min = 0; max = 10; >;``  
+ * ``uniform int random_value < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
- * ``uniform bool keydown < source = "key"; keycode = 0x20; mode = ""; >;``  
+ * ``uniform bool space_bar_down < source = "key"; keycode = 0x20; mode = ""; >;``  
  True if specified keycode (in this case the spacebar) is pressed and false otherwise.
  If mode is set to "press" the value is true only in the frame the key was initially held down.
  If mode is set to "toggle" the value stays true until the key is pressed a second time.
- * ``uniform bool buttondown < source = "mousebutton"; keycode = 0; mode = ""; >;``  
+ * ``uniform bool left_mouse_button_down < source = "mousebutton"; keycode = 0; mode = ""; >;``  
  True if specified mouse button (0 - 4) is pressed and false otherwise.
  If mode is set to "press" the value is true only in the frame the key was initially held down.
  If mode is set to "toggle" the value stays true until the key is pressed a second time.
- * ``uniform float2 mousepoint < source = "mousepoint"; >;``  
+ * ``uniform float2 mouse_point < source = "mousepoint"; >;``  
  Gets the position of the mouse cursor in screen coordinates.
- * ``uniform float2 mousedelta < source = "mousedelta"; >;``  
+ * ``uniform float2 mouse_delta < source = "mousedelta"; >;``  
  Gets the movement of the mouse cursor in screen coordinates.
- * ``uniform bool hasdepth < source = "bufready_depth"; >;``
+ * ``uniform bool has_depth < source = "bufready_depth"; >;``
  True if the application's depth buffer is available in textures declared with `DEPTH`, false if not.
+ * ``uniform bool overlay_open < source = "overlay_open"; >;``
+ True if the ReShade in-game overlay is currently open, false if not.
 
 ```c++
 // Initializers are used for the initial value when providied.
@@ -329,7 +340,14 @@ technique Example
 {
 	pass p0
 	{
+		// The primitive topology rendered in the draw call.
+		// Available values:
+		//   POINTLIST, LINELIST, LINESTRIP, TRIANGLELIST, TRIANGLESTRIP
+		PrimitiveTopology = TRIANGLELIST; // or PrimitiveType
+
 		// The number of vertices ReShade generates for the draw call.
+		// This has different effects on the rendered primitives based on the primitive topology.
+		// A triangle list needs 3 separate vertices for every triangle for example, a strip on the other hand reuses the last 2, so only 1 is needed for every additional triangle.
 		VertexCount = 3;
 
 		// The following two accept function names declared above which are used as entry points for the shader.
