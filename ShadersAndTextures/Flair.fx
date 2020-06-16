@@ -373,107 +373,79 @@ void StoredBB(float4 position : SV_Position, float2 texcoord : TEXCOORD, out flo
 {
     BC = GBightColors( texcoord ).rgb;
 }
+//Done this way to reduce TempRegisters for DX9 compatablity.
+float3 Glammor(sampler2D Sample, float2 texcoord, float N, int Switch, float BBS)
+{
+	float3 GBloom = Switch ? tex2D(Sample,texcoord).rgb : GBightColors(texcoord).rgb;
+		   GBloom *= Weight[0];		
+	[loop]
+	for(int i = 1; i < N; ++i)
+	{   float4 offset = float4(OffsetA[i] * pix.xy,OffsetB[i] * pix.xy);
+		if (Alternate)
+			offset = float4(OffsetC[i] * pix.xy,OffsetD[i] * pix.xy);
+			//+ & X
+		if(Flare_Type == 4 || Flare_Type == 5 || Flare_Type == 6 || Flare_Type == 7)
+		{
+			float4 XXZZ = float4( offset.x,-offset.x, offset.z,-offset.z);
+			float4 YYWW = float4( offset.y,-offset.y, offset.w,-offset.w);
+			if(Flare_Type == 5 || Flare_Type == 7)
+				XXZZ = Switch ? 0 : float4(-offset.x, offset.x,-offset.z, offset.z);			
+			if(Flare_Type == 6)
+				YYWW = Switch ? 0 : float4( offset.y,-offset.y, offset.w,-offset.w);
+				
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( XXZZ.x, YYWW.x) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( XXZZ.y, YYWW.y) * BBS,0,0) ).rgb * Weight[i];
+
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( XXZZ.z, YYWW.z) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( XXZZ.w, YYWW.w) * BBS,0,0) ).rgb * Weight[i];
+		}
+		else
+		{
+			float4 YYXX = Switch ? 0 : float4( offset.y,-offset.y,-offset.x, offset.x);
+			
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( offset.x, YYXX.x) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2(-offset.x, YYXX.y) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( YYXX.z, offset.y) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( YYXX.w,-offset.y) * BBS,0,0) ).rgb * Weight[i];
+			
+			float4 WWZZ = Switch ? 0 : float4( offset.w,-offset.w,-offset.z, offset.z);
+			
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( offset.z, WWZZ.x) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2(-offset.z, WWZZ.y) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( WWZZ.z, offset.w) * BBS,0,0) ).rgb * Weight[i];
+			GBloom += tex2Dlod(Sample, float4(texcoord + float2( WWZZ.w,-offset.w) * BBS,0,0) ).rgb * Weight[i];
+		}
+
+	}
+	
+	GBloom *= 0.5;
+
+   return GBloom;
+}
 
 float3 GlammorA(float2 texcoord )
-{   float3 GBloom = tex2D(SamplerBC,texcoord).rgb;
+{
 	float N, BBS = FS;
-	GBloom *= Weight[0];
 	if(Flare_Type == 0 || Flare_Type == 1 || Flare_Type == 2 || Flare_Type == 6 || Flare_Type == 7)
 		N = 25;
 	else if(Flare_Type == 3 || Flare_Type == 4 || Flare_Type == 5 )
 		N = 1;
 
-	[unroll]
-	for(int i = 1; i < N; ++i)
-	{   float4 offset = float4(OffsetA[i] * pix.xy,OffsetB[i] * pix.xy);
-		if (Alternate)
-			offset = float4(OffsetC[i] * pix.xy,OffsetD[i] * pix.xy);
-		//+
-		if(Flare_Type == 6)
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x, 0) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z, 0) * BBS ).rgb * Weight[i];
-		}
-		else if(Flare_Type == 7)
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0,-offset.y) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0,-offset.w) * BBS ).rgb * Weight[i];
-		}
-		else
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0,-offset.y) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z, 0) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( 0,-offset.w) * BBS ).rgb * Weight[i];
-		}
-	}
-		GBloom *= 0.5;
-
-   return GBloom;
+   return Glammor(SamplerBC, texcoord, N, 1, BBS);
 }
 
 float3 GlammorB(float2 texcoord )
-{   float3 GBloom = GBightColors(texcoord).rgb;
+{
 	float N, BBS = FS;
-	GBloom *= Weight[0];
 	if(Flare_Type == 0 || Flare_Type == 1 || Flare_Type == 3 || Flare_Type == 4 || Flare_Type == 5 )
 		N = 25;
 	else if(Flare_Type == 2 || Flare_Type == 6 || Flare_Type == 7 )
 		N = 1;
-
+		
 	if(Flare_Type == 1)
 		BBS *= 0.5;
-
-	[unroll]
-	for(int i = 1; i < N; ++i)
-	{   float4 offset = float4(OffsetA[i] * pix.xy,OffsetB[i] * pix.xy);
-		if (Alternate)
-			offset = float4(OffsetC[i] * pix.xy,OffsetD[i] * pix.xy);
-		//X
-		if(Flare_Type == 4)
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x,-offset.y) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z,-offset.w) * BBS ).rgb * Weight[i];
-		}
-		else if(Flare_Type == 5)
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x,-offset.y) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z,-offset.w) * BBS ).rgb * Weight[i];
-		}
-		else
-		{
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x,-offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.x, offset.y) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.x,-offset.y) * BBS ).rgb * Weight[i];
-
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z,-offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2(-offset.z, offset.w) * BBS ).rgb * Weight[i];
-			GBloom += tex2D(SamplerBC, texcoord + float2( offset.z,-offset.w) * BBS ).rgb * Weight[i];
-		}
-	}
-		GBloom *= 0.5;
-
-
-   return GBloom;
+		
+   return Glammor(SamplerBC, texcoord, N, 0, BBS);
 }
 
 // Spread the blur a bit more.
