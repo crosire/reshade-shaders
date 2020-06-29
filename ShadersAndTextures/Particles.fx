@@ -248,6 +248,18 @@ sampler PM_BloomPart
 		MagFilter = LINEAR;
 		MipFilter = LINEAR;
 	};
+
+void A0(float2 texcoord,float PosX,float PosY,inout float D, inout float E, inout float P, inout float T, inout float H, inout float III, inout float DD )
+{
+	float PosXD = -0.035+PosX, offsetD = 0.001;D = all( abs(float2( texcoord.x -PosXD, texcoord.y-PosY)) < float2(0.0025,0.009));D -= all( abs(float2( texcoord.x -PosXD-offsetD, texcoord.y-PosY)) < float2(0.0025,0.007));
+	float PosXE = -0.028+PosX, offsetE = 0.0005;E = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.009));E -= all( abs(float2( texcoord.x -PosXE-offsetE, texcoord.y-PosY)) < float2(0.0025,0.007));E += all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.001));
+	float PosXP = -0.0215+PosX, PosYP = -0.0025+PosY, offsetP = 0.001, offsetP1 = 0.002;P = all( abs(float2( texcoord.x -PosXP, texcoord.y-PosYP)) < float2(0.0025,0.009*0.775));P -= all( abs(float2( texcoord.x -PosXP-offsetP, texcoord.y-PosYP)) < float2(0.0025,0.007*0.680));P += all( abs(float2( texcoord.x -PosXP+offsetP1, texcoord.y-PosY)) < float2(0.0005,0.009));
+	float PosXT = -0.014+PosX, PosYT = -0.008+PosY;T = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosYT)) < float2(0.003,0.001));T += all( abs(float2( texcoord.x -PosXT, texcoord.y-PosY)) < float2(0.000625,0.009));
+	float PosXH = -0.0072+PosX;H = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.001));H -= all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.009));H += all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.00325,0.009));
+	float offsetFive = 0.001, PosX3 = -0.001+PosX;III = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.009));III -= all( abs(float2( texcoord.x -PosX3 - offsetFive, texcoord.y-PosY)) < float2(0.003,0.007));III += all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.001));
+	float PosXDD = 0.006+PosX, offsetDD = 0.001;DD = all( abs(float2( texcoord.x -PosXDD, texcoord.y-PosY)) < float2(0.0025,0.009));DD -= all( abs(float2( texcoord.x -PosXDD-offsetDD, texcoord.y-PosY)) < float2(0.0025,0.007));
+}
+
 /////////////////////////////////////////////////////////////////////////////////Adapted Luminance/////////////////////////////////////////////////////////////////////////////////
 texture texLumPart {Width = 256*0.5; Height = 256*0.5; Format = RGBA8; MipLevels = 8;}; //Sample at 256x256/2 and a mip bias of 8 should be 1x1
 
@@ -258,35 +270,36 @@ sampler SamplerLumC
 		MagFilter = LINEAR;
 		MipFilter = LINEAR;
 	};
+
 float LumM(float3 C)
 {
-	float gray = dot(C.rgb, float3(0.299, 0.587, 0.114));
-	return gray;
+	return dot(C.rgb, float3(0.299, 0.587, 0.114));
 }
+
 float Bloom(float2 texcoord, float M)
+{
+	float lodFactor = exp2(M);
+
+	float bloom;
+	float2 scale = lodFactor * pix * FO_Amount();
+
+	float2 coord = texcoord.xy;
+	float totalWeight;
+
+	for (int i = -5; i < 5; i++)
 	{
-    float lodFactor = exp2(M);
-
-    float bloom;
-    float2 scale = lodFactor * pix * FO_Amount();
-
-    float2 coord = texcoord.xy;
-    float totalWeight;
-
-    for (int i = -5; i < 5; i++)
-	{
-        for (int j = -5; j < 5; j++)
+	    for (int j = -5; j < 5; j++)
 		{
 			float W = 1.0-length(float2(i,j) * pix) ;
-            bloom = tex2Dlod(P_BloomPart, float4(coord + float2(i,j) * scale + lodFactor * pix,0,M) ).r * W + bloom;
-            totalWeight += W;
-        }
-    }
-
-    bloom /= totalWeight;
-
-    return bloom;
+	        bloom = tex2Dlod(P_BloomPart, float4(coord + float2(i,j) * scale + lodFactor * pix,0,M) ).r * W + bloom;
+	        totalWeight += W;
+	    }
 	}
+
+	bloom /= totalWeight;
+
+	return bloom;
+}
 
 float PM_Bloom(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 	{
@@ -364,36 +377,34 @@ float Mask(float2 texcoord)
 	float4 past_single_buffer = tex2D(PSBackBufferPart, texcoord);//Past Single Buffer
 	//Used for a mask calculation
 	//Velosity Mask
-	float V = length(GS(current_buffer) - GS(past_single_buffer));
-
-	return V;
+	return length(GS(current_buffer) - GS(past_single_buffer));
 }
 
 float Part_Gen(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {
-  float2 mTexcoords = texcoord * float2(1,0.6);
-  //Active Timer & Speed adjust
-  float  LA = L_Amount(), T = -timer, MB = Luma_Clamp < 0 ? 1 - MaskBloom(texcoord): MaskBloom(texcoord),AT = T * Sp_Amount() * 0.0001, Fin, Switch = Luma_Clamp == 0.0 ? 0 : Luma_Clamp < 0 ? MB < 0 : MB < 0.03;
-  float4 Color;
-  [loop] //Little Part
-  for(float i = 0; i < LA; i++)  //MB < 1 for Positive and MB < 0 for Negitive.
-  {
-	if(texcoord.x > 1 || texcoord.y > 1 || texcoord.x < 0 || texcoord.y < 0 || Switch)
-		break;
-	  //Amount
-      float A = random(cos(i)) * cos( i / LA );
-      //Center Particles Generator
-    	float C = random(i) + Waviness * cos(AT + sin(i));
-    	float Gen = fmod( sin(i) - A * AT , 1.0);
-    	//Draw them Circles to create Particles from Center
-      Color += Circle( float2(C,Gen), A * pix.x, mTexcoords );
-  }
-   Fin = lerp(0,dot(Color,Color),MB);
-  //Faster than length
-  if( abs(Luma_Clamp) > 0 || Ansel_HDR )
-	return Fin;
-  else
-    return dot(Color,Color);
+	float2 mTexcoords = texcoord * float2(1,0.6);
+	//Active Timer & Speed adjust
+	float  LA = L_Amount(), T = -timer, MB = Luma_Clamp < 0 ? 1 - MaskBloom(texcoord): MaskBloom(texcoord),AT = T * Sp_Amount() * 0.0001, Fin, Switch = Luma_Clamp == 0.0 ? 0 : Luma_Clamp < 0 ? MB < 0 : MB < 0.03;
+	float4 Color;
+	[loop] //Little Part
+	for(float i = 0; i < LA; i++)  //MB < 1 for Positive and MB < 0 for Negitive.
+	{
+		if(texcoord.x > 1 || texcoord.y > 1 || texcoord.x < 0 || texcoord.y < 0 || Switch)
+			break;
+		//Amount
+		float A = random(cos(i)) * cos( i / LA );
+		//Center Particles Generator
+		float C = random(i) + Waviness * cos(AT + sin(i));
+		float Gen = fmod( sin(i) - A * AT , 1.0);
+		//Draw them Circles to create Particles from Center
+		Color += Circle( float2(C,Gen), A * pix.x, mTexcoords );
+	}
+	Fin = lerp(0,dot(Color,Color),MB);
+	//Faster than length
+	if( abs(Luma_Clamp) > 0 || Ansel_HDR )
+		return Fin;
+	else
+		return dot(Color,Color);
 }
 
 float4 MixPart(float2 texcoord)
@@ -442,111 +453,46 @@ void Past_BackBuffer(float4 position : SV_Position, float2 texcoord : TEXCOORD, 
 }
 
 void P_Bloom(float4 position : SV_Position, float2 texcoord : TEXCOORD, out float2 BW: SV_Target)
-{ float LC = saturate(abs(Luma_Clamp));
+{
+	float LC = saturate(abs(Luma_Clamp));
 	float4 BC = tex2Dlod(BackBufferPart, float4(texcoord,0,0)).rgba;
 	if (Ansel_HDR)
 		BC = tex2Dlod(HDRPart, float4(texcoord,0,0)).rgba;
-  // Check whether fragment output is higher than threshold,if so output as brightness color.
+	// Check whether fragment output is higher than threshold,if so output as brightness color.
 	// Luma Threshold Thank you Adyss x2/Mine :D
 	BC.a    = dot(BC.rgb,  float3(0.2126, 0.7152, 0.0722) );//Luma
 	if (Ansel_HDR)
 	{   //For Real HDR
 		BC.a = BC.a > 1.0;
-	    BC.rgb *= BC.a;
+		BC.rgb *= BC.a;
 	}
 	else
 	{
-    if(Luma_Clamp < 0)
-      LC = 1-LC;
-		BC.rgb /= max(BC.a, 0.001);
-		BC.a    = max(0.0, BC.a - LC);
-		BC.rgb *= BC.a;
+		if(Luma_Clamp < 0)
+			LC = 1-LC;
+			BC.rgb /= max(BC.a, 0.001);
+			BC.a    = max(0.0, BC.a - LC);
+			BC.rgb *= BC.a;
 	}
 	//Bloom Saturation
 	BC.rgb  = saturate(BC.rgb + (BC.rgb - BC.a) * 2.5);
-  //Out
-  BW = float2(LumM(saturate(BC.rgb)),tex2D(PSBackBufferPart,0.5).w);
+	//Out
+	BW = float2(LumM(saturate(BC.rgb)),tex2D(PSBackBufferPart,0.5).w);
 }
-////////////////////////////////////////////////////////Logo/////////////////////////////////////////////////////////////////////////
-float3 OutPart(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
-{
- float PosX = 0.9525f*BUFFER_WIDTH*pix.x,PosY = 0.975f*BUFFER_HEIGHT*pix.y, Text_Timer = 12500;
- float D,E,P,T,H,Three,DD,Dot,I,N,F,O,R,EE,A,DDD,HH,EEE,L,PP,NN,PPP,C,Not,No;
- float3 Color = MixPart(texcoord).rgb;
 
- [branch] if(timer <= Text_Timer)
- { //DEPTH
-   //D
-   float PosXD = -0.035+PosX, offsetD = 0.001;
-   float OneD = all( abs(float2( texcoord.x -PosXD, texcoord.y-PosY)) < float2(0.0025,0.009));
-   float TwoD = all( abs(float2( texcoord.x -PosXD-offsetD, texcoord.y-PosY)) < float2(0.0025,0.007));
-   D = OneD-TwoD;
-   //E
-   float PosXE = -0.028+PosX, offsetE = 0.0005;
-   float OneE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.009));
-   float TwoE = all( abs(float2( texcoord.x -PosXE-offsetE, texcoord.y-PosY)) < float2(0.0025,0.007));
-   float ThreeE = all( abs(float2( texcoord.x -PosXE, texcoord.y-PosY)) < float2(0.003,0.001));
-   E = (OneE-TwoE)+ThreeE;
-   //P
-   float PosXP = -0.0215+PosX, PosYP = -0.0025+PosY, offsetP = 0.001, offsetP1 = 0.002;
-   float OneP = all( abs(float2( texcoord.x -PosXP, texcoord.y-PosYP)) < float2(0.0025,0.009*0.775));
-   float TwoP = all( abs(float2( texcoord.x -PosXP-offsetP, texcoord.y-PosYP)) < float2(0.0025,0.007*0.680));
-   float ThreeP = all( abs(float2( texcoord.x -PosXP+offsetP1, texcoord.y-PosY)) < float2(0.0005,0.009));
-   P = (OneP-TwoP) + ThreeP;
-   //T
-   float PosXT = -0.014+PosX, PosYT = -0.008+PosY;
-   float OneT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosYT)) < float2(0.003,0.001));
-   float TwoT = all( abs(float2( texcoord.x -PosXT, texcoord.y-PosY)) < float2(0.000625,0.009));
-   T = OneT+TwoT;
-   //H
-   float PosXH = -0.0072+PosX;
-   float OneH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.001));
-   float TwoH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.002,0.009));
-   float ThreeH = all( abs(float2( texcoord.x -PosXH, texcoord.y-PosY)) < float2(0.00325,0.009));
-   H = (OneH-TwoH)+ThreeH;
-   //Three
-   float offsetFive = 0.001, PosX3 = -0.001+PosX;
-   float OneThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.009));
-   float TwoThree = all( abs(float2( texcoord.x -PosX3 - offsetFive, texcoord.y-PosY)) < float2(0.003,0.007));
-   float ThreeThree = all( abs(float2( texcoord.x -PosX3, texcoord.y-PosY)) < float2(0.002,0.001));
-   Three = (OneThree-TwoThree)+ThreeThree;
-   //DD
-   float PosXDD = 0.006+PosX, offsetDD = 0.001;
-   float OneDD = all( abs(float2( texcoord.x -PosXDD, texcoord.y-PosY)) < float2(0.0025,0.009));
-   float TwoDD = all( abs(float2( texcoord.x -PosXDD-offsetDD, texcoord.y-PosY)) < float2(0.0025,0.007));
-   DD = OneDD-TwoDD;
-   //Dot
-   float PosXDot = 0.011+PosX, PosYDot = 0.008+PosY;
-   float OneDot = all( abs(float2( texcoord.x -PosXDot, texcoord.y-PosYDot)) < float2(0.00075,0.0015));
-   Dot = OneDot;
-   //INFO
-   //I
-   float PosXI = 0.0155+PosX, PosYI = 0.004+PosY, PosYII = 0.008+PosY;
-   float OneI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosY)) < float2(0.003,0.001));
-   float TwoI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYI)) < float2(0.000625,0.005));
-   float ThreeI = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYII)) < float2(0.003,0.001));
-   I = OneI+TwoI+ThreeI;
-   //N
-   float PosXN = 0.0225+PosX, PosYN = 0.005+PosY,offsetN = -0.001;
-   float OneN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN)) < float2(0.002,0.004));
-   float TwoN = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN - offsetN)) < float2(0.003,0.005));
-   N = OneN-TwoN;
-   //F
-   float PosXF = 0.029+PosX, PosYF = 0.004+PosY, offsetF = 0.0005, offsetF1 = 0.001;
-   float OneF = all( abs(float2( texcoord.x -PosXF-offsetF, texcoord.y-PosYF-offsetF1)) < float2(0.002,0.004));
-   float TwoF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0025,0.005));
-   float ThreeF = all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0015,0.00075));
-   F = (OneF-TwoF)+ThreeF;
-   //O
-   float PosXO = 0.035+PosX, PosYO = 0.004+PosY;
-   float OneO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.003,0.005));
-   float TwoO = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.002,0.003));
-   O = OneO-TwoO;
-   //Website
-   return D+E+P+T+H+Three+DD+Dot+I+N+F+O ? (1-texcoord.y*50.0+48.85)*texcoord.y-0.500: Color;
- }
- else
-   return Color;
+void A1(float2 texcoord,float PosX,float PosY,inout float I, inout float N, inout float F, inout float O)
+{
+		float PosXI = 0.0155+PosX, PosYI = 0.004+PosY, PosYII = 0.008+PosY;I = all( abs(float2( texcoord.x - PosXI, texcoord.y - PosY)) < float2(0.003,0.001));I += all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYI)) < float2(0.000625,0.005));I += all( abs(float2( texcoord.x - PosXI, texcoord.y - PosYII)) < float2(0.003,0.001));
+		float PosXN = 0.0225+PosX, PosYN = 0.005+PosY,offsetN = -0.001;N = all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN)) < float2(0.002,0.004));N -= all( abs(float2( texcoord.x - PosXN, texcoord.y - PosYN - offsetN)) < float2(0.003,0.005));
+		float PosXF = 0.029+PosX, PosYF = 0.004+PosY, offsetF = 0.0005, offsetF1 = 0.001;F = all( abs(float2( texcoord.x -PosXF-offsetF, texcoord.y-PosYF-offsetF1)) < float2(0.002,0.004));F -= all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0025,0.005));F += all( abs(float2( texcoord.x -PosXF, texcoord.y-PosYF)) < float2(0.0015,0.00075));
+		float PosXO = 0.035+PosX, PosYO = 0.004+PosY;O = all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.003,0.005));O -= all( abs(float2( texcoord.x -PosXO, texcoord.y-PosYO)) < float2(0.002,0.003));
+}
+////////////////////////////////////////////////////////Watermark/////////////////////////////////////////////////////////////////////////
+float4 OutPart(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+{
+	float3 Color = MixPart(texcoord).rgb;
+	float PosX = 0.9525f*BUFFER_WIDTH*pix.x,PosY = 0.975f*BUFFER_HEIGHT*pix.y,A,B,C,D,E,F,G,H,I,J,K,L,PosXDot = 0.011+PosX, PosYDot = 0.008+PosY;L = all( abs(float2( texcoord.x -PosXDot, texcoord.y-PosYDot)) < float2(0.00075,0.0015));A0(texcoord,PosX,PosY,A,B,C,D,E,F,G );A1(texcoord,PosX,PosY,H,I,J,K);
+	return timer <= 12500 ? A+B+C+D+E+F+G+H+I+J+K+L ? 0.01 : float4(Color,1.) : float4(Color,1.);
 }
 ///////////////////////////////////////////////////////////ReShade.fxh/////////////////////////////////////////////////////////////
 void PostProcessVS(in uint id : SV_VertexID, out float4 position : SV_Position, out float2 texcoord : TEXCOORD)
