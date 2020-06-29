@@ -148,13 +148,15 @@ uniform float Luma_Clamp <
         "Number 0.0 is default.";
  ui_category = "Particle Interaction";
 > = 0.0;
-
+#if !RS
 uniform bool Ansel_HDR <
 	ui_label = "Ansel-HDR Compatibility";
 	ui_tooltip = "This will enable the HDR Buffer in Ansel-enabled games.";
 	ui_category = "Particle Interaction";
 > = false;
-
+#else
+#define Ansel_HDR 0
+#endif
 //uniform float Spread <
 //ui_type = "slider";
 //ui_min = 0.0; ui_max =  1.0;
@@ -371,18 +373,18 @@ float Part_Gen(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 {
   float2 mTexcoords = texcoord * float2(1,0.6);
   //Active Timer & Speed adjust
-  float  T = -timer, MB = Luma_Clamp < 0 ? 1 - MaskBloom(texcoord): MaskBloom(texcoord),AT = T * Sp_Amount() * 0.0001, Fin, Switch = Luma_Clamp < 0 ? MB < 0 : MB < 0.03;
+  float  LA = L_Amount(), T = -timer, MB = Luma_Clamp < 0 ? 1 - MaskBloom(texcoord): MaskBloom(texcoord),AT = T * Sp_Amount() * 0.0001, Fin, Switch = Luma_Clamp == 0.0 ? 0 : Luma_Clamp < 0 ? MB < 0 : MB < 0.03;
   float4 Color;
   [loop] //Little Part
-  for(float i = 0; i < L_Amount(); i++)  //MB < 1 for Positive and MB < 0 for Negitive.
+  for(float i = 0; i < LA; i++)  //MB < 1 for Positive and MB < 0 for Negitive.
   {
 	if(texcoord.x > 1 || texcoord.y > 1 || texcoord.x < 0 || texcoord.y < 0 || Switch)
 		break;
 	  //Amount
-      float A = random(cos(i)) * cos( i / L_Amount() );
+      float A = random(cos(i)) * cos( i / LA );
       //Center Particles Generator
     	float C = random(i) + Waviness * cos(AT + sin(i));
-    	float Gen = fmod( sin(i) - A * AT, 1.0);
+    	float Gen = fmod( sin(i) - A * AT , 1.0);
     	//Draw them Circles to create Particles from Center
       Color += Circle( float2(C,Gen), A * pix.x, mTexcoords );
   }
