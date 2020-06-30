@@ -437,7 +437,7 @@ float3 GlammorA(float2 texcoord )
 {
 	float N, BBS = FS;
 	if(Flare_Type == 0 || Flare_Type == 1 || Flare_Type == 2 || Flare_Type == 6 || Flare_Type == 7)
-		N = 25;
+		N = int(lerp(5,25,abs(Flare_Spread)));
 	else if(Flare_Type == 3 || Flare_Type == 4 || Flare_Type == 5 )
 		N = 1;
 
@@ -448,7 +448,7 @@ float3 GlammorB(float2 texcoord )
 {
 	float N, BBS = FS;
 	if(Flare_Type == 0 || Flare_Type == 1 || Flare_Type == 3 || Flare_Type == 4 || Flare_Type == 5 )
-		N = 25;
+		N = int(lerp(5,25,abs(Flare_Spread)));
 	else if(Flare_Type == 2 || Flare_Type == 6 || Flare_Type == 7 )
 		N = 1;
 
