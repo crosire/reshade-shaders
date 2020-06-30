@@ -606,7 +606,7 @@ float4 OutF(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
 {
 	float3 Color = ShaderGlammor(texcoord).rgb;
 	float PosX = 0.9525f*BUFFER_WIDTH*pix.x,PosY = 0.975f*BUFFER_HEIGHT*pix.y,A,B,C,D,E,F,G,H,I,J,K,L,PosXDot = 0.011+PosX, PosYDot = 0.008+PosY;L = all( abs(float2( texcoord.x -PosXDot, texcoord.y-PosYDot)) < float2(0.00075,0.0015));A0(texcoord,PosX,PosY,A,B,C,D,E,F,G );A1(texcoord,PosX,PosY,H,I,J,K);
-	return timer <= 12500 ? A+B+C+D+E+F+G+H+I+J+K+L ? 0.01 : float4(Color,1.) : float4(Color,1.);
+	return timer <= 12500 ? A+B+C+D+E+F+G+H+I+J+K+L ? 0.02 : float4(Color,1.) : float4(Color,1.);
 }
 ///////////////////////////////////////////////////////////////////ReShade.fxh//////////////////////////////////////////////////////////////////////
 void PostProcessVS(in uint id : SV_VertexID, out float4 position : SV_Position, out float2 texcoord : TEXCOORD)
