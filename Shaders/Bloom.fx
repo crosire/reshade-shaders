@@ -216,7 +216,8 @@ sampler SamplerLensFlare1 { Texture = texLensFlare1; };
 sampler SamplerLensFlare2 { Texture = texLensFlare2; };
 
 #include "ReShade.fxh"
-
+/*
+// original
 float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool isBlurVert)
 {
 	float4 sum = 0;
@@ -244,6 +245,46 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 
 	return sum;
 }
+*/
+
+// modified - Craig - Jul 5th, 2020
+float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool isBlurVert)
+{
+	float4 sum = 0;
+	float2 axis = isBlurVert ? float2(0, 1) : float2(1, 0);
+
+	// !!! pre-mul this to save quite a few mul's during loop below !!!
+	axis.xy *= BUFFER_PIXEL_SIZE * mult;
+
+	const float weight[11] = {
+		0.082607,
+		0.080977,
+		0.076276,
+		0.069041,
+		0.060049,
+		0.050187,
+		0.040306,
+		0.031105,
+		0.023066,
+		0.016436,
+		0.011254
+	};
+
+
+	// !!! pre-make a float4 for texcoord to update in loop below
+	// !!! so we're not constantly recreating a float 4 over and over
+	float4 texcoord = float4( 0, 0, 0, lodlevel );
+
+	for (int i = -10; i < 11; i++)
+	{
+		float currweight = weight[abs(i)];
+			  texcoord.xy = coord.xy + axis.xy * (float)i;
+		sum += tex2Dlod(tex, texcoord) * currweight;
+	}
+
+	return sum;
+}
+
 
 float3 GetDnB(sampler tex, float2 coords)
 {
@@ -288,7 +329,8 @@ float3 GetAnamorphicSample(int axis, float2 coords, float blur)
 	coords = 0.5 * coords + 0.5;
 	return GetBrightPass(coords);
 }
-
+/*
+// original
 void BloomPass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
 	bloom = 0.0;
@@ -312,6 +354,38 @@ void BloomPass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	bloom *= 0.25;
 }
+*/
+
+// modified - Craig - Jul 5th, 2020
+void BloomPass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
+{
+	bloom = 0.0;
+
+	const float2 offset[4] = {
+		float2(1.0, 1.0),
+		float2(1.0, 1.0),
+		float2(-1.0, 1.0),
+		float2(-1.0, -1.0)
+	};
+
+	// !!! pre-mul const to avoid extra mul's in loop
+	float bps2 = BUFFER_PIXEL_SIZE * 2;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float2 bloomuv = offset[i] * bps2;
+		bloomuv += texcoord;
+		float4 tempbloom = tex2Dlod(ReShade::BackBuffer, float4(bloomuv.xy, 0, 0));
+		tempbloom.w = max(0, dot(tempbloom.xyz, 0.333) - fAnamFlareThreshold);
+		tempbloom.xyz = max(0, tempbloom.xyz - fBloomThreshold); 
+		bloom += tempbloom;
+	}
+
+	bloom *= 0.25;
+}
+
+/*
+// original
 void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
 	bloom = 0.0;
@@ -336,6 +410,38 @@ void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	bloom *= 0.125;
 }
+*/
+
+// modified - Craig - Jul 5th, 2020
+void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
+{
+	bloom = 0.0;
+
+	const float2 offset[8] = {
+		float2(1.0, 1.0),
+		float2(0.0, -1.0),
+		float2(-1.0, 1.0),
+		float2(-1.0, -1.0),
+		float2(0.0, 1.0),
+		float2(0.0, -1.0),
+		float2(1.0, 0.0),
+		float2(-1.0, 0.0)
+	};
+
+	// !!! pre-mul const to avoid extra mul's in loop
+	float bps4 = BUFFER_PIXEL_SIZE * 4;
+
+	for (int i = 0; i < 8; i++)
+	{
+		float2 bloomuv = offset[i] * bps4;
+		bloomuv += texcoord;
+		bloom += tex2Dlod(SamplerBloom1, float4(bloomuv, 0, 0));
+	}
+
+	bloom *= 0.125;
+}
+/*
+// original
 void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
 	bloom = 0.0;
@@ -360,6 +466,37 @@ void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	bloom *= 0.5; // brighten up the sample, it will lose brightness in H/V Gaussian blur
 }
+*/
+
+// modified - Craig - Jul 5th, 2020
+void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
+{
+	bloom = 0.0;
+
+	const float2 offset[8] = {
+		float2(0.707, 0.707),
+		float2(0.707, -0.707),
+		float2(-0.707, 0.707),
+		float2(-0.707, -0.707),
+		float2(0.0, 1.0),
+		float2(0.0, -1.0),
+		float2(1.0, 0.0),
+		float2(-1.0, 0.0)
+	};
+
+	// !!! pre-mul const to avoid extra mul's in loop
+	float bps8 = BUFFER_PIXEL_SIZE * 8;
+
+	for (int i = 0; i < 8; i++)
+	{
+		float2 bloomuv = offset[i] * bps8;
+		bloomuv += texcoord;
+		bloom += tex2Dlod(SamplerBloom2, float4(bloomuv, 0, 0));
+	}
+
+	bloom *= 0.5; // brighten up the sample, it will lose brightness in H/V Gaussian blur
+}
+
 void BloomPass3(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
 	bloom = GaussBlur22(texcoord.xy, SamplerBloom3, 16, 0, 0);
@@ -372,6 +509,8 @@ void BloomPass4(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	bloom.w = GaussBlur22(texcoord, SamplerBloom4, 32 * fAnamFlareWideness, 0, 0).w * 2.5; // to have anamflare texture (bloom.w) avoid vertical blur
 }
 
+/*
+// original
 void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 lens : SV_Target)
 {
 	lens = 0;
@@ -514,6 +653,172 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		lens.xyz += anamFlare * fFlareIntensity;
 	}
 }
+*/
+
+// modified - Craig - Jul 5th, 2020
+void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 lens : SV_Target)
+{
+	lens = 0;
+
+	// Lenz
+	if (bLenzEnable)
+	{
+		const float3 lfoffset[19] = {
+			float3(0.9, 0.01, 4),
+			float3(0.7, 0.25, 25),
+			float3(0.3, 0.25, 15),
+			float3(1, 1.0, 5),
+			float3(-0.15, 20, 1),
+			float3(-0.3, 20, 1),
+			float3(6, 6, 6),
+			float3(7, 7, 7),
+			float3(8, 8, 8),
+			float3(9, 9, 9),
+			float3(0.24, 1, 10),
+			float3(0.32, 1, 10),
+			float3(0.4, 1, 10),
+			float3(0.5, -0.5, 2),
+			float3(2, 2, -5),
+			float3(-5, 0.2, 0.2),
+			float3(20, 0.5, 0),
+			float3(0.4, 1, 10),
+			float3(0.00001, 10, 20)
+		};
+		const float3 lffactors[19] = {
+			float3(1.5, 1.5, 0),
+			float3(0, 1.5, 0),
+			float3(0, 0, 1.5),
+			float3(0.2, 0.25, 0),
+			float3(0.15, 0, 0),
+			float3(0, 0, 0.15),
+			float3(1.4, 0, 0),
+			float3(1, 1, 0),
+			float3(0, 1, 0),
+			float3(0, 0, 1.4),
+			float3(1, 0.3, 0),
+			float3(1, 1, 0),
+			float3(0, 2, 4),
+			float3(0.2, 0.1, 0),
+			float3(0, 0, 1),
+			float3(1, 1, 0),
+			float3(1, 1, 0),
+			float3(0, 0, 0.2),
+			float3(0.012,0.313,0.588)
+		};
+
+		float2 lfcoord = 0;
+		float3 lenstemp = 0;
+		float2 distfact = texcoord.xy - 0.5;
+		distfact.x *= BUFFER_ASPECT_RATIO;
+
+		// !!! pre-calc this to avoid doing length() over and over in loop
+		float distfactlen = 2.0 * length(distfact);
+
+		for (int i = 0; i < 19; i++)
+		{
+			lfcoord.xy = lfoffset[i].x * distfact;
+			lfcoord.xy *= pow(distfactlen, lfoffset[i].y * 3.5);
+			lfcoord.xy *= lfoffset[i].z;
+			lfcoord.xy = 0.5 - lfcoord.xy;
+			float2 tempfact = (lfcoord.xy - 0.5) * 2;
+			float templensmult = clamp(1.0 - dot(tempfact, tempfact), 0, 1);
+			float3 lenstemp1 = dot(tex2Dlod(ReShade::BackBuffer, float4(lfcoord.xy, 0, 1)).rgb, 0.333);
+
+#if LENZ_DEPTH_CHECK
+			float templensdepth = tex2D(ReShade::DepthBuffer, lfcoord.xy).x;
+			if (templensdepth < 0.99999)
+				lenstemp1 = 0;
+#endif
+
+			lenstemp1 = max(0, lenstemp1.xyz - fLenzThreshold);
+			lenstemp1 *= lffactors[i] * templensmult;
+
+			lenstemp += lenstemp1;
+		}
+
+		lens.rgb += lenstemp * fLenzIntensity;
+	}
+
+	// Chapman Lens
+	if (bChapFlareEnable)
+	{
+		float2 sample_vector = (float2(0.5, 0.5) - texcoord.xy) * fChapFlareDispersal;
+		float2 halo_vector = normalize(sample_vector) * fChapFlareSize;
+
+		float3 chaplens = GetDistortedTex(ReShade::BackBuffer, texcoord.xy + halo_vector, halo_vector, fChapFlareCA * 2.5f).rgb;
+
+		for (int j = 0; j < iChapFlareCount; ++j)
+		{
+			float2 foffset = sample_vector * float(j);
+			chaplens += GetDistortedTex(ReShade::BackBuffer, texcoord.xy + foffset, foffset, fChapFlareCA).rgb;
+		}
+
+		// !!! chaplens mul by 1 = chaplens, so skip mul'ing by 1 and just divide by iChapFlareCount
+		chaplens /= iChapFlareCount;
+//		chaplens *= 1.0 / iChapFlareCount;
+		lens.xyz += chaplens;
+	}
+
+	// Godrays
+	if (bGodrayEnable)
+	{
+		const float2 ScreenLightPos = float2(0.5, 0.5);
+		float2 texcoord2 = texcoord;
+		float2 deltaTexCoord = (texcoord2 - ScreenLightPos);
+
+		// !!! mul'ing by 1 can get skipped.. just divide
+		deltaTexCoord /= (float)iGodraySamples * fGodrayDensity;
+//		deltaTexCoord *= 1.0 / (float)iGodraySamples * fGodrayDensity;
+
+		// !!! this can get moved out of loop
+		texcoord2 -= deltaTexCoord;
+
+		// !!! using this as-is in loop, so just make it once and re-use
+		float4 texcoord2lod = float4(texcoord2, 0, 0);
+
+		float illuminationDecay = 1.0;
+
+
+		for (int g = 0; g < iGodraySamples; g++)
+		{
+//			texcoord2 -= deltaTexCoord;
+			float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
+			float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
+			sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
+
+			// !!! mul'ing sample2.r by 1, skip
+//			sample2.r *= 1.00;
+			sample2.g *= 0.95;
+			sample2.b *= 0.85;
+			sample2 *= illuminationDecay * fGodrayWeight;
+#if GODRAY_DEPTH_CHECK == 1
+			if (sampledepth > 0.99999)
+				lens.rgb += sample2.xyz * sample2.w;
+#else
+			lens.rgb += sample2.xyz * sample2.w;
+#endif
+			illuminationDecay *= fGodrayDecay;
+		}
+	}
+
+	// Anamorphic flare
+	if (bAnamFlareEnable)
+	{
+		float3 anamFlare = 0;
+		const float gaussweight[5] = { 0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162 };
+
+		// !!! can pre-calc this outside loop
+		float brh2 = BUFFER_RCP_HEIGHT * 2;
+
+		for (int z = -4; z < 5; z++)
+		{
+			anamFlare += GetAnamorphicSample(0, texcoord.xy + float2(0, z * brh2), fFlareBlur) * fFlareTint * gaussweight[abs(z)];
+		}
+
+		lens.xyz += anamFlare * fFlareIntensity;
+	}
+}
+
 void LensFlarePass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 lens : SV_Target)
 {
 	lens = GaussBlur22(texcoord, SamplerLensFlare1, 2, 0, 1);
@@ -523,6 +828,8 @@ void LensFlarePass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 	lens = GaussBlur22(texcoord, SamplerLensFlare2, 2, 0, 0);
 }
 
+/*
+// original
 void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 color : SV_Target)
 {
 	color = tex2D(ReShade::BackBuffer, texcoord);
@@ -581,6 +888,99 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
+
+		color.rgb += lensflareMask * 0.25 * lensflareSample;
+	}
+}
+*/
+
+// modified - Craig - Jul 5th, 2020
+void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 color : SV_Target)
+{
+	color = tex2D(ReShade::BackBuffer, texcoord);
+
+	// Bloom
+	float3 colorbloom = 0;
+	
+	// !!! mul'ing by 1 can get skipped
+	colorbloom += tex2D(SamplerBloom3, texcoord).rgb;// * 1.0;
+	colorbloom += tex2D(SamplerBloom5, texcoord).rgb * 9.0;
+	colorbloom *= 0.1;
+	colorbloom = saturate(colorbloom);
+	float colorbloomgray = dot(colorbloom, 0.333);
+	colorbloom = lerp(colorbloomgray, colorbloom, fBloomSaturation);
+	colorbloom *= fBloomTint;
+
+	if (iBloomMixmode == 0)
+		color.rgb += colorbloom;
+	else if (iBloomMixmode == 1)
+		color.rgb = 1 - (1 - color.rgb) * (1 - colorbloom);
+	else if (iBloomMixmode == 2)
+	{
+		// !!! get rid of redundant calc's
+		colorbloom = 1 - saturate(colorbloom);
+		colorbloom = 1 - ( colorbloom * colorbloom );
+		// !!! lerp (x, y, 1) returns y w/o any x interpolated in it, so we can skip the lerp
+		color.rgb = max(0.0f, max(color.rgb, colorbloom.rgb));
+//		color.rgb = max(0.0f, max(color.rgb, lerp(color.rgb, colorbloom.rgb, 1.0)));
+	}
+	else if (iBloomMixmode == 3)
+		color.rgb = max(color.rgb, colorbloom.rgb);
+
+	// Anamorphic flare
+	if (bAnamFlareEnable)
+	{
+		float3 anamflare = tex2D(SamplerBloom5, texcoord.xy).w * 2 * fAnamFlareColor;
+		anamflare = max(anamflare, 0.0);
+		color.rgb += pow(anamflare, 1.0 / fAnamFlareCurve);
+	}
+
+	// Lens dirt
+	if (bLensdirtEnable)
+	{
+		float lensdirtmult = dot(tex2D(SamplerBloom5, texcoord).rgb, 0.333);
+		float3 dirttex = tex2D(SamplerDirt, texcoord).rgb;
+		float3 lensdirt = dirttex * lensdirtmult * fLensdirtIntensity;
+
+		lensdirt = lerp(dot(lensdirt.xyz, 0.333), lensdirt.xyz, fLensdirtSaturation);
+
+		if (iLensdirtMixmode == 0)
+			color.rgb += lensdirt;
+		else if (iLensdirtMixmode == 1)
+			color.rgb = 1 - (1 - color.rgb) * (1 - lensdirt);
+		else if (iLensdirtMixmode == 2)
+		{
+			// !!! pre-calc redundant calculations
+			lensdirt = 1 - saturate(lensdirt);
+			lensdirt = 1 - ( lensdirt * lensdirt );
+			// !!! lerp(x, y, 1) returns all of y and no x interpolated in, so skip the lerp and just use y
+			color.rgb = max(0.0f, max(color.rgb, lensdirt));
+//			color.rgb = max(0.0f, max(color.rgb, lerp(color.rgb, (1 - (1 - saturate(lensdirt)) * (1 - saturate(lensdirt))), 1.0)));
+		}
+		else if (iLensdirtMixmode == 3)
+			color.rgb = max(color.rgb, lensdirt);
+	}
+
+	// Lens flares
+	if (bAnamFlareEnable || bLenzEnable || bGodrayEnable || bChapFlareEnable)
+	{
+		float3 lensflareSample = tex2D(SamplerLensFlare1, texcoord.xy).rgb, lensflareMask;
+		/*
+		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( 0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
+		*/
+
+		// !!! pre-calc the * +/- 0.5 stuff once
+		float bpspos = BUFFER_PIXEL_SIZE * 0.5;
+//		float bpsneg = BUFFER_PIXEL_SIZE * -0.5;
+		float bpsneg = -bpspos; // can just invert this
+		
+		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( bpspos, bpspos )).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpsneg, bpspos )).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpspos, bpsneg )).rgb;
+		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpsneg, bpsneg )).rgb;
 
 		color.rgb += lensflareMask * 0.25 * lensflareSample;
 	}
