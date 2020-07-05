@@ -151,11 +151,25 @@ float PS_AvgLuma(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Targ
     float avgLuma = lerp(avgLumaCurrFrame, avgLumaLastFrame, delay);
     return avgLuma;
 }
-
+/*
+// original
 float AdaptionDelta(float luma, float strengthMidtones, float strengthShadows, float strengthHighlights)
 {
     float midtones = (4.0 * strengthMidtones - strengthHighlights - strengthShadows) * luma * (1.0 - luma);
     float shadows = strengthShadows * (1.0 - luma);
+    float highlights = strengthHighlights * luma;
+    float delta = midtones + shadows + highlights;
+    return delta;
+}
+*/
+
+// modified - Craig - Jul 5th, 2020
+float AdaptionDelta(float luma, float strengthMidtones, float strengthShadows, float strengthHighlights)
+{
+	// !!! pre-calc inverted luma
+	float lumainverse = 1.0 - luma;
+    float midtones = (4.0 * strengthMidtones - strengthHighlights - strengthShadows) * luma * lumainverse;
+    float shadows = strengthShadows * lumainverse;
     float highlights = strengthHighlights * luma;
     float delta = midtones + shadows + highlights;
     return delta;
@@ -166,6 +180,8 @@ float4 PS_Adaption(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Ta
     float4 color = tex2Dlod(ReShade::BackBuffer, float4(texcoord, 0, 0));
     float avgLuma = tex2Dlod(SamplerAvgLuma, float4(0.0.xx, 0, 0)).x;
 
+    // !!! could pre-calc the 1.0/2.2 if fast_ops is on
+    // !!! else calc on-the-fly for more accuracy?
     color.xyz = pow(abs(color.xyz), 1.0/2.2);
     float luma = dot(color.xyz, LumCoeff);
     float3 chroma = color.xyz - luma;
