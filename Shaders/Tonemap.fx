@@ -55,9 +55,16 @@ float3 TonemapPass(float4 position : SV_Position, float2 texcoord : TexCoord) : 
 	float3 mixRGB = A2 * newColor;
 	color += ((1.0f - A2) * mixRGB);
 	
+	// !!! could possibly branch this with fast_ops
+	// !!! to pre-calc 1.0/3.0 and skip calc'ing it each pass
+	// !!! and have fast_ops != 1 have it calc each pass.
 	float3 middlegray = dot(color, (1.0 / 3.0));
 	float3 diffcolor = color - middlegray;
-	color = (color + diffcolor * Saturation) / (1 + (diffcolor * Saturation)); // Saturation
+
+	// !!! can pre-calc once to use twice below
+	diffcolor *= Saturation;
+//	color = (color + diffcolor * Saturation) / (1 + (diffcolor * Saturation)); // Saturation
+	color = (color + diffcolor) / (1 + diffcolor); // Saturation
 	
 	return color;
 }
