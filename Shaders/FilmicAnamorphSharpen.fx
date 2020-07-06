@@ -121,8 +121,17 @@ float3 FilmicAnamorphSharpenPS(float4 pos : SV_Position, float2 UvCoord : TEXCOO
 
 	if (DepthMask)
 	{
+		/*
+		// original
 		float2 DepthPixel = Pixel*Offset + Pixel;
 		Pixel *= Offset;
+		*/
+
+		// !!! calc pixel*offset once, use twice
+		float2 PixelOffset = Pixel * Offset;
+		float2 DepthPixel = PixelOffset + Pixel;
+		Pixel = PixelOffset;
+
 		// Sample display depth image
 		float SourceDepth = ReShade::GetLinearizedDepth(UvCoord);
 
@@ -161,7 +170,18 @@ float3 FilmicAnamorphSharpenPS(float4 pos : SV_Position, float2 UvCoord : TEXCOO
 		HighPassColor = lerp(0.5, HighPassColor, Mask * DepthMask);
 
 		// Clamping sharpen
+		/*
+		// original
 		HighPassColor = (Clamp != 1.0) ? max(min(HighPassColor, Clamp), 1.0 - Clamp) : HighPassColor;
+		*/
+
+		// !!! Clamp in settings above is restricted to 0.5 to 1.0
+		// !!! 1.0 - Clamp is the low value, while Clamp is the high value
+		// !!! so we can literally just use the clamp() func instead of min/max.
+		// !!! not sure if author was trying to take advantage of some kind of
+		// !!! compiler "cheat" using min/max instead of clamp to improve
+		// !!! performance. doesn't make sense to min/max otherwise.
+		HighPassColor = (Clamp != 1.0) ? clamp( HighPassColor, 1.0 - Clamp, Clamp ) : HighPassColor;
 
 		float3 Sharpen = float3(
 			Overlay(Source.r, HighPassColor),
@@ -197,13 +217,28 @@ float3 FilmicAnamorphSharpenPS(float4 pos : SV_Position, float2 UvCoord : TEXCOO
 		[unroll]
 		for(int s = 0; s < 4; s++)
 			HighPassColor += dot(tex2D(ReShade::BackBuffer, NorSouWesEst[s]).rgb, LumaCoefficient);
+			
+		// !!! added space above to make it more obvious
+		// !!! that loop is now a one-liner in this else branch
+		// !!! where-as loop in branch above was multi-part
 		HighPassColor = 0.5 - 0.5 * (HighPassColor * 0.25 - dot(Source, LumaCoefficient));
 
 		// Sharpen strength
 		HighPassColor = lerp(0.5, HighPassColor, Mask);
 
 		// Clamping sharpen
+		/*
+		// original
 		HighPassColor = (Clamp != 1.0) ? max(min(HighPassColor, Clamp), 1.0 - Clamp) : HighPassColor;
+		*/
+
+		// !!! Clamp in settings above is restricted to 0.5 to 1.0
+		// !!! 1.0 - Clamp is the low value, while Clamp is the high value
+		// !!! so we can literally just use the clamp() func instead of min/max.
+		// !!! not sure if author was trying to take advantage of some kind of
+		// !!! compiler "cheat" using min/max instead of clamp to improve
+		// !!! performance. doesn't make sense to min/max otherwise.
+		HighPassColor = (Clamp != 1.0) ? clamp( HighPassColor, 1.0 - Clamp, Clamp ) : HighPassColor;
 
 		float3 Sharpen = float3(
 			Overlay(Source.r, HighPassColor),
