@@ -369,7 +369,8 @@ void BloomPass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	};
 
 	// !!! pre-mul const to avoid extra mul's in loop
-	float bps2 = BUFFER_PIXEL_SIZE * 2;
+	// !!! Jul 6th, 2020 .. made bps2 a float2, b/c realized BUFFER_PIXEL_SIZE is float2
+	float2 bps2 = BUFFER_PIXEL_SIZE * 2;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -429,7 +430,8 @@ void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	};
 
 	// !!! pre-mul const to avoid extra mul's in loop
-	float bps4 = BUFFER_PIXEL_SIZE * 4;
+	// !!! Jul 6th,, 2020 .. made bps4 a float2 after realizing BUFFER_PIXEL_SIZE is float2
+	float2 bps4 = BUFFER_PIXEL_SIZE * 4;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -485,7 +487,8 @@ void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 	};
 
 	// !!! pre-mul const to avoid extra mul's in loop
-	float bps8 = BUFFER_PIXEL_SIZE * 8;
+	// !!! Jul 6th,, 2020 .. made bps8 a float2 after realizing BUFFER_PIXEL_SIZE is float2
+	float2 bps8 = BUFFER_PIXEL_SIZE * 8;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -770,11 +773,18 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		deltaTexCoord /= (float)iGodraySamples * fGodrayDensity;
 //		deltaTexCoord *= 1.0 / (float)iGodraySamples * fGodrayDensity;
 
-		// !!! this can get moved out of loop
+		// !!! this can get moved out of loop below,
+		// !!! b/c not impacted by g++ iterator
 		texcoord2 -= deltaTexCoord;
-
-		// !!! using this as-is in loop, so just make it once and re-use
 		float4 texcoord2lod = float4(texcoord2, 0, 0);
+		float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
+		float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
+		sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
+
+		// !!! mul'ing sample2.r by 1, skip
+//		sample2.r *= 1.00;
+		sample2.g *= 0.95;
+		sample2.b *= 0.85;
 
 		float illuminationDecay = 1.0;
 
@@ -782,20 +792,24 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		for (int g = 0; g < iGodraySamples; g++)
 		{
 //			texcoord2 -= deltaTexCoord;
-			float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
-			float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
-			sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
+//			float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
+//			float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
+//			sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
 
 			// !!! mul'ing sample2.r by 1, skip
 //			sample2.r *= 1.00;
-			sample2.g *= 0.95;
-			sample2.b *= 0.85;
-			sample2 *= illuminationDecay * fGodrayWeight;
+//			sample2.g *= 0.95;
+//			sample2.b *= 0.85;
+//			sample2 *= illuminationDecay * fGodrayWeight;
+
+			// !!! keep sample2 as-is for reference, just modify copy of it
+			float4 sample2copy = sample2 * illuminationDecay * fGodrayWeight;
+			
 #if GODRAY_DEPTH_CHECK == 1
 			if (sampledepth > 0.99999)
-				lens.rgb += sample2.xyz * sample2.w;
+				lens.rgb += sample2copy.xyz * sample2copy.w;
 #else
-			lens.rgb += sample2.xyz * sample2.w;
+			lens.rgb += sample2copy.xyz * sample2copy.w;
 #endif
 			illuminationDecay *= fGodrayDecay;
 		}
