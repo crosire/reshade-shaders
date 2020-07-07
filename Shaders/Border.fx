@@ -45,6 +45,8 @@ uniform float3 border_color <
 	ui_label = "Border Color";
 > = float3(0.0, 0.0, 0.0);
 
+/*
+// original
 float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
 {
 	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
@@ -62,7 +64,42 @@ float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Ta
 
 	return all(within_border) ? color : border_color;
 }
+*/
 
+// modified - Craig - Jul 7th, 2020
+// when tested on my i5 + gtx760,
+// old code above ran 2.6 - 2.7ms
+// new code below ran 2.5 - 2.6ms
+// not a huge improvement, but still improvement
+float3 BorderPass(float4 vpos : SV_Position, float2 texcoord : TexCoord) : SV_Target
+{
+	float3 color = tex2D(ReShade::BackBuffer, texcoord).rgb;
+
+	// -- calculate the right border_width for a given border_ratio --
+	float2 border = 0.0; // Translate integer pixel width to floating point
+
+	// !!! we don't need a float2 border_width_variable,
+	// !!! and then create more float2's when calculating it.
+	// !!! we can just declare border 0.0 above,
+	// !!! then modify .x or .y individually below
+	if (border_width.x == -border_width.y) // If width is not used
+		if (BUFFER_ASPECT_RATIO < border_ratio)
+			border.y = BUFFER_PIXEL_SIZE.y * ( BUFFER_HEIGHT - ( BUFFER_WIDTH  / border_ratio ) ) * 0.5;
+		else
+			border.x = BUFFER_PIXEL_SIZE.x * ( BUFFER_WIDTH  - ( BUFFER_HEIGHT * border_ratio ) ) * 0.5;
+
+//	float2 border = (BUFFER_PIXEL_SIZE * border_width_variable); // Translate integer pixel width to floating point
+//	float2 within_border = saturate((-texcoord * texcoord + texcoord) - (-border * border + border)); // Becomes positive when inside the border and zero when outside
+
+	// Becomes positive when inside the border and zero when outside
+	// !!! split saturate to separate line to
+	// !!! avoid overly long line of code to H-scroll
+	float2  within_border = (-texcoord * texcoord + texcoord)
+			      - (-border * border + border);
+		within_border = saturate( within_border );
+
+	return all(within_border) ? color : border_color;
+}
 technique Border
 {
 	pass
