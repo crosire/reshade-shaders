@@ -557,28 +557,38 @@ void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 // modified - Craig - Jul 5th, 2020
 void BloomPass2(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
-	bloom = 0.0;
+	// calc once, use several times
+	float2 bps = BUFFER_PIXEL_SIZE * 8;
+	float2 bps707 = bps * 0.707;
 
-	const float2 offset[8] = {
-		float2(0.707, 0.707),
-		float2(0.707, -0.707),
-		float2(-0.707, 0.707),
-		float2(-0.707, -0.707),
-		float2(0.0, 1.0),
-		float2(0.0, -1.0),
-		float2(1.0, 0.0),
-		float2(-1.0, 0.0)
+	// !!! calc (P)ositive & (N)egative offsets once.
+	// !!! we're doing +/- 0.707 offset on this pass, too
+	float2 tcP1 = texcoord + bps;
+	float2 tcN1 = texcoord - bps;
+	float2 tcP7 = texcoord + bps707;
+	float2 tcN7 = texcoord - bps707;
+	float2 tc00 = texcoord;
+
+	// !!! already building out array, so just plug in appropriate
+	// !!! pre-calc'ed texcoord values in each element
+	float2 bloomuv[8] = {
+		float2(tcP7.x, tcP7.y),	// texcoord + float2( 0.707, 0.707 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tcP7.x, tcN7.y),	// texcoord + float2( 0.707,-0.707 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tcN7.x, tcP7.y),	// texcoord + float2(-0.707, 0.707 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tcN7.x, tcN7.y),	// texcoord + float2(-0.707,-0.707 ) * BUFFER_PIXEL_SIZE * 8
+
+		float2(tc00.x, tcP1.y),	// texcoord + float2( 0.000, 1.000 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tc00.x, tcN1.y),	// texcoord + float2( 0.000,-1.000 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tcP1.x, tc00.y),	// texcoord + float2( 1.000, 0.000 ) * BUFFER_PIXEL_SIZE * 8
+		float2(tcN1.x, tc00.y)	// texcoord + float2(-1.000, 0.000 ) * BUFFER_PIXEL_SIZE * 8
 	};
 
-	// !!! pre-mul const to avoid extra mul's in loop
-	// !!! Jul 6th,, 2020 .. made bps8 a float2 after realizing BUFFER_PIXEL_SIZE is float2
-	float2 bps8 = BUFFER_PIXEL_SIZE * 8;
+	bloom = 0.0;
 
 	for (int i = 0; i < 8; i++)
 	{
-		float2 bloomuv = offset[i] * bps8;
-		bloomuv += texcoord;
-		bloom += tex2Dlod(SamplerBloom2, float4(bloomuv, 0, 0));
+		// !!! not using LOD, so use tex2D to skip extra overhead
+		bloom += tex2D(SamplerBloom2, bloomuv[i]);
 	}
 
 	bloom *= 0.5; // brighten up the sample, it will lose brightness in H/V Gaussian blur
