@@ -337,10 +337,10 @@ float3 GetDnB(sampler tex, float2 coords)
 float GetDnB(sampler tex, float2 coords)
 {
 	float color;
-	float4 texcoords = 	float4(coords.xy, 0, 0);
+	float4 texcoords = float4(coords.xy, 0, 0);
 
 #if CHAPMAN_DEPTH_CHECK
-	texcoords.w = 3;
+	texcoords.w = 3;		// set lod
 	float depth = tex2Dlod(ReShade::DepthBuffer, texcoords).x;
 
 	if (depth < 0.99999)
@@ -348,7 +348,7 @@ float GetDnB(sampler tex, float2 coords)
 	else
 #endif
 	{
-		texcoords.w = 4;
+		texcoords.w = 4;	// set lod
 		color = dot(tex2Dlod(tex, texcoords).rgb, 0.333);
 		color = max(0, color) - fChapFlareTreshold;
 		color *= fChapFlareIntensity;
@@ -356,7 +356,7 @@ float GetDnB(sampler tex, float2 coords)
 	return color;
 }
 
-
+// !!! stripped .r, .g, .b from end of GetDnB() calls now that it returns float only
 float3 GetDistortedTex(sampler tex, float2 sample_center, float2 sample_vector, float3 distortion)
 {
 	float2 final_vector = sample_center + sample_vector * min(min(distortion.r, distortion.g), distortion.b);
@@ -487,34 +487,40 @@ void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 */
 
 // modified - Craig - Jul 5th, 2020
+// !!! re-wrote / re-organized quite a bit
+// !!! see notes in code below
 void BloomPass1(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float4 bloom : SV_Target)
 {
-	bloom = 0.0;
+	// !!! calc once, use twice
+	float2 bps = BUFFER_PIXEL_SIZE * 4;
 
-	const float2 offset[8] = {
-		float2(1.0, 1.0),
-		float2(0.0, -1.0),
-		float2(-1.0, 1.0),
-		float2(-1.0, -1.0),
-		float2(0.0, 1.0),
-		float2(0.0, -1.0),
-		float2(1.0, 0.0),
-		float2(-1.0, 0.0)
+	// !!! calc (P)ositive & (N)egative offsets once.
+	// !!! we're also using tc as-is, so make a var
+	// !!! for it so it just looks cleaner in code below
+	// !!! when we build out our offset tc array.
+	float2 tcP = texcoord + bps;
+	float2 tcN = texcoord - bps;
+	float2 tc0 = texcoord;
+
+	// !!! already building out array, so just plug in appropriate
+	// !!! pre-calc'ed texcoord values in each element
+	float2 bloomuv[8] = {
+		float2(tcP.x, tcP.y),	// texcoord + float2( 1.0, 1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tc0.x, tcN.y),	// texcoord + float2( 0.0,-1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tcN.x, tcP.y),	// texcoord + float2(-1.0, 1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tcN.x, tcN.y),	// texcoord + float2(-1.0,-1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tc0.x, tcP.y),	// texcoord + float2( 0.0, 1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tc0.x, tcN.y),	// texcoord + float2( 0.0,-1.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tcP.x, tc0.y),	// texcoord + float2( 1.0, 0.0 ) * BUFFER_PIXEL_SIZE * 4
+		float2(tcN.x, tc0.y)	// texcoord + float2(-1.0, 0.0 ) * BUFFER_PIXEL_SIZE * 4
 	};
 
-	// !!! pre-mul const to avoid extra mul's in loop
-	// !!! Jul 6th,, 2020 .. made bps4 a float2 after realizing BUFFER_PIXEL_SIZE is float2
-	float2 bps4 = BUFFER_PIXEL_SIZE * 4;
-	float2 bloomuv;
+	bloom = 0.0;
 
 	for (int i = 0; i < 8; i++)
 	{
-		bloomuv = offset[i] * bps4;
-		bloomuv += texcoord;
-
 		// !!! not using LOD, so use tex2D to skip extra overhead
-//		bloom += tex2Dlod(SamplerBloom1, float4(bloomuv, 0, 0));
-		bloom += tex2Dlod(SamplerBloom1, bloomuv);
+		bloom += tex2D(SamplerBloom1, bloomuv[i]);
 	}
 
 	bloom *= 0.125;
