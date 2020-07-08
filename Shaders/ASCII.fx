@@ -171,6 +171,13 @@ uniform float framecount < source = "framecount"; >;
 // !!! fashion instead of manually writing
 // !!! out all the dot(step)s for each one.
 
+// !!! start with quant*2
+// !!! end   with quant*chararraylen
+// !!! go through each to see if value < gray (gray >= value)
+// !!! if it is, add the step 1 to index
+// !!! to generate index to pull character
+// !!! to use from char array.
+
 int charindex( float quant, float gray, int chararraylen )
 {
 	float q = quant;
@@ -182,6 +189,16 @@ int charindex( float quant, float gray, int chararraylen )
 		q += quant;
 		index += step( q, gray );
 	}
+
+	/*
+	// seems to have worse performance
+	[unroll]
+	for ( int i = 1; i <= chararraylen; i++ )
+	{
+		q = quant * i + quant;	// seems like more calc's, but maybe MAD's?
+		index += step( q, gray );
+	}
+	*/
 
 	return index;
 }
