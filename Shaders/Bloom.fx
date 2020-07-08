@@ -248,14 +248,10 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 */
 
 // modified - Craig - Jul 5th, 2020
+// !!! re-wrote and re-organized most of it
+// !!! see comments in code below
 float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool isBlurVert)
 {
-	float4 sum = 0;
-	float2 axis = isBlurVert ? float2(0, 1) : float2(1, 0);
-
-	// !!! pre-mul this to save quite a few mul's during loop below !!!
-	axis.xy *= BUFFER_PIXEL_SIZE * mult;
-
 	const float weight[11] = {
 		0.082607,
 		0.080977,
@@ -270,31 +266,54 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 		0.011254
 	};
 
+	float4 sum = 0.0;
+	float4 texcoord = float4( coord.xy, 0, lodlevel );
 
-	// !!! pre-make a float4 for texcoord to update in loop below
-	// !!! so we're not constantly recreating a float 4 over and over
-	float4 texcoord = float4( 0, 0, 0, lodlevel );
+	// !!! loop was doing a lot of wasted calc's mul'ing
+	// !!! x or y (the one not changing) by 0 .. so just
+	// !!! expanded if/else to only re-calc x or y that
+	// !!! is changing. also pre-make texcoord var outside
+	// !!! loop so we're not constantly re-creating it inside
+	// !!! the loop.
+	// !!! lastly, all the func calls to GaussBlur22 use
+	// !!! lodlevel = 0, so just do standard tex2D
+	// !!! calls and skip the tex2Dlod overhead.
+	// !!! going to keep the LOD arg's in just
+	// !!! in case someone later on wants to leverage
+	// !!! that, but right now it's an unused,
+	// !!! over-engineered option.
 
-	for (int i = -10; i < 11; i++)
+	if (isBlurVert)
 	{
-		float currweight = weight[abs(i)];
-		texcoord.xy = coord.xy + axis.xy * (float)i;
+		// vertical axis changing
+		float axis = BUFFER_PIXEL_SIZE.y * mult;
 
-		// !!! all the func calls to GaussBlur22 use
-		// !!! lodlevel = 0, so just do standard tex2D
-		// !!! calls and skip the tex2Dlod overhead.
-		// !!! going to keep the LOD arg's in just
-		// !!! in case someone later on wants to leverage
-		// !!! that, but right now it's an unused,
-		// !!! over-engineered option.
-//		sum += tex2Dlod(tex, texcoord) * currweight;
-		sum += tex2D(tex, texcoord.xy) * currweight;
+		for (int i = -10; i < 11; i++)
+		{
+			texcoord.y = coord.y + axis * (float)i;
+	//		sum += tex2Dlod(tex, texcoord) * weight[abs(i)];
+			sum += tex2D(tex, texcoord.xy) * weight[abs(i)];
+		}
+	}
+	else
+	{
+		// horizontal axis changing
+		float axis = BUFFER_PIXEL_SIZE.x * mult;
+
+		for (int i = -10; i < 11; i++)
+		{
+			texcoord.x = coord.x + axis * (float)i;
+	//		sum += tex2Dlod(tex, texcoord) * weight[abs(i)];
+			sum += tex2D(tex, texcoord.xy) * weight[abs(i)];
+		}
+
 	}
 
 	return sum;
 }
 
-
+/*
+// original
 float3 GetDnB(sampler tex, float2 coords)
 {
 	float3 color = max(0, dot(tex2Dlod(tex, float4(coords.xy, 0, 4)).rgb, 0.333) - fChapFlareTreshold) * fChapFlareIntensity;
@@ -304,6 +323,41 @@ float3 GetDnB(sampler tex, float2 coords)
 #endif
 	return color;
 }
+*/
+
+// modified - Craig - Jul 7th, 2020
+// !!! original was returning a float3, but all calc's
+// !!! we're processing a single float value returned
+// !!! as float3. The calling methods were using .r,
+// !!! .g or .b as if they were different, but they
+// !!! were all the same return value. So, we cut down
+// !!! on calc's by just processing a float and returning
+// !!! it.
+
+float GetDnB(sampler tex, float2 coords)
+{
+
+	float color;
+	float4 texcoords = 	float4(coords.xy, 0, 0);
+
+#if CHAPMAN_DEPTH_CHECK
+	texcoords.w = 3;
+	float depth = tex2Dlod(ReShade::DepthBuffer, texcoords).x;
+
+	if (depth < 0.99999)
+		color = 0;
+	else
+#endif
+	{
+		texcoords.w = 4;
+		color = dot(tex2Dlod(tex, texcoords).rgb, 0.333);
+		color = max(0, color) - fChapFlareTreshold;
+		color *= fChapFlareIntensity;
+	}
+	return color;
+}
+
+
 float3 GetDistortedTex(sampler tex, float2 sample_center, float2 sample_vector, float3 distortion)
 {
 	float2 final_vector = sample_center + sample_vector * min(min(distortion.r, distortion.g), distortion.b);
