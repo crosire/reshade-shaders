@@ -760,47 +760,53 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 	// Lenz
 	if (bLenzEnable)
 	{
+		// !!! just cleaning up values to look nicer.
+		// !!! also, the .y vals are * 3.5 in loop below,
+		// !!! but not going to pre-calc them in case the
+		// !!! 3.5 gets changed later
 		const float3 lfoffset[19] = {
-			float3(0.9, 0.01, 4),
-			float3(0.7, 0.25, 25),
-			float3(0.3, 0.25, 15),
-			float3(1, 1.0, 5),
-			float3(-0.15, 20, 1),
-			float3(-0.3, 20, 1),
-			float3(6, 6, 6),
-			float3(7, 7, 7),
-			float3(8, 8, 8),
-			float3(9, 9, 9),
-			float3(0.24, 1, 10),
-			float3(0.32, 1, 10),
-			float3(0.4, 1, 10),
-			float3(0.5, -0.5, 2),
-			float3(2, 2, -5),
-			float3(-5, 0.2, 0.2),
-			float3(20, 0.5, 0),
-			float3(0.4, 1, 10),
-			float3(0.00001, 10, 20)
+			float3( 0.90000,  0.01,  4.00),
+			float3( 0.70000,  0.25,  25.0),
+			float3( 0.30000,  0.25,  15.0),
+			float3( 1.00000,  1.00,  5.00),
+			float3(-0.15000,  20.0,  1.00),
+			float3(-0.30000,  20.0,  1.00),
+			float3( 6.00000,  6.00,  6.00),
+			float3( 7.00000,  7.00,  7.00),
+			float3( 8.00000,  8.00,  8.00),
+			float3( 9.00000,  9.00,  9.00),
+			float3( 0.24000,  1.00,  10.0),
+			float3( 0.32000,  1.00,  10.0),
+			float3( 0.40000,  1.00,  10.0),
+			float3( 0.50000, -0.50,  2.00),
+			float3( 2.00000,  2.00, -5.00),
+			float3(-5.00000,  0.20,  0.20),
+			float3( 20.0000,  0.50,  0.00),
+			float3( 0.40000,  1.00,  10.0),
+			float3( 0.00001,  10.0,  20.0)
 		};
+
+		// !!! just cleaning up values to look nicer
 		const float3 lffactors[19] = {
-			float3(1.5, 1.5, 0),
-			float3(0, 1.5, 0),
-			float3(0, 0, 1.5),
-			float3(0.2, 0.25, 0),
-			float3(0.15, 0, 0),
-			float3(0, 0, 0.15),
-			float3(1.4, 0, 0),
-			float3(1, 1, 0),
-			float3(0, 1, 0),
-			float3(0, 0, 1.4),
-			float3(1, 0.3, 0),
-			float3(1, 1, 0),
-			float3(0, 2, 4),
-			float3(0.2, 0.1, 0),
-			float3(0, 0, 1),
-			float3(1, 1, 0),
-			float3(1, 1, 0),
-			float3(0, 0, 0.2),
-			float3(0.012,0.313,0.588)
+			float3(1.500, 1.500, 0.000),
+			float3(0.000, 1.500, 0.000),
+			float3(0.000, 0.000, 1.500),
+			float3(0.200, 0.250, 0.000),
+			float3(0.150, 0.000, 0.000),
+			float3(0.000, 0.000, 0.150),
+			float3(1.400, 0.000, 0.000),
+			float3(1.000, 1.000, 0.000),
+			float3(0.000, 1.000, 0.000),
+			float3(0.000, 0.000, 1.400),
+			float3(1.000, 0.300, 0.000),
+			float3(1.000, 1.000, 0.000),
+			float3(0.000, 2.000, 4.000),
+			float3(0.200, 0.100, 0.000),
+			float3(0.000, 0.000, 1.000),
+			float3(1.000, 1.000, 0.000),
+			float3(1.000, 1.000, 0.000),
+			float3(0.000, 0.000, 0.200),
+			float3(0.012, 0.313, 0.588)
 		};
 
 		float2 lfcoord = 0;
@@ -818,8 +824,14 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 			lfcoord.xy *= lfoffset[i].z;
 			lfcoord.xy = 0.5 - lfcoord.xy;
 			float2 tempfact = (lfcoord.xy - 0.5) * 2;
-			float templensmult = clamp(1.0 - dot(tempfact, tempfact), 0, 1);
-			float3 lenstemp1 = dot(tex2Dlod(ReShade::BackBuffer, float4(lfcoord.xy, 0, 1)).rgb, 0.333);
+			
+			// replacing clamp(x,0,1) with saturate(x) just to be consistent in func usage
+//			float templensmult = clamp(1.0 - dot(tempfact, tempfact), 0, 1);
+			float templensmult = saturate(1.0 - dot(tempfact, tempfact));
+
+			// !!! making this float instead of float3
+			// !!! to cut down on unnecessary calculations
+			float lenstemp1 = dot(tex2Dlod(ReShade::BackBuffer, float4(lfcoord.xy, 0, 1)).rgb, 0.333);
 
 #if LENZ_DEPTH_CHECK
 			float templensdepth = tex2D(ReShade::DepthBuffer, lfcoord.xy).x;
@@ -827,10 +839,10 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 				lenstemp1 = 0;
 #endif
 
-			lenstemp1 = max(0, lenstemp1.xyz - fLenzThreshold);
-			lenstemp1 *= lffactors[i] * templensmult;
-
-			lenstemp += lenstemp1;
+			// !!! with it float, we can just do float - float
+			// !!! and then have lffactors (float3) * ( float * float )
+			lenstemp1 = max(0, lenstemp1 - fLenzThreshold);
+			lenstemp += lffactors[i] * ( lenstemp1 * templensmult );
 		}
 
 		lens.rgb += lenstemp * fLenzIntensity;
@@ -867,12 +879,21 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		deltaTexCoord /= (float)iGodraySamples * fGodrayDensity;
 //		deltaTexCoord *= 1.0 / (float)iGodraySamples * fGodrayDensity;
 
-		// !!! this can get moved out of loop below,
+		// !!! all of this can get moved out of loop below,
 		// !!! b/c not impacted by g++ iterator
+
 		texcoord2 -= deltaTexCoord;
-		float4 texcoord2lod = float4(texcoord2, 0, 0);
-		float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
-		float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
+
+//		float4 texcoord2lod = float4(texcoord2, 0, 0);
+//		float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
+//		float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
+//		sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
+
+		// !!! not using LOD, so use tex2D to save processing
+		// !!! also we're calculating .w, so just pull .rgb
+		float sampledepth = tex2D(ReShade::DepthBuffer, texcoord2).x;
+		float4 sample2;
+		sample2.rgb = tex2D(ReShade::BackBuffer, texcoord2).rgb;
 		sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
 
 		// !!! mul'ing sample2.r by 1, skip
@@ -881,30 +902,18 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 		sample2.b *= 0.85;
 
 		float illuminationDecay = 1.0;
-
-
+			
 		for (int g = 0; g < iGodraySamples; g++)
 		{
-//			texcoord2 -= deltaTexCoord;
-//			float4 sample2 = tex2Dlod(ReShade::BackBuffer, texcoord2lod);
-//			float sampledepth = tex2Dlod(ReShade::DepthBuffer, texcoord2lod).x;
-//			sample2.w = saturate(dot(sample2.xyz, 0.3333) - fGodrayThreshold);
-
-			// !!! mul'ing sample2.r by 1, skip
-//			sample2.r *= 1.00;
-//			sample2.g *= 0.95;
-//			sample2.b *= 0.85;
-//			sample2 *= illuminationDecay * fGodrayWeight;
-
-			// !!! keep sample2 as-is for reference, just modify copy of it
-			float4 sample2copy = sample2 * illuminationDecay * fGodrayWeight;
+			// !!! make copy of sample2 to modify
+			// !!! float4 * ( float * float )
+			float4 sample2copy = sample2 * (illuminationDecay * fGodrayWeight);
 			
 #if GODRAY_DEPTH_CHECK == 1
 			if (sampledepth > 0.99999)
-				lens.rgb += sample2copy.xyz * sample2copy.w;
-#else
-			lens.rgb += sample2copy.xyz * sample2copy.w;
 #endif
+				lens.rgb += sample2copy.xyz * sample2copy.w;
+
 			illuminationDecay *= fGodrayDecay;
 		}
 	}
@@ -912,15 +921,22 @@ void LensFlarePass0(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out f
 	// Anamorphic flare
 	if (bAnamFlareEnable)
 	{
-		float3 anamFlare = 0;
 		const float gaussweight[5] = { 0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162 };
 
-		// !!! can pre-calc this outside loop
-		float brh2 = BUFFER_RCP_HEIGHT * 2;
+		// !!! can pre-calc brh outside loop
+		float brh = BUFFER_RCP_HEIGHT * 2;
+		float2 anamCoord = texcoord.xy;
+		float3 anamSample;
+		float3 anamFlare = 0;
 
 		for (int z = -4; z < 5; z++)
 		{
-			anamFlare += GetAnamorphicSample(0, texcoord.xy + float2(0, z * brh2), fFlareBlur) * fFlareTint * gaussweight[abs(z)];
+//			anamFlare += GetAnamorphicSample(0, texcoord.xy + float2(0, z * brh), fFlareBlur) * fFlareTint * gaussweight[abs(z)];
+
+			// !!! we're only adjusting .y, so skip modifying .x
+			anamCoord.y = texcoord.y + z * brh;
+			anamSample = GetAnamorphicSample(0, anamCoord, fFlareBlur);
+			anamFlare += anamSample * fFlareTint * gaussweight[abs(z)];
 		}
 
 		lens.xyz += anamFlare * fFlareIntensity;
@@ -1050,7 +1066,7 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 		float lensdirtmult = dot(tex2D(SamplerBloom5, texcoord).rgb, 0.333);
 		float3 dirttex = tex2D(SamplerDirt, texcoord).rgb;
 
-		// !!! force floats to mul first before mul'ing with float3
+		// !!! float3 * ( float * float )
 		float3 lensdirt = dirttex * (lensdirtmult * fLensdirtIntensity);
 
 		lensdirt = lerp(dot(lensdirt.xyz, 0.333), lensdirt.xyz, fLensdirtSaturation);
