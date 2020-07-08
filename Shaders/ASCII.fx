@@ -339,6 +339,7 @@ float3 AsciiPass( float2 tex )
 		n = (gray < (9. * quant)) ? n12345678 : n910111213141516;
 		*/
 		
+		/*
 		// !!! modified var names to organize a bit
 		float	n0	= (gray < (2.  * quant)) ? 4194304.  : 131200.  ; // . or :
 		float	n1	= (gray < (4.  * quant)) ? 324.      : 330.     ; // ^ or "
@@ -358,6 +359,44 @@ float3 AsciiPass( float2 tex )
 			n4	= (gray < (13. * quant)) ? n4 : n6;
 
 			n	= (gray < (9.  * quant)) ? n0 : n4;
+		*/
+
+		// !!! taking it a step further, we can
+		// !!! chuck the chars into an array, then
+		// !!! use step to compare the quants to the gray
+		// !!! value, and dots to sum up the # of 1's vs. 0's we get
+		// !!! to generate an index value for the char to use.
+
+		float	chars[16];
+			chars[0]  = 4194304.0;
+			chars[1]  = 131200.00;
+			chars[2]  = 324.00000;
+			chars[3]  = 330.00000;
+			chars[4]  = 283712.00;
+			chars[5]  = 12650880.;
+			chars[6]  = 4532768.0;
+			chars[7]  = 13191552.;
+			chars[8]  = 10648704.;
+			chars[9]  = 11195936.;
+			chars[10] = 15218734.;
+			chars[11] = 15255086.;
+			chars[12] = 15252014.;
+			chars[13] = 32294446.;
+			chars[14] = 15324974.;
+			chars[15] = 11512810.;
+
+		float4	charsA = float4(  2.,  3.,  4.,  5. ) * quant;
+		float4	charsB = float4(  6.,  7.,  8.,  9. ) * quant;
+		float4	charsC = float4( 10., 11., 12., 13. ) * quant;
+		float3	charsD = float3( 14., 15., 16.)       * quant;
+
+		int	index  = dot( step( charsA, gray ), 1 );
+			index += dot( step( charsB, gray ), 1 );
+			index += dot( step( charsC, gray ), 1 );
+			index += dot( step( charsD, gray ), 1 );
+
+			n = chars[index];
+
 	}
 	else // Ascii_font == 0 , the 3x5 font
 	{
@@ -416,6 +455,7 @@ float3 AsciiPass( float2 tex )
 		n = (gray < (9. * quant)) ? n12345678 : n910111213;
 		*/
 		
+		/*
 		// !!! modified var names to organize a bit
 		float	n0	= (gray < (2.  * quant)) ? 4096.	: 1040.	; // . or :
 		float	n1	= (gray < (4.  * quant)) ? 5136.	: 5200.	; // ; or s
@@ -433,6 +473,39 @@ float3 AsciiPass( float2 tex )
 			n4	= (gray < (13. * quant)) ? n4 : n6;
 
 			n	= (gray < (9.  * quant)) ? n0 : n4;
+		*/
+
+		// !!! taking it a step further, we can
+		// !!! chuck the chars into an array, then
+		// !!! use step to compare the quants to the gray
+		// !!! value, and dots to sum up the # of 1's vs. 0's we get
+		// !!! to generate an index value for the char to use.
+
+		float	chars[13];
+			chars[0]  = 4096.0;
+			chars[1]  = 1040.0;
+			chars[2]  = 5136.0;
+			chars[3]  = 5200.0;
+			chars[4]  = 2728.0;
+			chars[5]  = 11088.;
+			chars[6]  = 14478.;
+			chars[7]  = 11114.;
+			chars[8]  = 23213.;
+			chars[9]  = 15211.;
+			chars[10] = 23533.;
+			chars[11] = 31599.;
+			chars[12] = 31727.;
+
+
+		float4	charsA = float4(  2.,  3.,  4.,  5. ) * quant;
+		float4	charsB = float4(  6.,  7.,  8.,  9. ) * quant;
+		float4	charsC = float4( 10., 11., 12., 13. ) * quant;
+
+		int	index  = dot( step( charsA, gray ), 1 );
+			index += dot( step( charsB, gray ), 1 );
+			index += dot( step( charsC, gray ), 1 );
+
+			n = chars[index];
 	}
 
 
