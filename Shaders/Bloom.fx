@@ -979,22 +979,36 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	if (bAnamFlareEnable || bLenzEnable || bGodrayEnable || bChapFlareEnable)
 	{
 		float3 lensflareSample = tex2D(SamplerLensFlare1, texcoord.xy).rgb, lensflareMask;
+
 		/*
+		// original
 		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( 0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5,  0.5) * BUFFER_PIXEL_SIZE).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2( 0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
 		lensflareMask += tex2D(SamplerSprite, texcoord + float2(-0.5, -0.5) * BUFFER_PIXEL_SIZE).rgb;
 		*/
 
-		// !!! pre-calc the * +/- 0.5 stuff once
-		float bpspos = BUFFER_PIXEL_SIZE * 0.5;
-//		float bpsneg = BUFFER_PIXEL_SIZE * -0.5;
-		float bpsneg = -bpspos; // can just invert this
+		// !!! pre-calc the texcoord stuff once
+		// !!! and get rid of redundant math.
+		// !!! Jul 7th 2020 .. modified changes
+		// !!! after realizing BUFFER_PIXEL_SIZE is float2
+		// !!! (P)ositive, (N)egative
+		float2 bpsPP = BUFFER_PIXEL_SIZE * 0.5;
+		float2 bpsNN = -bpsPP; // can just invert this
 		
-		lensflareMask  = tex2D(SamplerSprite, texcoord + float2( bpspos, bpspos )).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpsneg, bpspos )).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpspos, bpsneg )).rgb;
-		lensflareMask += tex2D(SamplerSprite, texcoord + float2( bpsneg, bpsneg )).rgb;
+		// !!! now we can add texcoord to the pos & neg's
+		bpsPP += texcoord;
+		bpsNN += texcoord;
+
+		// !!! then just generate the NP & PN with the
+		// !!! pre-calc'ed values from PP & NN
+		float2 bpsPN = float2( bpsPP.x, bpsNN.y );
+		float2 bpsNP = float2( bpsNN.x, bpsPP.y );
+		
+		lensflareMask  = tex2D(SamplerSprite, bpsPP).rgb;
+		lensflareMask += tex2D(SamplerSprite, bpsNP).rgb;
+		lensflareMask += tex2D(SamplerSprite, bpsPN).rgb;
+		lensflareMask += tex2D(SamplerSprite, bpsNN).rgb;
 
 		color.rgb += lensflareMask * 0.25 * lensflareSample;
 	}
