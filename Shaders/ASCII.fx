@@ -156,276 +156,360 @@ uniform float framecount < source = "framecount"; >;
 | :: Effect :: |
 '-------------*/
 
+// modified - Craig - Jul 8th, 2020
+// !!! indented AsciiPass contents,
+// !!! b/c hard to tell where func started / ended
+
 float3 AsciiPass( float2 tex )
 {
+	/*-------------------------.
+	| :: Sample and average :: |
+	'-------------------------*/
 
-/*-------------------------.
-| :: Sample and average :: |
-'-------------------------*/
+	//if (Ascii_font != 1)
+	float2 Ascii_font_size = float2(3.0,5.0); //3x5
+	float num_of_chars = 14. ; 
 
-//if (Ascii_font != 1)
-float2 Ascii_font_size = float2(3.0,5.0); //3x5
-float num_of_chars = 14. ; 
+	if (Ascii_font == 1)
+	{
+		Ascii_font_size = float2(5.0,5.0); //5x5
+		num_of_chars = 17.; 
+	}
 
-if (Ascii_font == 1)
-{
-	Ascii_font_size = float2(5.0,5.0); //5x5
-	num_of_chars = 17.; 
-}
+	float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
 
-float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
+	float2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
+	float2 cursor_position = trunc((BUFFER_SCREEN_SIZE / Ascii_block) * tex) * (Ascii_block / BUFFER_SCREEN_SIZE);
 
-float2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
-float2 cursor_position = trunc((BUFFER_SCREEN_SIZE / Ascii_block) * tex) * (Ascii_block / BUFFER_SCREEN_SIZE);
+	/*
+	//TODO Cleanup - and maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
+	//-- Pattern 2 - Sample ALL the pixels! --
+	float3 color = tex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+	color += tex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * BUFFER_PIXEL_SIZE).rgb;
+	//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
 
+	color /= 9.0;
+	*/
+	
+	// !!! cleaned it up a bit by pre-calc'ing texcoords/offsets.
+	// !!! updated the commented-out code, too, just in case
+	// !!! someone else comes along and wants to fiddle with it
 
-//TODO Cleanup - and maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
-//-- Pattern 2 - Sample ALL the pixels! --
-float3 color = tex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+//	float2 cp05 = cursor_position + BUFFER_PIXEL_SIZE * 0.5;
+	float2 cp15 = cursor_position + BUFFER_PIXEL_SIZE * 1.5;
+//	float2 cp25 = cursor_position + BUFFER_PIXEL_SIZE * 2.5;
+	float2 cp35 = cursor_position + BUFFER_PIXEL_SIZE * 3.5;
+//	float2 cp45 = cursor_position + BUFFER_PIXEL_SIZE * 4.5;
+	float2 cp55 = cursor_position + BUFFER_PIXEL_SIZE * 5.5;
+//	float2 cp65 = cursor_position + BUFFER_PIXEL_SIZE * 6.5;
 
-color /= 9.0;
+	float3 color;
+	color  = tex2D(asciiSampler, float2( cp15.x, cp15.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp15.x, cp35.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp15.x, cp55.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp05.x, cp65.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp35.x, cp15.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp35.x, cp35.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp35.x, cp55.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp25.x, cp65.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp55.x, cp15.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp55.x, cp35.y )).rgb;
+	color += tex2D(asciiSampler, float2( cp55.x, cp55.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp45.x, cp65.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp65.x, cp05.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp65.x, cp25.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp65.x, cp45.y )).rgb;
+//	color += tex2D(asciiSampler, float2( cp65.x, cp65.y )).rgb;
 
-/*	
-//-- Pattern 3 - Just one -- 
-float3 color = tex2D(asciiSampler, cursor_position + float2(4.0,4.0) * BUFFER_PIXEL_SIZE)	.rgb; //this may be fast but it's not very temporally stable
-*/
+	// !!! this is avg'ing the color, so if you uncomment
+	// !!! extra lines above, you'll need to modify the divisor
+	color /= 9.0;
+	
+	
 
-/*------------------------.
-| :: Make it grayscale :: |
-'------------------------*/
-
-float luma = dot(color,float3(0.2126, 0.7152, 0.0722));
-
-float gray = luma;
-
-if (Ascii_invert_brightness)
-	gray = 1.0 - gray;
-
-
-/*----------------.
-| :: Debugging :: |
-'----------------*/
-
-if (Ascii_dithering_debug_gradient)
-{
-	//gray = sqrt(dot(float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5),float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5))) * 1.1;
-	//gray = (cursor_position.x + cursor_position.y) * 0.5; //diagonal test gradient
-	//gray = smoothstep(0.0,1.0,gray); //increase contrast
-	gray = cursor_position.x; //horizontal test gradient
-	//gray = cursor_position.y; //vertical test gradient
-}
-/*-------------------.
-| :: Get position :: |
-'-------------------*/
-
-float2 p = frac((BUFFER_SCREEN_SIZE / Ascii_block) * tex);  //p is the position of the current pixel inside the character
-
-p = trunc(p * Ascii_block);
-//p = trunc(p * Ascii_block - float2(1.5,1.5)) ;
-
-float x = (Ascii_font_size.x * p.y + p.x); //x is the number of the position in the bitfield
-  
-/*----------------.
-| :: Dithering :: |
-'----------------*/
-
-//TODO : Try make an ordered dither rather than the random dither. Random looks a bit too noisy for my taste.	
-
-if (Ascii_dithering != 0)
-{
-//Pseudo Random Number Generator
-// -- PRNG 1 - Reference --
-float seed = dot(cursor_position, float2(12.9898,78.233)); //I could add more salt here if I wanted to
-float sine = sin(seed); //cos also works well. Sincos too if you want 2D noise.
-float noise = frac(sine * 43758.5453 + cursor_position.y);
-
-float dither_shift = (quant * Ascii_dithering_intensity); // Using noise to determine shift.
-
-float dither_shift_half = (dither_shift * 0.5); // The noise should vary between +- 0.5
-dither_shift = dither_shift * noise - dither_shift_half; // MAD
-
-//shift the color by dither_shift
-gray += dither_shift; //apply dithering
-}
-
-/*---------------------------.
-| :: Convert to character :: |
-'---------------------------*/
-
-float n = 0;
-
-if (Ascii_font == 1)
-{	
-	// -- 5x5 bitmap font by CeeJay.dk --
-	// .:^"~cvo*wSO8Q0#
-
-	//17 characters including space which is handled as a special case
-
-	//The serial aproach to this would take 16 cycles, so I instead used an upside down binary tree to parallelize this to only 5 cycles
-
-	float n12   = (gray < (2. * quant))  ? 4194304.  : 131200.  ; // . or :
-	float n34   = (gray < (4. * quant))  ? 324.      : 330.     ; // ^ or "
-	float n56   = (gray < (6. * quant))  ? 283712.   : 12650880.; // ~ or c
-	float n78   = (gray < (8. * quant))  ? 4532768.  : 13191552.; // v or o
-	float n910  = (gray < (10. * quant)) ? 10648704. : 11195936.; // * or w
-	float n1112 = (gray < (12. * quant)) ? 15218734. : 15255086.; // S or O
-	float n1314 = (gray < (14. * quant)) ? 15252014. : 32294446.; // 8 or Q
-	float n1516 = (gray < (16. * quant)) ? 15324974. : 11512810.; // 0 or #
-
-	float n1234     = (gray < (3. * quant))  ? n12   : n34;
-	float n5678     = (gray < (7. * quant))  ? n56   : n78;
-	float n9101112  = (gray < (11. * quant)) ? n910  : n1112;
-	float n13141516 = (gray < (15. * quant)) ? n1314 : n1516;
-
-	float n12345678 = (gray < (5. * quant)) ? n1234 : n5678;
-	float n910111213141516 = (gray < (13. * quant)) ? n9101112 : n13141516;
-
-	n = (gray < (9. * quant)) ? n12345678 : n910111213141516;
-}
-else // Ascii_font == 0 , the 3x5 font
-{
-	// -- 3x5 bitmap font by CeeJay.dk --
-	// .:;s*oSOXH0
-
-	//14 characters including space which is handled as a special case
-
-	/* Font reference :
-
-	//The plusses are "likes". I was rating how much I liked that character over other alternatives.
-
-	3  ^ 42.
-	3  - 448.
-	3  i (short) 9232.
-	3  ; 5136. ++
-	4  " 45.
-	4  i 9346.
-	4  s 5200. ++
-	5  + 1488.
-	5  * 2728. ++
-	6  c 25200.
-	6  o 11088. ++
-	7  v 11112.
-	7  S 14478. ++
-	8  O 11114. ++
-	9  F 5071.
-	9  5 (rounded) 14543.
-	9  X 23213. ++
-	10 A 23530.
-	10 D 15211. +
-	11 H 23533. +
-	11 5 (square) 31183.
-	11 2 (square) 29671. ++
-
-	5 (rounded) 14543.
+	/*	
+	//-- Pattern 3 - Just one -- 
+	float3 color = tex2D(asciiSampler, cursor_position + float2(4.0,4.0) * BUFFER_PIXEL_SIZE)	.rgb; //this may be fast but it's not very temporally stable
 	*/
 
-	float n12   = (gray < (2. * quant))  ? 4096.	: 1040.	; // . or :
-	float n34   = (gray < (4. * quant))  ? 5136.	: 5200.	; // ; or s
-	float n56   = (gray < (6. * quant))  ? 2728.	: 11088.; // * or o
-	float n78   = (gray < (8. * quant))  ? 14478.	: 11114.; // S or O
-	float n910  = (gray < (10. * quant)) ? 23213.	: 15211.; // X or D
-	float n1112 = (gray < (12. * quant)) ? 23533.	: 31599.; // H or 0
-	float n13 = 31727.; // 8
+	/*------------------------.
+	| :: Make it grayscale :: |
+	'------------------------*/
 
-	float n1234     = (gray < (3. * quant))  ? n12		: n34;
-	float n5678     = (gray < (7. * quant))  ? n56		: n78;
-	float n9101112  = (gray < (11. * quant)) ? n910	: n1112;
+	float luma = dot(color,float3(0.2126, 0.7152, 0.0722));
 
-	float n12345678 =  (gray < (5. * quant))	? n1234		: n5678;
-	float n910111213 = (gray < (13. * quant))	? n9101112	: n13;
+	float gray = luma;
 
-	n = (gray < (9. * quant)) ? n12345678 : n910111213;
-}
+	if (Ascii_invert_brightness)
+		gray = 1.0 - gray;
 
 
-/*--------------------------------.
-| :: Decode character bitfield :: |
-'--------------------------------*/
+	/*----------------.
+	| :: Debugging :: |
+	'----------------*/
 
-float character = 0.0;
-
-//Test values
-//n = -(exp2(24.)-1.0); //-(2^24-1) All bits set - a white 5x5 box
-
-float lit = (gray <= (1. * quant))	//If black then set all pixels to black (the space character)
-	? 0.0								//That way I don't have to use a character bitfield for space
-	: 1.0 ;								//I simply let it to decode to the second darkest "." and turn its pixels off
-
-float signbit = (n < 0.0) //is n negative? (I would like to test for negative 0 here too but can't)
-	? lit
-	: 0.0 ;
-
-signbit = (x > 23.5)	//is this the first pixel in the character?
-	? signbit			//if so set to the signbit (which may be on or off depending on if the number was negative)
-	: 0.0 ;				//else make it black
-
-//Tenary Multiply exp2
-character = ( frac( abs( n*exp2(-x-1.0))) >= 0.5) ? lit : signbit; 	//If the bit for the right position is set, then light up the pixel
-																	//UNLESS gray was dark enough, then keep the pixel dark to make a space
-																	//If the bit for the right position was not set, then turn off the pixel
-																	//UNLESS it's the first pixel in the character AND n is negative - if so light up the pixel.
-																	//This way I can use all 24 bits in the mantissa as well as the signbit for characters.
-
-if (clamp(p.x, 0.0, Ascii_font_size.x - 1.0) != p.x || clamp(p.y, 0.0, Ascii_font_size.y - 1.0) != p.y) //Is this the space around the character?
-	character = 0.0; 																					//If so make the pixel black.
-
-
-/*---------------.
-| :: Colorize :: |
-'---------------*/
-
-if (Ascii_swap_colors)
-{
-	if (Ascii_font_color_mode  == 2)
+	if (Ascii_dithering_debug_gradient)
 	{
-		color = (character) ? character * color : Ascii_font_color;
+		//gray = sqrt(dot(float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5),float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5))) * 1.1;
+		//gray = (cursor_position.x + cursor_position.y) * 0.5; //diagonal test gradient
+		//gray = smoothstep(0.0,1.0,gray); //increase contrast
+		gray = cursor_position.x; //horizontal test gradient
+		//gray = cursor_position.y; //vertical test gradient
 	}
-	else if (Ascii_font_color_mode  == 1)
-	{
-		color = (character) ? Ascii_background_color * gray : Ascii_font_color;	
-	}
-	else // Ascii_font_color_mode == 0
-	{ 
-		color = (character) ? Ascii_background_color : Ascii_font_color;
-	}
-}
-else
-{
-	if (Ascii_font_color_mode  == 2)
-	{
-		color = (character) ? character * color : Ascii_background_color;
-	}
-	else if (Ascii_font_color_mode  == 1)
-	{
-		color = (character) ? Ascii_font_color * gray : Ascii_background_color;
-	}
-	else // Ascii_font_color_mode == 0
-	{
-		color = (character) ? Ascii_font_color : Ascii_background_color;
-	}
-}
+	/*-------------------.
+	| :: Get position :: |
+	'-------------------*/
 
-/*-------------.
-| :: Return :: |
-'-------------*/
+	float2 p = frac((BUFFER_SCREEN_SIZE / Ascii_block) * tex);  //p is the position of the current pixel inside the character
 
-//color = gray;
-return saturate(color);
+	p = trunc(p * Ascii_block);
+	//p = trunc(p * Ascii_block - float2(1.5,1.5)) ;
+
+	float x = (Ascii_font_size.x * p.y + p.x); //x is the number of the position in the bitfield
+
+	/*----------------.
+	| :: Dithering :: |
+	'----------------*/
+
+	//TODO : Try make an ordered dither rather than the random dither. Random looks a bit too noisy for my taste.	
+
+	if (Ascii_dithering != 0)
+	{
+	//Pseudo Random Number Generator
+	// -- PRNG 1 - Reference --
+	float seed = dot(cursor_position, float2(12.9898,78.233)); //I could add more salt here if I wanted to
+	float sine = sin(seed); //cos also works well. Sincos too if you want 2D noise.
+	float noise = frac(sine * 43758.5453 + cursor_position.y);
+
+	float dither_shift = (quant * Ascii_dithering_intensity); // Using noise to determine shift.
+
+	float dither_shift_half = (dither_shift * 0.5); // The noise should vary between +- 0.5
+	dither_shift = dither_shift * noise - dither_shift_half; // MAD
+
+	//shift the color by dither_shift
+	gray += dither_shift; //apply dithering
+	}
+
+	/*---------------------------.
+	| :: Convert to character :: |
+	'---------------------------*/
+
+	float n = 0;
+
+	if (Ascii_font == 1)
+	{	
+		// -- 5x5 bitmap font by CeeJay.dk --
+		// .:^"~cvo*wSO8Q0#
+
+		//17 characters including space which is handled as a special case
+
+		//The serial aproach to this would take 16 cycles, so I instead used an upside down binary tree to parallelize this to only 5 cycles
+		/*
+		// original
+		float n12   = (gray < (2. * quant))  ? 4194304.  : 131200.  ; // . or :
+		float n34   = (gray < (4. * quant))  ? 324.      : 330.     ; // ^ or "
+		float n56   = (gray < (6. * quant))  ? 283712.   : 12650880.; // ~ or c
+		float n78   = (gray < (8. * quant))  ? 4532768.  : 13191552.; // v or o
+		float n910  = (gray < (10. * quant)) ? 10648704. : 11195936.; // * or w
+		float n1112 = (gray < (12. * quant)) ? 15218734. : 15255086.; // S or O
+		float n1314 = (gray < (14. * quant)) ? 15252014. : 32294446.; // 8 or Q
+		float n1516 = (gray < (16. * quant)) ? 15324974. : 11512810.; // 0 or #
+
+		float n1234     = (gray < (3. * quant))  ? n12   : n34;
+		float n5678     = (gray < (7. * quant))  ? n56   : n78;
+		float n9101112  = (gray < (11. * quant)) ? n910  : n1112;
+		float n13141516 = (gray < (15. * quant)) ? n1314 : n1516;
+
+		float n12345678 = (gray < (5. * quant)) ? n1234 : n5678;
+		float n910111213141516 = (gray < (13. * quant)) ? n9101112 : n13141516;
+
+		n = (gray < (9. * quant)) ? n12345678 : n910111213141516;
+		*/
+		
+		// !!! modified var names to organize a bit
+		float	n0	= (gray < (2.  * quant)) ? 4194304.  : 131200.  ; // . or :
+		float	n1	= (gray < (4.  * quant)) ? 324.      : 330.     ; // ^ or "
+		float	n2	= (gray < (6.  * quant)) ? 283712.   : 12650880.; // ~ or c
+		float	n3	= (gray < (8.  * quant)) ? 4532768.  : 13191552.; // v or o
+		float	n4	= (gray < (10. * quant)) ? 10648704. : 11195936.; // * or w
+		float	n5	= (gray < (12. * quant)) ? 15218734. : 15255086.; // S or O
+		float	n6	= (gray < (14. * quant)) ? 15252014. : 32294446.; // 8 or Q
+		float	n7	= (gray < (16. * quant)) ? 15324974. : 11512810.; // 0 or #
+
+			n0	= (gray < (3.  * quant)) ? n0 : n1;
+			n2	= (gray < (7.  * quant)) ? n2 : n3;
+			n4	= (gray < (11. * quant)) ? n4 : n5;
+			n6	= (gray < (15. * quant)) ? n6 : n7;
+
+			n0	= (gray < (5.  * quant)) ? n0 : n2;
+			n4	= (gray < (13. * quant)) ? n4 : n6;
+
+			n	= (gray < (9.  * quant)) ? n0 : n4;
+	}
+	else // Ascii_font == 0 , the 3x5 font
+	{
+		// -- 3x5 bitmap font by CeeJay.dk --
+		// .:;s*oSOXH0
+
+		//14 characters including space which is handled as a special case
+
+		/* Font reference :
+
+		//The plusses are "likes". I was rating how much I liked that character over other alternatives.
+
+		3  ^ 42.
+		3  - 448.
+		3  i (short) 9232.
+		3  ; 5136. ++
+		4  " 45.
+		4  i 9346.
+		4  s 5200. ++
+		5  + 1488.
+		5  * 2728. ++
+		6  c 25200.
+		6  o 11088. ++
+		7  v 11112.
+		7  S 14478. ++
+		8  O 11114. ++
+		9  F 5071.
+		9  5 (rounded) 14543.
+		9  X 23213. ++
+		10 A 23530.
+		10 D 15211. +
+		11 H 23533. +
+		11 5 (square) 31183.
+		11 2 (square) 29671. ++
+
+		5 (rounded) 14543.
+		*/
+
+		/*
+		// original
+		float n12   = (gray < (2. * quant))  ? 4096.	: 1040.	; // . or :
+		float n34   = (gray < (4. * quant))  ? 5136.	: 5200.	; // ; or s
+		float n56   = (gray < (6. * quant))  ? 2728.	: 11088.; // * or o
+		float n78   = (gray < (8. * quant))  ? 14478.	: 11114.; // S or O
+		float n910  = (gray < (10. * quant)) ? 23213.	: 15211.; // X or D
+		float n1112 = (gray < (12. * quant)) ? 23533.	: 31599.; // H or 0
+		float n13 = 31727.; // 8
+
+		float n1234     = (gray < (3. * quant))  ? n12		: n34;
+		float n5678     = (gray < (7. * quant))  ? n56		: n78;
+		float n9101112  = (gray < (11. * quant)) ? n910	: n1112;
+
+		float n12345678 =  (gray < (5. * quant))	? n1234		: n5678;
+		float n910111213 = (gray < (13. * quant))	? n9101112	: n13;
+
+		n = (gray < (9. * quant)) ? n12345678 : n910111213;
+		*/
+		
+		// !!! modified var names to organize a bit
+		float	n0	= (gray < (2.  * quant)) ? 4096.	: 1040.	; // . or :
+		float	n1	= (gray < (4.  * quant)) ? 5136.	: 5200.	; // ; or s
+		float	n2	= (gray < (6.  * quant)) ? 2728.	: 11088.; // * or o
+		float	n3	= (gray < (8.  * quant)) ? 14478.	: 11114.; // S or O
+		float	n4	= (gray < (10. * quant)) ? 23213.	: 15211.; // X or D
+		float	n5 	= (gray < (12. * quant)) ? 23533.	: 31599.; // H or 0
+		float	n6	= 31727.; // 8
+
+			n0	= (gray < (3.  * quant)) ? n0 : n1;
+			n2	= (gray < (7.  * quant)) ? n2 : n3;
+			n4	= (gray < (11. * quant)) ? n4 : n5;
+
+			n0	= (gray < (5.  * quant)) ? n0 : n2;
+			n4	= (gray < (13. * quant)) ? n4 : n6;
+
+			n	= (gray < (9.  * quant)) ? n0 : n4;
+	}
+
+
+	/*--------------------------------.
+	| :: Decode character bitfield :: |
+	'--------------------------------*/
+
+	float character = 0.0;
+
+	//Test values
+	//n = -(exp2(24.)-1.0); //-(2^24-1) All bits set - a white 5x5 box
+
+	float lit = (gray <= (1. * quant))	//If black then set all pixels to black (the space character)
+		? 0.0				//That way I don't have to use a character bitfield for space
+		: 1.0 ;				//I simply let it to decode to the second darkest "." and turn its pixels off
+
+	float signbit = (n < 0.0) 		//is n negative? (I would like to test for negative 0 here too but can't)
+		? lit
+		: 0.0 ;
+
+	signbit = (x > 23.5)			//is this the first pixel in the character?
+		? signbit			//if so set to the signbit (which may be on or off depending on if the number was negative)
+		: 0.0 ;				//else make it black
+
+	//Tenary Multiply exp2
+	character = ( frac( abs( n*exp2(-x-1.0))) >= 0.5) ? lit : signbit; 	//If the bit for the right position is set, then light up the pixel
+										//This way I can use all 24 bits in the mantissa as well as the signbit for characters.
+
+	// !!! re-wrote this part to organize code a bit more
+	float2 clampP = clamp( p.xy, 0.0, Ascii_font_size.xy);
+
+	//If this is space around character, make pixel black
+	if (clampP.x != p.x || clampP.y != p.y)
+		character = 0.0;
+
+
+	/*---------------.
+	| :: Colorize :: |
+	'---------------*/
+
+	if (Ascii_swap_colors)
+	{
+		if (Ascii_font_color_mode  == 2)
+		{
+			color = (character) ? character * color : Ascii_font_color;
+		}
+		else if (Ascii_font_color_mode  == 1)
+		{
+			color = (character) ? Ascii_background_color * gray : Ascii_font_color;	
+		}
+		else // Ascii_font_color_mode == 0
+		{ 
+			color = (character) ? Ascii_background_color : Ascii_font_color;
+		}
+	}
+	else
+	{
+		if (Ascii_font_color_mode  == 2)
+		{
+			color = (character) ? character * color : Ascii_background_color;
+		}
+		else if (Ascii_font_color_mode  == 1)
+		{
+			color = (character) ? Ascii_font_color * gray : Ascii_background_color;
+		}
+		else // Ascii_font_color_mode == 0
+		{
+			color = (character) ? Ascii_font_color : Ascii_background_color;
+		}
+	}
+
+	/*-------------.
+	| :: Return :: |
+	'-------------*/
+
+	//color = gray;
+	return saturate(color);
 }
 
 
