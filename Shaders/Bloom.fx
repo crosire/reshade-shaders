@@ -278,8 +278,17 @@ float4 GaussBlur22(float2 coord, sampler tex, float mult, float lodlevel, bool i
 	for (int i = -10; i < 11; i++)
 	{
 		float currweight = weight[abs(i)];
-			  texcoord.xy = coord.xy + axis.xy * (float)i;
-		sum += tex2Dlod(tex, texcoord) * currweight;
+		texcoord.xy = coord.xy + axis.xy * (float)i;
+
+		// !!! all the func calls to GaussBlur22 use
+		// !!! lodlevel = 0, so just do standard tex2D
+		// !!! calls and skip the tex2Dlod overhead.
+		// !!! going to keep the LOD arg's in just
+		// !!! in case someone later on wants to leverage
+		// !!! that, but right now it's an unused,
+		// !!! over-engineered option.
+//		sum += tex2Dlod(tex, texcoord) * currweight;
+		sum += tex2D(tex, texcoord.xy) * currweight;
 	}
 
 	return sum;
@@ -944,7 +953,8 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	// Anamorphic flare
 	if (bAnamFlareEnable)
 	{
-		float3 anamflare = tex2D(SamplerBloom5, texcoord.xy).w * 2 * fAnamFlareColor;
+		// !!! force floats to mul first before mul'ing with float3
+		float3 anamflare = (tex2D(SamplerBloom5, texcoord.xy).w * 2) * fAnamFlareColor;
 		anamflare = max(anamflare, 0.0);
 		color.rgb += pow(anamflare, 1.0 / fAnamFlareCurve);
 	}
@@ -954,7 +964,9 @@ void LightingCombine(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out 
 	{
 		float lensdirtmult = dot(tex2D(SamplerBloom5, texcoord).rgb, 0.333);
 		float3 dirttex = tex2D(SamplerDirt, texcoord).rgb;
-		float3 lensdirt = dirttex * lensdirtmult * fLensdirtIntensity;
+
+		// !!! force floats to mul first before mul'ing with float3
+		float3 lensdirt = dirttex * (lensdirtmult * fLensdirtIntensity);
 
 		lensdirt = lerp(dot(lensdirt.xyz, 0.333), lensdirt.xyz, fLensdirtSaturation);
 
