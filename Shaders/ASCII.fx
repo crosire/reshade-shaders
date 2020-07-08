@@ -152,6 +152,40 @@ uniform bool Ascii_dithering_debug_gradient <
 uniform float timer < source = "timer"; >;
 uniform float framecount < source = "framecount"; >;
 
+/*-------------------.
+| :: Sub-Routines :: |
+'-------------------*/
+
+// !!! after switching to step func for
+// !!! quantizing which char to use, a
+// !!! loop to go through each quant level
+// !!! and add up the index with steps seemed
+// !!! like a more useful, re-useable choice.
+// !!! however, it doesn't seem to run as
+// !!! good as the dot(step) hand-coded
+// !!! parts. But, keeping the func here,
+// !!! b/c if more ASCII font sizes get
+// !!! added to this code, it may be more
+// !!! efficient to switch back to using
+// !!! this loop func in "fire-n-forget"
+// !!! fashion instead of manually writing
+// !!! out all the dot(step)s for each one.
+
+int charindex( float quant, float gray, int chararraylen )
+{
+	float q = quant;
+	int index = 0;
+
+	[unroll]
+	for ( int i = 0; i < chararraylen; i++ )
+	{
+		q += quant;
+		index += step( q, gray );
+	}
+
+	return index;
+}
+
 /*-------------.
 | :: Effect :: |
 '-------------*/
@@ -385,17 +419,24 @@ float3 AsciiPass( float2 tex )
 			chars[14] = 15324974.;
 			chars[15] = 11512810.;
 
-		float4	charsA = float4(  2.,  3.,  4.,  5. ) * quant;
-		float4	charsB = float4(  6.,  7.,  8.,  9. ) * quant;
-		float4	charsC = float4( 10., 11., 12., 13. ) * quant;
-		float3	charsD = float3( 14., 15., 16.)       * quant;
+		// !!! doing dot(step) seems to process quicker
+		// !!! but charindex() func will be more elegant
+		// !!! if more ASCII font sizes are created in the code
 
-		int	index  = dot( step( charsA, gray ), 1 );
-			index += dot( step( charsB, gray ), 1 );
-			index += dot( step( charsC, gray ), 1 );
-			index += dot( step( charsD, gray ), 1 );
+		float4	charsA = float4(  2.,  3.,  4.,  5. )	* quant;
+		float4	charsB = float4(  6.,  7.,  8.,  9. )	* quant;
+		float4	charsC = float4( 10., 11., 12., 13. )	* quant;
+		float3	charsD = float3( 14., 15., 16.) 	* quant;
 
-			n = chars[index];
+		int		index  = dot( step( charsA, gray ), 1 );
+				index += dot( step( charsB, gray ), 1 );
+				index += dot( step( charsC, gray ), 1 );
+				index += dot( step( charsD, gray ), 1 );
+
+		// !!! charindex() func seems slower, but more re-useable
+//		int		index = charindex( quant, gray, 16 );
+
+		n = chars[index];
 
 	}
 	else // Ascii_font == 0 , the 3x5 font
@@ -496,16 +537,34 @@ float3 AsciiPass( float2 tex )
 			chars[11] = 31599.;
 			chars[12] = 31727.;
 
+		/*
+		// !!! reshade doesn't like matrix vars for some reason
+		// !!! compile gives error about it
+		// !!! tried float4x3 & float3x4, not sure if row or col major
+		float3x4 charsX = { 2.,  3.,  4.,  5.,
+				    6.,  7.,  8.,  9.,
+				   10., 11., 12., 13.
+				};
+
+		int	index = dot( mul( step( charsX, gray ), 1 ), 1 );
+		*/
+
+		// !!! doing dot(step) seems to process quicker
+		// !!! but charindex() func will be more elegant
+		// !!! if more ASCII font sizes are created in the code
 
 		float4	charsA = float4(  2.,  3.,  4.,  5. ) * quant;
 		float4	charsB = float4(  6.,  7.,  8.,  9. ) * quant;
 		float4	charsC = float4( 10., 11., 12., 13. ) * quant;
 
-		int	index  = dot( step( charsA, gray ), 1 );
-			index += dot( step( charsB, gray ), 1 );
-			index += dot( step( charsC, gray ), 1 );
+		int		index  = dot( step( charsA, gray ), 1 );
+				index += dot( step( charsB, gray ), 1 );
+				index += dot( step( charsC, gray ), 1 );
 
-			n = chars[index];
+		// !!! charindex() func seems slower, but more re-useable
+//		int		index = charindex( quant, gray, 13 );
+
+		n = chars[index];
 	}
 
 
