@@ -7,6 +7,7 @@ ReShade FX shading language
   * [Macros](#macros)
   * [Textures](#textures)
   * [Samplers](#samplers)
+  * [Storages](#storages)
   * [Uniforms](#uniforms)
   * [Structs](#structs)
   * [Namespaces](#namespaces)
@@ -47,27 +48,27 @@ Constructs like the following may be interpreted as this define being a configur
 
 Annotations:
 
- * ``texture imageTex < source = "path/to/image.bmp"; > { ... };``  
+ * ``texture2D imageTex < source = "path/to/image.bmp"; > { ... };``  
  Opens image from the patch specified, resizes it to the texture size and loads it into the texture.
 
- * ``texture myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
- ``texture myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
+ ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
 
 Semantics on textures are used to request special textures:
 
- * ``texture texColor : COLOR;``  
+ * ``texture2D texColor : COLOR;``  
  Receives the backbuffer contents (read-only).
- * ``texture texDepth : DEPTH;``  
+ * ``texture2D texDepth : DEPTH;``  
  Receives the game's depth information (read-only).
 
 Declared textures are created at runtime with the parameters specified in their definition body.
 
 ```c++
-texture texColorBuffer : COLOR;
-texture texDepthBuffer : DEPTH;
+texture2D texColorBuffer : COLOR;
+texture2D texDepthBuffer : DEPTH;
 
-texture texTarget
+texture2D texTarget
 {
 	// The texture dimensions (default: 1x1).
 	Width = BUFFER_WIDTH / 2;
@@ -93,7 +94,7 @@ texture texTarget
 > Samplers are the bridge between textures and shaders. They define how a texture is sampled. Multiple samplers can refer to the same texture using different options.
 
 ```c++
-sampler samplerColor
+sampler2D samplerColor
 {
 	// The texture to be used for sampling.
 	Texture = texColorBuffer;
@@ -124,12 +125,25 @@ sampler samplerColor
 
 	// Missing options are again set to the defaults shown here.
 };
-sampler samplerDepth
+
+sampler2D samplerDepth
 {
 	Texture = texDepthBuffer;
 };
-sampler samplerTarget
+sampler2D samplerTarget
 {
+	Texture = texTarget;
+};
+```
+
+### Storages
+
+> Storages define how a texture should be written to from compute shaders.
+
+```c++
+storage2D storageTarget
+{
+	// The texture to be used as storage.
 	Texture = texTarget;
 };
 ```
@@ -234,21 +248,22 @@ Parameter Qualifiers:
 
 Intrinsics:
 
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dgrad, tex2Dlod, tex2Dproj, transpose, trunc
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dlod, transpose, trunc
 
-In addition to these standard intrinsics, ReShade FX comes with a few additional ones:
+In addition to these standard intrinsics (see https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them), ReShade FX comes with a few additional ones:
 
  * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
  Fetches a value from the texture directly without any sampling.\
    coords.x : [0, texture width)\
    coords.y : [0, texture height)\
    coords.z : ignored\
-   coords.w : [0, texture mip levels)
+   coords.w : [0, texture mip level)
  * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
  * ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
  * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
  * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
- Gathers the specified component of the four neighboring pixels and returns the result.
+ Gathers the specified component of the four neighboring pixels and returns the result.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.
  * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
  * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
  * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
@@ -257,7 +272,20 @@ In addition to these standard intrinsics, ReShade FX comes with a few additional
  * ``float4 tex2DgatherAoffset(sampler2D s, float2 coords, int2 offset)``  
  Offsets the texture coordinates before sampling.
  * ``int2 tex2Dsize(sampler2D s, int lod)``  
- Gets the texture dimensions of the specified mipmap level.
+ Gets the texture dimensions of the specified mipmap level.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-getdimensions
+ * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
+ Writes the specified value to the texture referenced by the storage. Only valid from within compute shaders.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
+ * ``void barrier()``  
+ Synchronizes threads in a thread group.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrierwithgroupsync
+ * ``void memoryBarrier()``  
+ Waits on the completion of all memory accesses resulting from the use of texture or storage operations.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/allmemorybarrier
+ * ``void groupMemoryBarrier()``  
+ Waits on the completion of all memory accesses within the thread group resulting from the use of texture or storage operations.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrier
 
 Statements:
 
@@ -283,7 +311,7 @@ Statements:
 ```c++
 // Semantics are used to tell the runtime which arguments to connect between shader stages.
 // They are ignored on non-entry-point functions (those not used in any pass below).
-// Semantics starting with  "SV_" are system value semantics and serve a special meaning.
+// Semantics starting with "SV_" are system value semantics and serve a special meaning.
 // The following vertex shader demonstrates how to generate a simple fullscreen triangle with the three vertices provided by ReShade (http://redd.it/2j17wk):
 void ExampleVS(uint id : SV_VertexID, out float4 position : SV_Position, out float2 texcoord : TEXCOORD0)
 {
@@ -319,6 +347,23 @@ float4 ExamplePS1(float4 pos : SV_Position, float2 texcoord : TEXCOORD0) : SV_Ta
 	}
 
 	return color;
+}
+
+// The following compute shader uses shared memory within a thread group:
+groupshared int sharedMem[64];
+void ExampleCS0(uint3 tid : SV_GroupThreadID)
+{
+	if (tid.y == 0)
+		sharedMem[tid.x] = tid.x;
+	barrier();
+	if (tid.y == 0 && (tid.x % 2) != 0)
+		sharedMem[tid.x] += sharedMem[tid.x + 1];
+}
+
+// The following compute shader writes a color gradient to the "texTarget" texture:
+void ExampleCS1(uint3 id : SV_DispatchThreadID, uint3 tid : SV_GroupThreadID)
+{
+	tex2Dstore(storageTarget, id.xy, float4(tid.xy / float2(20 * 64, 2 * 8), 0, 1));
 }
 ```
 
@@ -360,6 +405,14 @@ technique Example
 		// Please note that all parameters must have an associated semantic so the runtime can match them between shader stages.
 		VertexShader = ExampleVS;
 		PixelShader = ExamplePS0;
+
+		// The number of thread groups to dispatch when a compute shader is used.
+		DispatchSizeX = 1;
+		DispatchSizeY = 1;
+
+		// Compute shaders are specified with the number of threads per thread group in brackets.
+		// The following for example will create groups of 64x1 threads:
+		ComputeShader = ExampleCS0<64,1>;
 	
 		// RenderTarget0 to RenderTarget7 allow to set one or more render targets for rendering to textures.
 		// Set them to a texture name declared above in order to write the color output (SV_Target0 to RenderTarget0, SV_Target1 to RenderTarget1, ...) to this texture in this pass.
@@ -428,6 +481,12 @@ technique Example
 		StencilDepthFailOp = KEEP; // or StencilZFail
 	}
 	pass p1
+	{
+		ComputeShader = ExampleCS1<64,8>;
+		DispatchSizeX = 20; // 20 * 64 threads total in X dimension
+		DispatchSizeY = 2;  //  2 *  8 threads total in Y dimension
+	}
+	pass p2
 	{
 		VertexShader = ExampleVS;
 		PixelShader = ExamplePS1;
