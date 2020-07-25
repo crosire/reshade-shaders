@@ -112,8 +112,12 @@ uniform int DebugOutput < __UNIFORM_COMBO_INT1
 #define SMAA_BRANCH [branch]
 #define SMAA_FLATTEN [flatten]
 
-#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
-	#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
+#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100 || __RENDERER__ >= 0x10000)
+	#if (__RESHADE__ < 40800)
+		#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
+	#else
+		#define SMAAGather(tex, coord) tex2DgatherR(tex, coord)
+	#endif
 #endif
 
 #include "SMAA.fxh"

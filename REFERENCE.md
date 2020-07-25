@@ -244,14 +244,20 @@ In addition to these standard intrinsics, ReShade FX comes with a few additional
    coords.y : [0, texture height)\
    coords.z : ignored\
    coords.w : [0, texture mip levels)
- * ``float4 tex2Dgather(sampler2D s, float2 coords, int comp)``  
+ * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
  Gathers the specified component of the four neighboring pixels and returns the result.
- * ``float4 tex2Dgatheroffset(sampler2D s, float2 coords, int2 offset, int comp)``
+ * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
  * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
- * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``  
+ * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherGoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherBoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherAoffset(sampler2D s, float2 coords, int2 offset)``  
  Offsets the texture coordinates before sampling.
  * ``int2 tex2Dsize(sampler2D s, int lod)``  
- Gets the texture dimensions.
+ Gets the texture dimensions of the specified mipmap level.
 
 Statements:
 

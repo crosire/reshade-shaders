@@ -42,12 +42,19 @@ uniform float EdgeThresholdMin < __UNIFORM_SLIDER_FLOAT1
 
 //-------------------------------------------------------------------------------------------------
 
-#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
+#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100 || __RENDERER__ >= 0x10000)
 	#define FXAA_GATHER4_ALPHA 1
-	#define FxaaTexAlpha4(t, p) tex2Dgather(t, p, 3)
-	#define FxaaTexOffAlpha4(t, p, o) tex2Dgatheroffset(t, p, o, 3)
-	#define FxaaTexGreen4(t, p) tex2Dgather(t, p, 1)
-	#define FxaaTexOffGreen4(t, p, o) tex2Dgatheroffset(t, p, o, 1)
+	#if (__RESHADE__ < 40800)
+		#define FxaaTexAlpha4(t, p) tex2Dgather(t, p, 3)
+		#define FxaaTexOffAlpha4(t, p, o) tex2Dgatheroffset(t, p, o, 3)
+		#define FxaaTexGreen4(t, p) tex2Dgather(t, p, 1)
+		#define FxaaTexOffGreen4(t, p, o) tex2Dgatheroffset(t, p, o, 1)
+	#else
+		#define FxaaTexAlpha4(t, p) tex2DgatherA(t, p)
+		#define FxaaTexOffAlpha4(t, p, o) tex2DgatherAoffset(t, p, o)
+		#define FxaaTexGreen4(t, p) tex2DgatherG(t, p)
+		#define FxaaTexOffGreen4(t, p, o) tex2DgatherGoffset(t, p, o)
+	#endif
 #endif
 
 #define FXAA_PC 1
