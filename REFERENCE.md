@@ -383,11 +383,13 @@ Annotations:
  Toggle this technique when the specified key is pressed.
  * ``technique tech4 < hidden = true; >``  
  Hide this technique in the UI.
- * ``technique tech5 < ui_tooltip = "My Effect description"; >``  
+ * ``technique tech5 < ui_label = "My Effect Name"; >``  
+ Uses a custom name for the technique in the UI.
+ * ``technique tech6 < ui_tooltip = "My Effect description"; >``  
  Shows the specified text when the user hovers the technique in the UI.
 
 ```c++
-technique Example
+technique Example < ui_tooltip = "This is an example!"; >
 {
 	pass p0
 	{
