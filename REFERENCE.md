@@ -375,17 +375,19 @@ void ExampleCS1(uint3 id : SV_DispatchThreadID, uint3 tid : SV_GroupThreadID)
 
 Annotations:
 
- * ``technique tech1 < enabled = true; >``  
+ * ``technique Name < enabled = true; >``  
  Enable (or disable if false) this technique by default.
- * ``technique tech2 < timeout = 1000; >``  
+ * ``technique Name < run_once = true; >``  
+ Set to true for this technique to only ever execute a single time (can be used to do initialization work).
+ * ``technique Name < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.
- * ``technique tech3 < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
+ * ``technique Name < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
  Toggle this technique when the specified key is pressed.
- * ``technique tech4 < hidden = true; >``  
+ * ``technique Name < hidden = true; >``  
  Hide this technique in the UI.
- * ``technique tech5 < ui_label = "My Effect Name"; >``  
+ * ``technique Name < ui_label = "My Effect Name"; >``  
  Uses a custom name for the technique in the UI.
- * ``technique tech6 < ui_tooltip = "My Effect description"; >``  
+ * ``technique Name < ui_tooltip = "My Effect description"; >``  
  Shows the specified text when the user hovers the technique in the UI.
 
 ```c++
