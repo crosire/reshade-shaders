@@ -263,7 +263,14 @@ In addition to these standard intrinsics (see https://docs.microsoft.com/windows
  * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
  * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
  Gathers the specified component of the four neighboring pixels and returns the result.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.\
+ The return value is effectively:
+ ```
+ float4(tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(1, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 0)).comp)
+ ```
  * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
  * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
  * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
