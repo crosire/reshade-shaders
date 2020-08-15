@@ -293,6 +293,22 @@ In addition to these standard intrinsics (see https://docs.microsoft.com/windows
  * ``void groupMemoryBarrier()``  
  Waits on the completion of all memory accesses within the thread group resulting from the use of texture or storage operations.\
  Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrier
+ * ``int atomicAdd(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedadd
+ * ``int atomicAnd(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedand
+ * ``int atomicOr(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedor
+ * ``int atomicXor(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedxor
+ * ``int atomicMin(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmin
+ * ``int atomicMax(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmax
+ * ``int atomicExchange(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedexchange
+ * ``int atomicCompareExchange(inout int dest, int value)``
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedcompareexchange
 
 Statements:
 
@@ -384,10 +400,9 @@ Annotations:
 
  * ``technique Name < enabled = true; >``  
  Enable (or disable if false) this technique by default.
- * ``technique Name < run_once = true; >``  
- Set to true for this technique to only ever execute a single time (can be used to do initialization work).
  * ``technique Name < timeout = 1000; >``  
- Auto-toggle this technique off 1000 milliseconds after it was enabled.
+ Auto-toggle this technique off 1000 milliseconds after it was enabled.\
+ This can for example be used to have a technique run a single time only to do some initialization work, via ``technique Name < enabled = true; timeout = 1; >``
  * ``technique Name < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
  Toggle this technique when the specified key is pressed.
  * ``technique Name < hidden = true; >``  
