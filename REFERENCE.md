@@ -40,7 +40,7 @@ Operations on scalars are lifted to vectors on a per-component basis. So if you 
 float4(a1, a2, a3, a4) * float4(b1, b2, b3, b4) == float4(a1*b1, a2*b2, a3*b3, a4*b4)
 ```
 
-Similarly, if you try to multiply a scalar by a vector, the scalar will essentially become repeated enough times to fit the size of the vector:
+Similarly, if you try to multiply a scalar by a vector, the scalar will essentially become repeated enough times to fit the size of the vector using a mechanism called _vector promotion_:
 ```c++
 float4 my_vector;
 // ...
@@ -79,6 +79,21 @@ float4 c3 = float4(a, a, b); // 1 + 1 + 2 = 4
 float4 c4 = float4(a, b, a); // 1 + 2 + 1 = 4
 float4 d = float4(a, c1.xyz);
 ```
+
+Similarly to how in operations between a scalar and a vector the scalar is automatically promoted:
+```c++
+float a;
+float4 b;
+a * b == a.xxxx * b // the last component of the one-component vector a gets repeated
+```
+...smaller vectors will also be automatically promoted, by repeating the last component:
+```c++
+float2 c;
+float4 d;
+c * d = c.xyyy * d // the last component of the two-component vector c gets repeated
+```
+
+Vector promotion works between any size vectors and will always promote to the larger of the two sizes.
 
 
 
