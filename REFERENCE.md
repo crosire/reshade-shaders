@@ -18,16 +18,18 @@ ReShade FX shading language
 
 ### Vectors
 
-ReShade has a couple basic data types for linear algebra: scalars and vectors. Scalars are defined like this:
+ReShade has a single basic data types for linear algebra: vectors. Scalars are just single-component vectors. Scalars are defined like this:
 ```c++
 float my_scalar = 0.1;
 ```
 Vectors are defined like this:
 ```c++
 float4 rotation = float4(0.1, 0.2, 0.4, 0.1);
-float2 posXY = float2(0.1, 1);
+int3 htmlcolor = int3(255, 13, 99);
+int2 two_d6 = int2(6, 6);
+float2 pos_xy = float2(0.1, 1);
 ```
-Note that you have to use the `float4`, `float3`, or `float2` on the right of the equals sign. They are called _constructors_. `float1` does not exist, you should use just `float`. If you just do the following and omit the constructor, that will be a bug:
+Note that you have to use the `float4`, `float3`, or `float2` on the right of the equals sign. They are called _constructors_. There is no `float1`, you should use just `float`. If you just do the following and omit the constructor, that will be a bug:
 ```c++
 float4 rotation_busted = (0.1, 0.2, 0.4, 0.1); // broken; missing call to float4()
 ```
