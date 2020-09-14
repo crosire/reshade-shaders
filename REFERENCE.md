@@ -4,6 +4,7 @@ ReShade FX shading language
 # Contents
 
 * [Concepts](#concepts)
+  * [Vectors](#vectors)
   * [Macros](#macros)
   * [Textures](#textures)
   * [Samplers](#samplers)
@@ -14,6 +15,72 @@ ReShade FX shading language
   * [Techniques](#techniques)
 
 # Concepts
+
+### Vectors
+
+ReShade has a couple basic data types for linear algebra: scalars and vectors. Scalars are defined like this:
+```c++
+float my_scalar = 0.1;
+```
+Vectors are defined like this:
+```c++
+float4 rotation = float4(0.1, 0.2, 0.4, 0.1);
+float2 posXY = float2(0.1, 1);
+```
+Note that you have to use the `float4`, `float3`, or `float2` on the right of the equals sign. They are called _constructors_. `float1` does not exist, you should use just `float`. If you just do the following and omit the constructor, that will be a bug:
+```c++
+float4 rotation_busted = (0.1, 0.2, 0.4, 0.1); // broken; missing call to float4()
+```
+...then the parentheses on the right of the equals sign don't define a 4-tuple, like they would in e.g. Python. Instead, that will be understood by ReShade as a pair of parentheses surrounding an expression built using the comma operator. It will evaluate to the thing on the right of the last comma, and in this case it would make `rotation_busted` evaluate to `0.1`.
+
+You can also use `int4`, `int3`, `int2`. There is no `int1`, use `int` instead.
+
+Operations on scalars are lifted to vectors on a per-component basis. So if you take multiplication `*`, that ends up looking like this:
+```c++
+float4(a1, a2, a3, a4) * float4(b1, b2, b3, b4) == float4(a1*b1, a2*b2, a3*b3, a4*b4)
+```
+
+Similarly, if you try to multiply a scalar by a vector, the scalar will essentially become repeated enough times to fit the size of the vector:
+```c++
+float4 my_vector;
+// ...
+5 * my_vector == float4(5, 5, 5, 5) * my_vector
+```
+
+The same rules apply to addition `+`, subtraction `-`, and division `/`. Addition and subtraction work as expected from linear algebra. Division can be unusual for someone seeing this sort of code first, since in linear algebra does not define division of vectors, but here it's just per-component:
+
+```c++
+float4(a1, a2, a3, a4) / float4(b1, b2, b3, b4) == float4(a1/b1, a2/b2, a3/b3, a4/b4)
+```
+
+In order to perform matrix multiplication between two vectors (i.e. like in linear algebra), don't use `*`, instead use the `mul` intrinsic.
+
+Vectors in reshade can use swizzle notation (like subscripts in tensor calculus) to create new vectors from old ones:
+
+```c++
+float4 my_quadruple = float4(1, 2, 3, 4);
+float2 my_pair = my_quadruple.xw; // my_pair == float2(1, 4);
+```
+the subscripts for `float4` are `x`, `y`, `z`, and `w` respectively. Alternatively, you can use `r`, `g`, `b`, `a` in order to designate that you're talking about color, as `xyzw` are more suited for vectors that represent points or normals, but you can use them freely as you want. There's also `s`, `t`, `p`, `q`, usually used for texture coordinates. You cannot mix and match, for example `foo.xybq` will not work.
+
+You can repeat subscripts:
+```c++
+float2 a = b.xx;
+```
+
+The `float4` constructor can take different sizes of data which you can mix and match:
+
+```c++
+float a = 1;
+float2 b = float2(2, 3);
+float4 c1 = float4(a, a, a, a);
+float4 c2 = float4(b, b); // two pairs give one quadruple
+float4 c3 = float4(a, a, b); // 1 + 1 + 2 = 4
+float4 c4 = float4(a, b, a); // 1 + 2 + 1 = 4
+float4 d = float4(a, c1.xyz);
+```
+
+
 
 ### Macros
 
