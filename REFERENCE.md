@@ -47,7 +47,7 @@ float4 my_vector;
 5 * my_vector == float4(5, 5, 5, 5) * my_vector
 ```
 
-The same rules apply to addition `+`, subtraction `-`, and division `/`. Addition and subtraction work as expected from linear algebra. Division can be unusual for someone seeing this sort of code first, since in linear algebra does not define division of vectors, but here it's just per-component:
+The same rules apply to addition `+`, subtraction `-`, and division `/`. Addition and subtraction work as expected from linear algebra. Division can be unusual for someone seeing this sort of code for the first time, since in linear algebra does not define division of vectors, but here it's just per-component:
 
 ```c++
 float4(a1, a2, a3, a4) / float4(b1, b2, b3, b4) == float4(a1/b1, a2/b2, a3/b3, a4/b4)
@@ -61,7 +61,7 @@ Vectors in reshade can use swizzle notation (like subscripts in tensor calculus)
 float4 my_quadruple = float4(1, 2, 3, 4);
 float2 my_pair = my_quadruple.xw; // my_pair == float2(1, 4);
 ```
-the subscripts for `float4` are `x`, `y`, `z`, and `w` respectively. Alternatively, you can use `r`, `g`, `b`, `a` in order to designate that you're talking about color, as `xyzw` are more suited for vectors that represent points or normals, but you can use them freely as you want. There's also `s`, `t`, `p`, `q`, usually used for texture coordinates. You cannot mix and match, for example `foo.xybq` will not work.
+The subscripts for `float4` are `x`, `y`, `z`, and `w` respectively. Alternatively, you can use `r`, `g`, `b`, `a` in order to designate that you're talking about color, as `xyzw` are more suited for vectors that represent points or normals, but you can use them freely as you want. There's also `s`, `t`, `p`, `q`, usually used for texture coordinates. You cannot mix and match, for example `foo.xybq` will not work.
 
 You can repeat subscripts:
 ```c++
