@@ -3,59 +3,68 @@ ReShade FX shading language
 
 # Contents
 
-* [Concepts](#concepts)
-  * [Macros](#macros)
-  * [Textures](#textures)
-  * [Samplers](#samplers)
-  * [Storages](#storages)
-  * [Uniforms](#uniforms)
-  * [Structs](#structs)
-  * [Namespaces](#namespaces)
-  * [Functions](#functions)
-  * [Techniques](#techniques)
+* [Macros](#macros)
+* [Texture object](#texture-object)
+* [Sampler object](#sampler-object)
+* [Storage object](#storage-object)
+* [Uniform variables](#uniform-variables)
+* [Structs](#structs)
+* [Namespaces](#namespaces)
+* [User functions](#user-functions)
+* [Intrinsic functions](#intrinsic-functions)
+* [Techniques](#techniques)
 
 # Concepts
 
+The ReShade FX shading language is heavily based on the DX9-style HLSL syntax, with a few extensions. For more details on HLSL, check out the Programming Guide: https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-writing-shaders-9.\
+This document will instead primarily focus on syntax and features that are unique to ReShade FX.
+
 ### Macros
 
+The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``__FILE__`` Current file path
 * ``__FILE_NAME__`` Current file name without path
 * ``__FILE_STEM__`` Current file name without extension and path
 * ``__LINE__`` Current line number
-* ``__RESHADE__`` Version of the injector
-* ``__VENDOR__`` Vendor id
+* ``__RESHADE__`` Version of the injector (in the format `MAJOR * 10000 + MINOR * 100 + REVISION`)
+* ``__APPLICATION__`` 32-bit truncated Fnv1a hash of the application executable name
+* ``__VENDOR__`` Vendor id (e.g. 0x10de for NVIDIA, 0x1002 for AMD)
 * ``__DEVICE__`` Device id
-* ``__RENDERER__`` Renderer version
-* ``__APPLICATION__`` Hash of the application executable name
-* ``BUFFER_WIDTH`` Backbuffer width
+* ``__RENDERER__`` Graphics API used to render effects
+  * D3D9: 0x9000
+  * D3D10: 0xa000 or higher
+  * D3D11: 0xb000 or higher (e.g. 0xb100 for D3D11.1)
+  * D3D12: 0xc000 or higher
+  * OpenGL: 0x10000 or higher (e.g. 0x14300 for OpenGL 4.3)
+  * Vulkan: 0x20000 or higher (e.g. 0x21100 for Vulkan 1.1)
+* ``BUFFER_WIDTH`` Backbuffer width (essentially the width of the image the application renders to the screen)
 * ``BUFFER_HEIGHT`` Backbuffer height
-* ``BUFFER_RCP_WIDTH`` Reciprocal backbuffer width
-* ``BUFFER_RCP_HEIGHT`` Reciprocal backbuffer height
-* ``BUFFER_COLOR_DEPTH`` Bit depth of the backbuffer (e.g. 8 or 10)
+* ``BUFFER_RCP_WIDTH`` Reciprocal of the backbuffer width (equals `1.0 / BUFFER_WIDTH`)
+* ``BUFFER_RCP_HEIGHT`` Reciprocal of the backbuffer height (equals `1.0 / BUFFER_HEIGHT`)
+* ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
 
-Possible values for ``__RENDERER__`` are 0x9000 for D3D9, 0xa000 or higher for D3D10, 0xb000 or higher for D3D11, 0xc000 or higher for D3D12, 0x10000 or higher for OpenGL and 0x20000 or higher for Vulkan.
-
-Constructs like the following may be interpreted as this define being a configurable UI option. To prevent this, the define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it.
+Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it in the UI.
 ```
 #ifndef MY_PREPROCESSOR_DEFINE
 	#define MY_PREPROCESSOR_DEFINE 0
 #endif
 ```
 
-### Textures
+### Texture Object
 
 > Textures are multidimensional data containers usually used to store images.
 
 Annotations:
 
  * ``texture2D imageTex < source = "path/to/image.bmp"; > { ... };``  
- Opens image from the patch specified, resizes it to the texture size and loads it into the texture.
+ Opens image from the patch specified, resizes it to the texture size and loads it into the texture.\
+ ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), Targa Image (\*.tga) and DirectDraw Surface (\*.dds) files.
 
  * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
 
-Semantics on textures are used to request special textures:
+ReShade FX allows semantics to be used on texture declarations. This is used to request special textures:
 
  * ``texture2D texColor : COLOR;``  
  Receives the backbuffer contents (read-only).
@@ -85,13 +94,13 @@ texture2D texTarget
 	//   RGB10A2
 	Format = RGBA8;
 
-	// The default value is used if an option is missing here.
+	// Unspecified properties are set to the defaults shown here.
 };
 ```
 
-### Samplers
+### Sampler Object
 
-> Samplers are the bridge between textures and shaders. They define how a texture is sampled. Multiple samplers can refer to the same texture using different options.
+> Samplers are the bridge between textures and shaders. They define how a texture is read from and how data outside texel coordinates is sampled. Multiple samplers can refer to the same texture using different options.
 
 ```c++
 sampler2D samplerColor
@@ -99,8 +108,7 @@ sampler2D samplerColor
 	// The texture to be used for sampling.
 	Texture = texColorBuffer;
 
-	// The method used for resolving  texture coordinates which  are outside
-	// of bounds.
+	// The method used for resolving texture coordinates which are out of bounds.
 	// Available values: CLAMP, MIRROR, WRAP or REPEAT, BORDER
 	AddressU = CLAMP;
 	AddressV = CLAMP;
@@ -123,7 +131,7 @@ sampler2D samplerColor
 	// texture.
 	SRGBTexture = false;
 
-	// Missing options are again set to the defaults shown here.
+	// Unspecified properties are set to the defaults shown here.
 };
 
 sampler2D samplerDepth
@@ -136,9 +144,9 @@ sampler2D samplerTarget
 };
 ```
 
-### Storages
+### Storage Object
 
-> Storages define how a texture should be written to from compute shaders.
+> Storage objects define how a texture should be written to from compute shaders.
 
 ```c++
 storage2D storageTarget
@@ -148,24 +156,24 @@ storage2D storageTarget
 };
 ```
 
-### Uniforms
+### Uniform Variables
 
-> Uniforms are variables which are constant across each iteration of a shader per pass.
+> Global variables with the `uniform` qualifier are constant across each iteration of a shader per pass and may be controlled via the UI.
 
 Annotations to customize UI appearance:
 
- * ui_type - Can be `input`, `drag`, `slider`, `combo`, `radio` or `color`
- * ui_min - The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
- * ui_max - The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
- * ui_step - The value added/subtracted when clicking the button next to the slider
- * ui_items - A list of items for the combo box or radio buttons, each item is terminated with a `\0` character (required when `ui_type = "combo"` or `ui_type = "radio"`)
- * ui_label - Display name of the variable in the UI. If this is missing, the variable name is used instead.
- * ui_tooltip - Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
- * ui_category - Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
- * ui_category_closed - Set to true to show a category closed by default.
- * ui_spacing - Adds space before the UI widget (multiplied by the value of the annotation).
+ * ui_type: Can be `input`, `drag`, `slider`, `combo`, `radio` or `color`
+ * ui_min: The smallest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
+ * ui_max: The largest value allowed in this variable (required when `ui_type = "drag"` or `ui_type = "slider"`)
+ * ui_step: The value added/subtracted when clicking the button next to the slider
+ * ui_items: A list of items for the combo box or radio buttons, each item is terminated with a `\0` character (required when `ui_type = "combo"` or `ui_type = "radio"`)
+ * ui_label: Display name of the variable in the UI. If this is missing, the variable name is used instead.
+ * ui_tooltip: Text that is displayed when the user hovers over the variable in the UI. Use this for a description.
+ * ui_category: Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
+ * ui_category_closed: Set to true to show a category closed by default.
+ * ui_spacing: Adds space before the UI widget (multiplied by the value of the annotation).
 
-Annotations are also used to request special runtime values:
+Annotations are also used to request special runtime values (via the `source` annotation):
 
  * ``uniform float frametime < source = "frametime"; >;``  
  Time in milliseconds it took for the last frame to complete.
@@ -197,16 +205,16 @@ Annotations are also used to request special runtime values:
  True if the ReShade in-game overlay is currently open, false if not.
 
 ```c++
-// Initializers are used for the initial value when providied.
+// Initializers are used to specify the default value (zero is used if not specified).
 uniform float4 UniformSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-// It is recommended to use constants instead of uniforms if the value is not changing.
+// It is recommended to use constants instead of uniforms if the value is not changing or user-configurable.
 static const float4 ConstantSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 ```
 
 ### Structs
 
-> Structs are user defined data types that can be used for custom variables.
+> Structs are user defined data types that can be used as types for variables. These behave the same as in HLSL.
 
 ```c++
 struct MyStruct
@@ -218,8 +226,8 @@ struct MyStruct
 
 ### Namespaces
 
-> Namespaces are used to group functions and variables together. They are especially useful to avoid name clashing.
-> The "::" operator is used to resolve variables or functions inside namespaces.
+> Namespaces are used to group functions and variables together, which is especially useful to prevent name clashing.
+> The "::" operator is used to resolve variables or functions inside other namespaces.
 
 ```c++
 namespace MyNamespace
@@ -238,56 +246,15 @@ namespace MyNamespace
 }
 ```
 
-### Functions
+### User functions
 
-Parameter Qualifiers:
+Parameter qualifiers:
 
  * ``in`` Declares an input parameter. Default and implicit if none is used. Functions expect these to be filled with a value.
  * ``out`` Declares an output parameter. The value is filled in the function and can be used in the caller again.
  * ``inout`` Declares a parameter that provides input and also expects output.
 
-Intrinsics:
-
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dlod, transpose, trunc
-
-In addition to these standard intrinsics (see https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them), ReShade FX comes with a few additional ones:
-
- * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
- Fetches a value from the texture directly without any sampling.\
-   coords.x : [0, texture width)\
-   coords.y : [0, texture height)\
-   coords.z : ignored\
-   coords.w : [0, texture mip level)
- * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
- * ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
- * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
- * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
- Gathers the specified component of the four neighboring pixels and returns the result.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.
- * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
- * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherGoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherBoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherAoffset(sampler2D s, float2 coords, int2 offset)``  
- Offsets the texture coordinates before sampling.
- * ``int2 tex2Dsize(sampler2D s, int lod)``  
- Gets the texture dimensions of the specified mipmap level.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-getdimensions
- * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
- Writes the specified value to the texture referenced by the storage. Only valid from within compute shaders.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
- * ``void barrier()``  
- Synchronizes threads in a thread group.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrierwithgroupsync
- * ``void memoryBarrier()``  
- Waits on the completion of all memory accesses resulting from the use of texture or storage operations.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/allmemorybarrier
- * ``void groupMemoryBarrier()``  
- Waits on the completion of all memory accesses within the thread group resulting from the use of texture or storage operations.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrier
-
-Statements:
+Supported flow-control statements:
 
  * ``if ([condition]) { [statement...] } [else { [statement...] }]``  
  Statements after if are only executed  if condition is true, otherwise the ones after else are executed (if it exists).
@@ -367,6 +334,70 @@ void ExampleCS1(uint3 id : SV_DispatchThreadID, uint3 tid : SV_GroupThreadID)
 }
 ```
 
+### Intrinsic functions
+
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dlod, transpose, trunc
+
+In addition to the standard HLSL intrinsics (see https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them), ReShade FX provides a few additional ones:
+
+ * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
+ Fetches a value from the texture directly without any sampling.\
+   coords.x : [0, texture width)\
+   coords.y : [0, texture height)\
+   coords.z : ignored\
+   coords.w : [0, texture mip level)
+ * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
+ Gathers the specified component of the four neighboring pixels and returns the result.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.\
+ The return value is effectively:
+ ```
+ float4(tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(1, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 0)).comp)
+ ```
+ * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
+ * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherGoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherBoffset(sampler2D s, float2 coords, int2 offset)``
+ * ``float4 tex2DgatherAoffset(sampler2D s, float2 coords, int2 offset)``  
+ Offsets the texture coordinates before sampling by the specfied amount of texels.
+ * ``int2 tex2Dsize(sampler2D s, int lod)``  
+ Gets the texture dimensions of the specified mipmap level.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-getdimensions
+ * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
+ Writes the specified value to the texture referenced by the storage. Only valid from within compute shaders.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
+ * ``void barrier()``  
+ Synchronizes threads in a thread group.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrierwithgroupsync
+ * ``void memoryBarrier()``  
+ Waits on the completion of all memory accesses resulting from the use of texture or storage operations.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/allmemorybarrier
+ * ``void groupMemoryBarrier()``  
+ Waits on the completion of all memory accesses within the thread group resulting from the use of texture or storage operations.\
+ Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrier
+ * ``int atomicAdd(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedadd
+ * ``int atomicAnd(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedand
+ * ``int atomicOr(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedor
+ * ``int atomicXor(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedxor
+ * ``int atomicMin(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmin
+ * ``int atomicMax(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmax
+ * ``int atomicExchange(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedexchange
+ * ``int atomicCompareExchange(inout int dest, int value)``  
+ https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedcompareexchange
+
 ### Techniques
 
 > An effect file can have multiple techniques, each representing a full render pipeline, which is executed to apply post-processing effects. ReShade executes all enabled techniques in the order they were defined in the effect file.
@@ -377,10 +408,9 @@ Annotations:
 
  * ``technique Name < enabled = true; >``  
  Enable (or disable if false) this technique by default.
- * ``technique Name < run_once = true; >``  
- Set to true for this technique to only ever execute a single time (can be used to do initialization work).
  * ``technique Name < timeout = 1000; >``  
- Auto-toggle this technique off 1000 milliseconds after it was enabled.
+ Auto-toggle this technique off 1000 milliseconds after it was enabled.\
+ This can for example be used to have a technique run a single time only to do some initialization work, via ``technique Name < enabled = true; timeout = 1; >``
  * ``technique Name < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
  Toggle this technique when the specified key is pressed.
  * ``technique Name < hidden = true; >``  
