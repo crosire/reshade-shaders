@@ -64,13 +64,12 @@ uniform int iUILogarithmic <
 	ui_tooltip = "Change this setting if the displayed surface normals have stripes in them";
 > = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
 
-uniform float2 fUIOffset <
+uniform int2 iUIOffset <
 	ui_type = "drag";
 	ui_label = "Offset";
-	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset.\nUse these values for:\nRESHADE_DEPTH_INPUT_X_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_OFFSET=<right value>";
-	ui_min = -1.0; ui_max = 1.0;
-	ui_step = 0.001;
-> = float2(0.0, 0.0);
+	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\nUse these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
+	ui_step = 1;
+> = int2(0, 0);
 
 uniform float2 fUIScale <
 	ui_type = "drag";
@@ -111,8 +110,8 @@ float GetDepth(float2 texcoord)
 
 	texcoord.x /= fUIScale.x;
 	texcoord.y /= fUIScale.y;
-	texcoord.x -= fUIOffset.x / 2.000000001;
-	texcoord.y += fUIOffset.y / 2.000000001;
+	texcoord.x -= iUIOffset.x * BUFFER_RCP_WIDTH;
+	texcoord.y += iUIOffset.y * BUFFER_RCP_HEIGHT;
 	float depth = tex2Dlod(ReShade::DepthBuffer, float4(texcoord, 0, 0)).x * fUIDepthMultiplier;
 	//RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 	if(iUILogarithmic)

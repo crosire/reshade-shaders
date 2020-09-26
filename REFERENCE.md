@@ -43,7 +43,7 @@ The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``BUFFER_RCP_HEIGHT`` Reciprocal of the backbuffer height (equals `1.0 / BUFFER_HEIGHT`)
 * ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
 
-Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it in the UI.
+Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter or equal to 10 characters, in which case ReShade will not display it in the UI.
 ```
 #ifndef MY_PREPROCESSOR_DEFINE
 	#define MY_PREPROCESSOR_DEFINE 0
