@@ -158,7 +158,7 @@
   float3 HSLShift(float3 color)
   {
       float3 hsl = RGB_to_HSL(color);
-      static const float4 node[9]=
+      const float4 node[9]=
       {
           float4(HUERed, 0.0),//red
           float4(HUEOrange, 30.0),
