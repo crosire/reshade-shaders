@@ -44,7 +44,7 @@ The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
 
 Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter or equal to 10 characters, in which case ReShade will not display it in the UI.
-```
+```hlsl
 #ifndef MY_PREPROCESSOR_DEFINE
 	#define MY_PREPROCESSOR_DEFINE 0
 #endif
@@ -73,7 +73,7 @@ ReShade FX allows semantics to be used on texture declarations. This is used to 
 
 Declared textures are created at runtime with the parameters specified in their definition body.
 
-```c++
+```hlsl
 texture2D texColorBuffer : COLOR;
 texture2D texDepthBuffer : DEPTH;
 
@@ -102,7 +102,7 @@ texture2D texTarget
 
 > Samplers are the bridge between textures and shaders. They define how a texture is read from and how data outside texel coordinates is sampled. Multiple samplers can refer to the same texture using different options.
 
-```c++
+```hlsl
 sampler2D samplerColor
 {
 	// The texture to be used for sampling.
@@ -148,7 +148,7 @@ sampler2D samplerTarget
 
 > Storage objects define how a texture should be written to from compute shaders.
 
-```c++
+```hlsl
 storage2D storageTarget
 {
 	// The texture to be used as storage.
@@ -204,7 +204,7 @@ Annotations are also used to request special runtime values (via the `source` an
  * ``uniform bool overlay_open < source = "overlay_open"; >;``
  True if the ReShade in-game overlay is currently open, false if not.
 
-```c++
+```hlsl
 // Initializers are used to specify the default value (zero is used if not specified).
 uniform float4 UniformSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -216,7 +216,7 @@ static const float4 ConstantSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 > Structs are user defined data types that can be used as types for variables. These behave the same as in HLSL.
 
-```c++
+```hlsl
 struct MyStruct
 {
 	int MyField1, MyField2;
@@ -229,7 +229,7 @@ struct MyStruct
 > Namespaces are used to group functions and variables together, which is especially useful to prevent name clashing.
 > The "::" operator is used to resolve variables or functions inside other namespaces.
 
-```c++
+```hlsl
 namespace MyNamespace
 {
 	namespace MyNestedNamespace
@@ -275,7 +275,7 @@ Supported flow-control statements:
  * ``discard;``  
  Abort rendering of the current pixel and step out of the shader. Can be used in pixel shaders only.
 
-```c++
+```hlsl
 // Semantics are used to tell the runtime which arguments to connect between shader stages.
 // They are ignored on non-entry-point functions (those not used in any pass below).
 // Semantics starting with "SV_" are system value semantics and serve a special meaning.
@@ -428,7 +428,7 @@ Annotations:
  * ``technique Name < ui_tooltip = "My Effect description"; >``  
  Shows the specified text when the user hovers the technique in the UI.
 
-```c++
+```hlsl
 technique Example < ui_tooltip = "This is an example!"; >
 {
 	pass p0
