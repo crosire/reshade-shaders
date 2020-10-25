@@ -43,8 +43,8 @@ The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``BUFFER_RCP_HEIGHT`` Reciprocal of the backbuffer height (equals `1.0 / BUFFER_HEIGHT`)
 * ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
 
-Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter than 10 characters, in which case ReShade will not display it in the UI.
-```
+Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter or equal to 10 characters, in which case ReShade will not display it in the UI.
+```hlsl
 #ifndef MY_PREPROCESSOR_DEFINE
 	#define MY_PREPROCESSOR_DEFINE 0
 #endif
@@ -73,7 +73,7 @@ ReShade FX allows semantics to be used on texture declarations. This is used to 
 
 Declared textures are created at runtime with the parameters specified in their definition body.
 
-```c++
+```hlsl
 texture2D texColorBuffer : COLOR;
 texture2D texDepthBuffer : DEPTH;
 
@@ -102,7 +102,7 @@ texture2D texTarget
 
 > Samplers are the bridge between textures and shaders. They define how a texture is read from and how data outside texel coordinates is sampled. Multiple samplers can refer to the same texture using different options.
 
-```c++
+```hlsl
 sampler2D samplerColor
 {
 	// The texture to be used for sampling.
@@ -148,7 +148,7 @@ sampler2D samplerTarget
 
 > Storage objects define how a texture should be written to from compute shaders.
 
-```c++
+```hlsl
 storage2D storageTarget
 {
 	// The texture to be used as storage.
@@ -204,7 +204,7 @@ Annotations are also used to request special runtime values (via the `source` an
  * ``uniform bool overlay_open < source = "overlay_open"; >;``
  True if the ReShade in-game overlay is currently open, false if not.
 
-```c++
+```hlsl
 // Initializers are used to specify the default value (zero is used if not specified).
 uniform float4 UniformSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -216,7 +216,7 @@ static const float4 ConstantSingleValue = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 > Structs are user defined data types that can be used as types for variables. These behave the same as in HLSL.
 
-```c++
+```hlsl
 struct MyStruct
 {
 	int MyField1, MyField2;
@@ -229,7 +229,7 @@ struct MyStruct
 > Namespaces are used to group functions and variables together, which is especially useful to prevent name clashing.
 > The "::" operator is used to resolve variables or functions inside other namespaces.
 
-```c++
+```hlsl
 namespace MyNamespace
 {
 	namespace MyNestedNamespace
@@ -275,7 +275,7 @@ Supported flow-control statements:
  * ``discard;``  
  Abort rendering of the current pixel and step out of the shader. Can be used in pixel shaders only.
 
-```c++
+```hlsl
 // Semantics are used to tell the runtime which arguments to connect between shader stages.
 // They are ignored on non-entry-point functions (those not used in any pass below).
 // Semantics starting with "SV_" are system value semantics and serve a special meaning.
@@ -336,22 +336,36 @@ void ExampleCS1(uint3 id : SV_DispatchThreadID, uint3 tid : SV_GroupThreadID)
 
 ### Intrinsic functions
 
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, tex2D, tex2Dlod, transpose, trunc
+ReShade FX supports most of the standard HLSL intrinsics.\
+Check out https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them:
 
-In addition to the standard HLSL intrinsics (see https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them), ReShade FX provides a few additional ones:
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, transpose, trunc
 
- * ``float4 tex2Dfetch(sampler2D s, int4 coords)``  
+In addition to these, ReShade FX provides a few additional ones:
+
+ * ``float4 tex2D(sampler2D s, float2 coords)``  
+ * ``float4 tex2D(sampler2D s, float2 coords, int2 offset)``  
+ Samples a texture.\
+ See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-sample.
+ * ``float4 tex2Dlod(sampler2D s, float4 coords)``  
+ * ``float4 tex2Dlod(sampler2D s, float4 coords, int2 offset)``  
+ Samples a texture on a specific mipmap level.\
+ The accepted coordinates are in the form `float4(x, y, 0, lod)`.\
+ See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplelevel.
+ * ``float4 tex2Dfetch(sampler2D s, int2 coords)``  
+ * ``float4 tex2Dfetch(sampler2D s, int2 coords, int lod)``  
  Fetches a value from the texture directly without any sampling.\
-   coords.x : [0, texture width)\
-   coords.y : [0, texture height)\
-   coords.z : ignored\
-   coords.w : [0, texture mip level)
+ See also https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-load.
  * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherR(sampler2D s, float2 coords, int2 offset)``  
  * ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherG(sampler2D s, float2 coords, int2 offset)``  
  * ``float4 tex2DgatherB(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherB(sampler2D s, float2 coords, int2 offset)``  
  * ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
+ * ``float4 tex2DgatherA(sampler2D s, float2 coords, int2 offset)``  
  Gathers the specified component of the four neighboring pixels and returns the result.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-gatherred.\
+ `tex2DgatherR` for example is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/texture2d-gatherred.  
  The return value is effectively:
  ```
  float4(tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
@@ -359,19 +373,13 @@ In addition to the standard HLSL intrinsics (see https://docs.microsoft.com/wind
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 0)).comp)
  ```
- * ``float4 tex2Doffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2Dlodoffset(sampler2D s, float4 coords, int2 offset)``
- * ``float4 tex2DgatherRoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherGoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherBoffset(sampler2D s, float2 coords, int2 offset)``
- * ``float4 tex2DgatherAoffset(sampler2D s, float2 coords, int2 offset)``  
- Offsets the texture coordinates before sampling by the specfied amount of texels.
+ * ``int2 tex2Dsize(sampler2D s)``  
  * ``int2 tex2Dsize(sampler2D s, int lod)``  
  Gets the texture dimensions of the specified mipmap level.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-texture2d-getdimensions
+ See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-getdimensions
  * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
  Writes the specified value to the texture referenced by the storage. Only valid from within compute shaders.\
- Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
+ See also https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
  * ``void barrier()``  
  Synchronizes threads in a thread group.\
  Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrierwithgroupsync
@@ -420,7 +428,7 @@ Annotations:
  * ``technique Name < ui_tooltip = "My Effect description"; >``  
  Shows the specified text when the user hovers the technique in the UI.
 
-```c++
+```hlsl
 technique Example < ui_tooltip = "This is an example!"; >
 {
 	pass p0

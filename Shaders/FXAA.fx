@@ -51,9 +51,9 @@ uniform float EdgeThresholdMin < __UNIFORM_SLIDER_FLOAT1
 		#define FxaaTexOffGreen4(t, p, o) tex2Dgatheroffset(t, p, o, 1)
 	#else
 		#define FxaaTexAlpha4(t, p) tex2DgatherA(t, p)
-		#define FxaaTexOffAlpha4(t, p, o) tex2DgatherAoffset(t, p, o)
+		#define FxaaTexOffAlpha4(t, p, o) tex2DgatherA(t, p, o)
 		#define FxaaTexGreen4(t, p) tex2DgatherG(t, p)
-		#define FxaaTexOffGreen4(t, p, o) tex2DgatherGoffset(t, p, o)
+		#define FxaaTexOffGreen4(t, p, o) tex2DgatherG(t, p, o)
 	#endif
 #endif
 
