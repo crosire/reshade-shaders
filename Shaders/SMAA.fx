@@ -170,14 +170,18 @@ sampler colorGammaSampler
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
+#if BUFFER_COLOR_BIT_DEPTH != 10
 	SRGBTexture = false;
+#endif
 };
 sampler colorLinearSampler
 {
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
+#if BUFFER_COLOR_BIT_DEPTH != 10
 	SRGBTexture = true;
+#endif
 };
 sampler edgesSampler
 {
@@ -253,7 +257,7 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	if (EdgeDetectionType == 0 && SMAA_PREDICATION == true)
+	if (EdgeDetectionType == 0 && SMAA_PREDICATION)
 		return SMAALumaEdgePredicationDetectionPS(texcoord, offset, colorGammaSampler, depthLinearSampler);
 	else if (EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
@@ -324,6 +328,8 @@ technique SMAA
 		VertexShader = SMAANeighborhoodBlendingWrapVS;
 		PixelShader = SMAANeighborhoodBlendingWrapPS;
 		StencilEnable = false;
+#if BUFFER_COLOR_BIT_DEPTH != 10
 		SRGBWriteEnable = true;
+#endif
 	}
 }

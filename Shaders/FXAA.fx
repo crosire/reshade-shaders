@@ -32,12 +32,12 @@ uniform float EdgeThresholdMin < __UNIFORM_SLIDER_FLOAT1
 	#define FXAA_QUALITY__PRESET 15
 #endif
 
-#ifndef FXAA_GREEN_AS_LUMA
-	#define FXAA_GREEN_AS_LUMA 0
-#endif
-
 #ifndef FXAA_LINEAR_LIGHT
 	#define FXAA_LINEAR_LIGHT 0
+#endif
+
+#ifndef FXAA_GREEN_AS_LUMA
+	#define FXAA_GREEN_AS_LUMA 0
 #endif
 
 //-------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ uniform float EdgeThresholdMin < __UNIFORM_SLIDER_FLOAT1
 #define FXAA_HLSL_3 1
 
 // Green as luma requires non-linear colorspace
-#if FXAA_GREEN_AS_LUMA
+#if FXAA_GREEN_AS_LUMA || BUFFER_COLOR_BIT_DEPTH == 10
 	#undef FXAA_LINEAR_LIGHT
 #endif
 
@@ -74,9 +74,9 @@ sampler FXAATexture
 {
 	Texture = ReShade::BackBufferTex;
 	MinFilter = Linear; MagFilter = Linear;
-	#if FXAA_LINEAR_LIGHT
-		SRGBTexture = true;
-	#endif
+#if FXAA_LINEAR_LIGHT
+	SRGBTexture = true;
+#endif
 };
 
 // Pixel shaders
@@ -127,8 +127,8 @@ technique FXAA
 	{
 		VertexShader = PostProcessVS;
 		PixelShader = FXAAPixelShader;
-		#if FXAA_LINEAR_LIGHT
-			SRGBWriteEnable = true;
-		#endif
+#if FXAA_LINEAR_LIGHT
+		SRGBWriteEnable = true;
+#endif
 	}
 }

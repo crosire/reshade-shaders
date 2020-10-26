@@ -207,7 +207,9 @@ sampler2D SamplerColor
 	AddressV = BORDER;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+#if BUFFER_COLOR_BIT_DEPTH != 10
 	SRGBTexture = TRUE;
+#endif
 };
 
 sampler SamplerColorHDRA

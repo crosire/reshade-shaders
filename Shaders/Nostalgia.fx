@@ -59,6 +59,11 @@
 	#define Nostalgia_linear 1
 #endif
 
+#if BUFFER_COLOR_BIT_DEPTH == 10
+	#undef Nostalgia_linear
+	#define Nostalgia_linear 0
+#endif
+
 /*------------------.
 | :: UI Settings :: |
 '------------------*/
@@ -207,11 +212,13 @@ uniform bool Nostalgia_linear //Can't currently make a UI setting for this since
 | :: Sampler :: |
 '--------------*/
 
+#if Nostalgia_linear
 sampler Linear
 {
 	Texture = ReShade::BackBufferTex;
 	SRGBTexture = true;
 };
+#endif
 
 
 /*-------------.
