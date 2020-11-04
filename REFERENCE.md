@@ -199,10 +199,17 @@ Annotations are also used to request special runtime values (via the `source` an
  Gets the position of the mouse cursor in screen coordinates.
  * ``uniform float2 mouse_delta < source = "mousedelta"; >;``  
  Gets the movement of the mouse cursor in screen coordinates.
- * ``uniform bool has_depth < source = "bufready_depth"; >;``
+ * ``uniform float2 mouse_value < source = "mousewheel"; min = 0.0; max = 10.0; > = 1.0;``  
+ The first component value is modified via the mouse wheel. Starts at 1.0, goes up (but not past 10.0) when mouse wheel is moved forward and down (but not past 0.0) when it is moved backward.
+ The second component holds the current wheel state (how much the mouse wheel was moved this frame). It's positive for forward movement, negative for backward movement or zero for no movement.
+ * ``uniform bool has_depth < source = "bufready_depth"; >;``  
  True if the application's depth buffer is available in textures declared with `DEPTH`, false if not.
- * ``uniform bool overlay_open < source = "overlay_open"; >;``
+ * ``uniform bool overlay_open < source = "overlay_open"; >;``  
  True if the ReShade in-game overlay is currently open, false if not.
+ * ``uniform int active_variable < source = "overlay_active"; >;``  
+ Contains the one-based index of the uniform variable currently being modified in the overlay, zero if none.
+ * ``uniform int hovered_variable < source = "overlay_hovered"; >;``  
+ Contains the one-based index of the uniform variable currently hovered with the cursor in the overlay, zero if none.
 
 ```hlsl
 // Initializers are used to specify the default value (zero is used if not specified).
