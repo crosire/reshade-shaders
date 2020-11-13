@@ -19,32 +19,35 @@
 #endif
 
 #ifndef RESHADE_DISPLAYDEPTH_UNLOCKED
- #define RESHADE_DISPLAYDEPTH_UNLOCKED 0
+	// "ui_text" was introduced in ReShade 4.5, so cannot show instructions before
+	#define RESHADE_DISPLAYDEPTH_UNLOCKED (__RESHADE__ < 40500)
 #endif
 
+#if RESHADE_DISPLAYDEPTH_UNLOCKED == 0
+
 uniform int iUIHelp <
-	ui_type = "radio";
-    ui_label = " ";
-	ui_text =   "All realtime controls (sliders, checkboxes...) will only affect DisplayDepth by default.\n"
-                "To apply their settings globally, they have to be copied to the global preprocessor definitions.\n"
-                "To guide you how to do this, you need to unlock the realtime controls of this shader with the same method.\n"
-                "Click on 'Edit global preprocessor definitions', where 4 default entries should already be present."
-                "To unlock the realtime controls, add a new entry as follows:\n\n"
-                "RESHADE_DISPLAYDEPTH_UNLOCKED       1\n\n"
-                "If done properly, various controls below will unlock. Now tweak these settings until the output looks correct, then transfer the new settings to the same place where you added the new entry.";
+ui_type = "radio";
+ui_label = " ";
+ui_text = "All realtime controls (sliders, checkboxes...) will only affect DisplayDepth by default.\n"
+	"To apply their settings globally, they have to be copied to the global preprocessor definitions.\n"
+	"To guide you on how to do this, you need to unlock the realtime controls of this shader with the same method:\n"
+	"Click on 'Edit global preprocessor definitions', where 4 default entries should already be present. To unlock the realtime controls, add a new entry as follows:\n\n"
+	"RESHADE_DISPLAYDEPTH_UNLOCKED       1\n\n"
+	"If done properly, various controls below will unlock. Now tweak these settings until the output looks correct, then transfer the new settings to the same place where you added the above entry.";
 >;
 
-#if RESHADE_DISPLAYDEPTH_UNLOCKED == 0 //replace all with stubs
- #define bUIUsePreprocessorDefs 0
- #define fUIFarPlane __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__
- #define fUIDepthMultiplier 1.0
- #define iUIUpsideDown __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__
- #define iUIReversed __DISPLAYDEPTH_UI_REVERSED_DEFAULT__
- #define iUILogarithmic __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 
- #define iUIOffset int2(0.0, 0.0)
- #define fUIScale float2(1.0, 1.0)
- #define iUIPresentType 2
- #define bUIShowOffset 0 
+// Replace all with stubs
+#define bUIUsePreprocessorDefs 0
+#define fUIFarPlane __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__
+#define fUIDepthMultiplier 1.0
+#define iUIUpsideDown __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__
+#define iUIReversed __DISPLAYDEPTH_UI_REVERSED_DEFAULT__
+#define iUILogarithmic __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 
+#define iUIOffset int2(0.0, 0.0)
+#define fUIScale float2(1.0, 1.0)
+#define iUIPresentType 2
+#define bUIShowOffset 0
+
 #else
 
 uniform bool bUIUsePreprocessorDefs <
@@ -118,6 +121,7 @@ uniform bool bUIShowOffset <
 	ui_tooltip = "Blend depth output with backbuffer";
 	ui_label = "Show Offset";
 > = false;
+
 #endif
 
 float GetLinearizedDepth(float2 texcoord)
