@@ -183,8 +183,11 @@ Annotations are also used to request special runtime values (via the `source` an
  float4(year, month (1 - 12), day of month (1 - 31), time in seconds)
  * ``uniform float timer < source = "timer"; >;``  
  Timer counting time in milliseconds since game start.
- * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 9; step = 1; >;``  
- Counter that counts up and down between min and max using step as increase value. The second component is either +1 or -1 depending on the direction it currently goes.
+ * ``uniform float2 pingpong < source = "pingpong"; min = 0; max = 10; step = 2; smoothing = 0.0; >;``  
+ Value that smoothly interpolates between `min` and `max` using `step` as the increase/decrease value every second (so a step value of 1 means the value is increased/decreased by 1 per second).\
+ In this case it would go from 0 to 10 in 5 seconds and then back to 0 in another 5 seconds (interpolated every frame).
+ The `smoothing` value affects the interpolation curve (0 is linear interpolation and anything else changes the speed depending on how close the current value is to `min` or `max`).
+ The second component is either +1 or -1 depending on the direction it currently goes.
  * ``uniform int random_value < source = "random"; min = 0; max = 10; >;``  
  Gets a new random value between min and max every pass.
  * ``uniform bool space_bar_down < source = "key"; keycode = 0x20; mode = ""; >;``  
