@@ -1,11 +1,14 @@
 /*
- * Ported from Reshade v2.x. Original by CeeJay.
- * Visualizes the depth buffer: further away is more white than close by pixels. 
- * Use this to configure the depth input preprocessor definitions (RESHADE_DEPTH_INPUT_*).
- */
+  DisplayDepth by CeeJay.dk (with many updates and additions by the Reshade community)
+
+  Visualizes the depth buffer. The distance of pixels determine their brightness.
+  Close objects are dark. Far away objects are bright.
+  Use this to configure the depth input preprocessor definitions (RESHADE_DEPTH_INPUT_*).
+*/
 
 #include "ReShade.fxh"
 
+// -- ReShade version check --
 #if (__RESHADE__ < 30101) || (__RESHADE__ >= 40600)
 	#define __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__ 1000.0
 	#define __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__ 0
@@ -18,95 +21,63 @@
 	#define __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 0
 #endif
 
+/*
 #ifndef RESHADE_DISPLAYDEPTH_UNLOCKED
 	// "ui_text" was introduced in ReShade 4.5, so cannot show instructions before
 	#define RESHADE_DISPLAYDEPTH_UNLOCKED (__RESHADE__ < 40500)
 #endif
 
-#if RESHADE_DISPLAYDEPTH_UNLOCKED == 0
 
-uniform int iUIHelp <
+//#define bUIUsePreprocessorDefs 1
+
+//#if RESHADE_DISPLAYDEPTH_UNLOCKED == 0
+*/
+
+
+#if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
+	#define UPSIDE_DOWN_TEXT "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN is currently set to 1\n"\
+	"If the Depth map is shown upside down set it to 0"
+#else
+	#define UPSIDE_DOWN_TEXT "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN is currently set to 0\n"\
+	"If the Depth map is shown upside down set it to 1"
+#endif
+
+#if RESHADE_DEPTH_INPUT_IS_REVERSED
+	#define REVERSED_TEXT "RESHADE_DEPTH_INPUT_IS_REVERSED is currently set to 1\n"\
+	"If close surfaces in the Depth map are bright and far ones are dark set it to 0"
+#else
+	#define REVERSED_TEXT "RESHADE_DEPTH_INPUT_IS_REVERSED is currently set to 0\n"\
+	"If close surfaces in the Depth map are bright and far ones are dark set it to 1"
+#endif
+
+#if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
+	#define LOGARITHMIC_TEXT "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC is currently set to 1\n"\
+	"If the Normal map has banding artifacts set it to 0"
+#else
+	#define LOGARITHMIC_TEXT "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC is currently set to 0\n"\
+	"If the Normal map has banding artifacts set it to to 1"
+#endif
+
+
+/*
+"The Depth buffer is an image that tell the shaders how far away from the camera each pixel is and effects that need this info require the Depth buffer to be setup correctly.\n"
+"This effect exists to help you do just that.\n"
+
+"The Depth settings are \n"
+*/
+
+uniform int Depth_help <
 ui_type = "radio";
 ui_label = " ";
-ui_text = "All realtime controls (sliders, checkboxes...) will only affect DisplayDepth by default.\n"
-	"To apply their settings globally, they have to be copied to the global preprocessor definitions.\n"
-	"To guide you on how to do this, you need to unlock the realtime controls of this shader with the same method:\n"
-	"Click on 'Edit global preprocessor definitions', where 4 default entries should already be present. To unlock the realtime controls, add a new entry as follows:\n\n"
-	"RESHADE_DISPLAYDEPTH_UNLOCKED       1\n\n"
-	"If done properly, various controls below will unlock. Now tweak these settings until the output looks correct, then transfer the new settings to the same place where you added the above entry.";
+ui_text = "The right settings need to be set using the \"Edit global preprocessor definitions\" above\n"
+
+"\n"
+UPSIDE_DOWN_TEXT "\n"
+"\n"
+REVERSED_TEXT "\n"
+"\n"
+LOGARITHMIC_TEXT "\n";
 >;
-
-// Replace all with stubs
-#define bUIUsePreprocessorDefs 0
-#define fUIFarPlane __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__
-#define fUIDepthMultiplier 1.0
-#define iUIUpsideDown __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__
-#define iUIReversed __DISPLAYDEPTH_UI_REVERSED_DEFAULT__
-#define iUILogarithmic __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__ 
-#define iUIOffset int2(0.0, 0.0)
-#define fUIScale float2(1.0, 1.0)
-#define iUIPresentType 2
-#define bUIShowOffset 0
-
-#else
-
-uniform bool bUIUsePreprocessorDefs <
-	ui_label = "Use global preprocessor definitions";
-	ui_tooltip = "Enable this to use the values set via global preprocessor definitions rather than the ones below.";
-> = false;
-
-uniform float fUIFarPlane <
-	ui_type = "drag";
-	ui_label = "Far Plane";
-	ui_tooltip = "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
-	             "Changing this value is not necessary in most cases.";
-	ui_min = 0.0; ui_max = 1000.0;
-	ui_step = 0.1;
-> = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;
-
-uniform float fUIDepthMultiplier <
-	ui_type = "drag";
-	ui_label = "Multiplier";
-	ui_tooltip = "RESHADE_DEPTH_MULTIPLIER=<value>";
-	ui_min = 0.0; ui_max = 1000.0;
-	ui_step = 0.001;
-> = 1.0;
-
-uniform int iUIUpsideDown <
-	ui_type = "combo";
-	ui_label = "Upside Down";
-	ui_items = "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
-> = __DISPLAYDEPTH_UI_UPSIDE_DOWN_DEFAULT__;
-
-uniform int iUIReversed <
-	ui_type = "combo";
-	ui_label = "Reversed";
-	ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
-> = __DISPLAYDEPTH_UI_REVERSED_DEFAULT__;
-
-uniform int iUILogarithmic <
-	ui_type = "combo";
-	ui_label = "Logarithmic";
-	ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
-	ui_tooltip = "Change this setting if the displayed surface normals have stripes in them.";
-> = __DISPLAYDEPTH_UI_LOGARITHMIC_DEFAULT__;
-
-uniform int2 iUIOffset <
-	ui_type = "drag";
-	ui_label = "Offset";
-	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\n"
-	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
-	ui_step = 1;
-> = int2(0, 0);
-
-uniform float2 fUIScale <
-	ui_type = "drag";
-	ui_label = "Scale";
-	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
-	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_SCALE=<left value>\nRESHADE_DEPTH_INPUT_Y_SCALE=<right value>";
-	ui_min = 0.0; ui_max = 2.0;
-	ui_step = 0.001;
-> = float2(1.0, 1.0);
 
 uniform int iUIPresentType <
 	ui_category = "Options";
@@ -122,14 +93,68 @@ uniform bool bUIShowOffset <
 	ui_label = "Show Offset";
 > = false;
 
-#endif
+// -- Advanced options --
+uniform int Advanced_help <
+ui_category = "Advanced settings"; 
+ui_category_closed = true;
+ui_type = "radio";
+ui_label = " ";
+ui_text = "These settings also need to be saved using \"Edit global preprocessor definitions\" above in order to take effect.\n"
+"You can preview how the settings will affect the depth image using the controls below.\n"
+"\n"
+"Though you rarely need to change these settings as their defaults fit almost all games.";
+>;
+
+
+uniform float fUIFarPlane <
+	ui_category = "Advanced settings"; 
+	ui_type = "drag";
+	ui_label = "Far Plane (Preview)";
+	ui_tooltip = "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
+	             "Changing this value is not necessary in most cases.";
+	ui_min = 0.0; ui_max = 1000.0;
+	ui_step = 0.1;
+//> = __DISPLAYDEPTH_UI_FAR_PLANE_DEFAULT__;	
+> = RESHADE_DEPTH_LINEARIZATION_FAR_PLANE;
+
+uniform float fUIDepthMultiplier <
+	ui_category = "Advanced settings"; 
+	ui_type = "drag";
+	ui_label = "Multiplier  (Preview)";
+	ui_tooltip = "RESHADE_DEPTH_MULTIPLIER=<value>";
+	ui_min = 0.0; ui_max = 1000.0;
+	ui_step = 0.001;
+> = 1.0;
+
+uniform int2 iUIOffset <
+	ui_category = "Advanced settings"; 
+	ui_type = "drag";
+	ui_label = "Offset  (Preview)";
+	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\n"
+	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
+	ui_step = 1;
+> = int2(0, 0);
+
+uniform float2 fUIScale <
+	ui_category = "Advanced settings";
+	ui_type = "drag";
+	ui_label = "Scale  (Preview)";
+	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
+	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_SCALE=<left value>\nRESHADE_DEPTH_INPUT_Y_SCALE=<right value>";
+	ui_min = 0.0; ui_max = 2.0;
+	ui_step = 0.001;
+> = float2(1.0, 1.0);
+
+//#endif
 
 float GetLinearizedDepth(float2 texcoord)
 {
-	if (bUIUsePreprocessorDefs)
-	{
+//	if (bUIUsePreprocessorDefs)
+//	{
 		return ReShade::GetLinearizedDepth(texcoord);
-	}
+//	}
+
+/*
 	else
 	{
 		// RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
@@ -160,7 +185,7 @@ float GetLinearizedDepth(float2 texcoord)
 		depth /= fUIFarPlane - depth * (fUIFarPlane - N);
 
 		return depth;
-	}
+	}*/
 }
 
 float3 GetScreenSpaceNormal(float2 texcoord)
@@ -212,11 +237,15 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 }
 
 technique DisplayDepth <
-	ui_tooltip = "This shader helps finding the right preprocessor settings for depth input.\n\n"
-                 "By default calculated normals are shown and the goal is to make the displayed surface normals look smooth.\n"
-                 "Change the options for *_IS_REVERSED and *_IS_LOGARITHMIC in the variable editor until this happens.\n"
-                 "Change the 'Present type' to 'Depth map' and check whether close objects are dark and far away objects are white.\n\n"
-                 "When the right settings are found click on 'Edit global preprocessor definitions' and put the new values there."; >
+	ui_tooltip = "This shader helps you set the right preprocessor settings for depth input.\n"
+	             "To set the settings click on 'Edit global preprocessor definitions' and set them there - not in this shader.\n"
+	             "The settings will then take effect for all shaders, including this one.\n"  
+	             "\n"
+	             "By default calculated normals and depth are shown side by side.\n"
+	             "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizont.\n"
+	             "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away the objects are.\n";
+>
+
 {
 	pass
 	{
