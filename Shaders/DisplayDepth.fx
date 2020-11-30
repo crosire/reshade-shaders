@@ -43,9 +43,12 @@ uniform int iUIPresentType <
 uniform int Depth_help <
 	ui_type = "radio"; ui_label = " ";
 	ui_text =
-		"\nThe right settings need to be set in the dialog that opens after clicking the \"Edit global preprocessor definitions\" button above.\n\n"
-		UPSIDE_DOWN_HELP_TEXT "\n\n"
-		REVERSED_HELP_TEXT "\n\n"
+		"\nThe right settings need to be set in the dialog that opens after clicking the \"Edit global preprocessor definitions\" button above.\n"
+		"\n"
+		UPSIDE_DOWN_HELP_TEXT "\n"
+		"\n"
+		REVERSED_HELP_TEXT "\n"
+		"\n"
 		LOGARITHMIC_HELP_TEXT;
 >;
 #else // "ui_text" was introduced in ReShade 4.5, so cannot show instructions in older versions
@@ -82,7 +85,8 @@ uniform int Advanced_help <
 	ui_type = "radio"; ui_label = " ";
 	ui_text =
 		"\nThe following settings also need to be set using \"Edit global preprocessor definitions\" above in order to take effect.\n"
-		"Vou can preview how they will affect the Depth map using the controls below.\n\n"
+		"You can preview how they will affect the Depth map using the controls below.\n"
+		"\n"
 		"It is rarely necessary to change these though, as their defaults fit almost all games.";
 >;
 
@@ -98,7 +102,9 @@ uniform float2 fUIScale <
 	ui_type = "drag";
 	ui_label = "Scale (Preview)";
 	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
-	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_SCALE=<left value>\nRESHADE_DEPTH_INPUT_Y_SCALE=<right value>";
+	             "Use these values for:\n"
+	             "RESHADE_DEPTH_INPUT_X_SCALE=<left value>\n"
+	             "RESHADE_DEPTH_INPUT_Y_SCALE=<right value>";
 	ui_min = 0.0; ui_max = 2.0;
 	ui_step = 0.001;
 > = float2(RESHADE_DEPTH_INPUT_X_SCALE, RESHADE_DEPTH_INPUT_Y_SCALE);
@@ -108,7 +114,9 @@ uniform int2 iUIOffset <
 	ui_type = "drag";
 	ui_label = "Offset (Preview)";
 	ui_tooltip = "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\n"
-	             "Use these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
+	             "Use these values for:\n"
+	             "RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\n"
+	             "RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
 	ui_step = 1;
 > = int2(RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET, RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET);
 
@@ -244,8 +252,8 @@ technique DisplayDepth <
 	             "The settings will then take effect for all shaders, including this one.\n"  
 	             "\n"
 	             "By default calculated normals and depth are shown side by side.\n"
-	             "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizont.\n"
-	             "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away the objects are.\n";
+	             "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizon.\n"
+	             "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away objects are.\n";
 >
 
 {
