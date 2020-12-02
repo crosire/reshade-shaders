@@ -85,6 +85,12 @@ uniform int Advanced_help <
 		"Vou can preview how they will affect the Depth map using the controls below.\n\n"
 		"It is rarely necessary to change these though, as their defaults fit almost all games.";
 >;
+
+uniform bool bUIUsePreprocessorDefs <
+	ui_category = "Advanced settings"; 
+	ui_label = "Use preprocessor definitions (instead of the preview values below)";
+	ui_tooltip = "Enable this to use the values set via global preprocessor definitions rather than the preview values below.";
+> = false;
 #endif
 
 uniform float2 fUIScale <
@@ -133,38 +139,55 @@ uniform float fUIDepthMultiplier <
 
 float GetLinearizedDepth(float2 texcoord)
 {
-#if __RESHADE__ < 40500
 	if (bUIUsePreprocessorDefs)
 	{
-#endif
 		return ReShade::GetLinearizedDepth(texcoord);
-#if __RESHADE__ < 40500
 	}
 	else
 	{
-		if (iUIUpsideDown) // RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
+#if __RESHADE__ < 40500
+		if (iUIUpsideDown)
+#endif
+#if __RESHADE__ < 40500 || RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 			texcoord.y = 1.0 - texcoord.y;
+#endif
 
 		texcoord.x /= fUIScale.x; // RESHADE_DEPTH_INPUT_X_SCALE
 		texcoord.y /= fUIScale.y; // RESHADE_DEPTH_INPUT_Y_SCALE
 		texcoord.x -= iUIOffset.x * BUFFER_RCP_WIDTH; // RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET
 		texcoord.y += iUIOffset.y * BUFFER_RCP_HEIGHT; // RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET
 
-		float depth = tex2Dlod(ReShade::DepthBuffer, float4(texcoord, 0, 0)).x * fUIDepthMultiplier;
+		float depth = tex2Dlod(ReShade::DepthBuffer, float4(texcoord, 0, 0)).x;
+#if __RESHADE__ < 40500
+		depth *= fUIDepthMultiplier;
+#else
+		depth *= RESHADE_DEPTH_MULTIPLIER;
+#endif
 
 		const float C = 0.01;
-		if (iUILogarithmic) // RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
+#if __RESHADE__ < 40500
+		if (iUILogarithmic)
+#endif
+#if __RESHADE__ < 40500 || RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 			depth = (exp(depth * log(C + 1.0)) - 1.0) / C;
+#endif
 
-		if (iUIReversed) // RESHADE_DEPTH_INPUT_IS_REVERSED
+#if __RESHADE__ < 40500
+		if (iUIReversed)
+#endif
+#if __RESHADE__ < 40500 || RESHADE_DEPTH_INPUT_IS_REVERSED
 			depth = 1.0 - depth;
+#endif
 
 		const float N = 1.0;
+#if __RESHADE__ < 40500
 		depth /= fUIFarPlane - depth * (fUIFarPlane - N);
+#else
+		depth /= RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - depth * (RESHADE_DEPTH_LINEARIZATION_FAR_PLANE - N);
+#endif
 
 		return depth;
 	}
-#endif
 }
 
 float3 GetScreenSpaceNormal(float2 texcoord)
