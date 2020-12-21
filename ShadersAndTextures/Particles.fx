@@ -175,6 +175,24 @@ uniform bool Ansel_HDR <
 //	ui_category = "Particle Interaction";
 //> = 0.0;
 //Total amount of frames since the game started.
+
+#define Automatic_Resolution_Scaling 1 //[Off | On] This is used to enable or disable Automatic Resolution Scaling. Default is On.
+#define RSRes 0.5  
+#if Automatic_Resolution_Scaling //Automatic Adjustment based on Resolutionsup to 4k considered. LOL good luck with 8k in 2020
+	#undef RSRes
+	#if (BUFFER_HEIGHT <= 720)
+		#define RSRes 1.0
+	#elif (BUFFER_HEIGHT <= 1080)
+		#define RSRes 0.8
+	#elif (BUFFER_HEIGHT <= 1440)
+		#define RSRes 0.7
+	#elif (BUFFER_HEIGHT <= 2160)
+		#define RSRes 0.6
+	#else
+		#define RSRes 0.5 //??? 8k Mystery meat
+	#endif
+#endif
+
 /////////////////////////////////////////////////////D3D Starts Here/////////////////////////////////////////////////////////////////
 #define pix float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
 #define Spread 0.125
@@ -194,8 +212,8 @@ float fmod(float a, float b)
 	return a < 0 ? -c : c;
 }
 //Done to make controls easier to use in NV Freestyle
-float L_Amount() { return lerp(1,375,saturate(Amount));}
-float S_Amount() { return lerp(1,100,saturate(Size));}
+float L_Amount() { return lerp(1,300,saturate(Amount));}
+float S_Amount() { return lerp(1,50,saturate(Size));}
 float MS_Amount() { return lerp(0,25,saturate(MS));}
 float Sp_Amount() { return lerp(0,5,saturate(Speed));}
 float FO_Amount() { return lerp(0,5,saturate(Spread));}
@@ -214,7 +232,7 @@ sampler BackBufferPart
 		Texture = BackBufferTexPart;
 	};
 
-texture PartTex  { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};
+texture PartTex  { Width = BUFFER_WIDTH * RSRes; Height = BUFFER_HEIGHT * RSRes; Format = R8;};
 
 sampler Part
 	{
@@ -331,7 +349,7 @@ float Fade()
 	float Trigger_Fade = 0;
 	#endif
 
-	float AA = (1-MS)*1000, PStoredfade = tex2D(P_BloomPart,0.5).y;
+	float AA = (1-MS)*1000, PStoredfade = tex2Dlod(P_BloomPart,float4(0.5,0.5,0,0)).y;
 	return PStoredfade + (Trigger_Fade - PStoredfade) * (1.0 - exp(-frametime/AA)); ///exp2 would be even slower
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,6 +363,11 @@ float random(float R)
 float GS(float4 C)
 {
 	return dot(C.rgb, float3(0.299, 0.587, 0.114));
+}
+
+float2 GPattern(float2 TC)
+{	float2 Grid = floor( TC * float2(BUFFER_WIDTH, BUFFER_HEIGHT ) * 1);
+	return float2(fmod(Grid.x+Grid.y,2.0),fmod(Grid.x,2.0));
 }
 
 float4 Circle(float2 center, float radius, float2 TC)
@@ -397,7 +420,7 @@ float Part_Gen(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_T
 		float C = random(i) + Waviness * cos(AT + sin(i));
 		float Gen = fmod( sin(i) - A * AT , 1.0);
 		//Draw them Circles to create Particles from Center
-		Color += Circle( float2(C,Gen), A * pix.x, mTexcoords );
+		Color += Circle( float2(C,Gen), A * max(pix.x,pix.y), mTexcoords );
 	}
 	Fin = lerp(0,dot(Color,Color),MB);
 	//Faster than length
