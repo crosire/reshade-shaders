@@ -30,11 +30,13 @@ uniform int iUIPresentType <
 	
 	#if RESHADE_DEPTH_INPUT_IS_REVERSED
 		#define REVERSED_HELP_TEXT "RESHADE_DEPTH_INPUT_IS_REVERSED is currently set to 1.\n"\
-			"If close objects in the Depth map are bright and far ones are dark set it to 0."
+			"If close objects in the Depth map are bright and far ones are dark set it to 0.\n"\
+			"Also try this if you can see the normals, but the depth view is all black."
 		#define iUIReversed 1
 	#else
 		#define REVERSED_HELP_TEXT "RESHADE_DEPTH_INPUT_IS_REVERSED is currently set to 0.\n"\
-			"If close objects in the Depth map are bright and far ones are dark set it to 1."
+			"If close objects in the Depth map are bright and far ones are dark set it to 1.\n"\
+			"Also try this if you can see the normals, but the depth view is all black."
 		#define iUIReversed 0
 	#endif
 	
