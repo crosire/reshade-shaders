@@ -112,12 +112,8 @@ uniform int DebugOutput < __UNIFORM_COMBO_INT1
 #define SMAA_BRANCH [branch]
 #define SMAA_FLATTEN [flatten]
 
-#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100 || __RENDERER__ >= 0x10000)
-	#if (__RESHADE__ < 40800)
-		#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
-	#else
-		#define SMAAGather(tex, coord) tex2DgatherR(tex, coord)
-	#endif
+#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
+	#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
 #endif
 
 #include "SMAA.fxh"
@@ -145,13 +141,13 @@ texture blendTex < pooled = true; >
 	Format = RGBA8;
 };
 
-texture areaTex < source = "AreaTex.dds"; >
+texture areaTex < source = "AreaTex.png"; >
 {
 	Width = 160;
 	Height = 560;
 	Format = RG8;
 };
-texture searchTex < source = "SearchTex.dds"; >
+texture searchTex < source = "SearchTex.png"; >
 {
 	Width = 64;
 	Height = 16;
@@ -170,18 +166,14 @@ sampler colorGammaSampler
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
-#if BUFFER_COLOR_BIT_DEPTH != 10
 	SRGBTexture = false;
-#endif
 };
 sampler colorLinearSampler
 {
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
-#if BUFFER_COLOR_BIT_DEPTH != 10
 	SRGBTexture = true;
-#endif
 };
 sampler edgesSampler
 {
@@ -257,7 +249,7 @@ float2 SMAAEdgeDetectionWrapPS(
 	float2 texcoord : TEXCOORD0,
 	float4 offset[3] : TEXCOORD1) : SV_Target
 {
-	if (EdgeDetectionType == 0 && SMAA_PREDICATION)
+	if (EdgeDetectionType == 0 && SMAA_PREDICATION == true)
 		return SMAALumaEdgePredicationDetectionPS(texcoord, offset, colorGammaSampler, depthLinearSampler);
 	else if (EdgeDetectionType == 0)
 		return SMAALumaEdgeDetectionPS(texcoord, offset, colorGammaSampler);
@@ -328,8 +320,6 @@ technique SMAA
 		VertexShader = SMAANeighborhoodBlendingWrapVS;
 		PixelShader = SMAANeighborhoodBlendingWrapPS;
 		StencilEnable = false;
-#if BUFFER_COLOR_BIT_DEPTH != 10
 		SRGBWriteEnable = true;
-#endif
 	}
 }
