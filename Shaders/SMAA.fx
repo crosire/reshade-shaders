@@ -112,8 +112,11 @@ uniform int DebugOutput < __UNIFORM_COMBO_INT1
 #define SMAA_BRANCH [branch]
 #define SMAA_FLATTEN [flatten]
 
-#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100)
-	#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
+#if (__RENDERER__ == 0xb000 || __RENDERER__ == 0xb100 || __RENDERER__ >= 0x10000)
+	#if (__RESHADE__ < 40800)
+		#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
+	#else
+		#define SMAAGather(tex, coord) tex2DgatherR(tex, coord)
 #endif
 
 #include "SMAA.fxh"
@@ -166,14 +169,18 @@ sampler colorGammaSampler
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
-	SRGBTexture = false;
+	#if BUFFER_COLOR_BIT_DEPTH != 10
+		SRGBTexture = false;
+	#endif
 };
 sampler colorLinearSampler
 {
 	Texture = ReShade::BackBufferTex;
 	AddressU = Clamp; AddressV = Clamp;
 	MipFilter = Point; MinFilter = Linear; MagFilter = Linear;
-	SRGBTexture = true;
+	#if BUFFER_COLOR_BIT_DEPTH != 10
+		SRGBTexture = true;
+	#endif
 };
 sampler edgesSampler
 {
@@ -320,6 +327,8 @@ technique SMAA
 		VertexShader = SMAANeighborhoodBlendingWrapVS;
 		PixelShader = SMAANeighborhoodBlendingWrapPS;
 		StencilEnable = false;
-		SRGBWriteEnable = true;
+		#if BUFFER_COLOR_BIT_DEPTH != 10
+			SRGBWriteEnable = true;
+		#endif
 	}
 }
