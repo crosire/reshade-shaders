@@ -138,7 +138,7 @@ uniform float GaussianSigma < __UNIFORM_SLIDER_FLOAT1
 
 #include "ReShade.fxh"
 
-float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
+float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TARGET {
 	float3 orig = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	float3 texIJ;
 	float weight;
@@ -151,7 +151,7 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 
 	for (int i = -WindowRadius; i <= WindowRadius; i++) {
 		for (int j = -WindowRadius; j <= WindowRadius; j++) {
-			texIJ = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
+			texIJ = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i, j)).rgb;
 			weight = dot(orig - texIJ, orig - texIJ);
 
 			weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));
@@ -170,7 +170,7 @@ float3 PS_Denoise_KNN(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 	return result;
 }
 
-float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET {
+float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TARGET {
 	float3 result = 0.0;
 	float3 texIJb;
 	float3 texIJc;
@@ -188,12 +188,12 @@ float3 PS_Denoise_NLM(float4 vpos : SV_POSITION, float2 texcoord : TEXCOORD0) : 
 				
 				for (int n = -BlockRadius; n <= BlockRadius; n++) {
 					for (int m = -BlockRadius; m <= BlockRadius; m++) {              
-							texIJb = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i + n, j + m)).rgb;
-							texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(    n,     m)).rgb;
+							texIJb = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i + n, j + m)).rgb;
+							texIJc = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(    n,     m)).rgb;
 							weight = dot(texIJb - texIJc, texIJb - texIJc) + weight;
 					}
                 }
-				texIJc = tex2D(ReShade::BackBuffer, texcoord + ReShade::PixelSize * float2(i, j)).rgb;
+				texIJc = tex2D(ReShade::BackBuffer, texcoord + BUFFER_PIXEL_SIZE * float2(i, j)).rgb;
 
 				weight *= invBlockArea;
 				weight = exp(-(weight * rcp(NoiseLevel) + (i * i + j * j) * rcp(GaussianSigma)));

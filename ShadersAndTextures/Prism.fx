@@ -7,7 +7,7 @@ To view a copy of this license, visit
 http://creativecommons.org/licenses/by-nc-sa/4.0/.
 */
 
-// Chromatic Aberration PS (Prism) v1.2.4
+// Chromatic Aberration PS (Prism) v1.2.5
 // inspired by Marty McFly YACA shader
 
 
@@ -35,6 +35,7 @@ uniform bool Automatic <
 	ui_label = "Automatic sample count";
 	ui_tooltip = "Amount of samples will be adjusted automatically";
 	ui_category = "Performance";
+	ui_category_closed = true;
 > = true;
 
 uniform int SampleCount < __UNIFORM_SLIDER_INT1
@@ -73,9 +74,9 @@ sampler SamplerColor
 void ChromaticAberrationPS(float4 vois : SV_Position, float2 texcoord : TexCoord, out float3 BluredImage : SV_Target)
 {
 	// Grab Aspect Ratio
-	float Aspect = ReShade::AspectRatio;
+	float Aspect = BUFFER_ASPECT_RATIO;
 	// Grab Pixel V size
-	float Pixel = ReShade::PixelSize.y;
+	float Pixel = BUFFER_RCP_HEIGHT;
 
 	// Adjust number of samples
 	// IF Automatic IS True Ceil odd numbers to even with minimum 6, else Clamp odd numbers to even

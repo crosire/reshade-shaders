@@ -2,7 +2,11 @@
 // BASIC MACROS FOR RESHADE 4                             //
 // AUTHOR: TREYM                                          //
 ////////////////////////////////////////////////////////////
-
+// Modified by dddfault                                   //
+//                                                        //
+// Changelogs :                                           //
+//   Added Sampler texture boundary resolver option       //
+//   Added float2 parameters option                       //
 ////////////////////////////////////////////////////////////
 // Macros Guide:                                          //
 ////////////////////////////////////////////////////////////
@@ -113,6 +117,32 @@
     FLOAT Categorized macro with full control (value after "Tooltip" is ui_step)
         CAT_FLOAT_FULL(FLOAT_NAME, "ui_type", "Category", "Label", "Tooltip", 0.1, 0.0, 1.0, 0.5)
 
+  *  ////////////////////////////////////////////////////  *
+
+     FLOAT2 Drag Widget
+         UI_FLOAT2_D(FLOAT_NAME, "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Input Widget
+         UI_FLOAT2_I(FLOAT_NAME, "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Slider Widget
+         UI_FLOAT2_S(FLOAT_NAME, "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Categorized Drag Widget
+         CAT_FLOAT2_D(FLOAT_NAME, "Category", "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Categorized Input Widget
+         CAT_FLOAT2_I(FLOAT_NAME, "Category", "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Categorized Slider Widget
+         CAT_FLOAT2_S(FLOAT_NAME, "Category", "Label", "Tooltip", 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 macro with full control (value after "Tooltip" is ui_step)
+         UI_FLOAT2_FULL(FLOAT_NAME, "ui_type", "Label", "Tooltip", 0.1, 0.0, 1.0, 0.5, 0.5)
+
+     FLOAT2 Categorized macro with full control (value after "Tooltip" is ui_step)
+         CAT_FLOAT2_FULL(FLOAT_NAME, "ui_type", "Category", "Label", "Tooltip", 0.1, 0.0, 1.0, 0.5, 0.5)
+
  *  ////////////////////////////////////////////////////  *
 
     FLOAT3 Drag Widget
@@ -145,6 +175,9 @@
 
     SAMPLER Macro
         SAMPLER(SamplerName, TextureName)
+
+    SAMPLER Macro with texture boundary resolver option
+        SAMPLER_UV(SamplerName, TextureName, ResolverType)
 
     TEXTURE Macro
         TEXTURE(TextureName, "TexturePath")
@@ -379,6 +412,92 @@
             ui_max      = maxval; \
         >               = defval;
 
+    #define UI_FLOAT2_D(var, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "drag"; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define CAT_FLOAT2_D(var, category, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "drag"; \
+            ui_category = category; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define UI_FLOAT2_FULL(var, uitype, label, tooltip, uistep, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = uitype; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_step     = uistep; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define CAT_FLOAT2_FULL(var, uitype, category, label, tooltip, uistep, minval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = uitype; \
+            ui_category = category; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_step     = uistep; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define UI_FLOAT2_I(var, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "input"; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define CAT_FLOAT2_I(var, category, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "input"; \
+            ui_category = category; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define UI_FLOAT2_S(var, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "slider"; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
+    #define CAT_FLOAT2_S(var, category, label, tooltip, minval, maxval, defval1, defval2) \
+        uniform float2 var \
+        < \
+            ui_type     = "slider"; \
+            ui_category = category; \
+            ui_label    = label; \
+            ui_tooltip  = tooltip; \
+            ui_min      = minval; \
+            ui_max      = maxval; \
+        >               = float2(defval1, defval2);
+
     #define UI_FLOAT3_D(var, label, tooltip, defval1, defval2, defval3) \
         uniform float3 var \
         < \
@@ -455,6 +574,15 @@
         sampler	sname \
         { \
             Texture     = tname; \
+        };
+
+    #define SAMPLER_UV(sname, tname, addUVW) \
+        sampler	sname \
+        { \
+            Texture  = tname; \
+            AddressU = addUVW; \
+            AddressV = addUVW; \
+            AddressW = addUVW; \
         };
 
 

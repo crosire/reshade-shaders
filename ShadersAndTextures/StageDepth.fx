@@ -34,7 +34,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 #define TEXFORMAT RGBA8
 
@@ -60,7 +60,7 @@ texture Stage_texture <source="Stage.png";> { Width = BUFFER_WIDTH; Height = BUF
 
 sampler Stage_sampler { Texture = Stage_texture; };
 
-void PS_StageDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD0, out float3 color : SV_Target)
+void PS_StageDepth(in float4 position : SV_Position, in float2 texcoord : TEXCOORD, out float3 color : SV_Target)
 {
 	color = tex2D(ReShade::BackBuffer, texcoord).rgb;
 	if (!hasDepth) return;

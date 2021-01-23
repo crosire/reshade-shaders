@@ -104,7 +104,7 @@ float3 GetPosition(float2 coords)
 float3 GetNormalFromDepth(float2 coords) 
 {
 	float3 centerPos = GetPosition(coords.xy);
-	float2 offs = ReShade::PixelSize.xy*1.0;
+	float2 offs = BUFFER_PIXEL_SIZE*1.0;
 	float3 ddx1 = GetPosition(coords.xy + float2(offs.x, 0)) - centerPos;
 	float3 ddx2 = centerPos - GetPosition(coords.xy + float2(-offs.x, 0));
 
@@ -187,7 +187,7 @@ void PS_RBM_Gen(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 {
 	float scenedepth 		= GetLinearDepth(texcoord.xy);
 	float3 SurfaceNormals 		= GetNormalFromDepth(texcoord.xy).xyz;
-	float3 TextureNormals 		= GetNormalFromColor(texcoord.xy, 0.01 * ReShade::PixelSize.xy / scenedepth, 0.0002 / scenedepth + 0.1, 1000.0);
+	float3 TextureNormals 		= GetNormalFromColor(texcoord.xy, 0.01 * BUFFER_PIXEL_SIZE / scenedepth, 0.0002 / scenedepth + 0.1, 1000.0);
 	float3 SceneNormals		= GetBlendedNormals(SurfaceNormals, TextureNormals);
 	SceneNormals 			= normalize(lerp(SurfaceNormals,SceneNormals,fRBM_ReliefHeight));
 	float3 ScreenSpacePosition 	= GetPosition(texcoord.xy);
@@ -198,7 +198,7 @@ void PS_RBM_Gen(float4 vpos : SV_Position, float2 texcoord : TEXCOORD, out float
 
 	for(float i=1; i<=iRBM_SampleCount; i++)
 	{
-		float2 currentOffset 	= texcoord.xy + SceneNormals.xy * ReShade::PixelSize.xy * i/(float)iRBM_SampleCount * fRBM_BlurWidthPixels;
+		float2 currentOffset 	= texcoord.xy + SceneNormals.xy * BUFFER_PIXEL_SIZE * i/(float)iRBM_SampleCount * fRBM_BlurWidthPixels;
 		float4 texelSample 	= tex2Dlod(ReShade::BackBuffer, float4(currentOffset,0,0));	
 		
 		float depthDiff 	= smoothstep(0.005,0.0,scenedepth-GetLinearDepth(currentOffset));

@@ -176,33 +176,33 @@ if (Ascii_font == 1)
 float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
 
 float2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
-float2 cursor_position = trunc((ReShade::ScreenSize / Ascii_block) * tex) * (Ascii_block / ReShade::ScreenSize);
+float2 cursor_position = trunc((BUFFER_SCREEN_SIZE / Ascii_block) * tex) * (Ascii_block / BUFFER_SCREEN_SIZE);
 
 
 //TODO Cleanup - and maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
 //-- Pattern 2 - Sample ALL the pixels! --
-float3 color = tex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * ReShade::PixelSize).rgb;
-color += tex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * ReShade::PixelSize).rgb;
-//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * ReShade::PixelSize).rgb;
+float3 color = tex2D(asciiSampler, cursor_position + float2( 1.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 1.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 1.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 0.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 3.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 3.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 3.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 2.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 5.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 5.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += tex2D(asciiSampler, cursor_position + float2( 5.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 4.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 0.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 2.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 4.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += tex2D(asciiSampler, cursor_position + float2( 6.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
 
 color /= 9.0;
 
 /*	
 //-- Pattern 3 - Just one -- 
-float3 color = tex2D(asciiSampler, cursor_position + float2(4.0,4.0) * ReShade::PixelSize)	.rgb; //this may be fast but it's not very temporally stable
+float3 color = tex2D(asciiSampler, cursor_position + float2(4.0,4.0) * BUFFER_PIXEL_SIZE)	.rgb; //this may be fast but it's not very temporally stable
 */
 
 /*------------------------.
@@ -233,7 +233,7 @@ if (Ascii_dithering_debug_gradient)
 | :: Get position :: |
 '-------------------*/
 
-float2 p = frac((ReShade::ScreenSize / Ascii_block) * tex);  //p is the position of the current pixel inside the character
+float2 p = frac((BUFFER_SCREEN_SIZE / Ascii_block) * tex);  //p is the position of the current pixel inside the character
 
 p = trunc(p * Ascii_block);
 //p = trunc(p * Ascii_block - float2(1.5,1.5)) ;
@@ -429,7 +429,7 @@ return saturate(color);
 }
 
 
-float3 PS_Ascii(float4 position : SV_Position, float2 texcoord : TEXCOORD0) : SV_Target
+float3 PS_Ascii(float4 position : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
 {  
 	float3 color = AsciiPass(texcoord);
 	return color.rgb;

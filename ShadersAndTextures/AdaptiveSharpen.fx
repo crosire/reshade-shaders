@@ -102,7 +102,7 @@ uniform float pm_p <
 
 #include "ReShade.fxh"
 
-texture AS_Pass0Tex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
+texture AS_Pass0Tex < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RG16F; };
 sampler AS_Pass0Sampler { Texture = AS_Pass0Tex; };
 
 // Helper funcs
@@ -110,7 +110,7 @@ sampler AS_Pass0Sampler { Texture = AS_Pass0Tex; };
 #define max4(a,b,c,d)  ( max(max(a, b), max(c, d)) )
 
 // Get destination pixel values
-#define texc(x,y)      ( ReShade::PixelSize*float2(x, y) + tex )
+#define texc(x,y)      ( BUFFER_PIXEL_SIZE*float2(x, y) + tex )
 #define getB(x,y)      ( saturate(tex2D(ReShade::BackBuffer, texc(x, y)).rgb) )
 #define getT(x,y)      ( tex2D(AS_Pass0Sampler, texc(x, y)).xy )
 

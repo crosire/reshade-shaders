@@ -31,13 +31,13 @@ uniform float FogFactor < __UNIFORM_SLIDER_FLOAT1
 	
 uniform bool hasDepth < source = "bufready_depth"; >;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 //////////////////////////////////////
 // textures
 //////////////////////////////////////
 texture   Otis_FragmentBuffer1 	{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};	
-texture   Otis_FragmentBuffer2 	{ Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};	
+texture   Otis_FragmentBuffer2 	< pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8;};	
 
 //////////////////////////////////////
 // samplers
@@ -62,12 +62,12 @@ void PS_Otis_DEH_BlockBlurHorizontal(in float4 pos : SV_Position, in float2 texc
 	[loop]
 	for(float i = 1; i < 5; ++i) 
 	{
-		float2 sourceCoords = texcoord + float2(i * ReShade::PixelSize.x, 0.0);
+		float2 sourceCoords = texcoord + float2(i * BUFFER_PIXEL_SIZE.x, 0.0);
 		float weight = CalculateWeight(i, colorDepth, ReShade::GetLinearizedDepth(sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
 		
-		sourceCoords = texcoord - float2(i * ReShade::PixelSize.x, 0.0);
+		sourceCoords = texcoord - float2(i * BUFFER_PIXEL_SIZE.x, 0.0);
 		weight = CalculateWeight(i, colorDepth, ReShade::GetLinearizedDepth(sourceCoords).r);
 		color += (tex2D(ReShade::BackBuffer, sourceCoords) * weight);
 		n+=weight;
@@ -84,12 +84,12 @@ void PS_Otis_DEH_BlockBlurVertical(in float4 pos : SV_Position, in float2 texcoo
 	[loop]
 	for(float j = 1; j < 5; ++j) 
 	{
-		float2 sourceCoords = texcoord + float2(0.0, j * ReShade::PixelSize.y);
+		float2 sourceCoords = texcoord + float2(0.0, j * BUFFER_PIXEL_SIZE.y);
 		float weight = CalculateWeight(j, colorDepth, ReShade::GetLinearizedDepth(sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
 
-		sourceCoords = texcoord - float2(0.0, j * ReShade::PixelSize.y);
+		sourceCoords = texcoord - float2(0.0, j * BUFFER_PIXEL_SIZE.y);
 		weight = CalculateWeight(j, colorDepth, ReShade::GetLinearizedDepth(sourceCoords).r);
 		color += (tex2D(Otis_SamplerFragmentBuffer1, sourceCoords) * weight);
 		n+=weight;
