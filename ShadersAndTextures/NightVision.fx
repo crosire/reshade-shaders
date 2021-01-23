@@ -9,12 +9,12 @@ float mod(float x, float y)
 	return x - y * floor (x/y);
 }
 
-float3 PS_Nightvision(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target
+float3 PS_Nightvision(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
 {	
 	float2 p = uv;
 	
 	float2 u = p * 2. - 1.;
-	float2 n = u * float2(ReShade::ScreenSize.x / ReShade::ScreenSize.y, 1.0);
+	float2 n = u * float2(BUFFER_ASPECT_RATIO, 1.0);
 	float3 c = tex2D(ReShade::BackBuffer, uv).xyz;
 
 	// flicker, grain, vignette, fade in

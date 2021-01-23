@@ -59,7 +59,7 @@ uniform bool show_sharpen <
   /                          Main code                          /
   '-----------------------------------------------------------*/
 
-float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : SV_Target
+float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD) : SV_Target
 {
 	// -- Get the original pixel --
 	float3 ori = tex2D(ReShade::BackBuffer, tex).rgb; // ori = original pixel
@@ -84,11 +84,11 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		//   [ 2/9, 8/9, 2/9]  =  [ 2 , 8 , 2 ]
 		//   [    , 2/9, 1/9]     [   , 2 , 1 ]
 
-		blur_ori  = tex2D(ReShade::BackBuffer, tex + (ReShade::PixelSize / 3.0) * offset_bias).rgb;  // North West
-		blur_ori += tex2D(ReShade::BackBuffer, tex + (-ReShade::PixelSize / 3.0) * offset_bias).rgb; // South East
+		blur_ori  = tex2D(ReShade::BackBuffer, tex + (BUFFER_PIXEL_SIZE / 3.0) * offset_bias).rgb;  // North West
+		blur_ori += tex2D(ReShade::BackBuffer, tex + (-BUFFER_PIXEL_SIZE / 3.0) * offset_bias).rgb; // South East
 
-		//blur_ori += tex2D(ReShade::BackBuffer, tex + (ReShade::PixelSize / 3.0) * offset_bias); // North East
-		//blur_ori += tex2D(ReShade::BackBuffer, tex + (-ReShade::PixelSize / 3.0) * offset_bias); // South West
+		//blur_ori += tex2D(ReShade::BackBuffer, tex + (BUFFER_PIXEL_SIZE / 3.0) * offset_bias); // North East
+		//blur_ori += tex2D(ReShade::BackBuffer, tex + (-BUFFER_PIXEL_SIZE / 3.0) * offset_bias); // South West
 
 		blur_ori /= 2;  //Divide by the number of texture fetches
 
@@ -103,10 +103,10 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		//   [ .50,   1, .50]  =  [ 2 , 4 , 2 ]
 		//   [ .25, .50, .25]     [ 1 , 2 , 1 ]
 
-		blur_ori  = tex2D(ReShade::BackBuffer, tex + float2(ReShade::PixelSize.x, -ReShade::PixelSize.y) * 0.5 * offset_bias).rgb; // South East
-		blur_ori += tex2D(ReShade::BackBuffer, tex - ReShade::PixelSize * 0.5 * offset_bias).rgb;  // South West
-		blur_ori += tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize * 0.5 * offset_bias).rgb; // North East
-		blur_ori += tex2D(ReShade::BackBuffer, tex - float2(ReShade::PixelSize.x, -ReShade::PixelSize.y) * 0.5 * offset_bias).rgb; // North West
+		blur_ori  = tex2D(ReShade::BackBuffer, tex + float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offset_bias).rgb; // South East
+		blur_ori += tex2D(ReShade::BackBuffer, tex - BUFFER_PIXEL_SIZE * 0.5 * offset_bias).rgb;  // South West
+		blur_ori += tex2D(ReShade::BackBuffer, tex + BUFFER_PIXEL_SIZE * 0.5 * offset_bias).rgb; // North East
+		blur_ori += tex2D(ReShade::BackBuffer, tex - float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offset_bias).rgb; // North West
 
 		blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
 	}
@@ -121,10 +121,10 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		//   [ 4 ,16 ,24 ,16 ,   ]
 		//   [   ,   , 6 , 4 ,   ]
 
-		blur_ori  = tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize * float2(0.4, -1.2) * offset_bias).rgb;  // South South East
-		blur_ori += tex2D(ReShade::BackBuffer, tex - ReShade::PixelSize * float2(1.2, 0.4) * offset_bias).rgb; // West South West
-		blur_ori += tex2D(ReShade::BackBuffer, tex + ReShade::PixelSize * float2(1.2, 0.4) * offset_bias).rgb; // East North East
-		blur_ori += tex2D(ReShade::BackBuffer, tex - ReShade::PixelSize * float2(0.4, -1.2) * offset_bias).rgb; // North North West
+		blur_ori  = tex2D(ReShade::BackBuffer, tex + BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offset_bias).rgb;  // South South East
+		blur_ori += tex2D(ReShade::BackBuffer, tex - BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offset_bias).rgb; // West South West
+		blur_ori += tex2D(ReShade::BackBuffer, tex + BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offset_bias).rgb; // East North East
+		blur_ori += tex2D(ReShade::BackBuffer, tex - BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offset_bias).rgb; // North North West
 
 		blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
 
@@ -139,10 +139,10 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 		//   [ .50,    , .50]  =  [ 1 ,   , 1 ]
 		//   [ .50, .50, .50]     [ 1 , 1 , 1 ]
 
-		blur_ori  = tex2D(ReShade::BackBuffer, tex + float2(0.5 * ReShade::PixelSize.x, -ReShade::PixelSize.y * offset_bias)).rgb;  // South South East
-		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(offset_bias * -ReShade::PixelSize.x, 0.5 * -ReShade::PixelSize.y)).rgb; // West South West
-		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(offset_bias * ReShade::PixelSize.x, 0.5 * ReShade::PixelSize.y)).rgb; // East North East
-		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(0.5 * -ReShade::PixelSize.x, ReShade::PixelSize.y * offset_bias)).rgb; // North North West
+		blur_ori  = tex2D(ReShade::BackBuffer, tex + float2(0.5 * BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y * offset_bias)).rgb;  // South South East
+		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(offset_bias * -BUFFER_PIXEL_SIZE.x, 0.5 * -BUFFER_PIXEL_SIZE.y)).rgb; // West South West
+		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(offset_bias * BUFFER_PIXEL_SIZE.x, 0.5 * BUFFER_PIXEL_SIZE.y)).rgb; // East North East
+		blur_ori += tex2D(ReShade::BackBuffer, tex + float2(0.5 * -BUFFER_PIXEL_SIZE.x, BUFFER_PIXEL_SIZE.y * offset_bias)).rgb; // North North West
 
 		//blur_ori += (2 * ori); // Probably not needed. Only serves to lessen the effect.
 
@@ -158,7 +158,7 @@ float3 LumaSharpenPass(float4 position : SV_Position, float2 tex : TEXCOORD0) : 
 	// -- Calculate the sharpening --
 	float3 sharp = ori - blur_ori;  //Subtracting the blurred image from the original image
 
-#if 0 //older CeeJay 1.4 code (included here because the new code while faster can be difficult to understand)
+#if 0 //older 1.4 code (included here because the new code while faster can be difficult to understand)
 	// -- Adjust strength of the sharpening --
 	float sharp_luma = dot(sharp, sharp_strength_luma); //Calculate the luma and adjust the strength
 

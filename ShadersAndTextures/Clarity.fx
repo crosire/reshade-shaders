@@ -71,9 +71,9 @@ uniform bool ClarityViewMask
 
 #include "ReShade.fxh"
 
-texture ClarityTex{ Width = BUFFER_WIDTH*0.5; Height = BUFFER_HEIGHT*0.5; Format = R8; };
-texture ClarityTex2{ Width = BUFFER_WIDTH*0.5; Height = BUFFER_HEIGHT*0.5; Format = R8; };
-texture ClarityTex3{ Width = BUFFER_WIDTH*0.25; Height = BUFFER_HEIGHT*0.25; Format = R8; };
+texture ClarityTex < pooled = true; > { Width = BUFFER_WIDTH * 0.5; Height = BUFFER_HEIGHT * 0.5; Format = R8; };
+texture ClarityTex2 { Width = BUFFER_WIDTH * 0.5; Height = BUFFER_HEIGHT * 0.5; Format = R8; };
+texture ClarityTex3 < pooled = true; > { Width = BUFFER_WIDTH * 0.25; Height = BUFFER_HEIGHT * 0.25; Format = R8; };
 
 sampler ClaritySampler { Texture = ClarityTex;};
 sampler ClaritySampler2 { Texture = ClarityTex2;};
@@ -94,8 +94,8 @@ if(ClarityRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
 	}
 }	
 
@@ -109,8 +109,8 @@ if(ClarityRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
 	}
 }	
 
@@ -124,8 +124,8 @@ if(ClarityRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
 	}
 }	
 
@@ -139,8 +139,8 @@ if(ClarityRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
 	}
 }
 
@@ -154,8 +154,8 @@ if(ClarityRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
-		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
+		color += tex2D(ClaritySampler3, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r * weight[i];
 	}
 }	
 	
@@ -270,8 +270,8 @@ if(ClarityRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
 	}
 }	
 
@@ -285,8 +285,8 @@ if(ClarityRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
 	}
 }	
 
@@ -300,8 +300,8 @@ if(ClarityRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
 	}
 }	
 
@@ -315,8 +315,8 @@ if(ClarityRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
 	}
 }	
 
@@ -330,8 +330,8 @@ if(ClarityRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).rgb * weight[i];
 	}
 }	
 	
@@ -352,8 +352,8 @@ if(ClarityRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -367,8 +367,8 @@ if(ClarityRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -382,8 +382,8 @@ if(ClarityRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -397,8 +397,8 @@ if(ClarityRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
 	}
 }
 
@@ -412,8 +412,8 @@ if(ClarityRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -434,8 +434,8 @@ if(ClarityRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -449,8 +449,8 @@ if(ClarityRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -464,8 +464,8 @@ if(ClarityRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -479,8 +479,8 @@ if(ClarityRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
 	}
 }	
 
@@ -494,8 +494,8 @@ if(ClarityRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
-		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
+		color += tex2D(ClaritySampler2, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * ClarityOffset).r* weight[i];
 	}
 }	
 	

@@ -8,7 +8,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef fLUT_TextureName
-	#define fLUT_TextureName "MultiLut_Atlas1.png"
+	#define fLUT_TextureName "MultiLut_atlas1.png"
 #endif
 #ifndef fLUT_TileSizeXY
 	#define fLUT_TileSizeXY 32

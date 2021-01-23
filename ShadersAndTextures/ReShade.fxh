@@ -13,13 +13,35 @@
 #ifndef RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 	#define RESHADE_DEPTH_INPUT_IS_LOGARITHMIC 0
 #endif
+//RESHADE_DEPTH_MULTIPLER only useful for emulators, keep at 1 for standard operation
+#ifndef RESHADE_DEPTH_MULTIPLIER
+	#define RESHADE_DEPTH_MULTIPLIER 1
+#endif
 #ifndef RESHADE_DEPTH_LINEARIZATION_FAR_PLANE
 	#define RESHADE_DEPTH_LINEARIZATION_FAR_PLANE 1000.0
 #endif
+//above 1 expands, below 1 contracts, 1 is no scaling on axis
+#ifndef RESHADE_DEPTH_INPUT_Y_SCALE
+	#define RESHADE_DEPTH_INPUT_Y_SCALE 1
+#endif
+#ifndef RESHADE_DEPTH_INPUT_X_SCALE
+	#define RESHADE_DEPTH_INPUT_X_SCALE 1
+#endif
+//the Offset value to add to the Y, Positive numbers = Up, Negative numbers = Down
+#ifndef RESHADE_DEPTH_INPUT_Y_OFFSET
+	#define RESHADE_DEPTH_INPUT_Y_OFFSET 0
+#endif
+//the Offset value to add to the X, Positive numbers = Right, Negative numbers = Left
+#ifndef RESHADE_DEPTH_INPUT_X_OFFSET
+	#define RESHADE_DEPTH_INPUT_X_OFFSET 0
+#endif
+
+#define BUFFER_PIXEL_SIZE float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT)
+#define BUFFER_SCREEN_SIZE float2(BUFFER_WIDTH, BUFFER_HEIGHT)
+#define BUFFER_ASPECT_RATIO (BUFFER_WIDTH * BUFFER_RCP_HEIGHT)
 
 namespace ReShade
 {
-	// Global variables
 #if defined(__RESHADE_FXC__)
 	float GetAspectRatio() { return BUFFER_WIDTH * BUFFER_RCP_HEIGHT; }
 	float2 GetPixelSize() { return float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT); }
@@ -28,11 +50,12 @@ namespace ReShade
 	#define PixelSize GetPixelSize()
 	#define ScreenSize GetScreenSize()
 #else
+	// These are deprecated and will be removed eventually.
 	static const float AspectRatio = BUFFER_WIDTH * BUFFER_RCP_HEIGHT;
 	static const float2 PixelSize = float2(BUFFER_RCP_WIDTH, BUFFER_RCP_HEIGHT);
 	static const float2 ScreenSize = float2(BUFFER_WIDTH, BUFFER_HEIGHT);
 #endif
-	
+
 	// Global textures and samplers
 	texture BackBufferTex : COLOR;
 	texture DepthBufferTex : DEPTH;
@@ -46,7 +69,11 @@ namespace ReShade
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 		texcoord.y = 1.0 - texcoord.y;
 #endif
-		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x;
+		texcoord.x /= RESHADE_DEPTH_INPUT_X_SCALE; //above 1 expands, below 1 contracts
+		texcoord.y /= RESHADE_DEPTH_INPUT_Y_SCALE; //above 1 expands, below 1 contracts
+		texcoord.x -= (RESHADE_DEPTH_INPUT_X_OFFSET/2.000000001); //halves the input value before applying
+		texcoord.y += (RESHADE_DEPTH_INPUT_Y_OFFSET/2.000000001); //halves the input value before applying, adds instead of minusing
+		float depth = tex2Dlod(DepthBuffer, float4(texcoord, 0, 0)).x * RESHADE_DEPTH_MULTIPLIER; //RESHADE_DEPTH_MULTIPLER only useful for emulators, keep at 1 for standard operation
 
 #if RESHADE_DEPTH_INPUT_IS_LOGARITHMIC
 		const float C = 0.01;

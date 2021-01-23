@@ -43,23 +43,23 @@ uniform int DebugMode
 
 #include "ReShade.fxh"
 
-#define sOffset1x ReShade::PixelSize.x
-#define sOffset1y ReShade::PixelSize.y
+#define sOffset1x BUFFER_PIXEL_SIZE.x
+#define sOffset1y BUFFER_PIXEL_SIZE.y
 
-#define sOffset2x 2.0*ReShade::PixelSize.x
-#define sOffset2y 2.0*ReShade::PixelSize.y
+#define sOffset2x 2.0*BUFFER_PIXEL_SIZE.x
+#define sOffset2y 2.0*BUFFER_PIXEL_SIZE.y
 
-#define sOffset3ax 1.3846153846*ReShade::PixelSize.x
-#define sOffset3bx 3.2307692308*ReShade::PixelSize.x
-#define sOffset3ay 1.3846153846*ReShade::PixelSize.y
-#define sOffset3by 3.2307692308*ReShade::PixelSize.y
+#define sOffset3ax 1.3846153846*BUFFER_PIXEL_SIZE.x
+#define sOffset3bx 3.2307692308*BUFFER_PIXEL_SIZE.x
+#define sOffset3ay 1.3846153846*BUFFER_PIXEL_SIZE.y
+#define sOffset3by 3.2307692308*BUFFER_PIXEL_SIZE.y
 
-#define sOffset4ax 1.4584295168*ReShade::PixelSize.x
-#define sOffset4bx 3.4039848067*ReShade::PixelSize.x
-#define sOffset4cx 5.3518057801*ReShade::PixelSize.x
-#define sOffset4ay 1.4584295168*ReShade::PixelSize.y
-#define sOffset4by 3.4039848067*ReShade::PixelSize.y
-#define sOffset4cy 5.3518057801*ReShade::PixelSize.y
+#define sOffset4ax 1.4584295168*BUFFER_PIXEL_SIZE.x
+#define sOffset4bx 3.4039848067*BUFFER_PIXEL_SIZE.x
+#define sOffset4cx 5.3518057801*BUFFER_PIXEL_SIZE.x
+#define sOffset4ay 1.4584295168*BUFFER_PIXEL_SIZE.y
+#define sOffset4by 3.4039848067*BUFFER_PIXEL_SIZE.y
+#define sOffset4cy 5.3518057801*BUFFER_PIXEL_SIZE.y
 	
 #if SurfaceBlurIterations >= 2
 	texture SurfaceBlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
@@ -67,7 +67,7 @@ uniform int DebugMode
 #endif
 
 #if SurfaceBlurIterations >= 3
-	texture SurfaceBlurTex2 { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+	texture SurfaceBlurTex2 < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 	sampler SurfaceBlurSampler2 { Texture = SurfaceBlurTex2;};
 #endif
 

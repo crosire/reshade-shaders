@@ -23,7 +23,7 @@ uniform float GaussianBlurStrength < __UNIFORM_SLIDER_FLOAT1
 
 #include "ReShade.fxh"
 
-texture GaussianBlurTex { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+texture GaussianBlurTex < pooled = true; > { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 sampler GaussianBlurSampler { Texture = GaussianBlurTex;};
 
 float3 GaussianBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) : COLOR
@@ -41,8 +41,8 @@ if(GaussianBlurRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -56,8 +56,8 @@ if(GaussianBlurRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -71,8 +71,8 @@ if(GaussianBlurRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -86,8 +86,8 @@ if(GaussianBlurRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
 	}
 }
 
@@ -101,8 +101,8 @@ if(GaussianBlurRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * ReShade::PixelSize.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord + float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(GaussianBlurSampler, texcoord - float2(0.0, offset[i] * BUFFER_PIXEL_SIZE.y) * GaussianBlurOffset).rgb * weight[i];
 	}
 }		
 
@@ -127,8 +127,8 @@ if(GaussianBlurRadius == 0)
 	[loop]
 	for(int i = 1; i < 4; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -142,8 +142,8 @@ if(GaussianBlurRadius == 1)
 	[loop]
 	for(int i = 1; i < 6; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -157,8 +157,8 @@ if(GaussianBlurRadius == 2)
 	[loop]
 	for(int i = 1; i < 11; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -172,8 +172,8 @@ if(GaussianBlurRadius == 3)
 	[loop]
 	for(int i = 1; i < 15; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 
@@ -187,8 +187,8 @@ if(GaussianBlurRadius == 4)
 	[loop]
 	for(int i = 1; i < 18; ++i)
 	{
-		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
-		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * ReShade::PixelSize.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord + float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
+		color += tex2D(ReShade::BackBuffer, texcoord - float2(offset[i] * BUFFER_PIXEL_SIZE.x, 0.0) * GaussianBlurOffset).rgb * weight[i];
 	}
 }	
 	return saturate(color);

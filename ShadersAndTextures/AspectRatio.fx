@@ -32,7 +32,7 @@ uniform float3 Color < __UNIFORM_COLOR_FLOAT3
 	 /// SHADER ///
 	//////////////
 
-float3 AspectRatioPS(float4 pos : SV_Position, float2 coord : TEXCOORD0) : SV_Target
+float3 AspectRatioPS(float4 pos : SV_Position, float2 coord : TEXCOORD) : SV_Target
 {
 	bool Mask = false;
 

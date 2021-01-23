@@ -56,7 +56,7 @@ float quantize(float n, float steps)
 
 float4 downsample(sampler2D samp, float2 uv, float pixelSize)
 {
-    return tex2D(samp, uv - fmod(uv, float2(pixelSize,pixelSize) / ReShade::ScreenSize.xy));
+    return tex2D(samp, uv - fmod(uv, float2(pixelSize,pixelSize) / BUFFER_SCREEN_SIZE));
 }
 
 float rand(float n)
@@ -90,8 +90,8 @@ float noise(float2 p)
 
 float3 edge(sampler2D samp, float2 uv, float sampleSize)
 {
-    float dx = sampleSize / ReShade::ScreenSize.x;
-    float dy = sampleSize / ReShade::ScreenSize.y;
+    float dx = sampleSize * BUFFER_RCP_WIDTH;
+    float dy = sampleSize * BUFFER_RCP_HEIGHT;
     return (
     lerp(downsample(samp, uv - float2(dx, 0.0), sampleSize), downsample(samp, uv + float2(dx, 0.0), sampleSize), fmod(uv.x, dx) / dx) +
     lerp(downsample(samp, uv - float2(0.0, dy), sampleSize), downsample(samp, uv + float2(0.0, dy), sampleSize), fmod(uv.y, dy) / dy)    
@@ -100,25 +100,25 @@ float3 edge(sampler2D samp, float2 uv, float sampleSize)
 
 float3 distort(sampler2D samp, float2 uv, float edgeSize)
 {
-    float2 pixel = float2(1.0,1.0) / ReShade::ScreenSize.xy;
+    float2 pixel = BUFFER_PIXEL_SIZE;
     float3 field = rgb2hsv(edge(samp, uv, edgeSize));
     float2 distort = pixel * sin((field.rb) * PI * 2.0);
-    float shiftx = noise(float2(quantize(uv.y + 31.5, ReShade::ScreenSize.y / TILE_SIZE) * Timer*0.001, frac(Timer*0.001) * 300.0));
-    float shifty = noise(float2(quantize(uv.x + 11.5, ReShade::ScreenSize.x / TILE_SIZE) * Timer*0.001, frac(Timer*0.001) * 100.0));
+    float shiftx = noise(float2(quantize(uv.y + 31.5, BUFFER_HEIGHT / TILE_SIZE) * Timer*0.001, frac(Timer*0.001) * 300.0));
+    float shifty = noise(float2(quantize(uv.x + 11.5, BUFFER_WIDTH / TILE_SIZE) * Timer*0.001, frac(Timer*0.001) * 100.0));
     float3 rgb = tex2D(samp, uv + (distort + (pixel - pixel / 2.0) * float2(shiftx, shifty) * (50.0 + 100.0 * Amount)) * Amount).rgb;
     float3 hsv = rgb2hsv(rgb);
     hsv.y = fmod(hsv.y + shifty * pow(Amount, 5.0) * 0.25, 1.0);
     return posterize(hsv2rgb(hsv), floor(lerp(256.0, pow(1.0 - hsv.z - 0.5, 2.0) * 64.0 * shiftx + 4.0, 1.0 - pow(1.0 - Amount, 5.0))));
 }
 
-float4 PS_Glitch ( float4 pos : SV_Position, float2 fragCoord : TEXCOORD0) : SV_Target
+float4 PS_Glitch ( float4 pos : SV_Position, float2 fragCoord : TEXCOORD) : SV_Target
 {
 	float4 fragColor;
 	float wow;
 	float Amount;
 
-	float2 texcoord = fragCoord * ReShade::ScreenSize; //this is because the original shader uses OpenGL's fragCoord, which is in texels rather than pixels
-	float2 uv = texcoord.xy / ReShade::ScreenSize.xy;
+	float2 texcoord = fragCoord * BUFFER_SCREEN_SIZE; //this is because the original shader uses OpenGL's fragCoord, which is in texels rather than pixels
+	float2 uv = texcoord.xy / BUFFER_SCREEN_SIZE;
 	if (bUseUV) {
 		Amount = uv.x; // Just erase this line if you want to use the control at the top
 	}
