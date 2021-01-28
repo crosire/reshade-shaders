@@ -117,6 +117,7 @@ uniform int DebugOutput < __UNIFORM_COMBO_INT1
 		#define SMAAGather(tex, coord) tex2Dgather(tex, coord, 0)
 	#else
 		#define SMAAGather(tex, coord) tex2DgatherR(tex, coord)
+	#endif
 #endif
 
 #include "SMAA.fxh"
