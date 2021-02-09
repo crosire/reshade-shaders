@@ -54,7 +54,7 @@ float3 TriDither(float3 color, float2 uv, int bits)
     float lobit = 0.5 / bitstep;
     float hibit = (bitstep - 0.5) / bitstep;
 
-    float3 m = float3(uv, rand21(uv + DitherTimer)) + 1.0;
+    float3 m = float3(uv, rand21(uv + DitherTimer * 0.001)) + 1.0;
     float h = permute(permute(permute(m.x) + m.y) + m.z);
 
     float3 noise1, noise2;
