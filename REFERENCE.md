@@ -58,7 +58,7 @@ Annotations:
 
  * ``texture2D imageTex < source = "path/to/image.bmp"; > { ... };``  
  Opens image from the patch specified, resizes it to the texture size and loads it into the texture.\
- ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), Targa Image (\*.tga) and DirectDraw Surface (\*.dds) files.
+ ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), and Targa Image (\*.tga) files.
 
  * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
