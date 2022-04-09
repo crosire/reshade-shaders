@@ -50,6 +50,11 @@ Constructs like the following may be interpreted as a configurable UI option. To
 #endif
 ```
 
+You can disable optimization during shader compilation by adding this line to an effect file:
+```c
+#pragma reshade skipoptimization
+```
+
 ### Texture Object
 
 > Textures are multidimensional data containers usually used to store images.
@@ -88,7 +93,7 @@ texture2D texTarget
 	
 	// The internal texture format (default: RGBA8).
 	// Available formats:
-	//   R8, R16F, R32F
+	//   R8, R16, R16F, R32F
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F
 	//   RGB10A2
@@ -364,6 +369,7 @@ In addition to these, ReShade FX provides a few additional ones:
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplelevel.
  * ``float4 tex2Dfetch(sampler2D s, int2 coords)``  
  * ``float4 tex2Dfetch(sampler2D s, int2 coords, int lod)``  
+ * ``float4 tex2Dfetch(storage2D s, int2 coords)``  
  Fetches a value from the texture directly without any sampling.\
  See also https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-load.
  * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
@@ -385,6 +391,7 @@ In addition to these, ReShade FX provides a few additional ones:
  ```
  * ``int2 tex2Dsize(sampler2D s)``  
  * ``int2 tex2Dsize(sampler2D s, int lod)``  
+ * ``int2 tex2Dsize(storage2D s)``  
  Gets the texture dimensions of the specified mipmap level.\
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-getdimensions
  * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
@@ -461,10 +468,11 @@ technique Example < ui_tooltip = "This is an example!"; >
 		// The number of thread groups to dispatch when a compute shader is used.
 		DispatchSizeX = 1;
 		DispatchSizeY = 1;
+		DispatchSizeZ = 1;
 
 		// Compute shaders are specified with the number of threads per thread group in brackets.
-		// The following for example will create groups of 64x1 threads:
-		ComputeShader = ExampleCS0<64,1>;
+		// The following for example will create groups of 64x1x1 threads:
+		ComputeShader = ExampleCS0<64,1,1>;
 	
 		// RenderTarget0 to RenderTarget7 allow to set one or more render targets for rendering to textures.
 		// Set them to a texture name declared above in order to write the color output (SV_Target0 to RenderTarget0, SV_Target1 to RenderTarget1, ...) to this texture in this pass.
@@ -483,17 +491,20 @@ technique Example < ui_tooltip = "This is an example!"; >
 		// Enable or disable gamma correction applied to the output.
 		SRGBWriteEnable = false;
 
-		// Enable or disable color and alpha blending.
+		// BlendEnable0 to BlendEnable7 allow to enable or disable color and alpha blending for the respective render target.
 		// Don't forget to also set "ClearRenderTargets" to "false" if you want to blend with existing data in a render target.
+		// BlendEnable and BlendEnable0 are aliases,
 		BlendEnable = false;
 
 		// The operator used for color and alpha blending.
+		// To set these individually for each render target, append the render target index to the pass state name, e.g. BlendOp3 for the fourth render target (zero-based index 3).
 		// Available values:
 		//   ADD, SUBTRACT, REVSUBTRACT, MIN, MAX
 		BlendOp = ADD;
 		BlendOpAlpha = ADD;
 
 		// The data source and optional pre-blend operation used for blending.
+		// To set these individually for each render target, append the render target index to the pass state name, e.g. SrcBlend3 for the fourth render target (zero-based index 3).
 		// Available values:
 		//   ZERO, ONE,
 		//   SRCCOLOR, SRCALPHA, INVSRCCOLOR, INVSRCALPHA
