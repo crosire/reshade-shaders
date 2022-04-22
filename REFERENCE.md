@@ -178,6 +178,7 @@ Annotations to customize UI appearance:
  * ui_category: Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
  * ui_category_closed: Set to true to show a category closed by default.
  * ui_spacing: Adds space before the UI widget (multiplied by the value of the annotation).
+ * hidden: Set to true to hide this technique in the UI.
 
 Annotations are also used to request special runtime values (via the `source` annotation):
 
