@@ -12,8 +12,3 @@ Installation
 4. Add the path to the extracted [Shaders](/Shaders) folder to "Effect Search Paths"
 5. Add the path to the extracted [Textures](/Textures) folder to "Texture Search Paths"
 6. Switch back to the "Home" tab and click on "Reload" to load the shaders
-
-Contributing
-------------
-
-Check out [the language reference document](REFERENCE.md) to get started on how to write your own!
