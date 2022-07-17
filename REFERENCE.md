@@ -159,6 +159,9 @@ storage2D storageTarget
 {
 	// The texture to be used as storage.
 	Texture = texTarget;
+
+	// The mipmap level of the texture to fetch/store.
+	MipLevel = 0;
 };
 ```
 
@@ -484,8 +487,12 @@ technique Example < ui_tooltip = "This is an example!"; >
 		// RenderTarget and RenderTarget0 are aliases.
 		RenderTarget = texTarget;
 
-		// Clears all bound render targets to zero before rendering when set to true.
+		// Set to true to clear all bound render targets to zero before rendering.
 		ClearRenderTargets = false;
+
+		// Set to false to disable automatic rebuilding of the mipmap chain of all render targets and/or storage objects.
+		// This is useful when using a compute shader that writes to specific mipmap levels, rather than relying on the automatic generation.
+		GenerateMipMaps = true;
 		
 		// A mask applied to the color output before it is written to the render target.
 		RenderTargetWriteMask = 0xF; // or ColorWriteEnable
