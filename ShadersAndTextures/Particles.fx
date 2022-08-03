@@ -331,7 +331,7 @@ float Fade()
 	float Trigger_Fade = 0;
 	#endif
 
-	float AA = (1-MS)*1000, PStoredfade = tex2D(P_BloomPart,0.5).y;
+	float AA = (1-MS)*1000, PStoredfade = tex2Dlod(P_BloomPart,0.5).y;
 	return PStoredfade + (Trigger_Fade - PStoredfade) * (1.0 - exp(-frametime/AA)); ///exp2 would be even slower
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
