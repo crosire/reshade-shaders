@@ -186,7 +186,7 @@ static const float OffsetC[25] = { 0.5, 1.5, 3.5, 5.5, 7.5, 9.5, 11.5, 13.5, 15.
 static const float OffsetD[25] = { 0.5, 2.5, 4.5, 6.5, 8.5,10.5, 12.5, 14.5, 16.5, 18.5, 20.5, 22.5, 24.5, 26.5, 28.5, 30.5, 32.5, 34.5, 36.5, 38.5, 40.5, 42.5, 44.5, 46.5, 48.5 };
 static const float Weight[25] = { 0.10761,0.10306,0.09750, 0.09110,0.08409,0.07666,0.06903,0.06139,0.05394,0.04680,0.0401,0.0339,0.0284,0.0234,0.0191,0.0154,0.0122,0.0096,0.0074,0.0057,0.0043,0.0032,0.0024,0.0017,0.0012 };
 #define FS Flare_Spread < 0 ? Flare_Spread * 4.0 : Flare_Spread * 2.2
-#define Flare_Softness saturate(abs(Flare_Spread))
+#define Flare_Softness 0 //saturate(abs(Flare_Spread)) //Removed because of Opti
 #define Alternate framecount % 2 == 0
 //Eye Adaptation Set from 0 to 1
 static const float Adapt_Seek = 0.5;//Use this to Adjust Eye Adaptation Speed
@@ -209,21 +209,21 @@ sampler BackBufferF
         Texture = TexBackBuffer;
     };
 
-texture texFlare {  Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA16f; MipLevels = 2; };
+texture texFlare {  Width = BUFFER_WIDTH * 0.25; Height = BUFFER_HEIGHT * 0.25; Format = RGBA16f; };
 
 sampler SamplerGlammor
 	{
 		Texture = texFlare;
 	};
 
-texture TexBC { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
+texture TexBC { Width = BUFFER_WIDTH  * 0.5; Height = BUFFER_HEIGHT * 0.5; Format = RGBA8; };
 
 sampler SamplerBC
 	{
 		Texture = TexBC;
 	};
 
-texture TexMBB { Width = BUFFER_WIDTH ; Height = BUFFER_HEIGHT; Format = RGBA8; MipLevels = 8; };
+texture TexMBB { Width = BUFFER_WIDTH ; Height = BUFFER_HEIGHT ; Format = RGBA8; MipLevels = 8; };
 
 sampler SamplerMBB
 	{
@@ -233,7 +233,7 @@ sampler SamplerMBB
 		MipFilter = POINT;
 	};
 
-texture TexFlarePast { Width = BUFFER_WIDTH ; Height = BUFFER_HEIGHT; Format = RGBA8; };
+texture TexFlarePast { Width = BUFFER_WIDTH; Height = BUFFER_HEIGHT; Format = RGBA8; };
 
 sampler SamplerPastFlare
 	{
