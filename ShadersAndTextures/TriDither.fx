@@ -20,10 +20,10 @@ uniform float Timer < source = "timer"; >;
 
     float3 triDither(float3 color, float2 uv, float timer)
     {
-        static const float bitstep = pow(2.0, 8) - 1.0;
-        static const float lsb = 1.0 / bitstep;
-        static const float lobit = 0.5 / bitstep;
-        static const float hibit = (bitstep - 0.5) / bitstep;
+        const float bitstep = pow(2.0, 8) - 1.0;
+        const float lsb = 1.0 / bitstep;
+        const float lobit = 0.5 / bitstep;
+        const float hibit = (bitstep - 0.5) / bitstep;
 
         float3 m = float3(uv, rand21(uv + timer)) + 1.0;
         float h = permute(permute(permute(m.x) + m.y) + m.z);

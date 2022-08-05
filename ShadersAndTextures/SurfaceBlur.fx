@@ -95,9 +95,9 @@ float4 SurfaceBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 	
 	if (BlurRadius == 1)
 	{
-		static const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
-		static const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
-		static const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
+		const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
+		const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
+		const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
 		
 		final_color = color * 0.225806;
 		Z = 0.225806;
@@ -129,9 +129,9 @@ float4 SurfaceBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 	{
 		if (BlurRadius == 2)
 		{
-			static const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
-			static const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
-			static const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
+			const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
+			const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
+			const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
 		
 			final_color = color * 0.1509985387665926499;
 			Z = 0.1509985387665926499;
@@ -163,9 +163,9 @@ float4 SurfaceBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 		{
 			if (BlurRadius == 3)
 			{
-				static const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
-				static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
-				static const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
+				const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
+				const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
+				const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
 		
 				final_color = color * 0.0957733978977875942;
 				Z = 0.0957733978977875942;
@@ -196,9 +196,9 @@ float4 SurfaceBlurFinal(in float4 pos : SV_Position, in float2 texcoord : TEXCOO
 			{
 				if (BlurRadius >= 4)
 				{
-					static const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
-					static const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
-					static const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
+					const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
+					const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
+					const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
 		
 					final_color = color * 0.05299184990795840687999609498603;
 					Z = 0.05299184990795840687999609498603;
@@ -252,9 +252,9 @@ float3 SurfaceBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	
 	if (BlurRadius == 1)
 	{
-		static const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
-		static const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
-		static const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
+		const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
+		const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
+		const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
 		
 		final_color = orig * 0.225806;
 		Z = 0.225806;
@@ -286,9 +286,9 @@ float3 SurfaceBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	{
 		if (BlurRadius == 2)
 		{
-			static const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
-			static const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
-			static const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
+			const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
+			const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
+			const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
 		
 			final_color = orig * 0.1509985387665926499;
 			Z = 0.1509985387665926499;
@@ -320,9 +320,9 @@ float3 SurfaceBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		{
 			if (BlurRadius == 3)
 			{
-				static const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
-				static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
-				static const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
+				const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
+				const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
+				const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
 		
 				final_color = orig * 0.0957733978977875942;
 				Z = 0.0957733978977875942;
@@ -353,9 +353,9 @@ float3 SurfaceBlur1(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 			{
 				if (BlurRadius >= 4)
 				{
-					static const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
-					static const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
-					static const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
+					const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
+					const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
+					const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
 		
 					final_color = orig * 0.05299184990795840687999609498603;
 					Z = 0.05299184990795840687999609498603;
@@ -402,9 +402,9 @@ float3 SurfaceBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	
 	if (BlurRadius == 1)
 	{
-		static const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
-		static const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
-		static const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
+		const float sampleOffsetsX[5] = {  0.0, sOffset1x, 		   0, 	 sOffset1x,     sOffset1x};
+		const float sampleOffsetsY[5] = {  0.0,      	0, sOffset1y, 	 sOffset1y,    -sOffset1y};	
+		const float sampleWeights[5] = { 0.225806, 0.150538, 0.150538, 0.0430108, 0.0430108 };
 		
 		final_color = color * 0.225806;
 		Z = 0.225806;
@@ -436,9 +436,9 @@ float3 SurfaceBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 	{
 		if (BlurRadius == 2)
 		{
-			static const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
-			static const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
-			static const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
+			const float sampleOffsetsX[13] = {  0.0, 	   sOffset1x, 	  0, 	 sOffset1x,     sOffset1x,     sOffset2x,     0,     sOffset2x,     sOffset2x,     sOffset1x,    sOffset1x,     sOffset2x,     sOffset2x };
+			const float sampleOffsetsY[13] = {  0.0,     0, 	  sOffset1y, 	 sOffset1y,    -sOffset1y,     0,     sOffset2y,     sOffset1y,    -sOffset1y,     sOffset2y,     -sOffset2y,     sOffset2y,    -sOffset2y};
+			const float sampleWeights[13] = { 0.1509985387665926499, 0.1132489040749444874, 0.1132489040749444874, 0.0273989284225933369, 0.0273989284225933369, 0.0452995616018920668, 0.0452995616018920668, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0109595713409516066, 0.0043838285270187332, 0.0043838285270187332 };
 		
 			final_color = color * 0.1509985387665926499;
 			Z = 0.1509985387665926499;
@@ -470,9 +470,9 @@ float3 SurfaceBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 		{
 			if (BlurRadius == 3)
 			{
-				static const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
-				static const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
-				static const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
+				const float sampleOffsetsX[13] = { 				  0.0, 			    sOffset3ax, 			 			  0, 	 		  sOffset3ax,     	   	 sOffset3ax,     		    sOffset3bx,     		  			  0,     		 sOffset3bx,     		   sOffset3bx,     		 sOffset3ax,    		   sOffset3ax,     		  sOffset3bx,     		  sOffset3bx };
+				const float sampleOffsetsY[13] = {  				  0.0,   					   0, 	  		   sOffset3ay, 	 		  sOffset3ay,     		-sOffset3ay,     					   0,     		   sOffset3by,     		 sOffset3ay,    		  -sOffset3ay,     		 sOffset3by,   		  -sOffset3by,     		  sOffset3by,    		     -sOffset3by };
+				const float sampleWeights[13] = { 0.0957733978977875942, 0.1333986613666725565, 0.1333986613666725565, 0.0421828199486419528, 0.0421828199486419528, 0.0296441469844336464, 0.0296441469844336464, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0093739599979617454, 0.0020831022264565991,  0.0020831022264565991 };
 		
 				final_color = color * 0.0957733978977875942;
 				Z = 0.0957733978977875942;
@@ -503,9 +503,9 @@ float3 SurfaceBlur2(in float4 pos : SV_Position, in float2 texcoord : TEXCOORD) 
 			{
 				if (BlurRadius >= 4)
 				{
-					static const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
-					static const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
-					static const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
+					const float sampleOffsetsX[25] = {0.0, sOffset4ax, 0, sOffset4ax, sOffset4ax, sOffset4bx, 0, sOffset4bx, sOffset4bx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, 0.0, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4cx, sOffset4ax, sOffset4ax, sOffset4bx, sOffset4bx, sOffset4cx, sOffset4cx};
+					const float sampleOffsetsY[25] = {0.0, 0, sOffset4ay, sOffset4ay, -sOffset4ay, 0, sOffset4by, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4by, -sOffset4by, 0.0, sOffset4cy, sOffset4ay, -sOffset4ay, sOffset4by, -sOffset4by, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy, sOffset4cy, -sOffset4cy};
+					const float sampleWeights[25] = {0.05299184990795840687999609498603, 0.09256069846035847440860469965371, 0.09256069846035847440860469965371, 0.02149960564023589832299078385165, 0.02149960564023589832299078385165, 0.05392678246987847562647201766774, 0.05392678246987847562647201766774, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.01252588384627371007425549277902, 0.00729770438775005041467389567467, 0.00729770438775005041467389567467, 0.02038530184304811960185734706054,	0.02038530184304811960185734706054,	0.00473501127359426108157733854484,	0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799,	0.00473501127359426108157733854484, 0.00473501127359426108157733854484,	0.00275866461027743062478492361799,	0.00275866461027743062478492361799, 0.00104282525148620420024312363461, 0.00104282525148620420024312363461};
 		
 					final_color = color * 0.05299184990795840687999609498603;
 					Z = 0.05299184990795840687999609498603;
