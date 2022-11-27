@@ -223,6 +223,8 @@ Annotations are also used to request special runtime values (via the `source` an
  Contains the one-based index of the uniform variable currently being modified in the overlay, zero if none.
  * ``uniform int hovered_variable < source = "overlay_hovered"; >;``  
  Contains the one-based index of the uniform variable currently hovered with the cursor in the overlay, zero if none.
+ * ``uniform bool screenshot < source = "screenshot"; >;``  
+ True if a screenshot is being taken, false if not.
 
 ```hlsl
 // Initializers are used to specify the default value (zero is used if not specified).
@@ -438,6 +440,8 @@ Annotations:
 
  * ``technique Name < enabled = true; >``  
  Enable (or disable if false) this technique by default.
+ * ``technique Name < enabled_in_screenshot = true; >``  
+ Set this to false to disabled this technique while a screenshot is taken.
  * ``technique Name < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.\
  This can for example be used to have a technique run a single time only to do some initialization work, via ``technique Name < enabled = true; timeout = 1; >``
