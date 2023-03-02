@@ -44,7 +44,7 @@ The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
 * ``BUFFER_COLOR_SPACE`` Color space type for presentation; 0 = unknown, 1 = sRGB, 2 = scRGB, 3 = HDR10 ST2084, 4 = HDR10 HLG.
 
-Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter or equal to 10 characters, in which case ReShade will not display it in the UI.
+Constructs like the following may be interpreted as a configurable UI option. To prevent this, the preprocessor define name can be prefixed with an underscore or made shorter than 8 characters, in which case ReShade will not display it in the UI.
 ```hlsl
 #ifndef MY_PREPROCESSOR_DEFINE
 	#define MY_PREPROCESSOR_DEFINE 0
