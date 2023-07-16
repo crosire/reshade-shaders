@@ -68,7 +68,7 @@ Annotations:
 
  * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
- ReShade will attempt to re-use the same memory for textures with the same dimensions and format if the pooled annotation is set. This works across effect files too.
+ ReShade will attempt to re-use the same memory for textures with the same dimensions and format across effect files if the pooled annotation is set.
 
 ReShade FX allows semantics to be used on texture declarations. This is used to request special textures:
 
@@ -86,21 +86,30 @@ texture2D texDepthBuffer : DEPTH;
 texture2D texTarget
 {
 	// The texture dimensions (default: 1x1).
-	Width = BUFFER_WIDTH / 2;
-	Height = BUFFER_HEIGHT / 2;
+	Width = BUFFER_WIDTH / 2; // Used with texture1D
+	Height = BUFFER_HEIGHT / 2; // Used with texture1D and texture2D
+	Depth = 1; // Used with texture1D, texture2D and texture3D
 	
 	// The number of mipmaps including the base level (default: 1).
 	MipLevels = 1;
 	
 	// The internal texture format (default: RGBA8).
 	// Available formats:
-	//   R8, R16, R16F, R32F
+	//   R8, R16, R16F, R32F, R32I, R32U
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F
 	//   RGB10A2
 	Format = RGBA8;
 
 	// Unspecified properties are set to the defaults shown here.
+};
+
+texture3D texIntegerVolume
+{
+	Width = 10;
+	Height = 10;
+	Depth = 10;
+	Format = R32I; // Single-component integer format, which means sampler and storage have to be of that integer type (sampler3D<int> or storage3D<int>)
 };
 ```
 
@@ -163,6 +172,11 @@ storage2D storageTarget
 	// The mipmap level of the texture to fetch/store.
 	MipLevel = 0;
 };
+
+storage3D<int> storageIntegerVolume
+{
+	Texture = texIntegerVolume;
+};
 ```
 
 ### Uniform Variables
@@ -181,6 +195,7 @@ Annotations to customize UI appearance:
  * ui_category: Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
  * ui_category_closed: Set to true to show a category closed by default.
  * ui_spacing: Adds space before the UI widget (multiplied by the value of the annotation).
+ * ui_units: Adds units description on the slider/drag bar (only used when `ui_type = "drag"` or `ui_type = "slider"`)
  * hidden: Set to true to hide this technique in the UI.
 
 Annotations are also used to request special runtime values (via the `source` annotation):
@@ -365,18 +380,32 @@ Check out https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl
 
 In addition to these, ReShade FX provides a few additional ones:
 
- * ``float4 tex2D(sampler2D s, float2 coords)``  
- * ``float4 tex2D(sampler2D s, float2 coords, int2 offset)``  
+ * ``T tex1D(sampler1D<T> s, float coords)``  
+ * ``T tex1D(sampler1D<T> s, float coords, int offset)``  
+ * ``T tex2D(sampler2D<T> s, float2 coords)``  
+ * ``T tex2D(sampler2D<T> s, float2 coords, int2 offset)``  
+ * ``T tex3D(sampler3D<T> s, float3 coords)``  
+ * ``T tex3D(sampler3D<T> s, float3 coords, int3 offset)``  
  Samples a texture.\
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-sample.
- * ``float4 tex2Dlod(sampler2D s, float4 coords)``  
- * ``float4 tex2Dlod(sampler2D s, float4 coords, int2 offset)``  
+ * ``T tex1Dlod(sampler1D<T> s, float4 coords)``  
+ * ``T tex1Dlod(sampler1D<T> s, float4 coords, int offset)``  
+ * ``T tex2Dlod(sampler2D<T> s, float4 coords)``  
+ * ``T tex2Dlod(sampler2D<T> s, float4 coords, int2 offset)``  
+ * ``T tex3Dlod(sampler3D<T> s, float4 coords)``  
+ * ``T tex3Dlod(sampler3D<T> s, float4 coords, int3 offset)``  
  Samples a texture on a specific mipmap level.\
  The accepted coordinates are in the form `float4(x, y, 0, lod)`.\
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplelevel.
- * ``float4 tex2Dfetch(sampler2D s, int2 coords)``  
- * ``float4 tex2Dfetch(sampler2D s, int2 coords, int lod)``  
- * ``float4 tex2Dfetch(storage2D s, int2 coords)``  
+ * ``T tex1Dfetch(sampler1D<T> s, int coords)``  
+ * ``T tex1Dfetch(sampler1D<T> s, int coords, int lod)``  
+ * ``T tex1Dfetch(storage1D<T> s, int coords)``  
+ * ``T tex2Dfetch(sampler2D<T> s, int2 coords)``  
+ * ``T tex2Dfetch(sampler2D<T> s, int2 coords, int lod)``  
+ * ``T tex2Dfetch(storage2D<T> s, int2 coords)``  
+ * ``T tex3Dfetch(sampler3D<T> s, int3 coords)``  
+ * ``T tex3Dfetch(sampler3D<T> s, int3 coords, int lod)``  
+ * ``T tex3Dfetch(storage3D<T> s, int3 coords)``  
  Fetches a value from the texture directly without any sampling.\
  See also https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-load.
  * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
@@ -396,12 +425,20 @@ In addition to these, ReShade FX provides a few additional ones:
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 0)).comp)
  ```
- * ``int2 tex2Dsize(sampler2D s)``  
- * ``int2 tex2Dsize(sampler2D s, int lod)``  
- * ``int2 tex2Dsize(storage2D s)``  
+ * ``int tex1Dsize(sampler1D<T> s)``  
+ * ``int tex1Dsize(sampler1D<T> s, int lod)``  
+ * ``int tex1Dsize(storage1D<T> s)``  
+ * ``int2 tex2Dsize(sampler2D<T> s)``  
+ * ``int2 tex2Dsize(sampler2D<T> s, int lod)``  
+ * ``int2 tex2Dsize(storage2D<T> s)``  
+ * ``int3 tex3Dsize(sampler3D<T> s)``  
+ * ``int3 tex3Dsize(sampler3D<T> s, int lod)``  
+ * ``int3 tex3Dsize(storage3D<T> s)``  
  Gets the texture dimensions of the specified mipmap level.\
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-getdimensions
- * ``void tex2Dstore(storage2D s, int2 coords, float4 value)``  
+ * ``void tex1Dstore(storage1D<T> s, int coords, T value)``  
+ * ``void tex2Dstore(storage2D<T> s, int2 coords, T value)``  
+ * ``void tex3Dstore(storage2D<T> s, int3 coords, T value)``  
  Writes the specified value to the texture referenced by the storage. Only valid from within compute shaders.\
  See also https://docs.microsoft.com/windows/win32/direct3dhlsl/sm5-object-rwtexture2d-operatorindex
  * ``void barrier()``  
@@ -414,20 +451,44 @@ In addition to these, ReShade FX provides a few additional ones:
  Waits on the completion of all memory accesses within the thread group resulting from the use of texture or storage operations.\
  Is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/groupmemorybarrier
  * ``int atomicAdd(inout int dest, int value)``  
+ * ``int atomicAdd(storage1D<int> s, int coords, int value)``  
+ * ``int atomicAdd(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicAdd(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedadd
  * ``int atomicAnd(inout int dest, int value)``  
+ * ``int atomicAnd(storage1D<int> s, int coords, int value)``  
+ * ``int atomicAnd(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicAnd(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedand
  * ``int atomicOr(inout int dest, int value)``  
+ * ``int atomicOr(storage1D<int> s, int coords, int value)``  
+ * ``int atomicOr(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicOr(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedor
  * ``int atomicXor(inout int dest, int value)``  
+ * ``int atomicXor(storage1D<int> s, int coords, int value)``  
+ * ``int atomicXor(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicXor(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedxor
  * ``int atomicMin(inout int dest, int value)``  
+ * ``int atomicMin(storage1D<int> s, int coords, int value)``  
+ * ``int atomicMin(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicMin(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmin
  * ``int atomicMax(inout int dest, int value)``  
+ * ``int atomicMax(storage<int> s, int coords, int value)``  
+ * ``int atomicMax(storage<int> s, int2 coords, int value)``  
+ * ``int atomicMax(storage<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmax
  * ``int atomicExchange(inout int dest, int value)``  
+ * ``int atomicExchange(storage1D<int> s, int coords, int value)``  
+ * ``int atomicExchange(storage2D<int> s, int2 coords, int value)``  
+ * ``int atomicExchange(storage3D<int> s, int3 coords, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedexchange
- * ``int atomicCompareExchange(inout int dest, int value)``  
+ * ``int atomicCompareExchange(inout int dest, int compare, int value)``  
+ * ``int atomicCompareExchange(storage1D<int> s, int coords, int compare, int value)``  
+ * ``int atomicCompareExchange(storage2D<int> s, int2 coords, int compare, int value)``  
+ * ``int atomicCompareExchange(storage3D<int> s, int3 coords, int compare, int value)``  
  https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedcompareexchange
 
 ### Techniques
