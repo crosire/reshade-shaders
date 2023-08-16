@@ -65,7 +65,7 @@ uniform float backbuffer_bits <
 #endif
 //-------------------------------------------------------------------------------------------------
 
-#include "ReShade.fxh"
+#include "Reshade.fxh"
 
 #if (temporal_dither == 1)
 	uniform int rnd < source = "random"; min = 0; max = 1000; >;
