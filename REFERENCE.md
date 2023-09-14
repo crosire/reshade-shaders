@@ -506,8 +506,6 @@ Annotations:
  * ``technique Name < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.\
  This can for example be used to have a technique run a single time only to do some initialization work, via ``technique Name < enabled = true; timeout = 1; >``
- * ``technique Name < toggle = 0x20; togglectrl = false; toggleshift = false; togglealt = false; >``  
- Toggle this technique when the specified key is pressed.
  * ``technique Name < hidden = true; >``  
  Hide this technique in the UI.
  * ``technique Name < ui_label = "My Effect Name"; >``  
