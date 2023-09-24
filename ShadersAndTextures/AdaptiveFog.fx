@@ -53,7 +53,7 @@ uniform float BloomWidth < __UNIFORM_SLIDER_FLOAT1
 
 uniform bool hasDepth < source = "bufready_depth"; >;
 
-#include "Reshade.fxh"
+#include "ReShade.fxh"
 
 //////////////////////////////////////
 // textures
