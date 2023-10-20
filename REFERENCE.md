@@ -86,9 +86,9 @@ texture2D texDepthBuffer : DEPTH;
 texture2D texTarget
 {
 	// The texture dimensions (default: 1x1).
-	Width = BUFFER_WIDTH / 2; // Used with texture1D
-	Height = BUFFER_HEIGHT / 2; // Used with texture1D and texture2D
-	Depth = 1; // Used with texture1D, texture2D and texture3D
+	Width = BUFFER_WIDTH / 2; // Used with texture1D, texture2D and texture3D
+	Height = BUFFER_HEIGHT / 2; // Used with texture2D and texture3D
+	Depth = 1; // Used with texture3D
 	
 	// The number of mipmaps including the base level (default: 1).
 	MipLevels = 1;
