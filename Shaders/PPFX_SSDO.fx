@@ -54,9 +54,9 @@ uniform float pSSDOMax <
     ui_tooltip = "A limiter to the maximum SSDO effect. Can help to prevent artifacts in very dark areas.";
     ui_type = "slider";
     ui_min = 0.01;
-    ui_max = 10.0;
+    ui_max = 1.0;
     ui_step = 0.01;
-> = 10;
+> = 1.0;
 
 uniform float pSSDOBounceMultiplier <
     ui_label = "SSDO Indirect Bounce Color Multiplier";
