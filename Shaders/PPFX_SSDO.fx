@@ -50,7 +50,7 @@ uniform float pSSDOAmount <
 > = 1.5;
 
 uniform float pSSDOMax <
-    ui_label = "SSDO Max";
+    ui_label = "Max SSDO";
     ui_tooltip = "A limiter to the maximum SSDO effect. Can help to prevent artifacts in very dark areas.";
     ui_type = "slider";
     ui_min = 0.01;
@@ -114,12 +114,12 @@ uniform int pSSDOBounceLOD <
 
 uniform float pSSDOFilterRadius <
     ui_label = "Filter Radius";
-    ui_tooltip = "The blur radius that is used to filter out the noise the technique produces. Don't push this too high, everything between 8 - 24 is recommended (depending from Sample Count, Sample Range, Intensity and Amount).";
+    ui_tooltip = "The blur radius that is used to filter out the noise the technique produces. Don't push this too high, everything between 8 - 24 is recommended (depending from Sample Count, Sample Range, Intensity, Amount and Max SSDO).";
     ui_type = "slider";
     ui_min = 2.0;
     ui_max = 100.0;
     ui_step = 1.0;
-> = 20.0;
+> = 16.0;
 
 uniform float pSSDOAngleThreshold <
     ui_label = "SSDO Angle Threshold";
