@@ -49,6 +49,15 @@ uniform float pSSDOAmount <
     ui_step = 0.01;
 > = 1.5;
 
+uniform float pSSDOMax <
+    ui_label = "SSDO Max";
+    ui_tooltip = "A limiter to the maximum SSDO effect. Can help to prevent artifacts in very dark areas.";
+    ui_type = "slider";
+    ui_min = 0.01;
+    ui_max = 10.0;
+    ui_step = 0.01;
+> = 10;
+
 uniform float pSSDOBounceMultiplier <
     ui_label = "SSDO Indirect Bounce Color Multiplier";
     ui_tooltip = "SSDO includes an indirect bounce of light which means that colors of objects may interact with each other. This value controls the effects' visibility.";
@@ -317,7 +326,7 @@ float4 viewSpace(float2 txCoords)
 			float distFade = max(0.0,SSDO_CONTRIB_RANGE-length(dirVec))/SSDO_CONTRIB_RANGE; // attenuation
 			ssdo += albedoFetch * visibility * distFade * distFade * pSSDOAmount;
 		}
-		ssdo /= pSSDOSampleAmount;
+		ssdo = min(pSSDOMax,ssdo/pSSDOSampleAmount);
 		
 		return float4(saturate(1.0-ssdo*smoothstep(pSSDOFadeEnd,pSSDOFadeStart,vsOrig.w)),vsOrig.w);
 	}
