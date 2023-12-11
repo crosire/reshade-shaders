@@ -114,12 +114,12 @@ uniform int pSSDOBounceLOD <
 
 uniform float pSSDOFilterRadius <
     ui_label = "Filter Radius";
-    ui_tooltip = "The blur radius that is used to filter out the noise the technique produces. Don't push this too high, everything between 8 - 24 is recommended (depending from SampleAmount, SampleRange, Intensity and Amount).";
+    ui_tooltip = "The blur radius that is used to filter out the noise the technique produces. Don't push this too high, everything between 8 - 24 is recommended (depending from Sample Count, Sample Range, Intensity and Amount).";
     ui_type = "slider";
     ui_min = 2.0;
     ui_max = 100.0;
     ui_step = 1.0;
-> = 8.0;
+> = 20.0;
 
 uniform float pSSDOAngleThreshold <
     ui_label = "SSDO Angle Threshold";
