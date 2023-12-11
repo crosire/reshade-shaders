@@ -119,7 +119,7 @@ uniform float pSSDOFilterRadius <
     ui_min = 2.0;
     ui_max = 100.0;
     ui_step = 1.0;
-> = 16.0;
+> = 8.0;
 
 uniform float pSSDOAngleThreshold <
     ui_label = "SSDO Angle Threshold";
