@@ -130,7 +130,7 @@ uniform bool bUIShowOffset <
 uniform int iUIUpsideDown <
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
-    ui_type = "combo"; ui_items = "Off\0On\0"; ui_items_ja_jp = "オフ\0オン\0";
+    ui_type = "check";
     ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
     ui_tooltip_ja_jp =
