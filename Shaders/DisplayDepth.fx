@@ -31,9 +31,6 @@
 #define TEXT_LOGARITHMIC "0"
 #define TEXT_LOGARITHMIC_ALTER "1"
 #endif
-#if ADDON_ADJUST_DEPTH
-#undef ADDON_ADJUST_DEPTH
-#endif
 
 uniform int iUIPresentType <
     ui_type = "combo";
@@ -65,7 +62,7 @@ uniform int iUIPresentType <
         "深度マップが上下逆さまに表示されている場合は" TEXT_UPSIDE_DOWN_ALTER "に変更して下さい。\n"
         "\n"
         "RESHADE_DEPTH_INPUT_IS_REVERSEDは現在" TEXT_REVERSED "に設定されています。\n"
-        "画面効果が深度マップのとき、近いオブジェクトが明るく、遠いオブジェクトが暗い場合は" TEXT_REVERSED_ALTER "に変更して下さい。\n"
+        "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は" TEXT_REVERSED_ALTER "に変更して下さい。\n"
         "また、法線マップで形が判別出来るが、深度マップが真っ暗に見えるという場合も、この設定の変更を試して下さい。\n"
         "\n"
         "RESHADE_DEPTH_INPUT_IS_LOGARITHMICは現在" TEXT_LOGARITHMIC "に設定されています。\n"
@@ -133,7 +130,7 @@ uniform bool bUIShowOffset <
 uniform int iUIUpsideDown <
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
-    ui_type = "check";
+    ui_type = "combo"; ui_items = "Off\0On\0"; ui_items_ja_jp = "オフ\0オン\0";
     ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
     ui_tooltip_ja_jp =
@@ -155,7 +152,7 @@ uniform int iUIReversed <
     ui_label = "Reversed";
     ui_label_ja_jp = "深度バッファの奥行反転を修正";
     ui_tooltip_ja_jp =
-        "画面効果が深度マップのとき、近いオブジェクトが明るく、遠いオブジェクトが暗い場合は変更して下さい。\n"
+        "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
         "また、法線マップで形が判別出来るが、深度マップが真っ暗に見えるという場合も、この設定の変更を試して下さい。"
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
@@ -201,7 +198,7 @@ uniform int Advanced_help <
         "You can preview how they will affect the Depth map using the controls below.\n\n"
         "It is rarely necessary to change these though, as their defaults fit almost all games.";
     ui_text_ja_jp =
-        "通常は'基本的な補正'のみでほとんどのゲームに適合するため、ほとんどのケースで変更の必要はありません。\n"
+        "通常は'基本的な補正'のみでほとんどのゲームに適合します。\n"
         "また、これらの設定は画質の向上にはまったく役に立ちません。";
 >;
 
@@ -258,7 +255,7 @@ uniform int2 iUIOffset <
         "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\n"
         "Use these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
     ui_tooltip_ja_jp =
-        "深度バッファにレンダリングされた物体の形状が画面効果と重なり合わない場合に変更して下さい。\n"
+        "深度バッファにレンダリングされた物体の形状が画面効果と重なり合っていない場合に変更して下さい。\n"
         "この値は、ピクセル単位で指定します。"
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
@@ -283,10 +280,10 @@ uniform float fUIFarPlane <
         "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
         "Changing this value is not necessary in most cases.";
     ui_tooltip_ja_jp =
-        "深度マップの色合いが距離感と合致しないか、法線マップの表面が平面に見えるなどの場合に変更して下さい。\n"
+        "深度マップの色合いが距離感と合致しない、法線マップの表面が平面に見える、などの場合に変更して下さい。\n"
         "遠点距離を1000に設定すると、ゲームの描画距離が1000メートルであると見なします。\n\n"
-        "このプレビュー画面はあくまでプレビューであり、ほとんどの場合、深度バッファは実際の画面に表示された色数より遥かに高い精度で表現されています。\n"
-        "例えば、10m前後の距離のオブジェクトが純粋な黒に見えるからという理由で値を変更しないで下さい。"
+        "このプレビュー画面はあくまでプレビューであり、ほとんどの場合、深度バッファは深度マップの色数より遥かに高い精度で表現されています。\n"
+        "例えば、10m前後の距離の形状が純粋な黒に見えるからという理由で値を変更しないで下さい。"
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
         "定義名は次の通りです。文字は完全に一致する必要があり、半角大文字の英字とアンダーバーを用いなければなりません。\n"
@@ -400,13 +397,25 @@ void PS_DisplayDepth(in float4 position : SV_Position, in float2 texcoord : TEXC
 }
 
 technique DisplayDepth <
-    ui_tooltip = "This shader helps you set the right preprocessor settings for depth input.\n"
-                 "To set the settings click on 'Edit global preprocessor definitions' and set them there - not in this shader.\n"
-                 "The settings will then take effect for all shaders, including this one.\n"  
-                 "\n"
-                 "By default calculated normals and depth are shown side by side.\n"
-                 "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizon.\n"
-                 "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away objects are.\n";
+    ui_tooltip =
+        "This shader helps you set the right preprocessor settings for depth input.\n"
+        "To set the settings click on 'Edit global preprocessor definitions' and set them there - not in this shader.\n"
+        "The settings will then take effect for all shaders, including this one.\n"  
+        "\n"
+        "By default calculated normals and depth are shown side by side.\n"
+        "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizon.\n"
+        "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away objects are.\n";
+    ui_tooltip_ja_jp =
+        "これは、深度バッファを入力する為に必要な設定作業を支援する事に特化した、特殊な扱いのエフェクトです。\n"
+        "初期状態では、計算された法線と深度が並んで表示されます。\n"
+        "法線マップ(左側)は形状を滑らかに表現します。正しく設定されていれば、地平線を見たときに地面が緑掛かっているはずです。\n"
+        "深度マップ(右側)は、形状の遠近を白黒で表現します。正しく設定されていれば、近くの形状が暗く、遠くの形状が明るい色になっているはずです。"
+#if !ADDON_ADJUST_DEPTH
+        "\n\n"
+        "設定を完了するには、'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n"
+        "すると、インストール先のゲームに対して共通の設定として保存され、他のプリセットでも正しく表示されるようになります。"
+#endif
+        ;
 >
 
 {
