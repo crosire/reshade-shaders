@@ -130,7 +130,13 @@ uniform bool bUIShowOffset <
 uniform int iUIUpsideDown <
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
+#if __RESHADE__ <= 50902
+    ui_type = "combo";
+    ui_items = "Off\0On\0";
+    ui_items_ja_jp = "オフ\0オン\0";
+#else
     ui_type = "check";
+#endif
     ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
     ui_tooltip_ja_jp =
@@ -148,7 +154,13 @@ uniform int iUIUpsideDown <
 
 uniform int iUIReversed <
     ui_category = "Required settings (Preview)";
+#if __RESHADE__ <= 50902
+    ui_type = "combo";
+    ui_items = "Off\0On\0";
+    ui_items_ja_jp = "オフ\0オン\0";
+#else
     ui_type = "check";
+#endif
     ui_label = "Reversed";
     ui_label_ja_jp = "深度バッファの奥行反転を修正";
     ui_tooltip_ja_jp =
@@ -167,7 +179,13 @@ uniform int iUIReversed <
 
 uniform int iUILogarithmic <
     ui_category = "Required settings (Preview)";
+#if __RESHADE__ <= 50902
+    ui_type = "combo";
+    ui_items = "Off\0On\0";
+    ui_items_ja_jp = "オフ\0オン\0";
+#else
     ui_type = "check";
+#endif
     ui_label = "Logarithmic";
     ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
     ui_tooltip_ja_jp =
