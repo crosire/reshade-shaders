@@ -8,8 +8,17 @@
 
 #include "ReShade.fxh"
 
+/**
+#ifdef __RESHADE__
+#undef __RESHADE__
+#define __RESHADE__ 40000
+#endif
+#ifdef ADDON_ADJUST_DEPTH
+#undef ADDON_ADJUST_DEPTH
+#endif
+**/
+
 // -- Basic options --
-#if __RESHADE__ >= 40500 // If Reshade version is above or equal to 4.5
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 #define TEXT_UPSIDE_DOWN "1"
 #define TEXT_UPSIDE_DOWN_ALTER "0"
@@ -32,13 +41,20 @@
 #define TEXT_LOGARITHMIC_ALTER "1"
 #endif
 
+// "ui_text" was introduced in ReShade 4.5, so cannot show instructions in older versions
+
 uniform int iUIPresentType <
+    noedit = true;
     ui_type = "combo";
     ui_label = "Present type";
     ui_label_ja_jp = "画面効果";
     ui_items = "Depth map\0Normal map\0Show both (Vertical 50/50)\0";
     ui_items_ja_jp = "深度マップ\0法線マップ\0両方を表示 (左右分割)\0";
+#if __RESHADE__ < 40500
+    ui_tooltip =
+#else
     ui_text =
+#endif
         "The right settings need to be set in the dialog that opens after clicking the \"Edit global preprocessor definitions\" button above.\n"
         "\n"
         "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN is currently set to " TEXT_UPSIDE_DOWN ".\n"
@@ -70,40 +86,6 @@ uniform int iUIPresentType <
 #endif  
 > = 2;
 
-#endif // "ui_text" was introduced in ReShade 4.5, so cannot show instructions in older versions
-#if __RESHADE__ < 40500
-
-uniform bool bUIUseLivePreview <
-    ui_label = "Show live preview";
-    ui_tooltip = "Enable this to show use the preview settings below rather than the saved preprocessor settings.";
-> = true;
-
-uniform int iUIUpsideDown <
-    ui_type = "combo";
-    ui_label = "Upside Down (Preview)";
-    ui_items = "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0"
-               "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
-> = RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN;
-
-uniform int iUIReversed <
-    ui_type = "combo";
-    ui_label = "Reversed (Preview)";
-    ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0"
-               "RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
-> = RESHADE_DEPTH_INPUT_IS_REVERSED;
-
-uniform int iUILogarithmic <
-    ui_type = "combo";
-    ui_label = "Logarithmic (Preview)";
-    ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0"
-               "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
-ui_tooltip = "Change this setting if the displayed surface normals have stripes in them.";
-> = RESHADE_DEPTH_INPUT_IS_LOGARITHMIC;
-
-#endif
-
-#if __RESHADE__ >= 40500
-
 uniform bool bUIUseLivePreview <
     ui_category = "Preview settings";
     ui_category_ja_jp = "プレビュー設定";
@@ -130,14 +112,19 @@ uniform bool bUIShowOffset <
 uniform int iUIUpsideDown <
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
-#if __RESHADE__ <= 50902
+    ui_label = "Upside Down";
+#if __RESHADE__ < 40500
+    ui_type = "combo";
+    ui_items =
+        "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0"
+        "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
+#elif __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
 #else
     ui_type = "check";
 #endif
-    ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
     ui_tooltip_ja_jp =
         "深度マップが上下逆さまに表示されている場合は変更して下さい。"
@@ -154,15 +141,19 @@ uniform int iUIUpsideDown <
 
 uniform int iUIReversed <
     ui_category = "Required settings (Preview)";
-#if __RESHADE__ <= 50902
+    ui_label = "Reversed";
+    ui_label_ja_jp = "深度バッファの奥行反転を修正";
+#if __RESHADE__ < 40500
+    ui_type = "combo";
+    ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0"
+               "RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
+#elif __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
 #else
     ui_type = "check";
 #endif
-    ui_label = "Reversed";
-    ui_label_ja_jp = "深度バッファの奥行反転を修正";
     ui_tooltip_ja_jp =
         "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
         "また、法線マップで形が判別出来るが、深度マップが真っ暗に見えるという場合も、この設定の変更を試して下さい。"
@@ -179,15 +170,20 @@ uniform int iUIReversed <
 
 uniform int iUILogarithmic <
     ui_category = "Required settings (Preview)";
-#if __RESHADE__ <= 50902
+    ui_label = "Logarithmic";
+    ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
+#if __RESHADE__ < 40500
+    ui_type = "combo";
+    ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0"
+               "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
+#elif __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
 #else
     ui_type = "check";
 #endif
-    ui_label = "Logarithmic";
-    ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
+    ui_tooltip = "Change this setting if the displayed surface normals have stripes in them.";
     ui_tooltip_ja_jp =
         "画面効果に実際のレンダリングと合致しない縞模様がある場合は変更して下さい。"
 #if !ADDON_ADJUST_DEPTH
@@ -201,41 +197,17 @@ uniform int iUILogarithmic <
         ;
 > = RESHADE_DEPTH_INPUT_IS_LOGARITHMIC;
 
-#endif
-
 // -- Advanced options --
-#if __RESHADE__ >= 40500
-
-uniform int Advanced_help <
-    ui_category = "Advanced settings (Preview)";
-    ui_category_ja_jp = "その他の補正 (不定形またはその他)";
-    ui_category_closed = true;
-    ui_type = "radio"; ui_label = " ";
-    ui_text =
-        "\nThe following settings also need to be set using \"Edit global preprocessor definitions\" above in order to take effect.\n"
-        "You can preview how they will affect the Depth map using the controls below.\n\n"
-        "It is rarely necessary to change these though, as their defaults fit almost all games.";
-    ui_text_ja_jp =
-        "通常は'基本的な補正'のみでほとんどのゲームに適合します。\n"
-        "また、これらの設定は画質の向上にはまったく役に立ちません。";
->;
-
-#endif
-
-#if __RESHADE__ < 40500
-
-uniform bool bUIShowOffset <
-    ui_category = "Advanced settings (Preview)";
-    ui_label = "Blend Depth map into the image (to help with finding the right offset)";
-> = false;
-
-#endif
 
 uniform float2 fUIScale <
     ui_category = "Advanced settings (Preview)";
+ui_category_ja_jp = "その他の補正 (不定形またはその他)";
     ui_type = "drag";
     ui_label = "Scale";
     ui_label_ja_jp = "拡大率";
+    ui_text_ja_jp =
+        "通常は'基本的な補正'のみでほとんどのゲームに適合します。\n"
+        "また、これらの設定は画質の向上にはまったく役に立ちません。";
     ui_tooltip =
         "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
         "Use these values for:\nRESHADE_DEPTH_INPUT_X_SCALE=<left value>\nRESHADE_DEPTH_INPUT_Y_SCALE=<right value>\n"
