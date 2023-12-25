@@ -96,14 +96,14 @@ uniform bool bUIUseLivePreview <
     ui_label_ja_jp = "プリプロセッサの定義を無視 (プレビューをオン)";
     ui_tooltip = "Enable this to show use the preview settings below rather than the saved preprocessor settings.";
     ui_tooltip_ja_jp =
-        "共通設定に保存されたプリプロセッサの定義ではなく、下のプレビュー設定を使用するには、これを有効にします。\n"
-#if !ADDON_ADJUST_DEPTH
+        "共通設定に保存されたプリプロセッサの定義ではなく、これより下のプレビュー設定を使用するには、これを有効にします。\n"
+#if ADDON_ADJUST_DEPTH
         "設定の準備が出来たら、'設定に保存して反映する'ボタンをクリックしてから、このチェックボックスをオフにして下さい。\n"
 #else
         "設定の準備が出来たら、上の'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n"
-        "\n"
 #endif
-        "画面効果がプレビュー中と変わらなければ、正しく設定が反映されています。";
+        "\n"
+        "プレビューをオンにした場合と比較して画面効果がまったく同じになれば、正しく設定が反映されています。";
 > = true;
 
 uniform bool bUIShowOffset <
