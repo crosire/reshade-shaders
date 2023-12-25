@@ -44,10 +44,9 @@
 // "ui_text" was introduced in ReShade 4.5, so cannot show instructions in older versions
 
 uniform int iUIPresentType <
-    noedit = true;
-    ui_type = "combo";
     ui_label = "Present type";
     ui_label_ja_jp = "画面効果";
+    ui_type = "combo";
     ui_items = "Depth map\0Normal map\0Show both (Vertical 50/50)\0";
     ui_items_ja_jp = "深度マップ\0法線マップ\0両方を表示 (左右分割)\0";
 #if __RESHADE__ < 40500
@@ -83,7 +82,9 @@ uniform int iUIPresentType <
         "\n"
         "RESHADE_DEPTH_INPUT_IS_LOGARITHMICは現在" TEXT_LOGARITHMIC "に設定されています。\n"
         "画面効果に実際のレンダリングと合致しない縞模様がある場合は" TEXT_LOGARITHMIC_ALTER "に変更して下さい。";
-#endif  
+#endif
+    ui_tooltip_ja_jp =
+        "深度マップの場合、近くの形状が暗く、遠くの形状が明るく見え、地平線が最も明るくなります。";
 > = 2;
 
 uniform bool bUIUseLivePreview <
@@ -105,7 +106,8 @@ uniform bool bUIUseLivePreview <
 
 uniform bool bUIShowOffset <
     ui_category = "Preview settings";
-    ui_label = "透かし比較";
+    ui_label = "Blend Depth map into the image (to help with finding the right offset)";
+    ui_label_ja_jp = "透かし比較";
     ui_tooltip_ja_jp = "補正作業を支援するために、画面効果を半透過で適用します。";
 > = false;
 
@@ -113,6 +115,7 @@ uniform int iUIUpsideDown <
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
     ui_label = "Upside Down";
+    ui_label_ja_jp = "深度バッファの上下反転を修正";
 #if __RESHADE__ < 40500
     ui_type = "combo";
     ui_items =
@@ -125,7 +128,6 @@ uniform int iUIUpsideDown <
 #else
     ui_type = "check";
 #endif
-    ui_label_ja_jp = "深度バッファの上下反転を修正";
     ui_tooltip_ja_jp =
         "深度マップが上下逆さまに表示されている場合は変更して下さい。"
 #if !ADDON_ADJUST_DEPTH
@@ -201,10 +203,10 @@ uniform int iUILogarithmic <
 
 uniform float2 fUIScale <
     ui_category = "Advanced settings (Preview)";
-ui_category_ja_jp = "その他の補正 (不定形またはその他)";
-    ui_type = "drag";
+    ui_category_ja_jp = "その他の補正 (不定形またはその他)";
     ui_label = "Scale";
     ui_label_ja_jp = "拡大率";
+    ui_type = "drag";
     ui_text_ja_jp =
         "通常は'基本的な補正'のみでほとんどのゲームに適合します。\n"
         "また、これらの設定は画質の向上にはまったく役に立ちません。";
@@ -237,10 +239,10 @@ ui_category_ja_jp = "その他の補正 (不定形またはその他)";
 > = float2(RESHADE_DEPTH_INPUT_X_SCALE, RESHADE_DEPTH_INPUT_Y_SCALE);
 
 uniform int2 iUIOffset <
-    ui_category = "Advanced settings (Preview)"; 
-    ui_type = "slider";
+    ui_category = "Advanced settings (Preview)";
     ui_label = "Offset";
     ui_label_ja_jp = "位置オフセット";
+    ui_type = "slider";
     ui_tooltip =
         "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the offset in pixels.\n"
         "Use these values for:\nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=<left value>\nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=<right value>";
@@ -263,9 +265,10 @@ uniform int2 iUIOffset <
 > = int2(RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET, RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET);
 
 uniform float fUIFarPlane <
-    ui_category = "Advanced settings (Preview)"; 
+    ui_category = "Advanced settings (Preview)";
+    ui_label = "Far Plane";
+    ui_label_ja_jp = "遠点距離";
     ui_type = "drag";
-    ui_label = "遠点距離";
     ui_tooltip = 
         "RESHADE_DEPTH_LINEARIZATION_FAR_PLANE=<value>\n"
         "Changing this value is not necessary in most cases.";
@@ -287,9 +290,10 @@ uniform float fUIFarPlane <
 > = RESHADE_DEPTH_LINEARIZATION_FAR_PLANE;
 
 uniform float fUIDepthMultiplier <
-    ui_category = "Advanced settings (Preview)"; 
+    ui_category = "Advanced settings (Preview)";
+    ui_label = "Multiplier";
+    ui_label_ja_jp = "深度乗数";
     ui_type = "drag";
-    ui_label = "深度乗数";
     ui_tooltip = "RESHADE_DEPTH_MULTIPLIER=<value>";
     ui_tooltip_ja_jp =
         "特定のエミュレータソフトウェアにおける深度バッファを修正するため、特別に追加された変数です。\n"
