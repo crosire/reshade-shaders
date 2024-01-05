@@ -84,9 +84,9 @@ uniform int iUIPresentType <
         "画面効果に実際のレンダリングと合致しない縞模様がある場合は" TEXT_LOGARITHMIC_ALTER "に変更して下さい。";
 #endif
     ui_tooltip_ja_jp =
-        "深度マップは、形状の遠近を白黒で表現します。正しい見え方では、近くの形状ほど黒く、遠くの形状ほど白くなります。\n"
-        "法線マップは、形状を滑らかに表現します。正しい見え方では、全体的に青緑風で、地平線を見たときに地面が緑掛かった色合いになります。\n"
-        "'両方を表示'が選択された場合は、左に法線マップ、右に深度マップを表示します。";
+        "'深度マップ'は、形状の遠近を白黒で表現します。正しい見え方では、近くの形状ほど黒く、遠くの形状ほど白くなります。\n"
+        "'法線マップ'は、形状を滑らかに表現します。正しい見え方では、全体的に青緑風で、地平線を見たときに地面が緑掛かった色合いになります。\n"
+        "'両方を表示 (左右分割)'が選択された場合は、左に法線マップ、右に深度マップを表示します。";
 > = 2;
 
 uniform bool bUIUseLivePreview <
@@ -112,7 +112,11 @@ uniform bool bUIShowOffset <
     ui_tooltip_ja_jp = "補正作業を支援するために、画面効果を半透過で適用します。";
 > = false;
 
+#if __RESHADE__ <= 50902
 uniform int iUIUpsideDown <
+#else
+uniform bool iUIUpsideDown <
+#endif
     ui_category = "Required settings (Preview)";
     ui_category_ja_jp = "基本的な補正";
     ui_label = "Upside Down";
@@ -126,8 +130,6 @@ uniform int iUIUpsideDown <
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
-#else
-    ui_type = "check";
 #endif
     ui_tooltip_ja_jp =
         "深度マップが上下逆さまに表示されている場合は変更して下さい。"
@@ -142,7 +144,11 @@ uniform int iUIUpsideDown <
         ;
 > = RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN;
 
+#if __RESHADE__ <= 50902
 uniform int iUIReversed <
+#else
+uniform bool iUIReversed <
+#endif
     ui_category = "Required settings (Preview)";
     ui_label = "Reversed";
     ui_label_ja_jp = "深度バッファの奥行反転を修正";
@@ -154,8 +160,6 @@ uniform int iUIReversed <
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
-#else
-    ui_type = "check";
 #endif
     ui_tooltip_ja_jp =
         "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
@@ -171,7 +175,11 @@ uniform int iUIReversed <
         ;
 > = RESHADE_DEPTH_INPUT_IS_REVERSED;
 
+#if __RESHADE__ <= 50902
 uniform int iUILogarithmic <
+#else
+uniform bool iUILogarithmic <
+#endif
     ui_category = "Required settings (Preview)";
     ui_label = "Logarithmic";
     ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
@@ -183,12 +191,10 @@ uniform int iUILogarithmic <
     ui_type = "combo";
     ui_items = "Off\0On\0";
     ui_items_ja_jp = "オフ\0オン\0";
-#else
-    ui_type = "check";
 #endif
     ui_tooltip = "Change this setting if the displayed surface normals have stripes in them.";
     ui_tooltip_ja_jp =
-        "画面効果に実際のレンダリングと合致しない縞模様がある場合は変更して下さい。"
+        "画面効果に実際のゲーム画面と合致しない縞模様がある場合は変更して下さい。"
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
         "定義名は次の通りです。文字は完全に一致する必要があり、半角大文字の英字とアンダーバーを用いなければなりません。\n"
@@ -401,15 +407,18 @@ technique DisplayDepth <
         "Normals (on the left) should look smooth and the ground should be greenish when looking at the horizon.\n"
         "Depth (on the right) should show close objects as dark and use gradually brighter shades the further away objects are.\n";
     ui_tooltip_ja_jp =
-        "これは、深度バッファを入力する為に必要な設定作業を支援する事に特化した、特殊な扱いのエフェクトです。\n"
+        "これは、深度バッファの入力をReShade側の計算式に合わせる調節をするための、設定作業の支援に特化した特殊な扱いのエフェクトです。\n"
         "初期状態では「両方を表示」が選択されており、左に法線マップ、右に深度マップが表示されます。\n"
+        "\n"
+        "法線マップ(左側)は、形状を滑らかに表現します。正しい設定では、全体的に青緑風で、地平線を見たときに地面が緑を帯びた色になります。\n"
         "深度マップ(右側)は、形状の遠近を白黒で表現します。正しい設定では、近くの形状ほど黒く、遠くの形状ほど白くなります。\n"
-        "法線マップ(左側)は、形状を滑らかに表現します。正しい設定では、全体的に青緑風で、地平線を見たときに地面が緑を帯びた色になります。"
-#if !ADDON_ADJUST_DEPTH
-        "\n\n"
-        "設定を完了するには、'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n"
-        "すると、インストール先のゲームに対して共通の設定として保存され、他のプリセットでも正しく表示されるようになります。"
+        "\n"
+#if ADDON_ADJUST_DEPTH
+        "設定を完了するには、DisplayDepth.fxエフェクトの変数の一覧にある'設定に保存して反映する'ボタンをクリックして下さい。\n"
+#else
+        "設定を完了するには、エフェクト変数の編集画面にある'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n"
 #endif
+        "すると、インストール先のゲームに対して共通の設定として保存され、他のプリセットでも正しく表示されるようになります。"
         ;
 >
 
