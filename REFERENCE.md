@@ -376,7 +376,7 @@ void ExampleCS1(uint3 id : SV_DispatchThreadID, uint3 tid : SV_GroupThreadID)
 ReShade FX supports most of the standard HLSL intrinsics.\
 Check out https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions for reference on them:
 
-> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, faceforward, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, transpose, trunc
+> abs, acos, all, any, asfloat, asin, asint, asuint, atan, atan2, ceil, clamp, countbits, cos, cosh, cross, ddx, ddy, degrees, determinant, distance, dot, exp, exp2, f16tof32, f32tof16, faceforward, firstbitlow, firstbithigh, floor, frac, frexp, fwidth, isinf, isnan, ldexp, length, lerp, log, log10, log2, mad, max, min, modf, mul, normalize, pow, radians, rcp, reflect, refract, reversebits, round, rsqrt, saturate, sign, sin, sincos, sinh, smoothstep, sqrt, step, tan, tanh, transpose, trunc
 
 In addition to these, ReShade FX provides a few additional ones:
 
