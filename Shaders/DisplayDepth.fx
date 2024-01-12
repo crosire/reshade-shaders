@@ -110,7 +110,7 @@ uniform bool bUIUseLivePreview <
         "設定の準備が出来たら、上の'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n\n"
 #endif
         "プレビューをオンにした場合と比較して画面効果がまったく同じになれば、正しく設定が反映されています。";
-> = true;
+> = false;
 
 #if __RESHADE__ <= 50902
 uniform int iUIUpsideDown <
