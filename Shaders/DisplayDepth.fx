@@ -89,12 +89,19 @@ uniform int iUIPresentType <
         "'両方を表示 (左右分割)'が選択された場合は、左に法線マップ、右に深度マップを表示します。";
 > = 2;
 
+uniform bool bUIShowOffset <
+    ui_label = "Blend Depth map into the image (to help with finding the right offset)";
+    ui_label_ja_jp = "透かし比較";
+    ui_tooltip_ja_jp = "補正作業を支援するために、画面効果を半透過で適用します。";
+> = false;
+
 uniform bool bUIUseLivePreview <
     ui_category = "Preview settings";
-    ui_category_ja_jp = "プレビュー設定";
-    ui_label = "Show live preview";
-    ui_label_ja_jp = "プリプロセッサの定義を無視 (プレビューをオン)";
-    ui_tooltip = "Enable this to show use the preview settings below rather than the saved preprocessor settings.";
+    ui_category_ja_jp = "基本的な補正";
+    ui_category_toggle = true;
+    ui_label = "Ignore preprocessor definitions (Live preview)";
+    ui_label_ja_jp = "プリプロセッサの定義を無視 (補正プレビューをオン)";
+    ui_tooltip = "Enable this to preview with the current preset settings instead of the global preprocessor settings.";
     ui_tooltip_ja_jp =
         "共通設定に保存されたプリプロセッサの定義ではなく、これより下のプレビュー設定を使用するには、これを有効にします。\n"
 #if ADDON_ADJUST_DEPTH
@@ -105,20 +112,12 @@ uniform bool bUIUseLivePreview <
         "プレビューをオンにした場合と比較して画面効果がまったく同じになれば、正しく設定が反映されています。";
 > = true;
 
-uniform bool bUIShowOffset <
-    ui_category = "Preview settings";
-    ui_label = "Blend Depth map into the image (to help with finding the right offset)";
-    ui_label_ja_jp = "透かし比較";
-    ui_tooltip_ja_jp = "補正作業を支援するために、画面効果を半透過で適用します。";
-> = false;
-
 #if __RESHADE__ <= 50902
 uniform int iUIUpsideDown <
 #else
 uniform bool iUIUpsideDown <
 #endif
-    ui_category = "Required settings (Preview)";
-    ui_category_ja_jp = "基本的な補正";
+    ui_category = "Preview settings";
     ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
 #if __RESHADE__ < 40500
@@ -149,7 +148,7 @@ uniform int iUIReversed <
 #else
 uniform bool iUIReversed <
 #endif
-    ui_category = "Required settings (Preview)";
+    ui_category = "Preview settings";
     ui_label = "Reversed";
     ui_label_ja_jp = "深度バッファの奥行反転を修正";
 #if __RESHADE__ < 40500
@@ -157,9 +156,9 @@ uniform bool iUIReversed <
     ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0"
                "RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
 #elif __RESHADE__ <= 50902
-    ui_type = "combo";
-    ui_items = "Off\0On\0";
-    ui_items_ja_jp = "オフ\0オン\0";
+ui_type="combo";
+ui_items="Off\0On\0";
+ui_items_ja_jp="オフ\0オン\0";
 #endif
     ui_tooltip_ja_jp =
         "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
@@ -180,7 +179,7 @@ uniform int iUILogarithmic <
 #else
 uniform bool iUILogarithmic <
 #endif
-    ui_category = "Required settings (Preview)";
+    ui_category = "Preview settings";
     ui_label = "Logarithmic";
     ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
 #if __RESHADE__ < 40500
@@ -209,13 +208,15 @@ uniform bool iUILogarithmic <
 // -- Advanced options --
 
 uniform float2 fUIScale <
-    ui_category = "Advanced settings (Preview)";
-    ui_category_ja_jp = "その他の補正 (不定形またはその他)";
+    ui_category = "Preview settings";
     ui_label = "Scale";
     ui_label_ja_jp = "拡大率";
     ui_type = "drag";
     ui_text_ja_jp =
-        "通常は'基本的な補正'のみでほとんどのゲームに適合します。\n"
+        "\n * その他の補正 (不定形またはその他)\n"
+        "\n"
+        "これより下は、深度バッファが不定形など、特別なケース向けの設定です。\n"
+        "通常はこれより上の'基本的な補正'のみでほとんどのゲームに適合します。\n"
         "また、これらの設定は画質の向上にはまったく役に立ちません。";
     ui_tooltip =
         "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
@@ -246,7 +247,7 @@ uniform float2 fUIScale <
 > = float2(RESHADE_DEPTH_INPUT_X_SCALE, RESHADE_DEPTH_INPUT_Y_SCALE);
 
 uniform int2 iUIOffset <
-    ui_category = "Advanced settings (Preview)";
+    ui_category = "Preview settings";
     ui_label = "Offset";
     ui_label_ja_jp = "位置オフセット";
     ui_type = "slider";
@@ -272,7 +273,7 @@ uniform int2 iUIOffset <
 > = int2(RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET, RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET);
 
 uniform float fUIFarPlane <
-    ui_category = "Advanced settings (Preview)";
+    ui_category = "Preview settings";
     ui_label = "Far Plane";
     ui_label_ja_jp = "遠点距離";
     ui_type = "drag";
@@ -297,7 +298,7 @@ uniform float fUIFarPlane <
 > = RESHADE_DEPTH_LINEARIZATION_FAR_PLANE;
 
 uniform float fUIDepthMultiplier <
-    ui_category = "Advanced settings (Preview)";
+    ui_category = "Preview settings";
     ui_label = "Multiplier";
     ui_label_ja_jp = "深度乗数";
     ui_type = "drag";
@@ -418,8 +419,7 @@ technique DisplayDepth <
 #else
         "設定を完了するには、エフェクト変数の編集画面にある'プリプロセッサの定義を編集'ボタンをクリックした後に開くダイアログに入力して下さい。\n"
 #endif
-        "すると、インストール先のゲームに対して共通の設定として保存され、他のプリセットでも正しく表示されるようになります。"
-        ;
+        "すると、インストール先のゲームに対して共通の設定として保存され、他のプリセットでも正しく表示されるようになります。";
 >
 
 {
