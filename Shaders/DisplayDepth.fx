@@ -98,7 +98,9 @@ uniform bool bUIShowOffset <
 uniform bool bUIUseLivePreview <
     ui_category = "Preview settings";
     ui_category_ja_jp = "基本的な補正";
+#if !ADDON_ADJUST_DEPTH
     ui_category_toggle = true;
+#endif
     ui_label = "Ignore preprocessor definitions (Live preview)";
     ui_label_ja_jp = "プリプロセッサの定義を無視 (補正プレビューをオン)";
     ui_tooltip = "Enable this to preview with the current preset settings instead of the global preprocessor settings.";
@@ -156,9 +158,9 @@ uniform bool iUIReversed <
     ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0"
                "RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
 #elif __RESHADE__ <= 50902
-ui_type="combo";
-ui_items="Off\0On\0";
-ui_items_ja_jp="オフ\0オン\0";
+    ui_type = "combo";
+    ui_items = "Off\0On\0";
+    ui_items_ja_jp = "オフ\0オン\0";
 #endif
     ui_tooltip_ja_jp =
         "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
