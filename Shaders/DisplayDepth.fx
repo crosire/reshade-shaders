@@ -119,6 +119,14 @@ uniform bool iUIUpsideDown <
     ui_type = "combo";
     ui_items = "Off\0On\0";
 #endif
+    ui_text_ja_jp =
+        "\n"
+#if ADDON_ADJUST_DEPTH
+        "項目にカーソルを合わせると、設定が必要な状況の説明が表示されます。"
+#else
+        "項目にカーソルを合わせると、設定が必要な状況の説明と、プリプロセッサの定義が表示されます。"
+#endif
+    ;
     ui_tooltip_ja_jp =
         "深度マップが上下逆さまに表示されている場合は変更して下さい。"
 #if !ADDON_ADJUST_DEPTH
