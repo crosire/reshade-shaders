@@ -98,7 +98,9 @@ uniform bool bUIShowOffset <
 uniform bool bUIUseLivePreview <
     ui_category = "Preview settings";
     ui_category_ja_jp = "基本的な補正";
-#if !ADDON_ADJUST_DEPTH
+#if __RESHADE__ <= 50902
+    ui_category_closed = true;
+#elif !ADDON_ADJUST_DEPTH
     ui_category_toggle = true;
 #endif
     ui_label = "Show live preview and ignore preprocessor definitions";
