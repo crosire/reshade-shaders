@@ -122,15 +122,9 @@ uniform bool iUIUpsideDown <
     ui_category = "Preview settings";
     ui_label = "Upside Down";
     ui_label_ja_jp = "深度バッファの上下反転を修正";
-#if __RESHADE__ < 40500
-    ui_type = "combo";
-    ui_items =
-        "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=0\0"
-        "RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN=1\0";
-#elif __RESHADE__ <= 50902
+#if __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
-    ui_items_ja_jp = "オフ\0オン\0";
 #endif
     ui_tooltip_ja_jp =
         "深度マップが上下逆さまに表示されている場合は変更して下さい。"
@@ -153,14 +147,9 @@ uniform bool iUIReversed <
     ui_category = "Preview settings";
     ui_label = "Reversed";
     ui_label_ja_jp = "深度バッファの奥行反転を修正";
-#if __RESHADE__ < 40500
-    ui_type = "combo";
-    ui_items = "RESHADE_DEPTH_INPUT_IS_REVERSED=0\0"
-               "RESHADE_DEPTH_INPUT_IS_REVERSED=1\0";
-#elif __RESHADE__ <= 50902
+#if __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
-    ui_items_ja_jp = "オフ\0オン\0";
 #endif
     ui_tooltip_ja_jp =
         "画面効果が深度マップのとき、近くの形状が明るく、遠くの形状が暗い場合は変更して下さい。\n"
@@ -184,14 +173,9 @@ uniform bool iUILogarithmic <
     ui_category = "Preview settings";
     ui_label = "Logarithmic";
     ui_label_ja_jp = "深度バッファを対数分布として扱うように修正";
-#if __RESHADE__ < 40500
-    ui_type = "combo";
-    ui_items = "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=0\0"
-               "RESHADE_DEPTH_INPUT_IS_LOGARITHMIC=1\0";
-#elif __RESHADE__ <= 50902
+#if __RESHADE__ <= 50902
     ui_type = "combo";
     ui_items = "Off\0On\0";
-    ui_items_ja_jp = "オフ\0オン\0";
 #endif
     ui_tooltip = "Change this setting if the displayed surface normals have stripes in them.";
     ui_tooltip_ja_jp =
