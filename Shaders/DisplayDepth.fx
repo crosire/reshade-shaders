@@ -237,11 +237,11 @@ uniform float2 fUIScale <
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
         "定義名は次の通りです。文字は完全に一致する必要があり、半角大文字の英字とアンダーバーを用いなければなりません。\n"
-        "nRESHADE_DEPTH_INPUT_X_SCALE=横の値\n"
-        "nRESHADE_DEPTH_INPUT_Y_SCALE=縦の値\n"
+        "RESHADE_DEPTH_INPUT_X_SCALE=横の値\n"
+        "RESHADE_DEPTH_INPUT_Y_SCALE=縦の値\n"
         "定義値は次の通りです。横の値はX_SCALE、縦の値はY_SCALEに指定して下さい。\n"
-        "nRESHADE_DEPTH_INPUT_X_SCALE=1.0\n"
-        "nRESHADE_DEPTH_INPUT_Y_SCALE=1.0"
+        "RESHADE_DEPTH_INPUT_X_SCALE=1.0\n"
+        "RESHADE_DEPTH_INPUT_Y_SCALE=1.0"
 #endif
         ;
     ui_min = 0.0; ui_max = 2.0;
@@ -262,11 +262,11 @@ uniform int2 iUIOffset <
 #if !ADDON_ADJUST_DEPTH
         "\n\n"
         "定義名は次の通りです。文字は完全に一致する必要があり、半角大文字の英字とアンダーバーを用いなければなりません。\n"
-        "nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=横の値\n"
-        "nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=縦の値\n"
+        "RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=横の値\n"
+        "RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=縦の値\n"
         "定義値は次の通りです。横の値はX_PIXEL_OFFSET、縦の値はY_PIXEL_OFFSETに指定して下さい。\n"
-        "nRESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=0.0\n"
-        "nRESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=0.0"
+        "RESHADE_DEPTH_INPUT_X_PIXEL_OFFSET=0.0\n"
+        "RESHADE_DEPTH_INPUT_Y_PIXEL_OFFSET=0.0"
 #endif
         ;
     ui_min = -BUFFER_SCREEN_SIZE;
