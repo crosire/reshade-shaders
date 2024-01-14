@@ -8,16 +8,6 @@
 
 #include "ReShade.fxh"
 
-/**
-#ifdef __RESHADE__
-#undef __RESHADE__
-#define __RESHADE__ 40000
-#endif
-#ifdef ADDON_ADJUST_DEPTH
-#undef ADDON_ADJUST_DEPTH
-#endif
-**/
-
 // -- Basic options --
 #if RESHADE_DEPTH_INPUT_IS_UPSIDE_DOWN
 #define TEXT_UPSIDE_DOWN "1"
