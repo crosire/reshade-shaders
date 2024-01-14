@@ -214,12 +214,21 @@ uniform float2 fUIScale <
     ui_label = "Scale";
     ui_label_ja_jp = "拡大率";
     ui_type = "drag";
+    ui_text =
+        "\n"
+        " * Advanced options\n"
+        "\n"
+        "The following settings also need to be set using \"Edit global preprocessor definitions\" above in order to take effect.\n"
+        "You can preview how they will affect the Depth map using the controls below.\n"
+        "\n"
+        "It is rarely necessary to change these though, as their defaults fit almost all games.\n\n";
     ui_text_ja_jp =
-        "\n * その他の補正 (不定形またはその他)\n"
+        "\n"
+        " * その他の補正 (不定形またはその他)\n"
         "\n"
         "これより下は、深度バッファが不定形など、特別なケース向けの設定です。\n"
         "通常はこれより上の'基本的な補正'のみでほとんどのゲームに適合します。\n"
-        "また、これらの設定は画質の向上にはまったく役に立ちません。";
+        "また、これらの設定は画質の向上にはまったく役に立ちません。\n\n";
     ui_tooltip =
         "Best use 'Present type'->'Depth map' and enable 'Offset' in the options below to set the scale.\n"
         "Use these values for:\nRESHADE_DEPTH_INPUT_X_SCALE=<left value>\nRESHADE_DEPTH_INPUT_Y_SCALE=<right value>\n"
