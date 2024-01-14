@@ -101,7 +101,7 @@ uniform bool bUIUseLivePreview <
 #if !ADDON_ADJUST_DEPTH
     ui_category_toggle = true;
 #endif
-    ui_label = "Ignore preprocessor definitions (Live preview)";
+    ui_label = "Show live preview and ignore preprocessor definitions";
     ui_label_ja_jp = "プリプロセッサの定義を無視 (補正プレビューをオン)";
     ui_tooltip = "Enable this to preview with the current preset settings instead of the global preprocessor settings.";
     ui_tooltip_ja_jp =
