@@ -423,7 +423,7 @@ In addition to these, ReShade FX provides a few additional ones:
  ```
  float4(tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(1, 1)).comp,
-        tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
+        tex2Dfetch(s, coords * tex2Dsize(s) + int2(1, 0)).comp,
         tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 0)).comp)
  ```
  * ``int tex1Dsize(sampler1D<T> s)``  
