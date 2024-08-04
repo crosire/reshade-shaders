@@ -70,7 +70,10 @@
 		This avoids possible artifacts and makes the mask blend more easily on the eyes.
 		You may not need this if your mask is accurate enough and/or the HUD is simple enough.
 
-	  8-Now save the final image as "UIMask.png" in your textures folder and you're done!
+	  8-Now save the final image with a unique name such as "MyUIMask.png" in your textures folder.
+
+	  9-Set the preprocessor definition UIMASK_TEXTURE to the unique name of your image, with quotes.
+	    You're done!
 
 
 	MIT Licensed:
@@ -123,6 +126,10 @@
 	#define TEXFORMAT RGBA8
 #endif
 
+#ifndef UIMASK_TEXTURE
+	#define UIMASK_TEXTURE "UIMask.png"
+#endif
+
 //#endregion
 
 namespace UIMask
@@ -164,8 +171,10 @@ uniform int _Help
 		"5. Cover the UI with white to mask it from effects. The stronger the "
 		"mask white color, the more opaque the mask will be.\n"
 		"6. Set the mask layer opacity back to 100%.\n"
-		"7. Save the image in one of your texture folders, named "
-		"\"UIMask.png\".\n"
+		"7. Save the image in one of your texture folders, making sure to "
+		"use a unique name such as: \"MyUIMask.png\"\n"
+		"8. Set the preprocessor definition UIMASK_TEXTURE to the name of "
+		"your image, with quotes: \"MyUIMask.png\"\n"
 		;
 	ui_category = "Help";
 	ui_category_closed = true;
@@ -232,7 +241,7 @@ sampler Backup
 	Texture = BackupTex;
 };
 
-texture MaskTex <source="UIMask.png";>
+texture MaskTex <source=UIMASK_TEXTURE;>
 {
 	Width = BUFFER_WIDTH;
 	Height = BUFFER_HEIGHT;
