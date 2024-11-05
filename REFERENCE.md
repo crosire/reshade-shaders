@@ -306,10 +306,10 @@ namespace MyNamespace
    Possible attributes are : ``[flatten]``, ``[branch]``, ``[forcecase]`` and ``[call]``  
  * ``[attribute] for ([declaration]; [condition]; [iteration]) { [statement...] }``  
    Runs the statements in the body as long as the condition is true. The iteration expression is executed after each run.  
-   Possible attributes are : ``[unroll(x)]``, ``[loop]``, ``[fastopt]`` and ``[allow_uav_condition]``  
+   Possible attributes are : ``[unroll]``, ``[loop]`` and ``[fastopt]``  
  * ``[attribute] while ([condition]) { [statement...] }``  
    Runs the statements in the body as long as the condition is true.  
-   Possible attributes are : ``[unroll(x)]``, ``[loop]``, ``[fastopt]`` and ``[allow_uav_condition]``  
+   Possible attributes are : ``[unroll]``, ``[loop]``, and ``[fastopt]``  
  * ``[attribute] do { [statement...] } while ([condition]);``  
    Similar to a normal while loop with the difference that the statements are executed at least once.  
    Possible attributes are : ``[fastopt]``  
