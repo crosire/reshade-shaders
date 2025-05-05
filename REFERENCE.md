@@ -37,7 +37,7 @@ The ReShade FX compiler predefines certain preprocessor macros, as listed below:
 * ``BUFFER_HEIGHT`` Backbuffer height
 * ``BUFFER_RCP_WIDTH`` Reciprocal of the backbuffer width (equals `1.0 / BUFFER_WIDTH`)
 * ``BUFFER_RCP_HEIGHT`` Reciprocal of the backbuffer height (equals `1.0 / BUFFER_HEIGHT`)
-* ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8 or 10)
+* ``BUFFER_COLOR_BIT_DEPTH`` Color bit depth of the backbuffer (8, 10 or 16)
 * ``BUFFER_COLOR_SPACE`` Color space type for presentation; 0 = unknown, 1 = sRGB, 2 = scRGB, 3 = HDR10 ST2084, 4 = HDR10 HLG.
 
 Additionally every enabled addon will cause a ``ADDON_[NAME]`` definition to be defined for it.
