@@ -96,7 +96,7 @@ texture2D texTarget
 	//   R8, R16, R16F, R32F, R32I, R32U
 	//   RG8, RG16, RG16F, RG32F
 	//   RGBA8, RGBA16, RGBA16F, RGBA32F, RGBA32I, RGBA32U
-	//   RGB10A2
+	//   RGB10A2, R11G11B10F
 	Format = RGBA8;
 
 	// Unspecified properties are set to the defaults shown here.
