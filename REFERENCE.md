@@ -64,7 +64,7 @@ Declared textures are created at runtime with the parameters specified in their 
 #### Annotations:
 
  * ``texture2D imageTex < source = "path/to/image.bmp"; > { ... };``  
-   Opens image from the patch specified, resizes it to the texture size and loads it into the texture.\
+   Opens image from the path specified, resizes it to the texture size and loads it into the texture.\
    ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), Targa Image (\*.tga) and DirectDraw Surface (\*.dds) files.
  * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
@@ -193,7 +193,7 @@ Global variables with the `uniform` qualifier are constant across each iteration
  * ui_category: Groups values together under a common headline. Note that all variables in the same category also have to be declared next to each other for this to be displayed correctly.
  * ui_category_closed: Set to true to show a category closed by default.
  * ui_category_toggle: Set to true to make the boolean value of this variable toggle visibility of the whole category.
- * ui_text: Adds a text block with the specfified string above the the UI widget.
+ * ui_text: Adds a text block with the specified string above the UI widget.
  * ui_spacing: Adds space before the UI widget (multiplied by the value of the annotation).
  * ui_units: Adds units description on the slider/drag bar (only used when `ui_type = "drag"` or `ui_type = "slider"`)
  * hidden: Set to true to hide this variable in the UI.
@@ -307,7 +307,7 @@ namespace MyNamespace
    Statements after if are only executed  if condition is true, otherwise the ones after else are executed (if it exists).  
    Possible attributes are : ``[flatten]`` and ``[branch]``  
  * ``[attribute] switch ([expression]) { [case [constant]/default]: [statement...] }``  
-   Selects the case matching the switch expression or default if non does and it exists.  
+   Selects the case matching the switch expression or default if none do and it exists.  
    Possible attributes are : ``[flatten]``, ``[branch]``, ``[forcecase]`` and ``[call]``  
  * ``[attribute] for ([declaration]; [condition]; [iteration]) { [statement...] }``  
    Runs the statements in the body as long as the condition is true. The iteration expression is executed after each run.  
@@ -340,7 +340,7 @@ void ExampleVS(uint id : SV_VertexID, out float4 position : SV_Position, out flo
 	position = float4(texcoord * float2(2, -2) + float2(-1, 1), 0, 1);
 }
 
-// The following pixel shader simply returns the color of the games output again without modifying it (via the "color" output parameter):
+// The following pixel shader simply returns the color of the game's output again without modifying it (via the "color" output parameter):
 [shader("pixel")]
 void ExamplePS0(float4 pos : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target)
 {
@@ -473,7 +473,7 @@ In addition to these, ReShade FX provides a few additional ones:
    ``T tex3D(sampler3D<T> s, float3 coords)``  
    ``T tex3D(sampler3D<T> s, float3 coords, int3 offset)``  
    Samples a texture.\
-   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-sample.
+   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-sample
  * ``T tex1Dlod(sampler1D<T> s, float4 coords)``  
    ``T tex1Dlod(sampler1D<T> s, float4 coords, int offset)``  
    ``T tex2Dlod(sampler2D<T> s, float4 coords)``  
@@ -482,7 +482,7 @@ In addition to these, ReShade FX provides a few additional ones:
    ``T tex3Dlod(sampler3D<T> s, float4 coords, int3 offset)``  
    Samples a texture on a specific mipmap level.\
    The accepted coordinates are in the form `float4(x, y, 0, lod)`.\
-   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplelevel.
+   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplelevel
  * ``T tex1Dgrad(sampler1D<T> s, float coords, float ddx, float ddy)``  
    ``T tex1Dgrad(sampler1D<T> s, float coords, float ddx, float ddy, int offset)``  
    ``T tex2Dgrad(sampler2D<T> s, float2 coords, float2 ddx, float2 ddy)``  
@@ -490,7 +490,7 @@ In addition to these, ReShade FX provides a few additional ones:
    ``T tex3Dgrad(sampler3D<T> s, float3 coords, float3 ddx, float3 ddy)``  
    ``T tex3Dgrad(sampler3D<T> s, float3 coords, float3 ddx, float3 ddy, int3 offset)``  
    Samples a texture using a gradient to influence the way the sample location is calculated.\
-   See also https://learn.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplegrad.
+   See also https://learn.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-samplegrad
  * ``T tex1Dfetch(sampler1D<T> s, int coords)``  
    ``T tex1Dfetch(sampler1D<T> s, int coords, int lod)``  
    ``T tex1Dfetch(storage1D<T> s, int coords)``  
@@ -501,7 +501,7 @@ In addition to these, ReShade FX provides a few additional ones:
    ``T tex3Dfetch(sampler3D<T> s, int3 coords, int lod)``  
    ``T tex3Dfetch(storage3D<T> s, int3 coords)``  
    Fetches a value from the texture directly without any sampling.\
-   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-load.
+   See also https://docs.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-to-load
  * ``float4 tex2DgatherR(sampler2D s, float2 coords)``  
    ``float4 tex2DgatherR(sampler2D s, float2 coords, int2 offset)``  
    ``float4 tex2DgatherG(sampler2D s, float2 coords)``  
@@ -511,7 +511,7 @@ In addition to these, ReShade FX provides a few additional ones:
    ``float4 tex2DgatherA(sampler2D s, float2 coords)``  
    ``float4 tex2DgatherA(sampler2D s, float2 coords, int2 offset)``  
    Gathers the specified component of the four neighboring pixels and returns the result.\
-   `tex2DgatherR` for example is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/texture2d-gatherred.  
+   `tex2DgatherR` for example is equivalent to https://docs.microsoft.com/windows/win32/direct3dhlsl/texture2d-gatherred  
    The return value is effectively:
    ```
    float4(tex2Dfetch(s, coords * tex2Dsize(s) + int2(0, 1)).comp,
@@ -570,9 +570,9 @@ In addition to these, ReShade FX provides a few additional ones:
    ``int atomicMin(storage3D<int> s, int3 coords, int value)``  
    https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmin
  * ``int atomicMax(inout int dest, int value)``  
-   ``int atomicMax(storage<int> s, int coords, int value)``  
-   ``int atomicMax(storage<int> s, int2 coords, int value)``  
-   ``int atomicMax(storage<int> s, int3 coords, int value)``  
+   ``int atomicMax(storage1D<int> s, int coords, int value)``  
+   ``int atomicMax(storage2D<int> s, int2 coords, int value)``  
+   ``int atomicMax(storage3D<int> s, int3 coords, int value)``  
    https://docs.microsoft.com/windows/win32/direct3dhlsl/interlockedmax
  * ``int atomicExchange(inout int dest, int value)``  
    ``int atomicExchange(storage1D<int> s, int coords, int value)``  
@@ -596,7 +596,7 @@ Each pass can set render states. The default value is used if one is not specifi
  * ``technique Name < enabled = true; >``  
  Enable (or disable if false) this technique by default.
  * ``technique Name < enabled_in_screenshot = true; >``  
- Set this to false to disabled this technique while a screenshot is taken.
+ Set this to false to disable this technique while a screenshot is taken.
  * ``technique Name < timeout = 1000; >``  
  Auto-toggle this technique off 1000 milliseconds after it was enabled.\
  This can for example be used to have a technique run a single time only to do some initialization work, via ``technique Name < enabled = true; timeout = 1; >``
@@ -638,6 +638,7 @@ technique Example < ui_tooltip = "This is an example!"; >
 	
 		// RenderTarget0 to RenderTarget7 allow to set one or more render targets for rendering to textures.
 		// Set them to a texture name declared above in order to write the color output (SV_Target0 to RenderTarget0, SV_Target1 to RenderTarget1, ...) to this texture in this pass.
+		// The output semantics SV_Target and SV_Target0 as well as COLOR and COLOR0 are all aliases. Similarly COLOR1 to 7 are also aliases for SV_Target1 to 7. 
 		// If multiple render targets are used, the dimensions of them has to match each other.
 		// If no render targets are set here, RenderTarget0 points to the backbuffer.
 		// Be aware that you can only read **OR** write a texture at the same time, so do not sample from it while it is still bound as render target here.
