@@ -65,7 +65,7 @@ Declared textures are created at runtime with the parameters specified in their 
 
  * ``texture2D imageTex < source = "path/to/image.bmp"; > { ... };``  
    Opens image from the path specified, resizes it to the texture size and loads it into the texture.\
-   ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), Targa Image (\*.tga) and DirectDraw Surface (\*.dds) files.
+   ReShade supports Bitmap (\*.bmp), Portable Network Graphics (\*.png), JPEG (\*.jpg), Targa Image (\*.tga), 3D-LUT (\*.cube) and DirectDraw Surface (\*.dds) files.
  * ``texture2D myTex1 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
  ``texture2D myTex2 < pooled = true; > { Width = 100; Height = 100; Format = RGBA8; };``  
    ReShade will attempt to re-use the same memory for textures with the same dimensions and format across effect files if the pooled annotation is set.
